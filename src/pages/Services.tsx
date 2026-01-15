@@ -5,44 +5,76 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
+import { russianCities } from '@/data/cities';
+import { getDistrictsForCity } from '@/data/districts';
 
 const Services = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [serviceType, setServiceType] = useState('all');
+  const [city, setCity] = useState('');
+  const [district, setDistrict] = useState('');
+  const [onlineOnly, setOnlineOnly] = useState(false);
+
+  const serviceTypes = [
+    { value: 'all', label: 'Все услуги' },
+    { value: 'beauty', label: 'Красота и здоровье' },
+    { value: 'education', label: 'Образование' },
+    { value: 'repair', label: 'Ремонт и строительство' },
+    { value: 'cleaning', label: 'Уборка' },
+    { value: 'delivery', label: 'Доставка' },
+    { value: 'photo', label: 'Фото и видео' },
+    { value: 'it', label: 'IT и программирование' },
+    { value: 'design', label: 'Дизайн' },
+    { value: 'consulting', label: 'Консультации' },
+    { value: 'other', label: 'Другое' }
+  ];
 
   const services = [
     {
       id: 1,
-      title: 'Создание веб-сайтов',
-      seller: 'Иван Петров',
+      name: 'Иван Петров',
+      age: 28,
+      city: 'Москва',
+      district: 'Центральный',
+      avatar: null,
       rating: 4.9,
       reviews: 127,
+      serviceType: 'it',
+      description: 'Создание веб-сайтов и мобильных приложений',
       price: 'от 50 000 ₽',
-      deliveryTime: '7 дней',
-      category: 'IT & Разработка',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg'
+      online: true
     },
     {
       id: 2,
-      title: 'Дизайн логотипа',
-      seller: 'Анна Смирнова',
+      name: 'Анна Смирнова',
+      age: 25,
+      city: 'Санкт-Петербург',
+      district: 'Василеостровский',
+      avatar: null,
       rating: 5.0,
       reviews: 89,
+      serviceType: 'design',
+      description: 'Графический дизайн, логотипы, брендинг',
       price: 'от 5 000 ₽',
-      deliveryTime: '2 дня',
-      category: 'Дизайн',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg'
+      online: true
     },
     {
       id: 3,
-      title: 'Копирайтинг и SEO',
-      seller: 'Мария Козлова',
+      name: 'Мария Козлова',
+      age: 32,
+      city: 'Москва',
+      district: 'Северный',
+      avatar: null,
       rating: 4.8,
       reviews: 56,
-      price: 'от 3 000 ₽',
-      deliveryTime: '3 дня',
-      category: 'Контент',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg'
+      serviceType: 'beauty',
+      description: 'Маникюр, педикюр, наращивание ногтей',
+      price: 'от 2 000 ₽',
+      online: false
     }
   ];
 
@@ -57,9 +89,9 @@ const Services = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 bg-clip-text text-transparent">
-                    Услуги
+                    Услуги пользователей
                   </h1>
-                  <p className="text-muted-foreground">Безопасные сделки с защитой покупателей</p>
+                  <p className="text-muted-foreground">Найдите исполнителя или предложите свою услугу</p>
                 </div>
                 <Button className="gap-2 rounded-2xl">
                   <Icon name="Plus" size={20} />
@@ -67,7 +99,7 @@ const Services = () => {
                 </Button>
               </div>
               
-              <div className="relative">
+              <div className="relative mb-6">
                 <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Найти услугу..."
@@ -76,67 +108,133 @@ const Services = () => {
                   className="pl-12 py-6 rounded-2xl"
                 />
               </div>
+
+              <Card className="rounded-3xl border-2">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-4">Фильтры</h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <Label>Вид услуг</Label>
+                      <Select value={serviceType} onValueChange={setServiceType}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {serviceTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Город</Label>
+                      <Select value={city} onValueChange={(value) => { setCity(value); setDistrict(''); }}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Выберите город" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {russianCities.slice(0, 20).map((cityName) => (
+                            <SelectItem key={cityName} value={cityName}>
+                              {cityName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Район</Label>
+                      <Select value={district} onValueChange={setDistrict} disabled={!city}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder={city ? "Выберите район" : "Сначала выберите город"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {city && getDistrictsForCity(city).map((districtName) => (
+                            <SelectItem key={districtName} value={districtName}>
+                              {districtName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Формат</Label>
+                      <div className="flex items-center space-x-2 h-10">
+                        <Checkbox 
+                          id="online" 
+                          checked={onlineOnly}
+                          onCheckedChange={(checked) => setOnlineOnly(checked as boolean)}
+                        />
+                        <label
+                          htmlFor="online"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          Только онлайн
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            <Card className="mb-8 rounded-3xl border-2 bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <Icon name="Shield" size={24} className="text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-1">Безопасная сделка</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Деньги удерживаются до завершения работы. Гарантия возврата при спорах.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => (
-                <Card key={service.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={service.image}
-                      alt={service.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  
+                <Card key={service.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl border-2">
                   <CardContent className="p-6">
-                    <Badge variant="secondary" className="rounded-full mb-3">
-                      {service.category}
-                    </Badge>
-                    
-                    <h3 className="text-xl font-bold mb-3 line-clamp-2">{service.title}</h3>
-                    
-                    <div className="flex items-center gap-2 mb-4">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className="text-xs bg-gradient-to-br from-primary to-secondary text-white">
-                          {service.seller.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
+                    <div className="flex items-center gap-4 mb-4">
+                      <Avatar className="w-20 h-20 border-2 border-primary">
+                        {service.avatar ? (
+                          <img src={service.avatar} alt={service.name} />
+                        ) : (
+                          <AvatarFallback className="text-2xl bg-gradient-to-br from-primary via-secondary to-accent text-white">
+                            {service.name.charAt(0)}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
-                      <p className="text-sm text-muted-foreground">{service.seller}</p>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 mb-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Icon name="Star" size={14} className="text-yellow-500 fill-yellow-500" />
-                        <span className="font-semibold">{service.rating}</span>
-                        <span className="text-muted-foreground">({service.reviews})</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Icon name="Clock" size={14} />
-                        {service.deliveryTime}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-1">{service.name}</h3>
+                        <p className="text-sm text-muted-foreground">{service.age} лет</p>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center justify-between">
+
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Icon name="MapPin" size={16} className="text-muted-foreground" />
+                        <span>{service.city}{service.district && `, ${service.district}`}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Icon name="Star" size={16} className="text-yellow-500 fill-yellow-500" />
+                          <span className="font-semibold">{service.rating}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">({service.reviews} отзывов)</span>
+                      </div>
+
+                      {service.online && (
+                        <Badge variant="secondary" className="rounded-full">
+                          <Icon name="Wifi" size={12} className="mr-1" />
+                          Онлайн
+                        </Badge>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {service.description}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-4 border-t">
                       <p className="text-xl font-bold text-primary">{service.price}</p>
-                      <Button size="sm" className="rounded-xl">
-                        Заказать
+                      <Button size="sm" className="rounded-xl gap-2">
+                        Подробнее
+                        <Icon name="ArrowRight" size={16} />
                       </Button>
                     </div>
                   </CardContent>
