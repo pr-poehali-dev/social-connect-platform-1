@@ -13,6 +13,7 @@ import Ads from "./pages/Ads";
 import Services from "./pages/Services";
 import Referral from "./pages/Referral";
 import Wallet from "./pages/Wallet";
+import VkCallback from "./pages/VkCallback";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/services" element={<Services />} />
           <Route path="/referral" element={<Referral />} />
           <Route path="/wallet" element={<Wallet />} />
+          <Route path="/auth/vk/callback" element={<VkCallback />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
