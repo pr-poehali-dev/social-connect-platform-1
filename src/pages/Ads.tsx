@@ -1,53 +1,57 @@
-import { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
 const Ads = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-
   const categories = [
-    { id: 'all', label: 'Все', icon: 'Grid3x3' },
-    { id: 'dating', label: 'Познакомлюсь', icon: 'Heart' },
-    { id: 'buysell', label: 'Куплю/продам', icon: 'ShoppingCart' },
-    { id: 'events', label: 'Приглашу/пойду', icon: 'Calendar' },
-    { id: 'apartments', label: 'Аренда квартир', icon: 'Home' },
-    { id: 'cars', label: 'Аренда авто', icon: 'Car' },
-    { id: 'flowers', label: 'Доставка цветов', icon: 'Flower2' },
-    { id: 'jobs', label: 'Работа', icon: 'Briefcase' }
+    { id: 'all', label: 'Все', icon: 'Users' },
+    { id: 'men', label: 'Мужчины', icon: 'User' },
+    { id: 'women', label: 'Девушки', icon: 'Heart' }
   ];
 
   const ads = [
     {
       id: 1,
-      title: 'iPhone 15 Pro Max 256GB',
-      price: '120 000 ₽',
-      category: 'Электроника',
+      title: 'Алексей, 28 лет',
+      description: 'Ищу девушку для серьезных отношений. Люблю активный отдых, путешествия.',
+      gender: 'men',
+      age: 28,
       location: 'Москва',
       image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
       date: '2 часа назад'
     },
     {
       id: 2,
-      title: 'Toyota Camry 2022',
-      price: '3 200 000 ₽',
-      category: 'Авто',
+      title: 'Анна, 25 лет',
+      description: 'Хочу познакомиться с интересным человеком для общения и встреч.',
+      gender: 'women',
+      age: 25,
       location: 'Санкт-Петербург',
       image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
       date: '5 часов назад'
     },
     {
       id: 3,
-      title: '2-комнатная квартира',
-      price: '8 500 000 ₽',
-      category: 'Недвижимость',
+      title: 'Дмитрий, 32 года',
+      description: 'Предприниматель, ищу спутницу жизни. Ценю честность и открытость.',
+      gender: 'men',
+      age: 32,
       location: 'Казань',
       image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
       date: '1 день назад'
+    },
+    {
+      id: 4,
+      title: 'Мария, 23 года',
+      description: 'Студентка, люблю кино, музыку и прогулки по вечерам.',
+      gender: 'women',
+      age: 23,
+      location: 'Москва',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
+      date: '3 часа назад'
     }
   ];
 
@@ -72,35 +76,40 @@ const Ads = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {ads.map((ad) => (
                 <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden">
                     <img
                       src={ad.image}
                       alt={ad.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute top-4 right-4 rounded-full bg-white/90 backdrop-blur-sm"
+                    >
+                      <Icon name={ad.gender === 'men' ? 'User' : 'Heart'} size={12} className="mr-1" />
+                      {ad.age} лет
+                    </Badge>
                   </div>
                   
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-3">
-                      <Badge variant="secondary" className="rounded-full">
-                        {ad.category}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground">{ad.date}</p>
+                      <h3 className="text-xl font-bold">{ad.title}</h3>
+                      <p className="text-xs text-muted-foreground whitespace-nowrap">{ad.date}</p>
                     </div>
                     
-                    <h3 className="text-xl font-bold mb-2 line-clamp-2">{ad.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {ad.description}
+                    </p>
                     
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
                       <Icon name="MapPin" size={14} />
                       {ad.location}
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <p className="text-2xl font-bold text-primary">{ad.price}</p>
-                      <Button size="icon" variant="ghost" className="rounded-full">
-                        <Icon name="Heart" size={20} />
-                      </Button>
-                    </div>
+                    <Button className="w-full rounded-2xl gap-2">
+                      <Icon name="MessageCircle" size={16} />
+                      Написать
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
