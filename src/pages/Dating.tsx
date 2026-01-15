@@ -16,36 +16,143 @@ const Dating = () => {
   const topAds = [
     {
       id: 1,
-      title: 'Ищу девушку для серьёзных отношений',
-      author: 'Алексей, 32',
-      city: 'Москва',
-      category: 'Познакомлюсь',
-      description: 'Высокий, спортивный. Хочу найти вторую половинку для создания семьи.',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      views: 1247,
-      time: '2 часа назад'
+      name: 'Алексей',
+      age: 32,
+      message: 'Ищу девушку для серьёзных отношений',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
     },
     {
       id: 2,
-      title: 'Ищу друзей для путешествий',
-      author: 'Мария, 27',
-      city: 'Санкт-Петербург',
-      category: 'Познакомлюсь',
-      description: 'Люблю активный отдых и путешествия. Ищу компанию для поездок!',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      views: 892,
-      time: '5 часов назад'
+      name: 'Мария',
+      age: 27,
+      message: 'Ищу друзей для путешествий',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
     },
     {
       id: 3,
-      title: 'Познакомлюсь с интересным человеком',
-      author: 'Игорь, 29',
-      city: 'Казань',
-      category: 'Познакомлюсь',
-      description: 'Программист, люблю музыку и кино. Ищу интересного собеседника.',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      views: 654,
-      time: '1 день назад'
+      name: 'Игорь',
+      age: 29,
+      message: 'Познакомлюсь с интересным человеком',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 4,
+      name: 'Екатерина',
+      age: 25,
+      message: 'Люблю активный отдых и спорт',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 5,
+      name: 'Дмитрий',
+      age: 31,
+      message: 'Ищу вторую половинку',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 6,
+      name: 'Анастасия',
+      age: 26,
+      message: 'Познакомлюсь для общения',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 7,
+      name: 'Сергей',
+      age: 35,
+      message: 'Ищу девушку для серьёзных отношений',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 8,
+      name: 'Ольга',
+      age: 28,
+      message: 'Люблю путешествия и новые знакомства',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 9,
+      name: 'Андрей',
+      age: 30,
+      message: 'Ищу вторую половинку',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 10,
+      name: 'Виктория',
+      age: 24,
+      message: 'Познакомлюсь для общения и встреч',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 11,
+      name: 'Максим',
+      age: 33,
+      message: 'Ищу девушку для создания семьи',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 12,
+      name: 'Елена',
+      age: 29,
+      message: 'Люблю кино и активный отдых',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 13,
+      name: 'Павел',
+      age: 27,
+      message: 'Познакомлюсь для серьёзных отношений',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 14,
+      name: 'Татьяна',
+      age: 26,
+      message: 'Ищу интересных людей',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 15,
+      name: 'Роман',
+      age: 32,
+      message: 'Ищу вторую половинку для создания семьи',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 16,
+      name: 'Юлия',
+      age: 25,
+      message: 'Познакомлюсь для общения',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 17,
+      name: 'Владимир',
+      age: 34,
+      message: 'Ищу девушку для серьёзных отношений',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 18,
+      name: 'Наталья',
+      age: 28,
+      message: 'Люблю путешествия и спорт',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 19,
+      name: 'Артём',
+      age: 30,
+      message: 'Познакомлюсь с интересной девушкой',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    },
+    {
+      id: 20,
+      name: 'Светлана',
+      age: 27,
+      message: 'Ищу серьёзные отношения',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
     }
   ];
 
@@ -128,68 +235,45 @@ const Dating = () => {
             </div>
 
             <div className="mb-12">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                    <Icon name="Zap" size={24} className="text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">ТОП объявления</h2>
-                    <p className="text-sm text-muted-foreground">Моментальные платные объявления</p>
-                  </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                  <Icon name="Zap" size={20} className="text-white" />
                 </div>
-                <Button variant="outline" className="gap-2 rounded-xl">
-                  <Icon name="Plus" size={18} />
-                  Разместить
-                </Button>
+                <div>
+                  <h2 className="text-xl font-bold">ТОП объявления</h2>
+                  <p className="text-xs text-muted-foreground">Моментальные платные объявления</p>
+                </div>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                <Card className="flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all cursor-pointer hover:shadow-lg">
+                  <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[280px]">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3">
+                      <Icon name="Plus" size={32} className="text-white" />
+                    </div>
+                    <p className="text-sm font-semibold text-center">Разместить объявление</p>
+                  </CardContent>
+                </Card>
+
                 {topAds.map((ad) => (
-                  <Card key={ad.id} className="rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden">
-                    <div className="relative">
-                      <Badge className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-3 py-1 z-10">
-                        <Icon name="Zap" size={14} className="mr-1" />
+                  <Card key={ad.id} className="flex-shrink-0 w-40 rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-xl transition-all overflow-hidden cursor-pointer hover:scale-105">
+                    <div className="relative h-40">
+                      <img
+                        src={ad.image}
+                        alt={ad.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <Badge className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-2 py-0.5 text-xs">
+                        <Icon name="Zap" size={10} className="mr-1" />
                         ТОП
                       </Badge>
-                      <div className="h-48 overflow-hidden">
-                        <img
-                          src={ad.image}
-                          alt={ad.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
                     </div>
                     
-                    <CardContent className="p-6">
-                      <Badge variant="secondary" className="mb-2 rounded-full">{ad.category}</Badge>
-                      <h3 className="font-bold text-lg mb-2 line-clamp-2">{ad.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{ad.description}</p>
-                      
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                        <Icon name="User" size={14} />
-                        <span className="font-medium">{ad.author}</span>
-                        <span>•</span>
-                        <Icon name="MapPin" size={14} />
-                        <span>{ad.city}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Icon name="Eye" size={14} />
-                            {ad.views}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Icon name="Clock" size={14} />
-                            {ad.time}
-                          </span>
-                        </div>
-                        <Button size="sm" className="rounded-xl gap-1 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
-                          <Icon name="MessageCircle" size={14} />
-                          Написать
-                        </Button>
-                      </div>
+                    <CardContent className="p-3">
+                      <h3 className="font-bold text-sm mb-0.5">{ad.name}, {ad.age}</h3>
+                      <p className="text-xs text-muted-foreground line-clamp-3 leading-tight">
+                        {ad.message}
+                      </p>
                     </CardContent>
                   </Card>
                 ))}
