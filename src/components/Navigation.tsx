@@ -22,6 +22,7 @@ const Navigation = () => {
     { path: '/dating', label: 'Знакомства', icon: 'Heart' },
     { path: '/ads', label: 'Объявления', icon: 'MessageSquare' },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
+    { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
     { path: '/referral', label: 'Партнёрка', icon: 'Users' },
     { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
     { path: '/profile', label: 'Профиль', icon: 'User' },
