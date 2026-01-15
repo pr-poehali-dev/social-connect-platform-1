@@ -272,7 +272,7 @@ const Register = () => {
                       Вернуться назад
                     </Button>
                   </form>
-                ) : null}
+                )}
 
                 {!needsVerification && (
                   <>
