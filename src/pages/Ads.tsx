@@ -58,28 +58,6 @@ const Ads = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent">
-                  Объявления
-                </h1>
-                <Button className="gap-2 rounded-2xl">
-                  <Icon name="Plus" size={20} />
-                  Разместить
-                </Button>
-              </div>
-              
-              <div className="relative">
-                <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Поиск объявлений..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 py-6 rounded-2xl"
-                />
-              </div>
-            </div>
-
             <Tabs defaultValue="all" className="mb-8">
               <TabsList className="w-full justify-start overflow-x-auto rounded-2xl">
                 {categories.map((category) => (
