@@ -244,22 +244,22 @@ const Dating = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-12">
+            <div className="mb-12 relative">
+              <Card className="absolute left-0 top-0 z-10 flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 bg-white">
+                <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[280px]">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3 transition-transform hover:scale-110">
+                    <Icon name="Plus" size={32} className="text-white" />
+                  </div>
+                  <p className="text-sm font-semibold text-center">Разместить объявление</p>
+                </CardContent>
+              </Card>
+
               <div 
                 ref={scrollRef}
-                className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+                className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pl-44"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
               >
-                <Card className="flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1">
-                  <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[280px]">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3 transition-transform hover:scale-110">
-                      <Icon name="Plus" size={32} className="text-white" />
-                    </div>
-                    <p className="text-sm font-semibold text-center">Разместить объявление</p>
-                  </CardContent>
-                </Card>
-
                 {topAds.map((ad) => (
                   <Card key={ad.id} className="flex-shrink-0 w-40 rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 hover:-translate-y-2 hover:border-orange-500">
                     <div className="relative h-40 overflow-hidden group">
