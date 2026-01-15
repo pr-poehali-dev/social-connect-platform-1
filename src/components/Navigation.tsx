@@ -61,29 +61,30 @@ const Navigation = () => {
             </Link>
           )}
 
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {isAuth ? (
               <>
                 {mainNavItems.map((item) => (
                   <Link key={item.path} to={item.path}>
                     <Button
                       variant={location.pathname === item.path ? 'default' : 'ghost'}
-                      className="gap-2"
+                      className="gap-1.5 px-3 text-sm"
                     >
-                      <Icon name={item.icon} size={18} />
+                      <Icon name={item.icon} size={16} />
                       {item.label}
                     </Button>
                   </Link>
                 ))}
-                <div className="w-px h-6 bg-border mx-2" />
+                <div className="w-px h-6 bg-border mx-1" />
                 {iconOnlyItems.map((item) => (
                   <Link key={item.path} to={item.path}>
                     <Button
                       variant={location.pathname === item.path ? 'default' : 'ghost'}
                       size="icon"
                       title={item.label}
+                      className="h-9 w-9"
                     >
-                      <Icon name={item.icon} size={18} />
+                      <Icon name={item.icon} size={16} />
                     </Button>
                   </Link>
                 ))}
@@ -120,7 +121,7 @@ const Navigation = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setIsOpen(!isOpen)}
           >
             <Icon name={isOpen ? 'X' : 'Menu'} size={24} />
@@ -128,7 +129,7 @@ const Navigation = () => {
         </div>
 
         {isOpen && (
-          <div className="md:hidden pb-4 animate-fade-in">
+          <div className="lg:hidden pb-4 animate-fade-in">
             <div className="flex flex-col gap-2">
               {isAuth ? (
                 <>
