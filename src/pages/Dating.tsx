@@ -5,9 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const { toast } = useToast();
+  const [friendRequests, setFriendRequests] = useState<number[]>([]);
 
   const profiles = [
     {
@@ -38,6 +41,14 @@ const Dating = () => {
       image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
     }
   ];
+
+  const handleAddFriend = (profileId: number) => {
+    setFriendRequests([...friendRequests, profileId]);
+    toast({
+      title: 'Заявка отправлена',
+      description: 'Ожидайте подтверждения',
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -96,14 +107,23 @@ const Dating = () => {
                     </div>
                     
                     <div className="flex gap-2">
-                      <Button variant="outline" size="icon" className="rounded-full flex-1">
+                      <Button variant="outline" size="icon" className="rounded-full">
                         <Icon name="X" size={20} />
                       </Button>
-                      <Button size="icon" className="rounded-full flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600">
+                      <Button size="icon" className="rounded-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600">
                         <Icon name="Heart" size={20} />
                       </Button>
-                      <Button variant="outline" size="icon" className="rounded-full flex-1">
+                      <Button variant="outline" size="icon" className="rounded-full">
                         <Icon name="MessageCircle" size={20} />
+                      </Button>
+                      <Button 
+                        variant={friendRequests.includes(profile.id) ? "secondary" : "outline"} 
+                        size="icon" 
+                        className="rounded-full"
+                        onClick={() => handleAddFriend(profile.id)}
+                        disabled={friendRequests.includes(profile.id)}
+                      >
+                        <Icon name={friendRequests.includes(profile.id) ? "UserCheck" : "UserPlus"} size={20} />
                       </Button>
                     </div>
                   </CardContent>
