@@ -1,14 +1,24 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { isAuthenticated } from '@/utils/auth';
 
 const Navigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
 
-  const navItems = [
+  useEffect(() => {
+    setIsAuth(isAuthenticated());
+  }, [location]);
+
+  const publicItems = [
     { path: '/', label: 'Главная', icon: 'Home' },
+  ];
+
+  const authItems = [
     { path: '/dating', label: 'Знакомства', icon: 'Heart' },
     { path: '/ads', label: 'Объявления', icon: 'MessageSquare' },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
@@ -16,6 +26,8 @@ const Navigation = () => {
     { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
     { path: '/profile', label: 'Профиль', icon: 'User' },
   ];
+
+  const navItems = isAuth ? [...publicItems, ...authItems] : publicItems;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
@@ -42,6 +54,22 @@ const Navigation = () => {
                 </Button>
               </Link>
             ))}
+            {!isAuth && (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" className="gap-2">
+                    <Icon name="LogIn" size={18} />
+                    Войти
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button className="gap-2">
+                    <Icon name="UserPlus" size={18} />
+                    Регистрация
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           <Button
@@ -68,6 +96,22 @@ const Navigation = () => {
                   </Button>
                 </Link>
               ))}
+              {!isAuth && (
+                <>
+                  <Link to="/login" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start gap-2">
+                      <Icon name="LogIn" size={18} />
+                      Войти
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full justify-start gap-2">
+                      <Icon name="UserPlus" size={18} />
+                      Регистрация
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { logout as authLogout } from '@/utils/auth';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -27,8 +28,7 @@ const Profile = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    authLogout();
     toast({ title: 'Выход выполнен', description: 'До скорой встречи!' });
     navigate('/login');
   };
