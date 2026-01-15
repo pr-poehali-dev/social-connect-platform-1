@@ -11,6 +11,7 @@ const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const [friendRequests, setFriendRequests] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   const profiles = [
     {
@@ -50,6 +51,20 @@ const Dating = () => {
     });
   };
 
+  const handleToggleFavorite = (profileId: number) => {
+    if (favorites.includes(profileId)) {
+      setFavorites(favorites.filter(id => id !== profileId));
+      toast({
+        title: 'Удалено из избранного',
+      });
+    } else {
+      setFavorites([...favorites, profileId]);
+      toast({
+        title: 'Добавлено в избранное',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
@@ -86,6 +101,18 @@ const Dating = () => {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute top-4 right-4 rounded-full"
+                      onClick={() => handleToggleFavorite(profile.id)}
+                    >
+                      <Icon 
+                        name={favorites.includes(profile.id) ? "Star" : "Star"} 
+                        size={20} 
+                        className={favorites.includes(profile.id) ? "fill-yellow-400 text-yellow-400" : ""}
+                      />
+                    </Button>
                     <div className="absolute bottom-4 left-4 text-white">
                       <h3 className="text-2xl font-bold">{profile.name}, {profile.age}</h3>
                       <p className="flex items-center gap-1 text-sm">
