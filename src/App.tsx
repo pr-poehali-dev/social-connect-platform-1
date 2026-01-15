@@ -15,6 +15,7 @@ import Ads from "./pages/Ads";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Friends from "./pages/Friends";
+import Favorites from "./pages/Favorites";
 import Referral from "./pages/Referral";
 import Wallet from "./pages/Wallet";
 import VkCallback from "./pages/VkCallback";
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/referral" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
           <Route path="/auth/vk/callback" element={<VkCallback />} />
