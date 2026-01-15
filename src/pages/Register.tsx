@@ -24,9 +24,12 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -77,10 +80,42 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast({ title: 'Регистрация успешна!', description: 'Теперь можете войти в аккаунт' });
-        setTimeout(() => navigate('/login'), 1500);
+        if (data.email_verification_required) {
+          setUserId(data.user_id);
+          setNeedsVerification(true);
+          toast({ title: 'Код отправлен!', description: 'Проверьте вашу почту' });
+        } else {
+          toast({ title: 'Регистрация успешна!', description: 'Теперь можете войти в аккаунт' });
+          setTimeout(() => navigate('/login'), 1500);
+        }
       } else {
         toast({ title: 'Ошибка регистрации', description: data.error || 'Попробуйте снова', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/3aed2af4-8257-4d82-b13a-3ffe059d8854?action=verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, code: verificationCode })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({ title: 'Email подтверждён!', description: 'Теперь можете войти в аккаунт' });
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        toast({ title: 'Ошибка', description: data.error || 'Неверный код', variant: 'destructive' });
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
@@ -107,132 +142,182 @@ const Register = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Имя</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Ваше имя"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      className="rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Пароль</Label>
-                    <div className="relative">
+                {!needsVerification ? (
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Имя</Label>
                       <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        id="name"
+                        type="text"
+                        placeholder="Ваше имя"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         required
-                        minLength={6}
-                        className="rounded-xl pr-10"
+                        className="rounded-xl"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        <Icon name={showPassword ? "EyeOff" : "Eye"} size={18} className="text-muted-foreground" />
-                      </Button>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Повторите пароль</Label>
-                    <div className="relative">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
                       <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
-                        minLength={6}
-                        className="rounded-xl pr-10"
+                        className="rounded-xl"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={18} className="text-muted-foreground" />
-                      </Button>
                     </div>
-                  </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl text-base py-6"
-                    disabled={loading}
-                  >
-                    {loading ? 'Регистрация...' : 'Создать аккаунт'}
-                  </Button>
-                </form>
-
-                <div className="mt-6 space-y-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator />
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Пароль</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          minLength={6}
+                          className="rounded-xl pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          <Icon name={showPassword ? "EyeOff" : "Eye"} size={18} className="text-muted-foreground" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-muted-foreground">
-                        Или зарегистрироваться через
-                      </span>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Повторите пароль</Label>
+                      <div className="relative">
+                        <Input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          minLength={6}
+                          className="rounded-xl pr-10"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={18} className="text-muted-foreground" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <VkLoginButton 
-                      onClick={vkAuth.login} 
-                      isLoading={vkAuth.isLoading}
-                      buttonText="VK"
-                      className="rounded-xl"
-                    />
-                    <GoogleLoginButton 
-                      onClick={googleAuth.login} 
-                      isLoading={googleAuth.isLoading}
-                      buttonText="Google"
-                      className="rounded-xl"
-                    />
-                  </div>
+                    <Button
+                      type="submit"
+                      className="w-full rounded-xl text-base py-6"
+                      disabled={loading}
+                    >
+                      {loading ? 'Регистрация...' : 'Создать аккаунт'}
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyCode} className="space-y-6">
+                    <div className="text-center space-y-2">
+                      <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                        <Icon name="Mail" size={32} className="text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold">Проверьте почту</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Мы отправили 6-значный код на<br />
+                        <span className="font-medium text-foreground">{email}</span>
+                      </p>
+                    </div>
 
-                  <YandexLoginButton 
-                    onClick={yandexAuth.login} 
-                    isLoading={yandexAuth.isLoading}
-                    buttonText="Яндекс ID"
-                    className="rounded-xl w-full"
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="verificationCode">Код подтверждения</Label>
+                      <Input
+                        id="verificationCode"
+                        type="text"
+                        placeholder="000000"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        required
+                        maxLength={6}
+                        className="rounded-xl text-center text-2xl tracking-widest"
+                      />
+                    </div>
 
-                <div className="mt-6 text-center">
-                  <Link to="/login" className="text-sm text-primary hover:underline">
-                    Уже есть аккаунт? Войдите
-                  </Link>
-                </div>
+                    <Button
+                      type="submit"
+                      className="w-full rounded-xl text-base py-6"
+                      disabled={loading || verificationCode.length !== 6}
+                    >
+                      {loading ? 'Проверка...' : 'Подтвердить код'}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full rounded-xl"
+                      onClick={() => setNeedsVerification(false)}
+                    >
+                      Вернуться назад
+                    </Button>
+                  </form>
+                ) : null}
+
+                {!needsVerification && (
+                  <>
+                    <div className="mt-6 space-y-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <Separator />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-white px-2 text-muted-foreground">
+                            Или зарегистрироваться через
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <VkLoginButton 
+                          onClick={vkAuth.login} 
+                          isLoading={vkAuth.isLoading}
+                          buttonText="VK"
+                          className="rounded-xl"
+                        />
+                        <GoogleLoginButton 
+                          onClick={googleAuth.login} 
+                          isLoading={googleAuth.isLoading}
+                          buttonText="Google"
+                          className="rounded-xl"
+                        />
+                      </div>
+
+                      <YandexLoginButton 
+                        onClick={yandexAuth.login} 
+                        isLoading={yandexAuth.isLoading}
+                        buttonText="Яндекс ID"
+                        className="rounded-xl w-full"
+                      />
+                    </div>
+
+                    <div className="mt-6 text-center">
+                      <Link to="/login" className="text-sm text-primary hover:underline">
+                        Уже есть аккаунт? Войдите
+                      </Link>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
