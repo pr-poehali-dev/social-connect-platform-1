@@ -244,23 +244,14 @@ const Dating = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-transparent">
-                Знакомства
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Находите интересных людей рядом
-              </p>
-              
-              <div className="max-w-md mx-auto relative">
-                <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Поиск по имени, городу, интересам..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 py-6 rounded-2xl"
-                />
-              </div>
+            <div className="max-w-md mx-auto mb-12 relative">
+              <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Поиск по имени, городу, интересам..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 py-6 rounded-2xl"
+              />
             </div>
 
             <div className="mb-12">
