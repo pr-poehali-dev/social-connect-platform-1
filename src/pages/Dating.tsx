@@ -13,6 +13,42 @@ const Dating = () => {
   const [friendRequests, setFriendRequests] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
 
+  const topAds = [
+    {
+      id: 1,
+      title: 'Ищу девушку для серьёзных отношений',
+      author: 'Алексей, 32',
+      city: 'Москва',
+      category: 'Познакомлюсь',
+      description: 'Высокий, спортивный. Хочу найти вторую половинку для создания семьи.',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      views: 1247,
+      time: '2 часа назад'
+    },
+    {
+      id: 2,
+      title: 'Ищу друзей для путешествий',
+      author: 'Мария, 27',
+      city: 'Санкт-Петербург',
+      category: 'Познакомлюсь',
+      description: 'Люблю активный отдых и путешествия. Ищу компанию для поездок!',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      views: 892,
+      time: '5 часов назад'
+    },
+    {
+      id: 3,
+      title: 'Познакомлюсь с интересным человеком',
+      author: 'Игорь, 29',
+      city: 'Казань',
+      category: 'Познакомлюсь',
+      description: 'Программист, люблю музыку и кино. Ищу интересного собеседника.',
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      views: 654,
+      time: '1 день назад'
+    }
+  ];
+
   const profiles = [
     {
       id: 1,
@@ -89,6 +125,80 @@ const Dating = () => {
                   className="pl-12 py-6 rounded-2xl"
                 />
               </div>
+            </div>
+
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                    <Icon name="Zap" size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">ТОП объявления</h2>
+                    <p className="text-sm text-muted-foreground">Моментальные платные объявления</p>
+                  </div>
+                </div>
+                <Button variant="outline" className="gap-2 rounded-xl">
+                  <Icon name="Plus" size={18} />
+                  Разместить
+                </Button>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+                {topAds.map((ad) => (
+                  <Card key={ad.id} className="rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden">
+                    <div className="relative">
+                      <Badge className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-3 py-1 z-10">
+                        <Icon name="Zap" size={14} className="mr-1" />
+                        ТОП
+                      </Badge>
+                      <div className="h-48 overflow-hidden">
+                        <img
+                          src={ad.image}
+                          alt={ad.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                    
+                    <CardContent className="p-6">
+                      <Badge variant="secondary" className="mb-2 rounded-full">{ad.category}</Badge>
+                      <h3 className="font-bold text-lg mb-2 line-clamp-2">{ad.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{ad.description}</p>
+                      
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                        <Icon name="User" size={14} />
+                        <span className="font-medium">{ad.author}</span>
+                        <span>•</span>
+                        <Icon name="MapPin" size={14} />
+                        <span>{ad.city}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Icon name="Eye" size={14} />
+                            {ad.views}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Icon name="Clock" size={14} />
+                            {ad.time}
+                          </span>
+                        </div>
+                        <Button size="sm" className="rounded-xl gap-1 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600">
+                          <Icon name="MessageCircle" size={14} />
+                          Написать
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">Анкеты пользователей</h2>
+              <p className="text-muted-foreground">Найдите свою половинку</p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
