@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { russianCities } from '@/data/cities';
 
 interface ProfileEditFormProps {
   formData: any;
@@ -12,6 +14,19 @@ interface ProfileEditFormProps {
 }
 
 const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInterest }: ProfileEditFormProps) => {
+  const [citySearch, setCitySearch] = useState('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  const filteredCities = russianCities.filter(city =>
+    city.toLowerCase().includes(citySearch.toLowerCase())
+  ).slice(0, 10);
+
+  const handleCitySelect = (city: string) => {
+    setFormData({ ...formData, city });
+    setCitySearch('');
+    setShowCityDropdown(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-4">
@@ -58,13 +73,34 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="city">Город</Label>
-          <Input
-            id="city"
-            value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            placeholder="Москва"
-            className="rounded-xl"
-          />
+          <div className="relative">
+            <Input
+              id="city"
+              value={formData.city || citySearch}
+              onChange={(e) => {
+                setCitySearch(e.target.value);
+                setFormData({ ...formData, city: '' });
+                setShowCityDropdown(true);
+              }}
+              onFocus={() => setShowCityDropdown(true)}
+              placeholder="Начните вводить город"
+              className="rounded-xl"
+            />
+            {showCityDropdown && (citySearch || !formData.city) && filteredCities.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-white border-2 border-border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                {filteredCities.map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    className="w-full text-left px-4 py-2 hover:bg-muted transition-colors"
+                    onClick={() => handleCitySelect(city)}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">
