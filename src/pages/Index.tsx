@@ -124,25 +124,6 @@ const Index = () => {
             ))}
           </div>
         </section>
-
-        <section className="container mx-auto px-4 py-20">
-          <Card className="bg-gradient-to-br from-primary via-secondary to-accent text-white rounded-[3rem] overflow-hidden">
-            <CardContent className="p-12 md:p-20 text-center">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Готовы начать?
-              </h2>
-              <p className="text-xl mb-8 opacity-90">
-                Присоединяйтесь к тысячам пользователей уже сегодня
-              </p>
-              <Link to="/register">
-                <Button size="lg" variant="secondary" className="gap-2 text-lg px-8 py-6 rounded-2xl">
-                  <Icon name="Rocket" size={20} />
-                  Создать аккаунт
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </section>
       </main>
 
       <footer className="border-t border-border bg-white/50 backdrop-blur">
