@@ -18,17 +18,22 @@ const Navigation = () => {
     { path: '/', label: 'Главная', icon: 'Home' },
   ];
 
-  const authItems = [
-    { path: '/dating', label: 'Знакомства', icon: 'Heart' },
-    { path: '/ads', label: 'Объявления', icon: 'MessageSquare' },
-    { path: '/services', label: 'Услуги', icon: 'Briefcase' },
-    { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
-    { path: '/referral', label: 'Партнёрка', icon: 'Users' },
-    { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
-    { path: '/profile', label: 'Профиль', icon: 'User' },
+  const mainNavItems = [
+    { path: '/dating', label: 'Знакомства', icon: 'Heart', showLabel: true },
+    { path: '/ads', label: 'Объявления', icon: 'MessageSquare', showLabel: true },
+    { path: '/services', label: 'Услуги', icon: 'Briefcase', showLabel: true },
+    { path: '/events', label: 'Мероприятия', icon: 'Calendar', showLabel: true },
   ];
 
-  const navItems = isAuth ? authItems : publicItems;
+  const iconOnlyItems = [
+    { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', showLabel: false },
+    { path: '/notifications', label: 'Уведомления', icon: 'Bell', showLabel: false },
+    { path: '/referral', label: 'Партнёрка', icon: 'Users', showLabel: false },
+    { path: '/wallet', label: 'Кошелёк', icon: 'Wallet', showLabel: false },
+    { path: '/profile', label: 'Профиль', icon: 'User', showLabel: false },
+  ];
+
+  const navItems = isAuth ? publicItems : publicItems;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
@@ -55,19 +60,45 @@ const Navigation = () => {
           )}
 
           <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              <Link key={item.path} to={item.path}>
-                <Button
-                  variant={location.pathname === item.path ? 'default' : 'ghost'}
-                  className="gap-2"
-                >
-                  <Icon name={item.icon} size={18} />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
-            {!isAuth && (
+            {isAuth ? (
               <>
+                {mainNavItems.map((item) => (
+                  <Link key={item.path} to={item.path}>
+                    <Button
+                      variant={location.pathname === item.path ? 'default' : 'ghost'}
+                      className="gap-2"
+                    >
+                      <Icon name={item.icon} size={18} />
+                      {item.label}
+                    </Button>
+                  </Link>
+                ))}
+                <div className="w-px h-6 bg-border mx-2" />
+                {iconOnlyItems.map((item) => (
+                  <Link key={item.path} to={item.path}>
+                    <Button
+                      variant={location.pathname === item.path ? 'default' : 'ghost'}
+                      size="icon"
+                      title={item.label}
+                    >
+                      <Icon name={item.icon} size={18} />
+                    </Button>
+                  </Link>
+                ))}
+              </>
+            ) : (
+              <>
+                {navItems.map((item) => (
+                  <Link key={item.path} to={item.path}>
+                    <Button
+                      variant={location.pathname === item.path ? 'default' : 'ghost'}
+                      className="gap-2"
+                    >
+                      <Icon name={item.icon} size={18} />
+                      {item.label}
+                    </Button>
+                  </Link>
+                ))}
                 <Link to="/login">
                   <Button variant="ghost" className="gap-2">
                     <Icon name="LogIn" size={18} />
@@ -97,19 +128,44 @@ const Navigation = () => {
         {isOpen && (
           <div className="md:hidden pb-4 animate-fade-in">
             <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
-                  <Button
-                    variant={location.pathname === item.path ? 'default' : 'ghost'}
-                    className="w-full justify-start gap-2"
-                  >
-                    <Icon name={item.icon} size={18} />
-                    {item.label}
-                  </Button>
-                </Link>
-              ))}
-              {!isAuth && (
+              {isAuth ? (
                 <>
+                  {mainNavItems.map((item) => (
+                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                      <Button
+                        variant={location.pathname === item.path ? 'default' : 'ghost'}
+                        className="w-full justify-start gap-2"
+                      >
+                        <Icon name={item.icon} size={18} />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  ))}
+                  {iconOnlyItems.map((item) => (
+                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                      <Button
+                        variant={location.pathname === item.path ? 'default' : 'ghost'}
+                        className="w-full justify-start gap-2"
+                      >
+                        <Icon name={item.icon} size={18} />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {navItems.map((item) => (
+                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                      <Button
+                        variant={location.pathname === item.path ? 'default' : 'ghost'}
+                        className="w-full justify-start gap-2"
+                      >
+                        <Icon name={item.icon} size={18} />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  ))}
                   <Link to="/login" onClick={() => setIsOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start gap-2">
                       <Icon name="LogIn" size={18} />
