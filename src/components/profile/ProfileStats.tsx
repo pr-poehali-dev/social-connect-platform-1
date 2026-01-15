@@ -37,6 +37,13 @@ const ProfileStats = ({ stats }: ProfileStatsProps) => {
       <div>
         <h3 className="text-xl font-bold mb-4">Быстрые действия</h3>
         <div className="grid md:grid-cols-2 gap-4">
+          <Button variant="outline" className="justify-start gap-3 h-auto py-4 rounded-2xl" onClick={() => navigate('/friends')}>
+            <Icon name="Users" size={24} className="text-purple-500" />
+            <div className="text-left">
+              <p className="font-semibold">Друзья</p>
+              <p className="text-xs text-muted-foreground">Просмотр списка друзей</p>
+            </div>
+          </Button>
           <Button variant="outline" className="justify-start gap-3 h-auto py-4 rounded-2xl" onClick={() => navigate('/dating')}>
             <Icon name="Heart" size={24} className="text-pink-500" />
             <div className="text-left">
