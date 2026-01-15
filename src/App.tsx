@@ -14,6 +14,7 @@ import Dating from "./pages/Dating";
 import Ads from "./pages/Ads";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
+import Events from "./pages/Events";
 import Friends from "./pages/Friends";
 import Favorites from "./pages/Favorites";
 import Referral from "./pages/Referral";
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/ads" element={<ProtectedRoute><Ads /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
+          <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/referral" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
