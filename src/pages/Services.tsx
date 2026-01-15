@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { russianCities } from '@/data/cities';
 import { getDistrictsForCity } from '@/data/districts';
 
 const Services = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [serviceType, setServiceType] = useState('all');
   const [city, setCity] = useState('');
@@ -37,6 +39,7 @@ const Services = () => {
     {
       id: 1,
       name: 'Иван Петров',
+      nickname: 'ivan_petrov',
       age: 28,
       city: 'Москва',
       district: 'Центральный',
@@ -51,6 +54,7 @@ const Services = () => {
     {
       id: 2,
       name: 'Анна Смирнова',
+      nickname: 'anna_smirnova',
       age: 25,
       city: 'Санкт-Петербург',
       district: 'Василеостровский',
@@ -65,6 +69,7 @@ const Services = () => {
     {
       id: 3,
       name: 'Мария Козлова',
+      nickname: 'maria_kozlova',
       age: 32,
       city: 'Москва',
       district: 'Северный',
@@ -232,7 +237,11 @@ const Services = () => {
 
                     <div className="flex items-center justify-between pt-4 border-t">
                       <p className="text-xl font-bold text-primary">{service.price}</p>
-                      <Button size="sm" className="rounded-xl gap-2">
+                      <Button 
+                        size="sm" 
+                        className="rounded-xl gap-2"
+                        onClick={() => navigate(`/services/${service.nickname}`)}
+                      >
                         Подробнее
                         <Icon name="ArrowRight" size={16} />
                       </Button>
