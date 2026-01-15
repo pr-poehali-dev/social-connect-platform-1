@@ -28,6 +28,7 @@ interface ProfileCardProps {
   profile: Profile;
   isFavorite: boolean;
   isFriendRequestSent: boolean;
+  isFriend: boolean;
   onToggleFavorite: (id: number) => void;
   onAddFriend: (id: number) => void;
 }
@@ -36,9 +37,21 @@ const ProfileCard = ({
   profile,
   isFavorite,
   isFriendRequestSent,
+  isFriend,
   onToggleFavorite,
   onAddFriend,
 }: ProfileCardProps) => {
+  const getFriendButtonText = () => {
+    if (isFriend) return 'Уже в друзьях';
+    if (isFriendRequestSent) return 'Заявка отправлена';
+    return 'Добавить в друзья';
+  };
+
+  const getFriendButtonIcon = () => {
+    if (isFriend) return 'UserCheck';
+    if (isFriendRequestSent) return 'Clock';
+    return 'UserPlus';
+  };
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleFlip = () => {
@@ -100,13 +113,13 @@ const ProfileCard = ({
               <Icon name="MessageCircle" size={20} />
             </Button>
             <Button 
-              variant={isFriendRequestSent ? "secondary" : "outline"} 
+              variant={isFriend || isFriendRequestSent ? "secondary" : "outline"} 
               className="rounded-full px-6 h-12 gap-2"
               onClick={() => onAddFriend(profile.id)}
-              disabled={isFriendRequestSent}
+              disabled={isFriend || isFriendRequestSent}
             >
-              <Icon name={isFriendRequestSent ? "UserCheck" : "UserPlus"} size={20} />
-              {isFriendRequestSent ? "Уже в друзьях" : "Добавить в друзья"}
+              <Icon name={getFriendButtonIcon()} size={20} />
+              {getFriendButtonText()}
             </Button>
           </div>
         </Card>
@@ -247,16 +260,16 @@ const ProfileCard = ({
               <Icon name="MessageCircle" size={20} />
             </Button>
             <Button 
-              variant={isFriendRequestSent ? "secondary" : "outline"} 
+              variant={isFriend || isFriendRequestSent ? "secondary" : "outline"} 
               className="rounded-full px-6 h-12 gap-2"
               onClick={(e) => {
                 e.stopPropagation();
                 onAddFriend(profile.id);
               }}
-              disabled={isFriendRequestSent}
+              disabled={isFriend || isFriendRequestSent}
             >
-              <Icon name={isFriendRequestSent ? "UserCheck" : "UserPlus"} size={20} />
-              {isFriendRequestSent ? "Уже в друзьях" : "Добавить в друзья"}
+              <Icon name={getFriendButtonIcon()} size={20} />
+              {getFriendButtonText()}
             </Button>
           </div>
         </Card>

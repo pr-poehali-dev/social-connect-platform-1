@@ -11,6 +11,7 @@ const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   const [friendRequests, setFriendRequests] = useState<number[]>([]);
+  const [friends, setFriends] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -260,11 +261,13 @@ const Dating = () => {
   ];
 
   const handleAddFriend = (profileId: number) => {
-    setFriendRequests([...friendRequests, profileId]);
-    toast({
-      title: 'Заявка отправлена',
-      description: 'Ожидайте подтверждения',
-    });
+    if (!friendRequests.includes(profileId) && !friends.includes(profileId)) {
+      setFriendRequests([...friendRequests, profileId]);
+      toast({
+        title: 'Заявка отправлена',
+        description: 'Ожидайте подтверждения',
+      });
+    }
   };
 
   const handleToggleFavorite = (profileId: number) => {
@@ -312,6 +315,7 @@ const Dating = () => {
                   profile={profile}
                   isFavorite={favorites.includes(profile.id)}
                   isFriendRequestSent={friendRequests.includes(profile.id)}
+                  isFriend={friends.includes(profile.id)}
                   onToggleFavorite={handleToggleFavorite}
                   onAddFriend={handleAddFriend}
                 />
