@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
@@ -11,6 +12,16 @@ interface Profile {
   interests: string[];
   bio: string;
   image: string;
+  height?: number;
+  bodyType?: string;
+  maritalStatus?: string;
+  hasChildren?: string;
+  education?: string;
+  work?: string;
+  financialStatus?: string;
+  hasCar?: string;
+  hasHousing?: string;
+  datingGoal?: string;
 }
 
 interface ProfileCardProps {
@@ -28,69 +39,229 @@ const ProfileCard = ({
   onToggleFavorite,
   onAddFriend,
 }: ProfileCardProps) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
   return (
-    <Card className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl overflow-hidden border-2">
-      <div className="relative h-64 overflow-hidden">
-        <img
-          src={profile.image}
-          alt={profile.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute top-4 right-4 rounded-full"
-          onClick={() => onToggleFavorite(profile.id)}
+    <div className="perspective-1000 h-[520px]">
+      <div 
+        className={`relative w-full h-full transition-transform duration-600 transform-style-3d ${
+          isFlipped ? 'rotate-y-180' : ''
+        }`}
+        style={{
+          transformStyle: 'preserve-3d',
+          transition: 'transform 0.6s'
+        }}
+      >
+        <Card 
+          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden"
+          style={{ backfaceVisibility: 'hidden' }}
         >
-          <Icon 
-            name="Star"
-            size={20} 
-            className={isFavorite ? "fill-yellow-400 text-yellow-400" : ""}
-          />
-        </Button>
-        <div className="absolute bottom-4 left-4 text-white">
-          <h3 className="text-2xl font-bold">{profile.name}, {profile.age}</h3>
-          <p className="flex items-center gap-1 text-sm">
-            <Icon name="MapPin" size={14} />
-            {profile.city}
-          </p>
-        </div>
-      </div>
-      
-      <CardContent className="p-6">
-        <p className="text-muted-foreground mb-4">{profile.bio}</p>
-        
-        <div className="flex flex-wrap gap-2 mb-6">
-          {profile.interests.map((interest, index) => (
-            <Badge key={index} variant="secondary" className="rounded-full">
-              {interest}
-            </Badge>
-          ))}
-        </div>
-        
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Icon name="X" size={20} />
-          </Button>
-          <Button size="icon" className="rounded-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600">
-            <Icon name="Heart" size={20} />
-          </Button>
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Icon name="MessageCircle" size={20} />
-          </Button>
-          <Button 
-            variant={isFriendRequestSent ? "secondary" : "outline"} 
-            size="icon" 
-            className="rounded-full"
-            onClick={() => onAddFriend(profile.id)}
-            disabled={isFriendRequestSent}
+          <div 
+            className="relative h-[380px] overflow-hidden cursor-pointer"
+            onClick={handleFlip}
           >
-            <Icon name={isFriendRequestSent ? "UserCheck" : "UserPlus"} size={20} />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <img
+              src={profile.image}
+              alt={profile.name}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+            <div className="absolute bottom-4 left-4 text-white">
+              <h3 className="text-2xl font-bold mb-1">{profile.name}, {profile.age}</h3>
+              <p className="flex items-center gap-1 text-sm">
+                <Icon name="MapPin" size={14} />
+                {profile.city}
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-4 flex items-center justify-center gap-2">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full h-12 w-12"
+              onClick={() => onToggleFavorite(profile.id)}
+            >
+              <Icon 
+                name="Star"
+                size={20} 
+                className={isFavorite ? "fill-yellow-400 text-yellow-400" : ""}
+              />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full h-12 w-12"
+            >
+              <Icon name="MessageCircle" size={20} />
+            </Button>
+            <Button 
+              variant={isFriendRequestSent ? "secondary" : "outline"} 
+              className="rounded-full px-6 h-12 gap-2"
+              onClick={() => onAddFriend(profile.id)}
+              disabled={isFriendRequestSent}
+            >
+              <Icon name={isFriendRequestSent ? "UserCheck" : "UserPlus"} size={20} />
+              {isFriendRequestSent ? "Уже в друзьях" : "Добавить в друзья"}
+            </Button>
+          </div>
+        </Card>
+
+        <Card 
+          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden rotate-y-180"
+          style={{ 
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)'
+          }}
+        >
+          <div 
+            className="relative h-[380px] overflow-auto p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 cursor-pointer"
+            onClick={handleFlip}
+          >
+            <h3 className="text-xl font-bold mb-4">О себе</h3>
+            
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">{profile.bio}</p>
+              
+              {profile.interests && profile.interests.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold mb-2">Интересы:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.interests.map((interest, index) => (
+                      <Badge key={index} variant="secondary" className="rounded-full text-xs">
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {profile.height && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Ruler" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Рост:</span>
+                  <span>{profile.height} см</span>
+                </div>
+              )}
+
+              {profile.bodyType && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="User" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Телосложение:</span>
+                  <span>{profile.bodyType}</span>
+                </div>
+              )}
+
+              {profile.maritalStatus && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Heart" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Семейное положение:</span>
+                  <span>{profile.maritalStatus}</span>
+                </div>
+              )}
+
+              {profile.hasChildren && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Baby" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Дети:</span>
+                  <span>{profile.hasChildren}</span>
+                </div>
+              )}
+
+              {profile.education && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="GraduationCap" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Образование:</span>
+                  <span>{profile.education}</span>
+                </div>
+              )}
+
+              {profile.work && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Briefcase" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Работа:</span>
+                  <span>{profile.work}</span>
+                </div>
+              )}
+
+              {profile.financialStatus && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="DollarSign" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Финансы:</span>
+                  <span>{profile.financialStatus}</span>
+                </div>
+              )}
+
+              {profile.hasCar && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Car" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Авто:</span>
+                  <span>{profile.hasCar}</span>
+                </div>
+              )}
+
+              {profile.hasHousing && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Home" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Жильё:</span>
+                  <span>{profile.hasHousing}</span>
+                </div>
+              )}
+
+              {profile.datingGoal && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Icon name="Target" size={16} className="text-muted-foreground" />
+                  <span className="font-medium">Цель знакомства:</span>
+                  <span>{profile.datingGoal}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="p-4 flex items-center justify-center gap-2 bg-white">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full h-12 w-12"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(profile.id);
+              }}
+            >
+              <Icon 
+                name="Star"
+                size={20} 
+                className={isFavorite ? "fill-yellow-400 text-yellow-400" : ""}
+              />
+            </Button>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-full h-12 w-12"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Icon name="MessageCircle" size={20} />
+            </Button>
+            <Button 
+              variant={isFriendRequestSent ? "secondary" : "outline"} 
+              className="rounded-full px-6 h-12 gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddFriend(profile.id);
+              }}
+              disabled={isFriendRequestSent}
+            >
+              <Icon name={isFriendRequestSent ? "UserCheck" : "UserPlus"} size={20} />
+              {isFriendRequestSent ? "Уже в друзьях" : "Добавить в друзья"}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </div>
   );
 };
 

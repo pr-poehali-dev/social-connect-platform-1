@@ -207,7 +207,17 @@ const Dating = () => {
       city: 'Москва',
       interests: ['Путешествия', 'Фотография', 'Йога'],
       bio: 'Люблю приключения и новые знакомства',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      height: 168,
+      bodyType: 'Стройное',
+      maritalStatus: 'Не замужем',
+      hasChildren: 'Нет',
+      education: 'Высшее',
+      work: 'Фотограф',
+      financialStatus: 'Среднее',
+      hasCar: 'Нет',
+      hasHousing: 'Арендую',
+      datingGoal: 'Серьёзные отношения'
     },
     {
       id: 2,
@@ -216,7 +226,17 @@ const Dating = () => {
       city: 'Санкт-Петербург',
       interests: ['IT', 'Спорт', 'Музыка'],
       bio: 'Разработчик и меломан',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      height: 182,
+      bodyType: 'Спортивное',
+      maritalStatus: 'Не женат',
+      hasChildren: 'Нет',
+      education: 'Высшее (IT)',
+      work: 'Senior Developer',
+      financialStatus: 'Выше среднего',
+      hasCar: 'Есть',
+      hasHousing: 'Собственное',
+      datingGoal: 'Романтические отношения'
     },
     {
       id: 3,
@@ -225,7 +245,17 @@ const Dating = () => {
       city: 'Казань',
       interests: ['Искусство', 'Кино', 'Книги'],
       bio: 'Художница и книголюб',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      height: 165,
+      bodyType: 'Среднее',
+      maritalStatus: 'Не замужем',
+      hasChildren: 'Нет',
+      education: 'Художественное',
+      work: 'Художник-иллюстратор',
+      financialStatus: 'Среднее',
+      hasCar: 'Нет',
+      hasHousing: 'С родителями',
+      datingGoal: 'Дружба'
     }
   ];
 
