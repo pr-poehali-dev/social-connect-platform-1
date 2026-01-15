@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { russianCities } from '@/data/cities';
+import { getDistrictsForCity } from '@/data/districts';
 
 interface ProfileEditFormProps {
   formData: any;
@@ -16,16 +17,38 @@ interface ProfileEditFormProps {
 const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInterest }: ProfileEditFormProps) => {
   const [citySearch, setCitySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [districtSearch, setDistrictSearch] = useState('');
+  const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
+  const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
 
   const filteredCities = russianCities.filter(city =>
     city.toLowerCase().includes(citySearch.toLowerCase())
   ).slice(0, 10);
 
   const handleCitySelect = (city: string) => {
-    setFormData({ ...formData, city });
+    setFormData({ ...formData, city, district: '' });
     setCitySearch('');
     setShowCityDropdown(false);
   };
+
+  const handleDistrictSelect = (district: string) => {
+    setFormData({ ...formData, district });
+    setDistrictSearch('');
+    setShowDistrictDropdown(false);
+  };
+
+  useEffect(() => {
+    if (formData.city) {
+      const districts = getDistrictsForCity(formData.city);
+      setAvailableDistricts(districts);
+    } else {
+      setAvailableDistricts([]);
+    }
+  }, [formData.city]);
+
+  const filteredDistricts = availableDistricts.filter(district =>
+    district.toLowerCase().includes(districtSearch.toLowerCase())
+  ).slice(0, 10);
 
   return (
     <div className="space-y-6">
@@ -105,13 +128,35 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
 
         <div className="space-y-2">
           <Label htmlFor="district">Район</Label>
-          <Input
-            id="district"
-            value={formData.district}
-            onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-            placeholder="Центральный"
-            className="rounded-xl"
-          />
+          <div className="relative">
+            <Input
+              id="district"
+              value={formData.district || districtSearch}
+              onChange={(e) => {
+                setDistrictSearch(e.target.value);
+                setFormData({ ...formData, district: '' });
+                setShowDistrictDropdown(true);
+              }}
+              onFocus={() => setShowDistrictDropdown(true)}
+              placeholder={availableDistricts.length > 0 ? "Начните вводить район" : "Сначала выберите город"}
+              className="rounded-xl"
+              disabled={!formData.city}
+            />
+            {showDistrictDropdown && (districtSearch || !formData.district) && filteredDistricts.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-white border-2 border-border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                {filteredDistricts.map((district) => (
+                  <button
+                    key={district}
+                    type="button"
+                    className="w-full text-left px-4 py-2 hover:bg-muted transition-colors"
+                    onClick={() => handleDistrictSelect(district)}
+                  >
+                    {district}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
