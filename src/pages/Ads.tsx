@@ -65,7 +65,16 @@ const Ads = () => {
             <Tabs defaultValue="all" className="mb-8">
               <TabsList className="w-full justify-start overflow-x-auto rounded-2xl">
                 {categories.map((category) => (
-                  <TabsTrigger key={category.id} value={category.id} className="gap-2 rounded-xl">
+                  <TabsTrigger 
+                    key={category.id} 
+                    value={category.id} 
+                    className="gap-2 rounded-xl"
+                    onClick={() => {
+                      if (category.id === 'men') {
+                        window.location.href = '/adsman';
+                      }
+                    }}
+                  >
                     <Icon name={category.icon} size={16} />
                     {category.label}
                   </TabsTrigger>
