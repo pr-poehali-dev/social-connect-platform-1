@@ -26,6 +26,7 @@ const Navigation = () => {
   ];
 
   const iconOnlyItems = [
+    { path: '/friends', label: 'Мои друзья', icon: 'UserPlus', showLabel: false },
     { path: '/favorites', label: 'Избранное', icon: 'Star', showLabel: false },
     { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', showLabel: false },
     { path: '/notifications', label: 'Уведомления', icon: 'Bell', showLabel: false },
