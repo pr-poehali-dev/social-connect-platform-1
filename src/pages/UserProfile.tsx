@@ -84,13 +84,6 @@ const UserProfile = () => {
     );
   }
 
-  const stats = [
-    { icon: 'Heart', label: 'Знакомства', value: user.stats.dating, color: 'from-pink-500 to-rose-500' },
-    { icon: 'MessageSquare', label: 'Объявления', value: user.stats.ads, color: 'from-purple-500 to-indigo-500' },
-    { icon: 'Briefcase', label: 'Услуги', value: user.stats.services, color: 'from-blue-500 to-cyan-500' },
-    { icon: 'Users', label: 'Рефералы', value: user.stats.referrals, color: 'from-emerald-500 to-teal-500' }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
@@ -154,23 +147,6 @@ const UserProfile = () => {
             </CardHeader>
 
             <CardContent className="space-y-8">
-              <div>
-                <h3 className="text-xl font-bold mb-4">Активность</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {stats.map((stat, index) => (
-                    <Card key={index} className="rounded-2xl border-2">
-                      <CardContent className="p-6 text-center">
-                        <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
-                          <Icon name={stat.icon} size={20} className="text-white" />
-                        </div>
-                        <p className="text-2xl font-bold mb-1">{stat.value}</p>
-                        <p className="text-xs text-muted-foreground">{stat.label}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
               {isOwner && (
                 <div>
                   <h3 className="text-xl font-bold mb-4">Быстрые действия</h3>
