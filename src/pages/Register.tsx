@@ -10,8 +10,11 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { VkLoginButton } from '@/components/extensions/vk-auth/VkLoginButton';
 import { useVkAuth } from '@/components/extensions/vk-auth/useVkAuth';
+import { YandexLoginButton } from '@/components/extensions/yandex-auth/YandexLoginButton';
+import { useYandexAuth } from '@/components/extensions/yandex-auth/useYandexAuth';
 
 const VK_AUTH_URL = 'https://functions.poehali.dev/2494c44f-f6f6-40ff-871c-fb7e09d9702d';
+const YANDEX_AUTH_URL = 'https://functions.poehali.dev/635fdfd0-fce3-46f9-a566-18d196e6e486';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -27,6 +30,15 @@ const Register = () => {
       callback: `${VK_AUTH_URL}?action=callback`,
       refresh: `${VK_AUTH_URL}?action=refresh`,
       logout: `${VK_AUTH_URL}?action=logout`,
+    },
+  });
+
+  const yandexAuth = useYandexAuth({
+    apiUrls: {
+      authUrl: `${YANDEX_AUTH_URL}?action=auth-url`,
+      callback: `${YANDEX_AUTH_URL}?action=callback`,
+      refresh: `${YANDEX_AUTH_URL}?action=refresh`,
+      logout: `${YANDEX_AUTH_URL}?action=logout`,
     },
   });
 
@@ -155,16 +167,12 @@ const Register = () => {
                     </Button>
                   </div>
 
-                  <Button 
-                    variant="outline" 
-                    className="w-full rounded-xl gap-2"
-                    disabled
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.764 15.318c-.736 1.202-2.135 1.681-3.764 1.681-2.488 0-4.5-2.012-4.5-4.5S9.512 7.999 12 7.999c1.372 0 2.517.577 3.397 1.457l-1.377 1.378c-.466-.466-1.165-.833-2.02-.833-1.74 0-3.146 1.421-3.146 3.146s1.406 3.146 3.146 3.146c1.386 0 2.297-.705 2.638-1.646H12v-1.854h4.764c.058.318.09.652.09.99 0 2.577-1.727 4.681-4.854 4.681z"/>
-                    </svg>
-                    Яндекс ID
-                  </Button>
+                  <YandexLoginButton 
+                    onClick={yandexAuth.login} 
+                    isLoading={yandexAuth.isLoading}
+                    buttonText="Яндекс ID"
+                    className="rounded-xl"
+                  />
                 </div>
 
                 <div className="mt-6 text-center">
