@@ -245,16 +245,6 @@ const Dating = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-12">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                  <Icon name="Zap" size={20} className="text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold">ТОП объявления</h2>
-                  <p className="text-xs text-muted-foreground">Моментальные платные объявления</p>
-                </div>
-              </div>
-
               <div 
                 ref={scrollRef}
                 className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
