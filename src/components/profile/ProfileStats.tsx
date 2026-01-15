@@ -9,7 +9,7 @@ const ProfileStats = () => {
     { icon: 'Users', label: 'Друзья', count: 0, color: 'from-purple-500 to-indigo-500', route: '/friends' },
     { icon: 'MessageSquare', label: 'Мои объявления', count: 0, color: 'from-pink-500 to-rose-500', route: '/my-ads' },
     { icon: 'Briefcase', label: 'Мои услуги', count: 0, color: 'from-blue-500 to-cyan-500', route: '/my-services' },
-    { icon: 'Calendar', label: 'Мои мероприятия', count: 0, color: 'from-emerald-500 to-teal-500', route: '/events' }
+    { icon: 'Calendar', label: 'Мои мероприятия', count: 0, color: 'from-emerald-500 to-teal-500', route: '/my-events' }
   ];
 
   return (
