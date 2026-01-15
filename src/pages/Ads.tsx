@@ -12,10 +12,13 @@ const Ads = () => {
 
   const categories = [
     { id: 'all', label: 'Все', icon: 'Grid3x3' },
-    { id: 'electronics', label: 'Электроника', icon: 'Laptop' },
-    { id: 'cars', label: 'Авто', icon: 'Car' },
-    { id: 'realty', label: 'Недвижимость', icon: 'Home' },
-    { id: 'services', label: 'Услуги', icon: 'Wrench' }
+    { id: 'dating', label: 'Познакомлюсь', icon: 'Heart' },
+    { id: 'buysell', label: 'Куплю/продам', icon: 'ShoppingCart' },
+    { id: 'events', label: 'Приглашу/пойду', icon: 'Calendar' },
+    { id: 'apartments', label: 'Аренда квартир', icon: 'Home' },
+    { id: 'cars', label: 'Аренда авто', icon: 'Car' },
+    { id: 'flowers', label: 'Доставка цветов', icon: 'Flower2' },
+    { id: 'jobs', label: 'Работа', icon: 'Briefcase' }
   ];
 
   const ads = [
