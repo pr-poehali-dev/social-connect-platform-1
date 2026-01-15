@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,8 @@ const Dating = () => {
   const { toast } = useToast();
   const [friendRequests, setFriendRequests] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   const topAds = [
     {
@@ -208,6 +210,33 @@ const Dating = () => {
     }
   };
 
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer || isPaused) return;
+
+    const scrollSpeed = 1;
+    let animationFrameId: number;
+
+    const autoScroll = () => {
+      if (scrollContainer && !isPaused) {
+        scrollContainer.scrollLeft += scrollSpeed;
+        
+        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
+          scrollContainer.scrollLeft = 0;
+        }
+      }
+      animationFrameId = requestAnimationFrame(autoScroll);
+    };
+
+    animationFrameId = requestAnimationFrame(autoScroll);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isPaused]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
@@ -245,10 +274,15 @@ const Dating = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-                <Card className="flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all cursor-pointer hover:shadow-lg">
+              <div 
+                ref={scrollRef}
+                className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                <Card className="flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1">
                   <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[280px]">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3 transition-transform hover:scale-110">
                       <Icon name="Plus" size={32} className="text-white" />
                     </div>
                     <p className="text-sm font-semibold text-center">Разместить объявление</p>
@@ -256,17 +290,18 @@ const Dating = () => {
                 </Card>
 
                 {topAds.map((ad) => (
-                  <Card key={ad.id} className="flex-shrink-0 w-40 rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-xl transition-all overflow-hidden cursor-pointer hover:scale-105">
-                    <div className="relative h-40">
+                  <Card key={ad.id} className="flex-shrink-0 w-40 rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 hover:-translate-y-2 hover:border-orange-500">
+                    <div className="relative h-40 overflow-hidden group">
                       <img
                         src={ad.image}
                         alt={ad.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
-                      <Badge className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-2 py-0.5 text-xs">
+                      <Badge className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full px-2 py-0.5 text-xs shadow-lg">
                         <Icon name="Zap" size={10} className="mr-1" />
                         ТОП
                       </Badge>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
                     
                     <CardContent className="p-3">
