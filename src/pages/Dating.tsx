@@ -247,7 +247,7 @@ const Dating = () => {
             <div className="mb-12">
               <div 
                 ref={scrollRef}
-                className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+                className="flex gap-3 overflow-x-auto pb-4 scroll-smooth custom-scrollbar"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
               >

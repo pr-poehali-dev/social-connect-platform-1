@@ -111,3 +111,39 @@
     font-family: "Montserrat", sans-serif;
   }
 }
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: linear-gradient(to right, #f3e8ff, #fce7f3, #dbeafe);
+    border-radius: 100px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      to right,
+      hsl(271, 91%, 65%),
+      hsl(326, 78%, 60%),
+      hsl(199, 89%, 48%)
+    );
+    border-radius: 100px;
+    transition: all 0.3s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      to right,
+      hsl(271, 91%, 55%),
+      hsl(326, 78%, 50%),
+      hsl(199, 89%, 38%)
+    );
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(271, 91%, 65%) #f3e8ff;
+  }
+}
