@@ -15,6 +15,7 @@ import Referral from "./pages/Referral";
 import Wallet from "./pages/Wallet";
 import VkCallback from "./pages/VkCallback";
 import YandexCallback from "./pages/YandexCallback";
+import GoogleCallback from "./pages/GoogleCallback";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/auth/vk/callback" element={<VkCallback />} />
           <Route path="/auth/yandex/callback" element={<YandexCallback />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -12,9 +12,12 @@ import { VkLoginButton } from '@/components/extensions/vk-auth/VkLoginButton';
 import { useVkAuth } from '@/components/extensions/vk-auth/useVkAuth';
 import { YandexLoginButton } from '@/components/extensions/yandex-auth/YandexLoginButton';
 import { useYandexAuth } from '@/components/extensions/yandex-auth/useYandexAuth';
+import { GoogleLoginButton } from '@/components/extensions/google-auth/GoogleLoginButton';
+import { useGoogleAuth } from '@/components/extensions/google-auth/useGoogleAuth';
 
 const VK_AUTH_URL = 'https://functions.poehali.dev/2494c44f-f6f6-40ff-871c-fb7e09d9702d';
 const YANDEX_AUTH_URL = 'https://functions.poehali.dev/635fdfd0-fce3-46f9-a566-18d196e6e486';
+const GOOGLE_AUTH_URL = 'https://functions.poehali.dev/0c89453c-e2bd-44b7-b54d-2e0f885da946';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -38,6 +41,15 @@ const Login = () => {
       callback: `${YANDEX_AUTH_URL}?action=callback`,
       refresh: `${YANDEX_AUTH_URL}?action=refresh`,
       logout: `${YANDEX_AUTH_URL}?action=logout`,
+    },
+  });
+
+  const googleAuth = useGoogleAuth({
+    apiUrls: {
+      authUrl: `${GOOGLE_AUTH_URL}?action=auth-url`,
+      callback: `${GOOGLE_AUTH_URL}?action=callback`,
+      refresh: `${GOOGLE_AUTH_URL}?action=refresh`,
+      logout: `${GOOGLE_AUTH_URL}?action=logout`,
     },
   });
 
@@ -142,23 +154,19 @@ const Login = () => {
                       buttonText="VK"
                       className="rounded-xl"
                     />
-                    <Button 
-                      variant="outline" 
-                      className="rounded-xl gap-2"
-                      disabled
-                    >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.595 17.508c-.588.535-1.446.934-2.595.934-2.142 0-3.878-1.736-3.878-3.878s1.736-3.878 3.878-3.878c1.149 0 2.007.399 2.595.934l-1.052 1.052c-.358-.289-.804-.442-1.295-.442-1.115 0-2.02.905-2.02 2.02s.905 2.02 2.02 2.02c1.29 0 1.773-.925 1.848-1.402h-1.848v-1.362h3.233c.03.174.047.363.047.567 0 1.954-1.308 3.343-3.28 3.343z"/>
-                      </svg>
-                      Google
-                    </Button>
+                    <GoogleLoginButton 
+                      onClick={googleAuth.login} 
+                      isLoading={googleAuth.isLoading}
+                      buttonText="Google"
+                      className="rounded-xl"
+                    />
                   </div>
 
                   <YandexLoginButton 
                     onClick={yandexAuth.login} 
                     isLoading={yandexAuth.isLoading}
                     buttonText="Яндекс ID"
-                    className="rounded-xl"
+                    className="rounded-xl w-full"
                   />
                 </div>
 
