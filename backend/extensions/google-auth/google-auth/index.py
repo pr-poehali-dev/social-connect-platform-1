@@ -164,6 +164,36 @@ def get_google_user_info(access_token: str) -> dict:
 # HELPERS
 # =============================================================================
 
+def generate_unique_nickname(base_email: str, S: str, conn) -> str:
+    """Generate unique nickname from email or random string."""
+    cur = conn.cursor()
+    username = base_email.split('@')[0].lower()
+    username = ''.join(c for c in username if c.isalnum() or c == '_')[:20]
+    
+    if not username or username == 'google':
+        username = 'user'
+    
+    nickname = username
+    counter = 1
+    
+    while True:
+        cur.execute(f"SELECT id FROM {S}users WHERE nickname = %s", (nickname,))
+        if not cur.fetchone():
+            return nickname
+        
+        if counter == 1:
+            nickname = f"{username}_{secrets.randbelow(10000):04d}"
+        else:
+            nickname = f"{username}_{secrets.randbelow(100000):05d}"
+        
+        counter += 1
+        if counter > 10:
+            nickname = f"user_{secrets.randbelow(1000000):06d}"
+            break
+    
+    return nickname
+
+
 def get_allowed_origins() -> list[str]:
     """Get list of allowed origins from environment."""
     origins = os.environ.get('ALLOWED_ORIGINS', '')
@@ -325,12 +355,13 @@ def handle_callback(event: dict, origin: str) -> dict:
                     picture = db_avatar or picture
                 else:
                     # 3. Create new user
+                    nickname = generate_unique_nickname(email, S, conn)
                     cur.execute(
                         f"""INSERT INTO {S}users
-                            (google_id, email, password_hash, name, avatar_url, email_verified, created_at, updated_at, last_login_at)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            (google_id, email, password_hash, name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                             RETURNING id""",
-                        (google_id, email, '', name, picture, email_verified, now, now, now)
+                        (google_id, email, '', name, nickname, picture, email_verified, now, now, now)
                     )
                     user_id = cur.fetchone()[0]
 

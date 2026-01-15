@@ -1,5 +1,6 @@
 """Registration handler."""
 import json
+import secrets
 from datetime import datetime, timedelta
 
 from utils.db import query_one, execute_returning, execute, escape, get_schema
@@ -9,6 +10,39 @@ from utils.http import response, error
 
 
 VERIFICATION_CODE_HOURS = 24
+
+
+def _generate_unique_nickname(base_email: str, S: str) -> str:
+    """Generate unique nickname from email or random string."""
+    # Try email username first
+    username = base_email.split('@')[0].lower()
+    username = ''.join(c for c in username if c.isalnum() or c == '_')[:20]
+    
+    if not username:
+        username = 'user'
+    
+    # Check if nickname is available
+    nickname = username
+    counter = 1
+    
+    while True:
+        existing = query_one(f"SELECT id FROM {S}users WHERE nickname = {escape(nickname)}")
+        if not existing:
+            return nickname
+        
+        # Add random suffix if exists
+        if counter == 1:
+            nickname = f"{username}_{secrets.randbelow(10000):04d}"
+        else:
+            nickname = f"{username}_{secrets.randbelow(100000):05d}"
+        
+        counter += 1
+        if counter > 10:
+            # Fallback to pure random
+            nickname = f"user_{secrets.randbelow(1000000):06d}"
+            break
+    
+    return nickname
 
 
 def _send_verification_code(user_id: int, email: str, S: str) -> dict:
@@ -86,10 +120,11 @@ def handle(event: dict, origin: str = '*') -> dict:
     # Create new user
     password_hash = hash_password(password)
     now = datetime.utcnow().isoformat()
+    nickname = _generate_unique_nickname(email, S)
 
     user_id = execute_returning(f"""
-        INSERT INTO {S}users (email, password_hash, name, email_verified, created_at, updated_at)
-        VALUES ({escape(email)}, {escape(password_hash)}, {escape(name or None)}, {escape(not email_enabled)}, {escape(now)}, {escape(now)})
+        INSERT INTO {S}users (email, password_hash, name, nickname, email_verified, created_at, updated_at)
+        VALUES ({escape(email)}, {escape(password_hash)}, {escape(name or None)}, {escape(nickname)}, {escape(not email_enabled)}, {escape(now)}, {escape(now)})
         RETURNING id
     """)
 

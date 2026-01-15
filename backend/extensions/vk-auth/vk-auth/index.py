@@ -177,6 +177,36 @@ def get_vk_user_info(access_token: str, client_id: str) -> dict:
 # HELPERS
 # =============================================================================
 
+def generate_unique_nickname(base_email: str, S: str, conn) -> str:
+    """Generate unique nickname from email or random string."""
+    cur = conn.cursor()
+    username = base_email.split('@')[0].lower()
+    username = ''.join(c for c in username if c.isalnum() or c == '_')[:20]
+    
+    if not username or username == 'vk':
+        username = 'user'
+    
+    nickname = username
+    counter = 1
+    
+    while True:
+        cur.execute(f"SELECT id FROM {S}users WHERE nickname = %s", (nickname,))
+        if not cur.fetchone():
+            return nickname
+        
+        if counter == 1:
+            nickname = f"{username}_{secrets.randbelow(10000):04d}"
+        else:
+            nickname = f"{username}_{secrets.randbelow(100000):05d}"
+        
+        counter += 1
+        if counter > 10:
+            nickname = f"user_{secrets.randbelow(1000000):06d}"
+            break
+    
+    return nickname
+
+
 def get_allowed_origins() -> list[str]:
     """Get list of allowed origins from environment."""
     origins = os.environ.get('ALLOWED_ORIGINS', '')
@@ -369,12 +399,13 @@ def handle_callback(event: dict, origin: str) -> dict:
                     # 3. Create new user
                     # Use unique email if VK didn't provide one
                     email_to_insert = vk_email or f"vk_{vk_user_id}@vk.local"
+                    nickname = generate_unique_nickname(email_to_insert, S, conn)
                     cur.execute(
                         f"""INSERT INTO {S}users
-                            (vk_id, email, password_hash, name, avatar_url, email_verified, created_at, updated_at, last_login_at)
-                            VALUES (%s, %s, %s, %s, %s, TRUE, %s, %s, %s)
+                            (vk_id, email, password_hash, name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, TRUE, %s, %s, %s)
                             RETURNING id""",
-                        (str(vk_user_id), email_to_insert, '', full_name, photo_url, now, now, now)
+                        (str(vk_user_id), email_to_insert, '', full_name, nickname, photo_url, now, now, now)
                     )
                     user_id = cur.fetchone()[0]
                     email = vk_email
