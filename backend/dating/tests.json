@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Get all profiles",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create dating profile",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_id": 1,
+        "name": "Test User",
+        "age": 25,
+        "city": "Москва",
+        "bio": "Test bio"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "status": "created"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

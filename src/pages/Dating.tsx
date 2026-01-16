@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
 import TopAdsCarousel from '@/components/dating/TopAdsCarousel';
@@ -14,6 +14,9 @@ const Dating = () => {
   const [friends, setFriends] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [topAds, setTopAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState({
     gender: '',
@@ -57,7 +60,37 @@ const Dating = () => {
     });
   };
 
-  const topAds = [
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const profilesResponse = await fetch('https://functions.poehali.dev/7f792110-a48c-4a99-baca-5d56979f70f2');
+        const profilesData = await profilesResponse.json();
+        setProfiles(profilesData.map((p: any) => ({
+          ...p,
+          image: p.avatar_url,
+          interests: p.interests || []
+        })));
+
+        const adsResponse = await fetch('https://functions.poehali.dev/e4123cfd-1bed-41c3-afe8-325905b78c2c');
+        const adsData = await adsResponse.json();
+        setTopAds(adsData.map((ad: any) => ({
+          id: ad.id,
+          name: ad.title.split(',')[0],
+          age: ad.age,
+          message: ad.description,
+          image: ad.image_url
+        })));
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const defaultTopAds = [
     {
       id: 1,
       name: 'Алексей',
@@ -200,7 +233,7 @@ const Dating = () => {
     }
   ];
 
-  const profiles = [
+  const defaultProfiles = [
     {
       id: 1,
       name: 'Анна',
@@ -291,7 +324,7 @@ const Dating = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <TopAdsCarousel ads={topAds} />
+            <TopAdsCarousel ads={topAds.length > 0 ? topAds : defaultTopAds} />
 
             <DatingFilters
               searchQuery={searchQuery}
@@ -309,7 +342,9 @@ const Dating = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {profiles.map((profile) => (
+              {loading ? (
+                <div className="col-span-full text-center py-12">Загрузка...</div>
+              ) : (profiles.length > 0 ? profiles : defaultProfiles).map((profile: any) => (
                 <ProfileCard
                   key={profile.id}
                   profile={profile}

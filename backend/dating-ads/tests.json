@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get all ads",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create ad",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_id": 1,
+        "title": "Test Ad",
+        "description": "Test description",
+        "gender": "men",
+        "age": 28,
+        "city": "Москва"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "status": "created"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
