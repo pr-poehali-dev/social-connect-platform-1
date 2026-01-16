@@ -22,7 +22,10 @@ const CreateAd = () => {
   const events = [
     { id: 'date', label: 'Свидание', icon: 'Heart' },
     { id: 'cinema', label: 'Кино', icon: 'Film' },
-    { id: 'dinner', label: 'Ужин', icon: 'UtensilsCrossed' }
+    { id: 'dinner', label: 'Ужин', icon: 'UtensilsCrossed' },
+    { id: 'concert', label: 'Концерт', icon: 'Music' },
+    { id: 'party', label: 'Вечеринка', icon: 'PartyPopper' },
+    { id: 'tour', label: 'Совместный ТУР', icon: 'Plane' }
   ];
 
   const toggleEvent = (eventId: string) => {
