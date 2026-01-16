@@ -62,6 +62,13 @@ const Dating = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      const isAuth = !!localStorage.getItem('access_token');
+      
+      if (!isAuth) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const profilesResponse = await fetch('https://functions.poehali.dev/7f792110-a48c-4a99-baca-5d56979f70f2');
         const profilesData = await profilesResponse.json();

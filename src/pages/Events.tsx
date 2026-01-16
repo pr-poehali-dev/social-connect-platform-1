@@ -35,6 +35,13 @@ const Events = () => {
 
   useEffect(() => {
     const loadEvents = async () => {
+      const isAuth = !!localStorage.getItem('access_token');
+      
+      if (!isAuth) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
         const data = await response.json();

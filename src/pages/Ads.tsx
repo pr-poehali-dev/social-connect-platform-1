@@ -12,6 +12,13 @@ const Ads = () => {
 
   useEffect(() => {
     const loadAds = async () => {
+      const isAuth = !!localStorage.getItem('access_token');
+      
+      if (!isAuth) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('https://functions.poehali.dev/e4123cfd-1bed-41c3-afe8-325905b78c2c');
         const data = await response.json();

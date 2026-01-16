@@ -25,6 +25,13 @@ const Services = () => {
 
   useEffect(() => {
     const loadServices = async () => {
+      const isAuth = !!localStorage.getItem('access_token');
+      
+      if (!isAuth) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774');
         const data = await response.json();
