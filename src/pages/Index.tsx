@@ -84,18 +84,6 @@ const Index = () => {
                     Войти
                   </Button>
                 </Link>
-                <Button 
-                  size="lg" 
-                  variant="destructive" 
-                  className="text-lg px-8 py-6 rounded-2xl"
-                  onClick={() => {
-                    localStorage.clear();
-                    window.dispatchEvent(new Event('auth-change'));
-                    window.location.reload();
-                  }}
-                >
-                  🗑️ Очистить данные
-                </Button>
               </div>
             </div>
 
