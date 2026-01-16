@@ -8,10 +8,8 @@ def handler(event: dict, context) -> dict:
     '''API для управления профилем пользователя'''
     method = event.get('httpMethod', 'GET')
     
-    origin = event.get('headers', {}).get('origin', '*')
     cors_headers = {
-        'Access-Control-Allow-Origin': origin,
-        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
     }
