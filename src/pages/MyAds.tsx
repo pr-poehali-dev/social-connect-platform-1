@@ -1,35 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 const MyAds = () => {
   const navigate = useNavigate();
-  const [userAds] = useState([
-    {
-      id: 1,
-      title: 'Алексей, 28 лет',
-      description: 'Ищу девушку для серьезных отношений. Люблю активный отдых, путешествия.',
-      age: 28,
-      location: 'Москва',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-      status: 'active',
-      date: '2 дня назад'
-    },
-    {
-      id: 2,
-      title: 'Алексей, 28 лет',
-      description: 'Предприниматель, ищу спутницу для совместных путешествий.',
-      age: 28,
-      location: 'Москва',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-      status: 'paused',
-      date: '5 дней назад'
+  const { toast } = useToast();
+  const [userAds, setUserAds] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadAds();
+  }, []);
+
+  const loadAds = async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id;
+
+    if (!userId) {
+      setIsLoading(false);
+      return;
     }
-  ]);
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?user_id=${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setUserAds(data);
+      }
+    } catch (error) {
+      console.error('Failed to load ads:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateAdStatus = async (adId: number, newStatus: string) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id;
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?user_id=${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: adId,
+          status: newStatus
+        })
+      });
+
+      if (response.ok) {
+        await loadAds();
+        toast({
+          title: 'Статус обновлен',
+          description: 'Статус объявления успешно изменен',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить статус',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch(status) {
@@ -61,7 +101,12 @@ const MyAds = () => {
               </Button>
             </div>
 
-            {userAds.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-muted-foreground" />
+                <p className="text-muted-foreground">Загрузка...</p>
+              </div>
+            ) : userAds.length === 0 ? (
               <Card className="rounded-3xl border-2 shadow-xl">
                 <CardContent className="p-12 text-center">
                   <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
@@ -75,75 +120,101 @@ const MyAds = () => {
               </Card>
             ) : (
               <div className="space-y-6">
-                {userAds.map((ad) => (
-                  <Card key={ad.id} className="rounded-3xl border-2 shadow-xl overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="flex flex-col md:flex-row">
-                        <div className="relative w-full md:w-64 h-64 overflow-hidden">
-                          <img
-                            src={ad.image}
-                            alt={ad.title}
-                            className="w-full h-full object-cover"
-                          />
+                {userAds.map((ad) => {
+                  const eventLabels: Record<string, string> = {
+                    'date': 'Свидание',
+                    'cinema': 'Кино',
+                    'dinner': 'Ужин',
+                    'concert': 'Концерт',
+                    'party': 'Вечеринка',
+                    'tour': 'Совместный ТУР'
+                  };
+                  
+                  return (
+                    <Card key={ad.id} className="rounded-3xl border-2 shadow-xl overflow-hidden">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="text-2xl font-bold mb-2">{ad.name}, {ad.age || '28'} лет</h3>
+                            {getStatusBadge(ad.status)}
+                          </div>
+                          <p className="text-sm text-muted-foreground whitespace-nowrap">
+                            {new Date(ad.created_at).toLocaleDateString('ru-RU')}
+                          </p>
                         </div>
                         
-                        <div className="flex-1 p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-2xl font-bold mb-2">{ad.title}</h3>
-                              {getStatusBadge(ad.status)}
-                            </div>
-                            <p className="text-sm text-muted-foreground whitespace-nowrap">{ad.date}</p>
-                          </div>
-                          
-                          <p className="text-muted-foreground mb-4">
-                            {ad.description}
-                          </p>
-                          
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                            <Icon name="MapPin" size={14} />
-                            {ad.location}
-                          </div>
-                          
-                          <div className="flex flex-wrap gap-3">
-                            <Button variant="outline" className="gap-2 rounded-xl">
-                              <Icon name="Edit" size={16} />
-                              Редактировать
-                            </Button>
-                            
-                            {ad.status === 'active' && (
-                              <Button variant="outline" className="gap-2 rounded-xl">
-                                <Icon name="Pause" size={16} />
-                                Приостановить
-                              </Button>
-                            )}
-                            
-                            {ad.status === 'paused' && (
-                              <Button variant="outline" className="gap-2 rounded-xl">
-                                <Icon name="Play" size={16} />
-                                Возобновить
-                              </Button>
-                            )}
-                            
-                            {(ad.status === 'active' || ad.status === 'paused') && (
-                              <Button variant="destructive" className="gap-2 rounded-xl">
-                                <Icon name="StopCircle" size={16} />
-                                Остановить
-                              </Button>
-                            )}
-                            
-                            {ad.status === 'stopped' && (
-                              <Button variant="outline" className="gap-2 rounded-xl">
-                                <Icon name="Play" size={16} />
-                                Возобновить
-                              </Button>
-                            )}
+                        <div className="mb-4">
+                          <p className="font-semibold mb-2">Действие: {ad.action === 'invite' ? 'Пригласить' : 'Сходить'}</p>
+                          <div className="space-y-2">
+                            <p className="font-semibold">Мероприятия:</p>
+                            {ad.events && ad.events.map((event: any, idx: number) => (
+                              <div key={idx} className="ml-4">
+                                <p className="font-medium">• {eventLabels[event.event_type] || event.event_type}</p>
+                                {event.details && <p className="text-sm text-muted-foreground ml-4">{event.details}</p>}
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        <div className="mb-6">
+                          <p className="font-semibold mb-1">График:</p>
+                          <p className="text-muted-foreground">{ad.schedule}</p>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-3">
+                          <Button variant="outline" className="gap-2 rounded-xl">
+                            <Icon name="Edit" size={16} />
+                            Редактировать
+                          </Button>
+                          
+                          {ad.status === 'active' && (
+                            <Button 
+                              variant="outline" 
+                              className="gap-2 rounded-xl"
+                              onClick={() => updateAdStatus(ad.id, 'paused')}
+                            >
+                              <Icon name="Pause" size={16} />
+                              Приостановить
+                            </Button>
+                          )}
+                          
+                          {ad.status === 'paused' && (
+                            <Button 
+                              variant="outline" 
+                              className="gap-2 rounded-xl"
+                              onClick={() => updateAdStatus(ad.id, 'active')}
+                            >
+                              <Icon name="Play" size={16} />
+                              Возобновить
+                            </Button>
+                          )}
+                          
+                          {(ad.status === 'active' || ad.status === 'paused') && (
+                            <Button 
+                              variant="destructive" 
+                              className="gap-2 rounded-xl"
+                              onClick={() => updateAdStatus(ad.id, 'stopped')}
+                            >
+                              <Icon name="StopCircle" size={16} />
+                              Остановить
+                            </Button>
+                          )}
+                          
+                          {ad.status === 'stopped' && (
+                            <Button 
+                              variant="outline" 
+                              className="gap-2 rounded-xl"
+                              onClick={() => updateAdStatus(ad.id, 'active')}
+                            >
+                              <Icon name="Play" size={16} />
+                              Возобновить
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>

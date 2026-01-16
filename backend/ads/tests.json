@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Get user ads",
+      "method": "GET",
+      "path": "/?user_id=1",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create new ad",
+      "method": "POST",
+      "path": "/?user_id=1",
+      "body": {
+        "action": "invite",
+        "schedule": "Вечером в будние дни",
+        "events": [
+          {
+            "type": "cinema",
+            "details": "Предпочитаю комедии"
+          }
+        ]
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "status": "created"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

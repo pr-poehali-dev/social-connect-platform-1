@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,14 @@ const CreateAd = () => {
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [eventDetails, setEventDetails] = useState<{ [key: string]: string }>({});
   const [schedule, setSchedule] = useState('');
+  const [userName, setUserName] = useState('Алексей');
+  const [userAge, setUserAge] = useState('28');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.name) setUserName(user.name);
+  }, []);
 
   const events = [
     { id: 'date', label: 'Свидание', icon: 'Heart' },
@@ -43,13 +51,59 @@ const CreateAd = () => {
     setEventDetails({ ...eventDetails, [eventId]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: 'Объявление создано',
-      description: 'Ваше объявление успешно опубликовано',
-    });
-    navigate('/my-ads');
+    setIsLoading(true);
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id;
+
+    if (!userId) {
+      toast({
+        title: 'Ошибка',
+        description: 'Необходимо войти в систему',
+        variant: 'destructive'
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const eventsData = selectedEvents.map(eventId => ({
+      type: eventId,
+      details: eventDetails[eventId] || ''
+    }));
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?user_id=${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action,
+          schedule,
+          events: eventsData
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Объявление создано',
+          description: 'Ваше объявление успешно опубликовано',
+        });
+        navigate('/my-ads');
+      } else {
+        throw new Error('Failed to create ad');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать объявление',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,7 +134,7 @@ const CreateAd = () => {
                     <div className="space-y-2">
                       <Label>Имя</Label>
                       <Input
-                        value="Алексей"
+                        value={userName}
                         disabled
                         className="rounded-xl bg-muted"
                       />
@@ -90,7 +144,7 @@ const CreateAd = () => {
                     <div className="space-y-2">
                       <Label>Возраст</Label>
                       <Input
-                        value="28"
+                        value={userAge}
                         disabled
                         className="rounded-xl bg-muted"
                       />
@@ -175,10 +229,10 @@ const CreateAd = () => {
                     <Button
                       type="submit"
                       className="flex-1 rounded-2xl"
-                      disabled={!action || selectedEvents.length === 0 || !schedule}
+                      disabled={!action || selectedEvents.length === 0 || !schedule || isLoading}
                     >
                       <Icon name="Check" size={20} className="mr-2" />
-                      Опубликовать
+                      {isLoading ? 'Публикация...' : 'Опубликовать'}
                     </Button>
                   </div>
                 </form>
