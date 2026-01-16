@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,41 @@ const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
+        const data = await response.json();
+        setEvents(data.map((e: any) => ({
+          id: e.id,
+          title: e.title,
+          description: e.description,
+          date: e.event_date,
+          time: e.event_time,
+          location: e.location,
+          city: e.city,
+          author: {
+            name: e.author_name,
+            avatar: e.author_avatar
+          },
+          category: e.category,
+          price: parseFloat(e.price) || 0,
+          participants: e.participants,
+          maxParticipants: e.max_participants,
+          image: e.image_url
+        })));
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEvents();
+  }, []);
 
   const categories = [
     { value: 'all', label: 'Все', icon: 'Calendar' },
@@ -40,7 +75,7 @@ const Events = () => {
     { value: 'business', label: 'Бизнес', icon: 'Briefcase' },
   ];
 
-  const events: Event[] = [
+  const defaultEvents: Event[] = [
     {
       id: 1,
       title: 'Йога в парке',
@@ -163,7 +198,9 @@ const Events = () => {
     });
   };
 
-  const filteredEvents = events.filter(event => {
+  const displayEvents = events.length > 0 ? events : defaultEvents;
+  
+  const filteredEvents = displayEvents.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.city.toLowerCase().includes(searchQuery.toLowerCase());
@@ -210,7 +247,9 @@ const Events = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map((event) => (
+              {loading ? (
+                <div className="col-span-full text-center py-12">Загрузка...</div>
+              ) : filteredEvents.map((event) => (
                 <Card key={event.id} className="rounded-3xl border-2 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   <div className="relative h-48 overflow-hidden">
                     <img
