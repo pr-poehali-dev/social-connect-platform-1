@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,31 @@ const Services = () => {
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [onlineOnly, setOnlineOnly] = useState(false);
+  const [services, setServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      const isAuth = !!localStorage.getItem('access_token');
+      
+      if (!isAuth) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774');
+        const data = await response.json();
+        setServices(data);
+      } catch (error) {
+        console.error('Failed to load services:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadServices();
+  }, []);
 
   const serviceTypes = [
     { value: 'all', label: 'Все услуги' },
@@ -35,7 +60,7 @@ const Services = () => {
     { value: 'other', label: 'Другое' }
   ];
 
-  const services = [
+  const defaultServices = [
     {
       id: 1,
       name: 'Иван Петров',
@@ -190,7 +215,9 @@ const Services = () => {
 
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
+              {loading ? (
+                <div className="col-span-full text-center py-12">Загрузка...</div>
+              ) : (services.length > 0 ? services : defaultServices).map((service: any) => (
                 <Card key={service.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl border-2">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">

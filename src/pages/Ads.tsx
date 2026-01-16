@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,13 +7,39 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 
 const Ads = () => {
+  const [ads, setAds] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadAds = async () => {
+      const isAuth = !!localStorage.getItem('access_token');
+      
+      if (!isAuth) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('https://functions.poehali.dev/e4123cfd-1bed-41c3-afe8-325905b78c2c');
+        const data = await response.json();
+        setAds(data);
+      } catch (error) {
+        console.error('Failed to load ads:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAds();
+  }, []);
+
   const categories = [
     { id: 'all', label: 'Все', icon: 'Users' },
     { id: 'men', label: 'Мужчины', icon: 'User' },
     { id: 'women', label: 'Девушки', icon: 'Heart' }
   ];
 
-  const ads = [
+  const defaultAds = [
     {
       id: 1,
       title: 'Алексей, 28 лет',
@@ -85,7 +112,9 @@ const Ads = () => {
             </Tabs>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ads.map((ad) => (
+              {loading ? (
+                <div className="col-span-full text-center py-12">Загрузка...</div>
+              ) : (ads.length > 0 ? ads : defaultAds).map((ad: any) => (
                 <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
                   <div className="relative h-64 overflow-hidden">
                     <img

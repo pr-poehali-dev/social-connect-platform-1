@@ -11,7 +11,22 @@ const Navigation = () => {
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    setIsAuth(isAuthenticated());
+    const checkAuth = () => {
+      setIsAuth(isAuthenticated());
+    };
+    
+    checkAuth();
+    
+    // Listen for storage changes (login/logout in other tabs)
+    window.addEventListener('storage', checkAuth);
+    
+    // Custom event for same-tab auth changes
+    window.addEventListener('auth-change', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('auth-change', checkAuth);
+    };
   }, [location]);
 
   const publicItems = [
@@ -35,7 +50,7 @@ const Navigation = () => {
     { path: '/profile', label: 'Профиль', icon: 'User', showLabel: false },
   ];
 
-  const navItems = isAuth ? publicItems : publicItems;
+  const navItems = publicItems;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
