@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Login existing user",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {
+        "email": "test@example.com",
+        "password": "password123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "access_token": "string",
+        "refresh_token": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
