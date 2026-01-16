@@ -46,25 +46,19 @@ const Profile = () => {
     }
 
     const loadProfile = async () => {
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const userId = storedUser.id;
-
-      if (!userId) {
-        navigate('/login');
-        return;
-      }
-
       try {
-        const response = await fetch(`https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc?user_id=${userId}`);
+        const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+
         if (response.ok) {
           const userData = await response.json();
-          
-          const userWithJoinDate = {
-            ...userData,
-            joinedDate: new Date(userData.created_at).toLocaleDateString('ru-RU')
-          };
-          
-          setUser(userWithJoinDate);
+          setUser(userData);
           setFormData({
             nickname: userData.nickname || '',
             bio: userData.bio || '',
@@ -85,14 +79,17 @@ const Profile = () => {
             interests: userData.interests || [],
             profession: userData.profession || '',
           });
+        } else {
+          toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });
+          navigate('/login');
         }
       } catch (error) {
-        console.error('Failed to load profile:', error);
+        toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
       }
     };
 
     loadProfile();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const handleLogout = () => {
     authLogout();
@@ -106,15 +103,15 @@ const Profile = () => {
       return;
     }
 
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = storedUser.id;
-
+    const token = localStorage.getItem('access_token');
     try {
-      const response = await fetch(`https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc?user_id=${userId}`, {
+      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -123,10 +120,11 @@ const Profile = () => {
         setEditMode(false);
         toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
       } else {
-        throw new Error('Failed to save profile');
+        const data = await response.json();
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось сохранить', variant: 'destructive' });
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось сохранить профиль', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     }
   };
 

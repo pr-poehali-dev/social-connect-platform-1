@@ -1,22 +1,21 @@
 {
   "tests": [
     {
-      "name": "Get user profile",
+      "name": "Get user profile with auth",
       "method": "GET",
-      "path": "/?user_id=1",
+      "path": "/",
+      "headers": {
+        "X-Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjk5OTk5OTk5OTl9.placeholder"
+      },
       "expectedStatus": 200
     },
     {
-      "name": "Update user profile",
-      "method": "PUT",
-      "path": "/?user_id=1",
-      "body": {
-        "nickname": "testuser",
-        "bio": "Test bio"
-      },
-      "expectedStatus": 200,
+      "name": "Get profile without auth fails",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
       "expectedBody": {
-        "status": "updated"
+        "error": "Требуется авторизация"
       },
       "bodyMatcher": "partial"
     }

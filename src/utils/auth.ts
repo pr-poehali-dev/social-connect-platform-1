@@ -1,7 +1,10 @@
 export const isAuthenticated = (): boolean => {
-  // Check only access_token from email/password login
   const accessToken = localStorage.getItem('access_token');
-  return !!accessToken;
+  const vkToken = localStorage.getItem('vk_auth_refresh_token');
+  const googleToken = localStorage.getItem('google_auth_refresh_token');
+  const yandexToken = localStorage.getItem('yandex_auth_refresh_token');
+  
+  return !!(accessToken || vkToken || googleToken || yandexToken);
 };
 
 export const logout = (): void => {
@@ -16,5 +19,4 @@ export const logout = (): void => {
   localStorage.removeItem('yandex_auth_refresh_token');
   localStorage.removeItem('yandex_auth_code_verifier');
   localStorage.removeItem('yandex_auth_state');
-  window.dispatchEvent(new Event('auth-change'));
 };
