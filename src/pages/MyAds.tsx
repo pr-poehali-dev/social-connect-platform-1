@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
 const MyAds = () => {
+  const navigate = useNavigate();
   const [userAds] = useState([
     {
       id: 1,
@@ -53,7 +55,7 @@ const MyAds = () => {
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent">
                 Мои объявления
               </h1>
-              <Button className="gap-2 rounded-2xl">
+              <Button className="gap-2 rounded-2xl" onClick={() => navigate('/create-ad')}>
                 <Icon name="Plus" size={20} />
                 Создать объявление
               </Button>
@@ -65,7 +67,7 @@ const MyAds = () => {
                   <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
                   <h3 className="text-2xl font-bold mb-2">У вас пока нет объявлений</h3>
                   <p className="text-muted-foreground mb-6">Создайте первое объявление, чтобы начать знакомства</p>
-                  <Button className="gap-2 rounded-2xl">
+                  <Button className="gap-2 rounded-2xl" onClick={() => navigate('/create-ad')}>
                     <Icon name="Plus" size={20} />
                     Создать объявление
                   </Button>
