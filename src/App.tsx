@@ -13,6 +13,7 @@ import UserProfile from "./pages/UserProfile";
 import Dating from "./pages/Dating";
 import Ads from "./pages/Ads";
 import AdsMan from "./pages/AdsMan";
+import AdsWoman from "./pages/AdsWoman";
 import MyAds from "./pages/MyAds";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
           <Route path="/ads" element={<ProtectedRoute><Ads /></ProtectedRoute>} />
           <Route path="/adsman" element={<ProtectedRoute><AdsMan /></ProtectedRoute>} />
+          <Route path="/adswoman" element={<ProtectedRoute><AdsWoman /></ProtectedRoute>} />
           <Route path="/my-ads" element={<ProtectedRoute><MyAds /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
