@@ -71,9 +71,9 @@ const Ads = () => {
                     className="gap-2 rounded-xl"
                     onClick={() => {
                       if (category.id === 'men') {
-                        window.location.href = '/adsman';
+                        window.location.href = '/ads/man';
                       } else if (category.id === 'women') {
-                        window.location.href = '/adswoman';
+                        window.location.href = '/ads/woman';
                       }
                     }}
                   >

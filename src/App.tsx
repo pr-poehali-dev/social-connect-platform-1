@@ -44,8 +44,8 @@ const App = () => (
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
           <Route path="/ads" element={<ProtectedRoute><Ads /></ProtectedRoute>} />
-          <Route path="/adsman" element={<ProtectedRoute><AdsMan /></ProtectedRoute>} />
-          <Route path="/adswoman" element={<ProtectedRoute><AdsWoman /></ProtectedRoute>} />
+          <Route path="/ads/man" element={<ProtectedRoute><AdsMan /></ProtectedRoute>} />
+          <Route path="/ads/woman" element={<ProtectedRoute><AdsWoman /></ProtectedRoute>} />
           <Route path="/my-ads" element={<ProtectedRoute><MyAds /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
