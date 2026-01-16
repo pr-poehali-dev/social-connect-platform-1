@@ -72,6 +72,8 @@ const Ads = () => {
                     onClick={() => {
                       if (category.id === 'men') {
                         window.location.href = '/adsman';
+                      } else if (category.id === 'women') {
+                        window.location.href = '/adswoman';
                       }
                     }}
                   >
