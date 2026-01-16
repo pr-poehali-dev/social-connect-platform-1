@@ -69,9 +69,9 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem('access_token', data.access_token);
         localStorage.setItem('refresh_token', data.refresh_token);
+        toast({ title: 'Успешный вход!' });
         window.dispatchEvent(new Event('auth-change'));
-        toast({ title: 'Успешный вход!', description: 'Перенаправляем в профиль...' });
-        setTimeout(() => navigate('/profile'), 1000);
+        window.location.href = '/profile';
       } else {
         toast({ title: 'Ошибка входа', description: data.error || 'Проверьте данные', variant: 'destructive' });
       }
