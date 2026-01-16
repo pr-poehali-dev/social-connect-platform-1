@@ -8,15 +8,18 @@ def handler(event: dict, context) -> dict:
     '''API для управления профилем пользователя'''
     method = event.get('httpMethod', 'GET')
     
+    origin = event.get('headers', {}).get('origin', '*')
+    cors_headers = {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
+    }
+    
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization',
-                'Access-Control-Max-Age': '86400'
-            },
+            'headers': {**cors_headers, 'Access-Control-Max-Age': '86400'},
             'body': '',
             'isBase64Encoded': False
         }
@@ -26,7 +29,7 @@ def handler(event: dict, context) -> dict:
     if not auth_header or not auth_header.startswith('Bearer '):
         return {
             'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': {**cors_headers, 'Content-Type': 'application/json'},
             'body': json.dumps({'error': 'Требуется авторизация'}),
             'isBase64Encoded': False
         }
@@ -41,14 +44,14 @@ def handler(event: dict, context) -> dict:
     except jwt.ExpiredSignatureError:
         return {
             'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': {**cors_headers, 'Content-Type': 'application/json'},
             'body': json.dumps({'error': 'Токен истёк'}),
             'isBase64Encoded': False
         }
     except jwt.InvalidTokenError:
         return {
             'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': {**cors_headers, 'Content-Type': 'application/json'},
             'body': json.dumps({'error': 'Неверный токен'}),
             'isBase64Encoded': False
         }
@@ -73,14 +76,14 @@ def handler(event: dict, context) -> dict:
                 if not user:
                     return {
                         'statusCode': 404,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'headers': {**cors_headers, 'Content-Type': 'application/json'},
                         'body': json.dumps({'error': 'User not found'}),
                         'isBase64Encoded': False
                     }
                 
                 return {
                     'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': {**cors_headers, 'Content-Type': 'application/json'},
                     'body': json.dumps(dict(user), default=str, ensure_ascii=False),
                     'isBase64Encoded': False
                 }
@@ -106,7 +109,7 @@ def handler(event: dict, context) -> dict:
             if not fields:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': {**cors_headers, 'Content-Type': 'application/json'},
                     'body': json.dumps({'error': 'No fields to update'}),
                     'isBase64Encoded': False
                 }
@@ -124,7 +127,7 @@ def handler(event: dict, context) -> dict:
                 
                 return {
                     'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': {**cors_headers, 'Content-Type': 'application/json'},
                     'body': json.dumps({'status': 'updated'}),
                     'isBase64Encoded': False
                 }
@@ -132,7 +135,7 @@ def handler(event: dict, context) -> dict:
         else:
             return {
                 'statusCode': 405,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': {**cors_headers, 'Content-Type': 'application/json'},
                 'body': json.dumps({'error': 'Method not allowed'}),
                 'isBase64Encoded': False
             }
