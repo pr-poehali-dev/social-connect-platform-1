@@ -45,53 +45,48 @@ const Profile = () => {
       return;
     }
 
-    const defaultUser = {
-      id: 1,
-      name: 'Пользователь',
-      email: 'user@example.com',
-      nickname: 'user' + Math.floor(Math.random() * 10000),
-      bio: 'Привет! Я новый пользователь ConnectHub 👋',
-      avatar_url: null,
-      joinedDate: new Date().toLocaleDateString('ru-RU'),
-      gender: '',
-      age_from: '',
-      age_to: '',
-      city: '',
-      district: '',
-      height: '',
-      body_type: '',
-      marital_status: '',
-      children: '',
-      financial_status: '',
-      has_car: '',
-      has_housing: '',
-      dating_goal: '',
-      interests: [],
-      profession: '',
+    const loadProfile = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          setFormData({
+            nickname: userData.nickname || '',
+            bio: userData.bio || '',
+            avatar_url: userData.avatar_url || '',
+            gender: userData.gender || '',
+            age_from: userData.age_from || '',
+            age_to: userData.age_to || '',
+            city: userData.city || '',
+            district: userData.district || '',
+            height: userData.height || '',
+            body_type: userData.body_type || '',
+            marital_status: userData.marital_status || '',
+            children: userData.children || '',
+            financial_status: userData.financial_status || '',
+            has_car: userData.has_car || '',
+            has_housing: userData.has_housing || '',
+            dating_goal: userData.dating_goal || '',
+            interests: userData.interests || [],
+            profession: userData.profession || '',
+          });
+        } else {
+          toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });
+          navigate('/login');
+        }
+      } catch (error) {
+        toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+      }
     };
-    
-    setUser(defaultUser);
-    setFormData({
-      nickname: defaultUser.nickname,
-      bio: defaultUser.bio,
-      avatar_url: defaultUser.avatar_url || '',
-      gender: defaultUser.gender || '',
-      age_from: defaultUser.age_from || '',
-      age_to: defaultUser.age_to || '',
-      city: defaultUser.city || '',
-      district: defaultUser.district || '',
-      height: defaultUser.height || '',
-      body_type: defaultUser.body_type || '',
-      marital_status: defaultUser.marital_status || '',
-      children: defaultUser.children || '',
-      financial_status: defaultUser.financial_status || '',
-      has_car: defaultUser.has_car || '',
-      has_housing: defaultUser.has_housing || '',
-      dating_goal: defaultUser.dating_goal || '',
-      interests: defaultUser.interests || [],
-      profession: defaultUser.profession || '',
-    });
-  }, [navigate]);
+
+    loadProfile();
+  }, [navigate, toast]);
 
   const handleLogout = () => {
     authLogout();
@@ -99,14 +94,34 @@ const Profile = () => {
     navigate('/login');
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!formData.nickname.trim()) {
       toast({ title: 'Ошибка', description: 'Nickname не может быть пустым', variant: 'destructive' });
       return;
     }
-    setUser({ ...user, ...formData });
-    setEditMode(false);
-    toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
+
+    const token = localStorage.getItem('access_token');
+    try {
+      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setUser({ ...user, ...formData });
+        setEditMode(false);
+        toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
+      } else {
+        const data = await response.json();
+        toast({ title: 'Ошибка', description: data.error || 'Не удалось сохранить', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    }
   };
 
   const handleCancel = () => {
