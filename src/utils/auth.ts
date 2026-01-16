@@ -16,4 +16,5 @@ export const logout = (): void => {
   localStorage.removeItem('yandex_auth_refresh_token');
   localStorage.removeItem('yandex_auth_code_verifier');
   localStorage.removeItem('yandex_auth_state');
+  window.dispatchEvent(new Event('auth-change'));
 };

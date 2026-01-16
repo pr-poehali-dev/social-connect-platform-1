@@ -11,7 +11,22 @@ const Navigation = () => {
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    setIsAuth(isAuthenticated());
+    const checkAuth = () => {
+      setIsAuth(isAuthenticated());
+    };
+    
+    checkAuth();
+    
+    // Listen for storage changes (login/logout in other tabs)
+    window.addEventListener('storage', checkAuth);
+    
+    // Custom event for same-tab auth changes
+    window.addEventListener('auth-change', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('auth-change', checkAuth);
+    };
   }, [location]);
 
   const publicItems = [
