@@ -17,6 +17,14 @@ const Dating = () => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    // TODO: Загрузка избранного и друзей из БД
+  };
+
   const [filters, setFilters] = useState({
     gender: '',
     ageFrom: '',
@@ -87,8 +95,9 @@ const Dating = () => {
 
   const topAds = profiles.filter(p => p.isTopAd);
 
-  const handleAddFriend = (profileId: number) => {
+  const handleAddFriend = async (profileId: number) => {
     if (!friendRequests.includes(profileId) && !friends.includes(profileId)) {
+      // TODO: Отправка заявки в БД через API
       setFriendRequests([...friendRequests, profileId]);
       toast({
         title: 'Заявка отправлена',
@@ -97,8 +106,11 @@ const Dating = () => {
     }
   };
 
-  const handleToggleFavorite = (profileId: number) => {
-    if (favorites.includes(profileId)) {
+  const handleToggleFavorite = async (profileId: number) => {
+    const isFavorite = favorites.includes(profileId);
+    // TODO: Сохранение в БД через API
+    
+    if (isFavorite) {
       setFavorites(favorites.filter(id => id !== profileId));
       toast({
         title: 'Удалено из избранного',

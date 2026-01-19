@@ -52,14 +52,14 @@ def handler(event: dict, context) -> dict:
     city = params.get('city', '')
     district = params.get('district', '')
     
-    query = "SELECT * FROM t_p19021063_social_connect_platf.dating_profiles WHERE 1=1"
+    query = "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, created_at FROM t_p19021063_social_connect_platf.users WHERE nickname IS NOT NULL"
     
     if gender:
         query += f" AND gender = '{gender}'"
     if age_from:
-        query += f" AND age >= {age_from}"
+        query += f" AND age_from >= {age_from}"
     if age_to:
-        query += f" AND age <= {age_to}"
+        query += f" AND age_from <= {age_to}"
     if city:
         query += f" AND city ILIKE '%{city}%'"
     if district:
@@ -77,7 +77,8 @@ def handler(event: dict, context) -> dict:
     for profile in profiles:
         profiles_list.append({
             'id': profile['id'],
-            'name': profile['name'],
+            'name': profile['name'] or profile['nickname'],
+            'nickname': profile['nickname'],
             'age': profile['age'],
             'city': profile['city'],
             'district': profile['district'],
@@ -87,14 +88,13 @@ def handler(event: dict, context) -> dict:
             'height': profile['height'],
             'bodyType': profile['body_type'],
             'maritalStatus': profile['marital_status'],
-            'hasChildren': profile['has_children'],
-            'education': profile['education'],
-            'work': profile['work'],
+            'hasChildren': profile['children'],
+            'profession': profile['profession'],
             'financialStatus': profile['financial_status'],
             'hasCar': profile['has_car'],
             'hasHousing': profile['has_housing'],
             'datingGoal': profile['dating_goal'],
-            'isTopAd': profile.get('is_top_ad', False)
+            'isTopAd': False
         })
     
     return {
