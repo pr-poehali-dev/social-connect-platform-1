@@ -3,8 +3,10 @@ import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { isAuthenticated } from '@/utils/auth';
 
 const Index = () => {
+  const isLoggedIn = isAuthenticated();
   const features = [
     {
       icon: 'Heart',
@@ -73,17 +75,28 @@ const Index = () => {
                 Знакомства, услуги, объявления и безопасные сделки — всё в одном месте
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link to="/register">
-                  <Button size="lg" className="gap-2 text-lg px-8 py-6 rounded-2xl">
-                    <Icon name="Sparkles" size={20} />
-                    Начать сейчас
-                  </Button>
-                </Link>
-                <Link to="/login">
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-2xl">
-                    Войти
-                  </Button>
-                </Link>
+                {isLoggedIn ? (
+                  <Link to="/profile">
+                    <Button size="lg" className="gap-2 text-lg px-8 py-6 rounded-2xl">
+                      <Icon name="User" size={20} />
+                      Мой профиль
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/register">
+                      <Button size="lg" className="gap-2 text-lg px-8 py-6 rounded-2xl">
+                        <Icon name="Sparkles" size={20} />
+                        Начать сейчас
+                      </Button>
+                    </Link>
+                    <Link to="/login">
+                      <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-2xl">
+                        Войти
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
