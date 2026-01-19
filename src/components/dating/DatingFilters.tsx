@@ -76,14 +76,14 @@ const DatingFilters = ({
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Пол</Label>
+                <Label>Меня интересуют</Label>
                 <Select value={filters.gender} onValueChange={(value) => handleFilterChange('gender', value)}>
                   <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Не важно" />
+                    <SelectValue placeholder="Все" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Мужской</SelectItem>
-                    <SelectItem value="female">Женский</SelectItem>
+                    <SelectItem value="male">Мужчины</SelectItem>
+                    <SelectItem value="female">Девушки</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
