@@ -77,18 +77,29 @@ const ProfileCard = ({
             className="relative h-[380px] overflow-hidden cursor-pointer"
             onClick={handleFlip}
           >
-            <img
-              src={profile.image}
-              alt={profile.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
+            {profile.image ? (
+              <img
+                src={profile.image}
+                alt={profile.name}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 flex items-center justify-center">
+                <div className="text-center">
+                  <Icon name="ImageOff" size={64} className="text-white/80 mx-auto mb-4" />
+                  <p className="text-white font-bold text-2xl tracking-wider">НЕТ ФОТО</p>
+                </div>
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
             <div className="absolute bottom-4 left-4 text-white">
-              <h3 className="text-2xl font-bold mb-1">{profile.name}, {profile.age}</h3>
-              <p className="flex items-center gap-1 text-sm">
-                <Icon name="MapPin" size={14} />
-                {profile.city}
-              </p>
+              <h3 className="text-2xl font-bold mb-1">{profile.name}{profile.age ? `, ${profile.age}` : ''}</h3>
+              {profile.city && (
+                <p className="flex items-center gap-1 text-sm">
+                  <Icon name="MapPin" size={14} />
+                  {profile.city}
+                </p>
+              )}
             </div>
           </div>
           
