@@ -94,6 +94,15 @@ const Dating = () => {
       if (filters.ageTo) params.append('ageTo', filters.ageTo);
       if (filters.city) params.append('city', filters.city);
       if (filters.district) params.append('district', filters.district);
+      if (filters.heightFrom) params.append('heightFrom', filters.heightFrom);
+      if (filters.heightTo) params.append('heightTo', filters.heightTo);
+      if (filters.bodyType) params.append('bodyType', filters.bodyType);
+      if (filters.maritalStatus) params.append('maritalStatus', filters.maritalStatus);
+      if (filters.hasChildren) params.append('hasChildren', filters.hasChildren);
+      if (filters.financialStatus) params.append('financialStatus', filters.financialStatus);
+      if (filters.hasCar) params.append('hasCar', filters.hasCar);
+      if (filters.hasHousing) params.append('hasHousing', filters.hasHousing);
+      if (filters.datingGoal) params.append('datingGoal', filters.datingGoal);
 
       const response = await fetch(`https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`);
       if (response.ok) {

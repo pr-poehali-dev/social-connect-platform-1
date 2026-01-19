@@ -51,6 +51,15 @@ def handler(event: dict, context) -> dict:
     age_to = params.get('ageTo', '')
     city = params.get('city', '')
     district = params.get('district', '')
+    height_from = params.get('heightFrom', '')
+    height_to = params.get('heightTo', '')
+    body_type = params.get('bodyType', '')
+    marital_status = params.get('maritalStatus', '')
+    has_children = params.get('hasChildren', '')
+    financial_status = params.get('financialStatus', '')
+    has_car = params.get('hasCar', '')
+    has_housing = params.get('hasHousing', '')
+    dating_goal = params.get('datingGoal', '')
     
     query = "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, created_at FROM t_p19021063_social_connect_platf.users WHERE nickname IS NOT NULL"
     
@@ -64,6 +73,24 @@ def handler(event: dict, context) -> dict:
         query += f" AND city ILIKE '%{city}%'"
     if district:
         query += f" AND district ILIKE '%{district}%'"
+    if height_from:
+        query += f" AND height >= {height_from}"
+    if height_to:
+        query += f" AND height <= {height_to}"
+    if body_type:
+        query += f" AND body_type = '{body_type}'"
+    if marital_status:
+        query += f" AND marital_status = '{marital_status}'"
+    if has_children:
+        query += f" AND children = '{has_children}'"
+    if financial_status:
+        query += f" AND financial_status = '{financial_status}'"
+    if has_car:
+        query += f" AND has_car = '{has_car}'"
+    if has_housing:
+        query += f" AND has_housing = '{has_housing}'"
+    if dating_goal:
+        query += f" AND dating_goal = '{dating_goal}'"
     
     query += " ORDER BY created_at DESC"
     
