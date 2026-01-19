@@ -16,13 +16,27 @@ const Dating = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   useEffect(() => {
     loadUserData();
   }, []);
 
   const loadUserData = async () => {
-    // TODO: Загрузка избранного и друзей из БД
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      try {
+        const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUserId(userData.id);
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+      }
+    }
   };
 
   const [filters, setFilters] = useState({
@@ -155,17 +169,19 @@ const Dating = () => {
             ) : (
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {profiles.map((profile) => (
-                    <ProfileCard
-                      key={profile.id}
-                      profile={profile}
-                      isFavorite={favorites.includes(profile.id)}
-                      isFriendRequestSent={friendRequests.includes(profile.id)}
-                      isFriend={friends.includes(profile.id)}
-                      onToggleFavorite={handleToggleFavorite}
-                      onAddFriend={handleAddFriend}
-                    />
-                  ))}
+                  {profiles
+                    .filter(profile => profile.id !== currentUserId)
+                    .map((profile) => (
+                      <ProfileCard
+                        key={profile.id}
+                        profile={profile}
+                        isFavorite={favorites.includes(profile.id)}
+                        isFriendRequestSent={friendRequests.includes(profile.id)}
+                        isFriend={friends.includes(profile.id)}
+                        onToggleFavorite={handleToggleFavorite}
+                        onAddFriend={handleAddFriend}
+                      />
+                    ))}
                 </div>
 
                 {profiles.length === 0 && (
