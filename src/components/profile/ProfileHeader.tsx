@@ -117,7 +117,7 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
           }}
         />
       )}
-    <CardHeader className="text-center space-y-6 pb-8">
+      <CardHeader className="text-center space-y-6 pb-8">
       <div className="relative w-32 h-32 mx-auto">
         <Avatar className="w-32 h-32 border-4 border-primary">
           {user.avatar_url ? (
@@ -190,7 +190,7 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
           Удалить аккаунт
         </Button>
       </div>
-    </CardHeader>
+      </CardHeader>
     </>
   );
 };
