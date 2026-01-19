@@ -16,9 +16,10 @@ interface ProfileHeaderProps {
   user: any;
   editMode: boolean;
   onLogout: () => void;
+  onDeleteAccount: () => void;
 }
 
-const ProfileHeader = ({ user, editMode, onLogout }: ProfileHeaderProps) => {
+const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount }: ProfileHeaderProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
@@ -110,7 +111,7 @@ const ProfileHeader = ({ user, editMode, onLogout }: ProfileHeaderProps) => {
           На платформе с {user.joinedDate}
         </p>
       </div>
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-3 justify-center flex-wrap">
         <Link to={`/${user.nickname}`}>
           <Button variant="outline" className="gap-2 rounded-xl">
             <Icon name="Eye" size={18} />
@@ -120,6 +121,14 @@ const ProfileHeader = ({ user, editMode, onLogout }: ProfileHeaderProps) => {
         <Button onClick={onLogout} variant="outline" className="gap-2 rounded-xl">
           <Icon name="LogOut" size={18} />
           Выйти
+        </Button>
+        <Button 
+          onClick={onDeleteAccount} 
+          variant="destructive" 
+          className="gap-2 rounded-xl"
+        >
+          <Icon name="Trash2" size={18} />
+          Удалить аккаунт
         </Button>
       </div>
     </CardHeader>
