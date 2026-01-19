@@ -11,25 +11,73 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import ImageCropper from './ImageCropper';
 
 interface ProfileHeaderProps {
   user: any;
   editMode: boolean;
   onLogout: () => void;
   onDeleteAccount: () => void;
+  onAvatarUpdate?: (avatarUrl: string) => void;
 }
 
-const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount }: ProfileHeaderProps) => {
+const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpdate }: ProfileHeaderProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Ошибка',
+          description: 'Выберите файл изображения',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setSelectedFile(file);
+      setShowCropper(true);
+    }
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setShowCropper(false);
+    setSelectedFile(null);
+
+    const formData = new FormData();
+    formData.append('file', croppedBlob, 'avatar.jpg');
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('https://functions.poehali.dev/IMAGE_UPLOAD_URL', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (onAvatarUpdate) {
+          onAvatarUpdate(data.url);
+        }
+        toast({
+          title: 'Фото обновлено',
+          description: 'Ваше фото профиля успешно загружено',
+        });
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
       toast({
-        title: 'Фото загружено',
-        description: 'Ваше фото профиля обновлено',
+        title: 'Ошибка загрузки',
+        description: 'Не удалось загрузить фото',
+        variant: 'destructive',
       });
     }
   };
@@ -58,6 +106,17 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount }: ProfileHea
   };
 
   return (
+    <>
+      {showCropper && selectedFile && (
+        <ImageCropper
+          imageFile={selectedFile}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setShowCropper(false);
+            setSelectedFile(null);
+          }}
+        />
+      )}
     <CardHeader className="text-center space-y-6 pb-8">
       <div className="relative w-32 h-32 mx-auto">
         <Avatar className="w-32 h-32 border-4 border-primary">
@@ -132,6 +191,7 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount }: ProfileHea
         </Button>
       </div>
     </CardHeader>
+    </>
   );
 };
 
