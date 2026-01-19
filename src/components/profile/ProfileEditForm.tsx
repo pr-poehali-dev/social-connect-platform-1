@@ -199,8 +199,13 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
               <SelectValue placeholder="Выберите" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="single">Не женат/не замужем</SelectItem>
+              <SelectItem value="married">Женат/Замужем</SelectItem>
+              <SelectItem value="single">Не женат/Не замужем</SelectItem>
+              <SelectItem value="bachelor">Холост(ая)</SelectItem>
+              <SelectItem value="in_relationship">Есть подруга/парень</SelectItem>
               <SelectItem value="divorced">В разводе</SelectItem>
+              <SelectItem value="actively_searching">В активном поиске</SelectItem>
+              <SelectItem value="complicated">Всё сложно</SelectItem>
               <SelectItem value="widowed">Вдовец/вдова</SelectItem>
             </SelectContent>
           </Select>
