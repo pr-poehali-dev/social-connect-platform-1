@@ -46,18 +46,25 @@ const Profile = () => {
     }
 
     const loadProfile = async () => {
-      try {
-        const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = storedUser.id;
 
+      if (!userId) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc?user_id=${userId}`);
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData);
+          
+          const userWithJoinDate = {
+            ...userData,
+            joinedDate: new Date(userData.created_at).toLocaleDateString('ru-RU')
+          };
+          
+          setUser(userWithJoinDate);
           setFormData({
             nickname: userData.nickname || '',
             bio: userData.bio || '',
@@ -78,17 +85,14 @@ const Profile = () => {
             interests: userData.interests || [],
             profession: userData.profession || '',
           });
-        } else {
-          toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });
-          navigate('/login');
         }
       } catch (error) {
-        toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+        console.error('Failed to load profile:', error);
       }
     };
 
     loadProfile();
-  }, [navigate, toast]);
+  }, [navigate]);
 
   const handleLogout = () => {
     authLogout();
@@ -102,13 +106,14 @@ const Profile = () => {
       return;
     }
 
-    const token = localStorage.getItem('access_token');
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = storedUser.id;
+
     try {
-      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+      const response = await fetch(`https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc?user_id=${userId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
       });
@@ -118,11 +123,10 @@ const Profile = () => {
         setEditMode(false);
         toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
       } else {
-        const data = await response.json();
-        toast({ title: 'Ошибка', description: data.error || 'Не удалось сохранить', variant: 'destructive' });
+        throw new Error('Failed to save profile');
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: 'Не удалось сохранить профиль', variant: 'destructive' });
     }
   };
 
@@ -148,34 +152,6 @@ const Profile = () => {
       profession: user.profession || '',
     });
     setEditMode(false);
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо!')) {
-      return;
-    }
-
-    const token = localStorage.getItem('access_token');
-    try {
-      const response = await fetch('https://functions.poehali.dev/5c514d4e-4f97-4ac0-8137-afba55fbffb0', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        authLogout();
-        toast({ title: 'Аккаунт удалён', description: 'Ваш аккаунт был успешно удалён' });
-        navigate('/login');
-      } else {
-        const data = await response.json();
-        toast({ title: 'Ошибка', description: data.error || 'Не удалось удалить аккаунт', variant: 'destructive' });
-      }
-    } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
-    }
   };
 
   const toggleInterest = (interest: string) => {
@@ -209,7 +185,7 @@ const Profile = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto rounded-3xl border-2 shadow-2xl">
-            <ProfileHeader user={user} editMode={editMode} onLogout={handleLogout} onDeleteAccount={handleDeleteAccount} />
+            <ProfileHeader user={user} editMode={editMode} onLogout={handleLogout} />
 
             <CardContent className="space-y-8">
               <div>

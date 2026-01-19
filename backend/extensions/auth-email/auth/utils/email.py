@@ -40,10 +40,8 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str) -> b
             server.starttls()
             server.login(smtp_user, smtp_password)
             server.sendmail(smtp_from, to_email, msg.as_string())
-        print(f"✓ Email sent to {to_email}")
         return True
-    except (smtplib.SMTPException, OSError) as e:
-        print(f"✗ Email sending failed: {type(e).__name__}: {str(e)}")
+    except (smtplib.SMTPException, OSError):
         return False
 
 

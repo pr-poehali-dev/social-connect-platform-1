@@ -58,7 +58,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/3aed2af4-8257-4d82-b13a-3ffe059d8854?action=login', {
+      const response = await fetch('https://functions.poehali.dev/38e915e0-7fce-42fe-81a2-0cf20e689f42?action=login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

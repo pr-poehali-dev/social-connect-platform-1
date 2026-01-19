@@ -1,10 +1,7 @@
 export const isAuthenticated = (): boolean => {
+  // Check only access_token from email/password login
   const accessToken = localStorage.getItem('access_token');
-  const vkToken = localStorage.getItem('vk_auth_refresh_token');
-  const googleToken = localStorage.getItem('google_auth_refresh_token');
-  const yandexToken = localStorage.getItem('yandex_auth_refresh_token');
-  
-  return !!(accessToken || vkToken || googleToken || yandexToken);
+  return !!accessToken;
 };
 
 export const logout = (): void => {
