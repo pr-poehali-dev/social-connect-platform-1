@@ -89,23 +89,47 @@ const DatingFilters = ({
               </div>
 
               <div className="space-y-3 lg:col-span-2">
-                <Label>Возраст: {filters.ageFrom || 18} - {filters.ageTo || 99} лет</Label>
-                <div className="flex gap-3 items-center">
+                <div className="flex justify-between items-center">
+                  <Label className="text-muted-foreground">Возраст</Label>
+                  <span className="text-sm font-medium">{filters.ageFrom || 18}–{filters.ageTo || 99}</span>
+                </div>
+                <div className="relative pt-2 pb-4">
+                  <div className="relative h-1 bg-muted rounded-full">
+                    <div 
+                      className="absolute h-1 bg-primary rounded-full"
+                      style={{
+                        left: `${((Number(filters.ageFrom) || 18) - 18) / (99 - 18) * 100}%`,
+                        right: `${100 - ((Number(filters.ageTo) || 99) - 18) / (99 - 18) * 100}%`
+                      }}
+                    />
+                  </div>
                   <input
                     type="range"
                     min="18"
                     max="99"
                     value={filters.ageFrom || 18}
-                    onChange={(e) => handleFilterChange('ageFrom', e.target.value)}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val <= (Number(filters.ageTo) || 99)) {
+                        handleFilterChange('ageFrom', e.target.value);
+                      }
+                    }}
+                    className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                    style={{ zIndex: filters.ageFrom === filters.ageTo ? 2 : 1 }}
                   />
                   <input
                     type="range"
                     min="18"
                     max="99"
                     value={filters.ageTo || 99}
-                    onChange={(e) => handleFilterChange('ageTo', e.target.value)}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val >= (Number(filters.ageFrom) || 18)) {
+                        handleFilterChange('ageTo', e.target.value);
+                      }
+                    }}
+                    className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                    style={{ zIndex: 2 }}
                   />
                 </div>
               </div>
@@ -155,23 +179,47 @@ const DatingFilters = ({
               </div>
 
               <div className="space-y-3 lg:col-span-2">
-                <Label>Рост: {filters.heightFrom || 150} - {filters.heightTo || 200} см</Label>
-                <div className="flex gap-3 items-center">
+                <div className="flex justify-between items-center">
+                  <Label className="text-muted-foreground">Рост</Label>
+                  <span className="text-sm font-medium">{filters.heightFrom || 150}–{filters.heightTo || 200} см</span>
+                </div>
+                <div className="relative pt-2 pb-4">
+                  <div className="relative h-1 bg-muted rounded-full">
+                    <div 
+                      className="absolute h-1 bg-primary rounded-full"
+                      style={{
+                        left: `${((Number(filters.heightFrom) || 150) - 150) / (200 - 150) * 100}%`,
+                        right: `${100 - ((Number(filters.heightTo) || 200) - 150) / (200 - 150) * 100}%`
+                      }}
+                    />
+                  </div>
                   <input
                     type="range"
                     min="150"
                     max="200"
                     value={filters.heightFrom || 150}
-                    onChange={(e) => handleFilterChange('heightFrom', e.target.value)}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val <= (Number(filters.heightTo) || 200)) {
+                        handleFilterChange('heightFrom', e.target.value);
+                      }
+                    }}
+                    className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                    style={{ zIndex: filters.heightFrom === filters.heightTo ? 2 : 1 }}
                   />
                   <input
                     type="range"
                     min="150"
                     max="200"
                     value={filters.heightTo || 200}
-                    onChange={(e) => handleFilterChange('heightTo', e.target.value)}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val >= (Number(filters.heightFrom) || 150)) {
+                        handleFilterChange('heightTo', e.target.value);
+                      }
+                    }}
+                    className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
+                    style={{ zIndex: 2 }}
                   />
                 </div>
               </div>
