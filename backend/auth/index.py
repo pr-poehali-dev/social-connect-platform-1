@@ -182,7 +182,10 @@ def generate_access_token(user_id: int, email: str) -> str:
         'email': email,
         'exp': datetime.utcnow() + timedelta(hours=1)
     }
-    return jwt.encode(payload, os.environ.get('JWT_SECRET', 'secret'), algorithm='HS256')
+    jwt_secret = os.environ.get('JWT_SECRET')
+    if not jwt_secret:
+        raise ValueError('JWT_SECRET environment variable is required')
+    return jwt.encode(payload, jwt_secret, algorithm='HS256')
 
 def generate_refresh_token() -> str:
     '''Генерация refresh token'''

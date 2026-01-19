@@ -36,7 +36,14 @@ def handler(event: dict, context) -> dict:
     
     # Декодируем токен
     try:
-        jwt_secret = os.environ.get('JWT_SECRET', 'your-secret-key')
+        jwt_secret = os.environ.get('JWT_SECRET')
+        if not jwt_secret:
+            return {
+                'statusCode': 500,
+                'headers': {**cors_headers, 'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'Server configuration error'}),
+                'isBase64Encoded': False
+            }
         payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
         user_id = payload.get('user_id')
     except jwt.ExpiredSignatureError:
