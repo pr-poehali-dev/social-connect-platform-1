@@ -2,7 +2,6 @@ import json
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import jwt
 
 def handler(event: dict, context) -> dict:
     '''API для управления профилем пользователя'''
@@ -36,6 +35,7 @@ def handler(event: dict, context) -> dict:
     
     # Декодируем токен
     try:
+        import jwt as pyjwt
         jwt_secret = os.environ.get('JWT_SECRET')
         if not jwt_secret:
             return {
@@ -44,16 +44,16 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'Server configuration error'}),
                 'isBase64Encoded': False
             }
-        payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
         user_id = payload.get('user_id')
-    except jwt.ExpiredSignatureError:
+    except pyjwt.ExpiredSignatureError:
         return {
             'statusCode': 401,
             'headers': {**cors_headers, 'Content-Type': 'application/json'},
             'body': json.dumps({'error': 'Токен истёк'}),
             'isBase64Encoded': False
         }
-    except jwt.InvalidTokenError:
+    except pyjwt.InvalidTokenError:
         return {
             'statusCode': 401,
             'headers': {**cors_headers, 'Content-Type': 'application/json'},
@@ -67,15 +67,16 @@ def handler(event: dict, context) -> dict:
     try:
         if method == 'GET':
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute('''
+                query = f'''
                     SELECT id, email, name, nickname, bio, avatar_url,
                            gender, age_from, age_to, city, district, height,
                            body_type, marital_status, children, financial_status,
                            has_car, has_housing, dating_goal, interests, profession,
                            created_at, updated_at
                     FROM t_p19021063_social_connect_platf.users
-                    WHERE id = %s
-                ''', (user_id,))
+                    WHERE id = {user_id}
+                '''
+                cur.execute(query)
                 user = cur.fetchone()
                 
                 if not user:
@@ -96,22 +97,53 @@ def handler(event: dict, context) -> dict:
         elif method == 'PUT':
             data = json.loads(event.get('body', '{}'))
             
-            fields = []
-            values = []
+            updates = []
             
-            allowed_fields = [
-                'nickname', 'bio', 'avatar_url', 'gender', 'age_from', 'age_to',
-                'city', 'district', 'height', 'body_type', 'marital_status',
-                'children', 'financial_status', 'has_car', 'has_housing',
-                'dating_goal', 'interests', 'profession'
-            ]
+            # Строковые поля
+            string_fields = ['nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
+                           'body_type', 'marital_status', 'children', 'financial_status',
+                           'dating_goal', 'profession']
             
-            for field in allowed_fields:
+            for field in string_fields:
+                if field in data and data[field] is not None:
+                    value = data[field].replace("'", "''") if isinstance(data[field], str) else str(data[field])
+                    updates.append(f"{field} = '{value}'")
+            
+            # Числовые поля (integer)
+            int_fields = ['age_from', 'age_to', 'height']
+            for field in int_fields:
                 if field in data:
-                    fields.append(f"{field} = %s")
-                    values.append(data[field])
+                    # Пропускаем пустые строки
+                    if data[field] == '' or data[field] is None:
+                        updates.append(f"{field} = NULL")
+                    else:
+                        try:
+                            val = int(data[field])
+                            updates.append(f"{field} = {val}")
+                        except (ValueError, TypeError):
+                            updates.append(f"{field} = NULL")
             
-            if not fields:
+            # Булевы поля
+            bool_fields = ['has_car', 'has_housing']
+            for field in bool_fields:
+                if field in data:
+                    if data[field] == '' or data[field] is None:
+                        updates.append(f"{field} = NULL")
+                    else:
+                        val = 'TRUE' if data[field] else 'FALSE'
+                        updates.append(f"{field} = {val}")
+            
+            # Массив интересов
+            if 'interests' in data:
+                if data['interests'] is None or data['interests'] == []:
+                    updates.append("interests = NULL")
+                else:
+                    # Экранируем каждый элемент массива
+                    escaped_interests = [item.replace("'", "''") for item in data['interests']]
+                    interests_str = "ARRAY[" + ", ".join([f"'{item}'" for item in escaped_interests]) + "]"
+                    updates.append(f"interests = {interests_str}")
+            
+            if not updates:
                 return {
                     'statusCode': 400,
                     'headers': {**cors_headers, 'Content-Type': 'application/json'},
@@ -119,15 +151,13 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            values.append(user_id)
-            
             with conn.cursor() as cur:
                 query = f'''
                     UPDATE t_p19021063_social_connect_platf.users 
-                    SET {', '.join(fields)}, updated_at = CURRENT_TIMESTAMP
-                    WHERE id = %s
+                    SET {', '.join(updates)}, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = {user_id}
                 '''
-                cur.execute(query, values)
+                cur.execute(query)
                 conn.commit()
                 
                 return {

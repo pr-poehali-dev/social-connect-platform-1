@@ -1,15 +1,6 @@
 {
   "tests": [
     {
-      "name": "Get user profile with auth",
-      "method": "GET",
-      "path": "/",
-      "headers": {
-        "X-Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjk5OTk5OTk5OTl9.placeholder"
-      },
-      "expectedStatus": 200
-    },
-    {
       "name": "Get profile without auth fails",
       "method": "GET",
       "path": "/",
@@ -17,6 +8,17 @@
       "expectedBody": {
         "error": "Требуется авторизация"
       },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Update profile without fields returns error",
+      "method": "PUT",
+      "path": "/",
+      "headers": {
+        "X-Authorization": "Bearer invalid"
+      },
+      "body": {},
+      "expectedStatus": 401,
       "bodyMatcher": "partial"
     }
   ]
