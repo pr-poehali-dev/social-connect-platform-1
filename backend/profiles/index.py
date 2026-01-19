@@ -60,8 +60,12 @@ def handler(event: dict, context) -> dict:
     has_car = params.get('hasCar', '')
     has_housing = params.get('hasHousing', '')
     dating_goal = params.get('datingGoal', '')
+    with_photo = params.get('withPhoto', '')
     
     query = "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, created_at FROM t_p19021063_social_connect_platf.users WHERE nickname IS NOT NULL"
+    
+    if with_photo:
+        query += " AND avatar_url IS NOT NULL AND avatar_url != ''"
     
     if gender:
         query += f" AND gender = '{gender}'"

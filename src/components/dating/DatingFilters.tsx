@@ -17,6 +17,7 @@ interface Filters {
   ageTo: string;
   city: string;
   online: boolean;
+  withPhoto: boolean;
   district: string;
   heightFrom: string;
   heightTo: string;
@@ -87,26 +88,26 @@ const DatingFilters = ({
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>Возраст от</Label>
-                <Input
-                  type="number"
-                  placeholder="18"
-                  value={filters.ageFrom}
-                  onChange={(e) => handleFilterChange('ageFrom', e.target.value)}
-                  className="rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Возраст до</Label>
-                <Input
-                  type="number"
-                  placeholder="99"
-                  value={filters.ageTo}
-                  onChange={(e) => handleFilterChange('ageTo', e.target.value)}
-                  className="rounded-xl"
-                />
+              <div className="space-y-3 lg:col-span-2">
+                <Label>Возраст: {filters.ageFrom || 18} - {filters.ageTo || 99} лет</Label>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="range"
+                    min="18"
+                    max="99"
+                    value={filters.ageFrom || 18}
+                    onChange={(e) => handleFilterChange('ageFrom', e.target.value)}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                  <input
+                    type="range"
+                    min="18"
+                    max="99"
+                    value={filters.ageTo || 99}
+                    onChange={(e) => handleFilterChange('ageTo', e.target.value)}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -142,25 +143,37 @@ const DatingFilters = ({
               </div>
 
               <div className="space-y-2">
-                <Label>Рост от (см)</Label>
-                <Input
-                  type="number"
-                  placeholder="150"
-                  value={filters.heightFrom}
-                  onChange={(e) => handleFilterChange('heightFrom', e.target.value)}
-                  className="rounded-xl"
-                />
+                <Label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={filters.withPhoto}
+                    onChange={(e) => handleFilterChange('withPhoto', e.target.checked)}
+                    className="rounded"
+                  />
+                  Только с фото
+                </Label>
               </div>
 
-              <div className="space-y-2">
-                <Label>Рост до (см)</Label>
-                <Input
-                  type="number"
-                  placeholder="200"
-                  value={filters.heightTo}
-                  onChange={(e) => handleFilterChange('heightTo', e.target.value)}
-                  className="rounded-xl"
-                />
+              <div className="space-y-3 lg:col-span-2">
+                <Label>Рост: {filters.heightFrom || 150} - {filters.heightTo || 200} см</Label>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="range"
+                    min="150"
+                    max="200"
+                    value={filters.heightFrom || 150}
+                    onChange={(e) => handleFilterChange('heightFrom', e.target.value)}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                  <input
+                    type="range"
+                    min="150"
+                    max="200"
+                    value={filters.heightTo || 200}
+                    onChange={(e) => handleFilterChange('heightTo', e.target.value)}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
