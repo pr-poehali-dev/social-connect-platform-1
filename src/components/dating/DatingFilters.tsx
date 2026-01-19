@@ -114,8 +114,10 @@ const DatingFilters = ({
                         handleFilterChange('ageFrom', e.target.value);
                       }
                     }}
+                    onMouseDown={(e) => e.currentTarget.style.zIndex = '3'}
+                    onMouseUp={(e) => e.currentTarget.style.zIndex = '1'}
                     className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
-                    style={{ zIndex: filters.ageFrom === filters.ageTo ? 2 : 1 }}
+                    style={{ zIndex: 1 }}
                   />
                   <input
                     type="range"
@@ -128,6 +130,8 @@ const DatingFilters = ({
                         handleFilterChange('ageTo', e.target.value);
                       }
                     }}
+                    onMouseDown={(e) => e.currentTarget.style.zIndex = '3'}
+                    onMouseUp={(e) => e.currentTarget.style.zIndex = '2'}
                     className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
                     style={{ zIndex: 2 }}
                   />
@@ -204,8 +208,10 @@ const DatingFilters = ({
                         handleFilterChange('heightFrom', e.target.value);
                       }
                     }}
+                    onMouseDown={(e) => e.currentTarget.style.zIndex = '3'}
+                    onMouseUp={(e) => e.currentTarget.style.zIndex = '1'}
                     className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
-                    style={{ zIndex: filters.heightFrom === filters.heightTo ? 2 : 1 }}
+                    style={{ zIndex: 1 }}
                   />
                   <input
                     type="range"
@@ -218,6 +224,8 @@ const DatingFilters = ({
                         handleFilterChange('heightTo', e.target.value);
                       }
                     }}
+                    onMouseDown={(e) => e.currentTarget.style.zIndex = '3'}
+                    onMouseUp={(e) => e.currentTarget.style.zIndex = '2'}
                     className="absolute top-0 w-full h-8 bg-transparent appearance-none cursor-pointer pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md"
                     style={{ zIndex: 2 }}
                   />
