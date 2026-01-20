@@ -12,12 +12,9 @@ import { VkLoginButton } from '@/components/extensions/vk-auth/VkLoginButton';
 import { useVkAuth } from '@/components/extensions/vk-auth/useVkAuth';
 import { YandexLoginButton } from '@/components/extensions/yandex-auth/YandexLoginButton';
 import { useYandexAuth } from '@/components/extensions/yandex-auth/useYandexAuth';
-import { GoogleLoginButton } from '@/components/extensions/google-auth/GoogleLoginButton';
-import { useGoogleAuth } from '@/components/extensions/google-auth/useGoogleAuth';
 
 const VK_AUTH_URL = 'https://functions.poehali.dev/2494c44f-f6f6-40ff-871c-fb7e09d9702d';
 const YANDEX_AUTH_URL = 'https://functions.poehali.dev/635fdfd0-fce3-46f9-a566-18d196e6e486';
-const GOOGLE_AUTH_URL = 'https://functions.poehali.dev/0c89453c-e2bd-44b7-b54d-2e0f885da946';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -41,15 +38,6 @@ const Login = () => {
       callback: `${YANDEX_AUTH_URL}?action=callback`,
       refresh: `${YANDEX_AUTH_URL}?action=refresh`,
       logout: `${YANDEX_AUTH_URL}?action=logout`,
-    },
-  });
-
-  const googleAuth = useGoogleAuth({
-    apiUrls: {
-      authUrl: `${GOOGLE_AUTH_URL}?action=auth-url`,
-      callback: `${GOOGLE_AUTH_URL}?action=callback`,
-      refresh: `${GOOGLE_AUTH_URL}?action=refresh`,
-      logout: `${GOOGLE_AUTH_URL}?action=logout`,
     },
   });
 
