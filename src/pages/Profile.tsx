@@ -187,6 +187,11 @@ const Profile = () => {
     }));
   };
 
+  const handleAvatarUpdate = (avatarUrl: string) => {
+    setUser({ ...user, avatar_url: avatarUrl });
+    setFormData({ ...formData, avatar_url: avatarUrl });
+  };
+
   const availableInterests = [
     'Спорт', 'Путешествия', 'Кино', 'Музыка', 'Книги', 'Кулинария',
     'Искусство', 'Фотография', 'Танцы', 'Йога', 'Природа', 'Животные',
@@ -209,7 +214,13 @@ const Profile = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto rounded-3xl border-2 shadow-2xl">
-            <ProfileHeader user={user} editMode={editMode} onLogout={handleLogout} onDeleteAccount={handleDeleteAccount} />
+            <ProfileHeader 
+              user={user} 
+              editMode={editMode} 
+              onLogout={handleLogout} 
+              onDeleteAccount={handleDeleteAccount}
+              onAvatarUpdate={handleAvatarUpdate}
+            />
 
             <CardContent className="space-y-8">
               <div>
