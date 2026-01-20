@@ -1,0 +1,225 @@
+import json
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from datetime import datetime
+
+def handler(event: dict, context) -> dict:
+    '''API для работы с сообщениями: получение чатов, отправка сообщений'''
+    method = event.get('httpMethod', 'GET')
+    
+    if method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+            },
+            'body': '',
+            'isBase64Encoded': False
+        }
+    
+    dsn = os.environ.get('DATABASE_URL')
+    if not dsn:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Database not configured'}),
+            'isBase64Encoded': False
+        }
+    
+    token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
+    if not token:
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Unauthorized'}),
+            'isBase64Encoded': False
+        }
+    
+    conn = psycopg2.connect(dsn)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cursor.execute("SELECT user_id FROM t_p19021063_social_connect_platf.refresh_tokens WHERE token = %s", (token,))
+    user_row = cursor.fetchone()
+    if not user_row:
+        cursor.close()
+        conn.close()
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid token'}),
+            'isBase64Encoded': False
+        }
+    
+    user_id = user_row['user_id']
+    params = event.get('queryStringParameters') or {}
+    action = params.get('action', 'conversations')
+    
+    if method == 'GET' and action == 'conversations':
+        conv_type = params.get('type', '')
+        
+        query = '''
+            SELECT DISTINCT c.id, c.type, c.name, c.avatar_url, c.deal_status,
+                   (SELECT content FROM t_p19021063_social_connect_platf.messages 
+                    WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message,
+                   (SELECT created_at FROM t_p19021063_social_connect_platf.messages 
+                    WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_time,
+                   (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.messages m 
+                    WHERE m.conversation_id = c.id AND m.is_read = FALSE AND m.sender_id != %s) as unread_count,
+                   (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.conversation_participants 
+                    WHERE conversation_id = c.id) as participants_count
+            FROM t_p19021063_social_connect_platf.conversations c
+            JOIN t_p19021063_social_connect_platf.conversation_participants cp ON c.id = cp.conversation_id
+            WHERE cp.user_id = %s
+        '''
+        
+        if conv_type:
+            query += f" AND c.type = '{conv_type}'"
+        
+        query += " ORDER BY last_message_time DESC NULLS LAST"
+        
+        cursor.execute(query, (user_id, user_id))
+        conversations = cursor.fetchall()
+        
+        result = []
+        for conv in conversations:
+            result.append({
+                'id': conv['id'],
+                'type': conv['type'],
+                'name': conv['name'],
+                'avatar': conv['avatar_url'],
+                'lastMessage': conv['last_message'] or '',
+                'time': format_time(conv['last_message_time']) if conv['last_message_time'] else '',
+                'unread': conv['unread_count'] or 0,
+                'participants': conv['participants_count'],
+                'dealStatus': conv['deal_status']
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'conversations': result}),
+            'isBase64Encoded': False
+        }
+    
+    if method == 'GET' and action == 'messages':
+        conversation_id = params.get('conversationId', '')
+        
+        if not conversation_id:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Missing conversationId'}),
+                'isBase64Encoded': False
+            }
+        
+        cursor.execute('''
+            SELECT m.id, m.content, m.sender_id, m.created_at, m.is_read,
+                   u.name as sender_name, u.avatar_url as sender_avatar
+            FROM t_p19021063_social_connect_platf.messages m
+            JOIN t_p19021063_social_connect_platf.users u ON m.sender_id = u.id
+            WHERE m.conversation_id = %s
+            ORDER BY m.created_at ASC
+        ''', (conversation_id,))
+        
+        messages = cursor.fetchall()
+        
+        cursor.execute('''
+            UPDATE t_p19021063_social_connect_platf.messages 
+            SET is_read = TRUE 
+            WHERE conversation_id = %s AND sender_id != %s AND is_read = FALSE
+        ''', (conversation_id, user_id))
+        conn.commit()
+        
+        result = []
+        for msg in messages:
+            result.append({
+                'id': msg['id'],
+                'content': msg['content'],
+                'senderId': msg['sender_id'],
+                'senderName': msg['sender_name'],
+                'senderAvatar': msg['sender_avatar'],
+                'createdAt': msg['created_at'].isoformat() if msg['created_at'] else None,
+                'isRead': msg['is_read']
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'messages': result}),
+            'isBase64Encoded': False
+        }
+    
+    if method == 'POST':
+        data = json.loads(event.get('body', '{}'))
+        conversation_id = data.get('conversationId')
+        content = data.get('content', '').strip()
+        
+        if not conversation_id or not content:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Missing conversationId or content'}),
+                'isBase64Encoded': False
+            }
+        
+        cursor.execute('''
+            INSERT INTO t_p19021063_social_connect_platf.messages 
+            (conversation_id, sender_id, content, created_at)
+            VALUES (%s, %s, %s, NOW())
+            RETURNING id, created_at
+        ''', (conversation_id, user_id, content))
+        
+        new_message = cursor.fetchone()
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 201,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({
+                'id': new_message['id'],
+                'createdAt': new_message['created_at'].isoformat()
+            }),
+            'isBase64Encoded': False
+        }
+    
+    cursor.close()
+    conn.close()
+    
+    return {
+        'statusCode': 404,
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+        'body': json.dumps({'error': 'Not found'}),
+        'isBase64Encoded': False
+    }
+
+def format_time(dt):
+    if not dt:
+        return ''
+    
+    now = datetime.now()
+    diff = now - dt
+    
+    if diff.days == 0:
+        return dt.strftime('%H:%M')
+    elif diff.days == 1:
+        return 'Вчера'
+    elif diff.days < 7:
+        days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+        return days[dt.weekday()]
+    else:
+        return dt.strftime('%d.%m.%Y')

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/hooks/use-toast';
 
 interface Chat {
   id: number;
@@ -21,103 +22,107 @@ interface Chat {
   dealStatus?: string;
 }
 
+interface Message {
+  id: number;
+  content: string;
+  senderId: number;
+  senderName: string;
+  senderAvatar: string;
+  createdAt: string;
+  isRead: boolean;
+}
+
 const Messages = () => {
   const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal'>('personal');
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const { toast } = useToast();
 
-  const chats: Chat[] = [
-    {
-      id: 1,
-      type: 'personal',
-      name: 'Анна Петрова',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Привет! Как дела?',
-      time: '10:30',
-      unread: 2,
-      online: true
-    },
-    {
-      id: 2,
-      type: 'personal',
-      name: 'Дмитрий Иванов',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Спасибо за помощь!',
-      time: '09:15',
-      unread: 0,
-      online: false
-    },
-    {
-      id: 3,
-      type: 'personal',
-      name: 'Мария Сидорова',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'До встречи завтра',
-      time: 'Вчера',
-      unread: 0,
-      online: true
-    },
-    {
-      id: 4,
-      type: 'group',
-      name: 'IT-специалисты',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Сергей: Кто идёт на встречу?',
-      time: '11:20',
-      unread: 5,
-      participants: 24
-    },
-    {
-      id: 5,
-      type: 'group',
-      name: 'Йога в парке',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Елена: Сегодня в 8 утра!',
-      time: '07:45',
-      unread: 1,
-      participants: 12
-    },
-    {
-      id: 6,
-      type: 'group',
-      name: 'Любители искусства',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Ольга: Новая выставка открылась',
-      time: 'Вчера',
-      unread: 0,
-      participants: 8
-    },
-    {
-      id: 7,
-      type: 'deal',
-      name: 'Продажа iPhone 14',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Алексей: Когда можем встретиться?',
-      time: '12:00',
-      unread: 3,
-      dealStatus: 'В обсуждении'
-    },
-    {
-      id: 8,
-      type: 'deal',
-      name: 'Аренда квартиры',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Вы: Документы готовы',
-      time: '10:00',
-      unread: 0,
-      dealStatus: 'Завершено'
-    },
-    {
-      id: 9,
-      type: 'deal',
-      name: 'Услуги дизайнера',
-      avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      lastMessage: 'Кристина: Макеты отправлю сегодня',
-      time: 'Вчера',
-      unread: 0,
-      dealStatus: 'В работе'
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  useEffect(() => {
+    loadConversations();
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedChat) {
+      loadMessages();
     }
-  ];
+  }, [selectedChat]);
+
+  const loadUserData = async () => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      try {
+        const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUserId(userData.id);
+        }
+      } catch (error) {
+        console.error('Failed to load user data:', error);
+      }
+    }
+  };
+
+  const loadConversations = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=conversations&type=${activeTab}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setChats(data.conversations || []);
+      }
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+      toast({
+        title: 'Ошибка загрузки',
+        description: 'Не удалось загрузить чаты',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMessages = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token || !selectedChat) return;
+
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=messages&conversationId=${selectedChat}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    }
+  };
 
   const tabs = [
     { value: 'personal', label: 'Личные сообщения', icon: 'MessageCircle' },
@@ -128,9 +133,43 @@ const Messages = () => {
   const filteredChats = chats.filter(chat => chat.type === activeTab);
   const currentChat = chats.find(chat => chat.id === selectedChat);
 
-  const handleSendMessage = () => {
-    if (messageText.trim()) {
-      setMessageText('');
+  const handleSendMessage = async () => {
+    if (!messageText.trim() || !selectedChat) return;
+
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          conversationId: selectedChat,
+          content: messageText
+        })
+      });
+
+      if (response.ok) {
+        setMessageText('');
+        loadMessages();
+        loadConversations();
+      } else {
+        toast({
+          title: 'Ошибка отправки',
+          description: 'Не удалось отправить сообщение',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      toast({
+        title: 'Ошибка отправки',
+        description: 'Проверьте подключение к интернету',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -177,60 +216,73 @@ const Messages = () => {
                   </div>
 
                   <ScrollArea className="h-[600px]">
-                    {filteredChats.map((chat) => (
-                      <div
-                        key={chat.id}
-                        className={`p-4 border-b cursor-pointer hover:bg-accent/50 transition-colors ${
-                          selectedChat === chat.id ? 'bg-accent' : ''
-                        }`}
-                        onClick={() => setSelectedChat(chat.id)}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="relative">
-                            <Avatar className="w-12 h-12">
-                              <AvatarImage src={chat.avatar} alt={chat.name} />
-                              <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            {chat.online && (
-                              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                            )}
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
-                              <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                                {chat.time}
-                              </span>
+                    {loading ? (
+                      <div className="text-center py-12">
+                        <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
+                        <p className="text-muted-foreground">Загрузка чатов...</p>
+                      </div>
+                    ) : filteredChats.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Icon name="MessageCircle" size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                        <p className="text-muted-foreground">Нет чатов</p>
+                        <p className="text-sm text-muted-foreground">Начните общение с другими пользователями</p>
+                      </div>
+                    ) : (
+                      filteredChats.map((chat) => (
+                        <div
+                          key={chat.id}
+                          className={`p-4 border-b cursor-pointer hover:bg-accent/50 transition-colors ${
+                            selectedChat === chat.id ? 'bg-accent' : ''
+                          }`}
+                          onClick={() => setSelectedChat(chat.id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="relative">
+                              <Avatar className="w-12 h-12">
+                                <AvatarImage src={chat.avatar} alt={chat.name} />
+                                <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              {chat.online && (
+                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                              )}
                             </div>
                             
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm text-muted-foreground truncate">
-                                {chat.lastMessage}
-                              </p>
-                              {chat.unread > 0 && (
-                                <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-xs flex-shrink-0">
-                                  {chat.unread}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
+                                <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                                  {chat.time}
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {chat.lastMessage}
+                                </p>
+                                {chat.unread > 0 && (
+                                  <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-xs flex-shrink-0">
+                                    {chat.unread}
+                                  </Badge>
+                                )}
+                              </div>
+
+                              {chat.type === 'group' && chat.participants && (
+                                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                                  <Icon name="Users" size={12} />
+                                  {chat.participants} участников
+                                </div>
+                              )}
+
+                              {chat.type === 'deal' && chat.dealStatus && (
+                                <Badge variant="outline" className="mt-1 text-xs">
+                                  {chat.dealStatus}
                                 </Badge>
                               )}
                             </div>
-
-                            {chat.type === 'group' && (
-                              <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                                <Icon name="Users" size={12} />
-                                {chat.participants} участников
-                              </div>
-                            )}
-
-                            {chat.type === 'deal' && chat.dealStatus && (
-                              <Badge variant="outline" className="mt-1 text-xs">
-                                {chat.dealStatus}
-                              </Badge>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </ScrollArea>
                 </CardContent>
               </Card>
@@ -283,27 +335,48 @@ const Messages = () => {
 
                     <ScrollArea className="flex-1 p-4">
                       <div className="space-y-4">
-                        <div className="flex justify-start">
-                          <div className="max-w-[70%]">
-                            <div className="bg-accent rounded-2xl rounded-tl-none p-3">
-                              <p className="text-sm">{currentChat.lastMessage}</p>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1 ml-2">
-                              {currentChat.time}
-                            </p>
+                        {messages.length === 0 ? (
+                          <div className="text-center text-muted-foreground py-12">
+                            <Icon name="MessageCircle" size={48} className="mx-auto mb-2 opacity-50" />
+                            <p>Нет сообщений. Начните переписку!</p>
                           </div>
-                        </div>
-
-                        <div className="flex justify-end">
-                          <div className="max-w-[70%]">
-                            <div className="bg-primary text-primary-foreground rounded-2xl rounded-tr-none p-3">
-                              <p className="text-sm">Отлично, спасибо!</p>
+                        ) : (
+                          messages.map((msg) => (
+                            <div 
+                              key={msg.id} 
+                              className={`flex ${msg.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
+                            >
+                              <div className="max-w-[70%]">
+                                {msg.senderId !== currentUserId && (
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Avatar className="w-6 h-6">
+                                      <AvatarImage src={msg.senderAvatar} alt={msg.senderName} />
+                                      <AvatarFallback>{msg.senderName.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="text-xs font-medium">{msg.senderName}</span>
+                                  </div>
+                                )}
+                                <div 
+                                  className={`rounded-2xl p-3 ${
+                                    msg.senderId === currentUserId 
+                                      ? 'bg-primary text-primary-foreground rounded-tr-none' 
+                                      : 'bg-accent rounded-tl-none'
+                                  }`}
+                                >
+                                  <p className="text-sm">{msg.content}</p>
+                                </div>
+                                <p className={`text-xs text-muted-foreground mt-1 ${
+                                  msg.senderId === currentUserId ? 'text-right mr-2' : 'ml-2'
+                                }`}>
+                                  {new Date(msg.createdAt).toLocaleTimeString('ru-RU', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                  })}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1 mr-2 text-right">
-                              10:32
-                            </p>
-                          </div>
-                        </div>
+                          ))
+                        )}
                       </div>
                     </ScrollArea>
 

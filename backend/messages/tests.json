@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get user conversations",
+      "method": "GET",
+      "path": "/?action=conversations",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "conversations": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
