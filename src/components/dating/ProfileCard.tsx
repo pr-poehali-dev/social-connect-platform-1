@@ -89,7 +89,7 @@ const ProfileCard = ({
 
       if (response.ok) {
         const data = await response.json();
-        navigate('/messages');
+        navigate('/messages', { state: { openChatId: data.conversationId } });
       } else {
         toast({
           title: 'Ошибка',

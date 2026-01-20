@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ interface Message {
 }
 
 const Messages = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal'>('personal');
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
@@ -55,6 +57,14 @@ const Messages = () => {
       loadMessages();
     }
   }, [selectedChat]);
+
+  useEffect(() => {
+    const state = location.state as { openChatId?: number };
+    if (state?.openChatId && chats.length > 0) {
+      setSelectedChat(state.openChatId);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, chats]);
 
   const loadUserData = async () => {
     const token = localStorage.getItem('access_token');
