@@ -20,6 +20,37 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
+    auth_header = event.get('headers', {}).get('X-Authorization', '')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Unauthorized'}),
+            'isBase64Encoded': False
+        }
+    
+    token = auth_header.replace('Bearer ', '')
+    
+    try:
+        import jwt as pyjwt
+        jwt_secret = os.environ.get('JWT_SECRET')
+        if not jwt_secret:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Server configuration error'}),
+                'isBase64Encoded': False
+            }
+        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+    except Exception:
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid token'}),
+            'isBase64Encoded': False
+        }
+    
     dsn = os.environ.get('DATABASE_URL')
     if not dsn:
         return {
@@ -29,31 +60,8 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
-    token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
-    if not token:
-        return {
-            'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Unauthorized'}),
-            'isBase64Encoded': False
-        }
-    
     conn = psycopg2.connect(dsn)
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    
-    cursor.execute("SELECT user_id FROM t_p19021063_social_connect_platf.refresh_tokens WHERE token = %s", (token,))
-    user_row = cursor.fetchone()
-    if not user_row:
-        cursor.close()
-        conn.close()
-        return {
-            'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Invalid token'}),
-            'isBase64Encoded': False
-        }
-    
-    user_id = user_row['user_id']
     params = event.get('queryStringParameters') or {}
     action = params.get('action', 'conversations')
     
