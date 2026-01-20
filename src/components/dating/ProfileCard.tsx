@@ -108,7 +108,7 @@ const ProfileCard = ({
   };
 
   return (
-    <div className="perspective-1000 h-[520px]">
+    <div className="perspective-1000 h-[460px]">
       <div 
         className={`relative w-full h-full transition-transform duration-600 transform-style-3d ${
           isFlipped ? 'rotate-y-180' : ''
@@ -119,11 +119,11 @@ const ProfileCard = ({
         }}
       >
         <Card 
-          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden"
+          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden flex flex-col"
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div 
-            className="relative h-[380px] overflow-hidden cursor-pointer"
+            className="relative flex-1 overflow-hidden cursor-pointer"
             onClick={handleFlip}
           >
             {profile.image ? (
@@ -186,14 +186,14 @@ const ProfileCard = ({
         </Card>
 
         <Card 
-          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden rotate-y-180"
+          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden rotate-y-180 flex flex-col"
           style={{ 
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)'
           }}
         >
           <div 
-            className="relative h-[380px] overflow-auto p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 cursor-pointer"
+            className="relative flex-1 overflow-auto p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 cursor-pointer"
             onClick={handleFlip}
           >
             <h3 className="text-xl font-bold mb-4">О себе</h3>
