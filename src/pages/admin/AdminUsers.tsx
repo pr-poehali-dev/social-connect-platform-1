@@ -47,8 +47,10 @@ const AdminUsers = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [showVipDialog, setShowVipDialog] = useState(false);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [blockReason, setBlockReason] = useState('');
   const [vipDays, setVipDays] = useState('30');
+  const [messageText, setMessageText] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -214,6 +216,36 @@ const AdminUsers = () => {
     }
   };
 
+  const sendMessage = async () => {
+    const token = localStorage.getItem('admin_token');
+    if (!token || !selectedUser || !messageText.trim()) return;
+
+    try {
+      const response = await fetch(`${ADMIN_API}?action=send_message`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'send_message',
+          user_id: selectedUser.id,
+          message: messageText
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успешно', description: 'Сообщение отправлено пользователю' });
+        setShowMessageDialog(false);
+        setMessageText('');
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось отправить сообщение', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Ошибка подключения', variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <nav className="bg-white/10 backdrop-blur-lg border-b border-white/20">
@@ -278,24 +310,27 @@ const AdminUsers = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => loadUserDetails(user.id)}>
+                      <Button size="sm" variant="outline" onClick={() => loadUserDetails(user.id)} title="Просмотр деталей">
                         <Icon name="Eye" size={16} />
                       </Button>
+                      <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowMessageDialog(true); }} title="Отправить сообщение">
+                        <Icon name="Mail" size={16} />
+                      </Button>
                       {user.is_blocked ? (
-                        <Button size="sm" variant="outline" onClick={() => unblockUser(user.id)}>
+                        <Button size="sm" variant="outline" onClick={() => unblockUser(user.id)} title="Разблокировать">
                           <Icon name="Unlock" size={16} />
                         </Button>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowBlockDialog(true); }}>
+                        <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowBlockDialog(true); }} title="Заблокировать">
                           <Icon name="Ban" size={16} />
                         </Button>
                       )}
                       {user.is_vip ? (
-                        <Button size="sm" variant="outline" onClick={() => removeVip(user.id)}>
+                        <Button size="sm" variant="outline" onClick={() => removeVip(user.id)} title="Убрать VIP">
                           <Icon name="Crown" size={16} className="text-yellow-500" />
                         </Button>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowVipDialog(true); }}>
+                        <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowVipDialog(true); }} title="Установить VIP">
                           <Icon name="Crown" size={16} />
                         </Button>
                       )}
@@ -404,6 +439,35 @@ const AdminUsers = () => {
             </Button>
             <Button onClick={setVip}>
               Установить VIP
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Отправить сообщение пользователю</DialogTitle>
+            <DialogDescription>
+              {selectedUser && `Отправить сообщение пользователю ${selectedUser.email}`}
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <Label>Текст сообщения</Label>
+            <Textarea
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder="Введите текст сообщения..."
+              rows={5}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowMessageDialog(false); setMessageText(''); }}>
+              Отмена
+            </Button>
+            <Button onClick={sendMessage} disabled={!messageText.trim()}>
+              <Icon name="Send" size={16} className="mr-2" />
+              Отправить
             </Button>
           </DialogFooter>
         </DialogContent>

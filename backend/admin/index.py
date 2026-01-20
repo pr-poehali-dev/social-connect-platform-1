@@ -361,6 +361,47 @@ def handler(event: dict, context) -> dict:
             
             return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'logs': logs}), 'isBase64Encoded': False}
         
+        # Отправить сообщение пользователю от админа
+        if action == 'send_message':
+            user_id = body.get('user_id')
+            message_text = body.get('message')
+            
+            if not user_id or not message_text:
+                return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Требуется user_id и message'}), 'isBase64Encoded': False}
+            
+            # Проверяем существование пользователя
+            cur.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+            if not cur.fetchone():
+                return {'statusCode': 404, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Пользователь не найден'}), 'isBase64Encoded': False}
+            
+            # Создаём или находим существующий диалог с системой
+            cur.execute("SELECT id FROM conversations WHERE id IN (SELECT conversation_id FROM conversation_participants WHERE user_id = %s) AND id IN (SELECT conversation_id FROM conversation_participants WHERE user_id IS NULL) LIMIT 1", (user_id,))
+            conversation = cur.fetchone()
+            
+            if not conversation:
+                # Создаём новый диалог
+                cur.execute("INSERT INTO conversations (created_at, updated_at) VALUES (%s, %s) RETURNING id", (datetime.now(), datetime.now()))
+                conversation_id = cur.fetchone()[0]
+                
+                # Добавляем участников (пользователь + система)
+                cur.execute("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (%s, %s)", (conversation_id, user_id))
+                cur.execute("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (%s, NULL)", (conversation_id,))
+            else:
+                conversation_id = conversation[0]
+            
+            # Отправляем сообщение от системы (sender_id = NULL означает системное сообщение)
+            cur.execute("INSERT INTO messages (conversation_id, sender_id, message, created_at) VALUES (%s, NULL, %s, %s)", 
+                       (conversation_id, message_text, datetime.now()))
+            
+            # Обновляем время последнего сообщения в диалоге
+            cur.execute("UPDATE conversations SET updated_at = %s WHERE id = %s", (datetime.now(), conversation_id))
+            
+            conn.commit()
+            
+            log_admin_action(admin_id, 'send_message', 'user', user_id, {'message_preview': message_text[:50]}, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True, 'conversation_id': conversation_id}), 'isBase64Encoded': False}
+        
         return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Неизвестное действие'}), 'isBase64Encoded': False}
     
     except Exception as e:
