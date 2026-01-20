@@ -14,9 +14,7 @@ const Navigation = () => {
     setIsAuth(isAuthenticated());
   }, [location]);
 
-  const publicItems = [
-    { path: '/', label: 'Главная', icon: 'Home' },
-  ];
+  const publicItems: { path: string; label: string; icon: string }[] = [];
 
   const mainNavItems = [
     { path: '/dating', label: 'Знакомства', icon: 'Heart', showLabel: true },
