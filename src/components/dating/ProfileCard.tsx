@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: number;
@@ -41,6 +43,10 @@ const ProfileCard = ({
   onToggleFavorite,
   onAddFriend,
 }: ProfileCardProps) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isFlipped, setIsFlipped] = useState(false);
+
   const getFriendButtonText = () => {
     if (isFriend) return 'Уже в друзьях';
     if (isFriendRequestSent) return 'Заявка отправлена';
@@ -52,10 +58,53 @@ const ProfileCard = ({
     if (isFriendRequestSent) return 'Clock';
     return 'UserPlus';
   };
-  const [isFlipped, setIsFlipped] = useState(false);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
+  };
+
+  const handleOpenChat = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт для отправки сообщений',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          action: 'create_conversation',
+          userId: profile.id
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        navigate('/messages');
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось создать чат',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+      toast({
+        title: 'Ошибка подключения',
+        description: 'Проверьте интернет-соединение',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -120,6 +169,7 @@ const ProfileCard = ({
               variant="outline" 
               size="icon" 
               className="rounded-full h-12 w-12"
+              onClick={handleOpenChat}
             >
               <Icon name="MessageCircle" size={20} />
             </Button>

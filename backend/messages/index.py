@@ -170,6 +170,76 @@ def handler(event: dict, context) -> dict:
     
     if method == 'POST':
         data = json.loads(event.get('body', '{}'))
+        action_post = data.get('action')
+        
+        if action_post == 'create_conversation':
+            other_user_id = data.get('userId')
+            
+            if not other_user_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing userId'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute('''
+                SELECT c.id FROM t_p19021063_social_connect_platf.conversations c
+                JOIN t_p19021063_social_connect_platf.conversation_participants cp1 ON c.id = cp1.conversation_id
+                JOIN t_p19021063_social_connect_platf.conversation_participants cp2 ON c.id = cp2.conversation_id
+                WHERE c.type = 'personal' 
+                AND cp1.user_id = %s 
+                AND cp2.user_id = %s
+                LIMIT 1
+            ''', (user_id, other_user_id))
+            
+            existing = cursor.fetchone()
+            
+            if existing:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'conversationId': existing['id']}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute('''
+                SELECT name, avatar_url FROM t_p19021063_social_connect_platf.users WHERE id = %s
+            ''', (other_user_id,))
+            other_user = cursor.fetchone()
+            
+            cursor.execute('''
+                INSERT INTO t_p19021063_social_connect_platf.conversations 
+                (type, name, avatar_url, created_by)
+                VALUES ('personal', %s, %s, %s)
+                RETURNING id
+            ''', (other_user['name'] if other_user else 'Пользователь', 
+                  other_user['avatar_url'] if other_user else None,
+                  user_id))
+            
+            new_conv = cursor.fetchone()
+            conv_id = new_conv['id']
+            
+            cursor.execute('''
+                INSERT INTO t_p19021063_social_connect_platf.conversation_participants 
+                (conversation_id, user_id) VALUES (%s, %s), (%s, %s)
+            ''', (conv_id, user_id, conv_id, other_user_id))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 201,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'conversationId': conv_id}),
+                'isBase64Encoded': False
+            }
+        
         conversation_id = data.get('conversationId')
         content = data.get('content', '').strip()
         
