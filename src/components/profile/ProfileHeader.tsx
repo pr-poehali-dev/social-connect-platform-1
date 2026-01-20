@@ -48,31 +48,35 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
     setShowCropper(false);
     setSelectedFile(null);
 
-    const formData = new FormData();
-    formData.append('file', croppedBlob, 'avatar.jpg');
-
     try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch('https://functions.poehali.dev/IMAGE_UPLOAD_URL', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (onAvatarUpdate) {
-          onAvatarUpdate(data.url);
-        }
-        toast({
-          title: 'Фото обновлено',
-          description: 'Ваше фото профиля успешно загружено',
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = (reader.result as string).split(',')[1];
+        
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('https://functions.poehali.dev/99ffce65-6223-4c0e-93d7-d7d44514ef4b', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ image: base64String })
         });
-      } else {
-        throw new Error('Upload failed');
-      }
+
+        if (response.ok) {
+          const data = await response.json();
+          if (onAvatarUpdate) {
+            onAvatarUpdate(data.url);
+          }
+          toast({
+            title: 'Фото обновлено',
+            description: 'Ваше фото профиля успешно загружено',
+          });
+        } else {
+          throw new Error('Upload failed');
+        }
+      };
+      reader.readAsDataURL(croppedBlob);
     } catch (error) {
       toast({
         title: 'Ошибка загрузки',

@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Upload avatar without auth",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "image": "base64data"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
