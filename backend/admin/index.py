@@ -1,0 +1,371 @@
+import json
+import os
+import psycopg2
+import bcrypt
+from datetime import datetime, timedelta
+import jwt
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+JWT_SECRET = os.environ.get('JWT_SECRET', 'admin-secret-key-change-in-production')
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
+
+def log_admin_action(admin_id, action, target_type=None, target_id=None, details=None, ip=None, user_agent=None):
+    '''Логирование действий администратора'''
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO admin_logs (admin_id, action, target_type, target_id, details, ip_address, user_agent) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (admin_id, action, target_type, target_id, json.dumps(details) if details else None, ip, user_agent)
+        )
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
+
+def verify_admin_token(token):
+    '''Проверка JWT токена администратора'''
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        return payload
+    except:
+        return None
+
+def handler(event: dict, context) -> dict:
+    '''API для админ-панели: авторизация, управление пользователями, контентом, фильтрами'''
+    
+    method = event.get('httpMethod', 'GET')
+    
+    if method == 'OPTIONS':
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+            },
+            'body': '',
+            'isBase64Encoded': False
+        }
+    
+    headers = event.get('headers', {})
+    auth_header = headers.get('X-Authorization', headers.get('x-authorization', ''))
+    token = auth_header.replace('Bearer ', '') if auth_header else None
+    
+    body = json.loads(event.get('body', '{}')) if event.get('body') else {}
+    params = event.get('queryStringParameters', {}) or {}
+    action = params.get('action') or body.get('action')
+    
+    ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp')
+    user_agent = headers.get('user-agent', '')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Авторизация админа
+        if action == 'login':
+            email = body.get('email')
+            password = body.get('password')
+            
+            cur.execute("SELECT id, email, password_hash, name, role, is_active FROM admins WHERE email = %s", (email,))
+            admin = cur.fetchone()
+            
+            if not admin:
+                return {'statusCode': 401, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Неверные данные'}), 'isBase64Encoded': False}
+            
+            admin_id, admin_email, password_hash, name, role, is_active = admin
+            
+            if not is_active:
+                return {'statusCode': 403, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Аккаунт заблокирован'}), 'isBase64Encoded': False}
+            
+            if not bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
+                return {'statusCode': 401, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Неверные данные'}), 'isBase64Encoded': False}
+            
+            cur.execute("UPDATE admins SET last_login_at = %s WHERE id = %s", (datetime.now(), admin_id))
+            conn.commit()
+            
+            access_token = jwt.encode({
+                'admin_id': admin_id,
+                'email': admin_email,
+                'role': role,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            }, JWT_SECRET, algorithm='HS256')
+            
+            log_admin_action(admin_id, 'login', ip=ip, user_agent=user_agent)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'access_token': access_token, 'admin': {'id': admin_id, 'email': admin_email, 'name': name, 'role': role}}),
+                'isBase64Encoded': False
+            }
+        
+        # Все остальные действия требуют авторизации
+        admin_data = verify_admin_token(token)
+        if not admin_data:
+            return {'statusCode': 401, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Требуется авторизация'}), 'isBase64Encoded': False}
+        
+        admin_id = admin_data['admin_id']
+        
+        # Дашборд - статистика
+        if action == 'dashboard':
+            cur.execute("SELECT COUNT(*) FROM users")
+            total_users = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM users WHERE is_vip = true")
+            vip_users = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM users WHERE is_blocked = true")
+            blocked_users = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '30 days'")
+            new_users_month = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM dating_profiles")
+            dating_profiles = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM ads")
+            total_ads = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM services")
+            total_services = cur.fetchone()[0]
+            
+            cur.execute("SELECT COUNT(*) FROM events")
+            total_events = cur.fetchone()[0]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'users': {'total': total_users, 'vip': vip_users, 'blocked': blocked_users, 'new_month': new_users_month},
+                    'content': {'dating': dating_profiles, 'ads': total_ads, 'services': total_services, 'events': total_events}
+                }),
+                'isBase64Encoded': False
+            }
+        
+        # Получить список пользователей
+        if action == 'get_users':
+            page = int(params.get('page', 1))
+            limit = int(params.get('limit', 50))
+            search = params.get('search', '')
+            filter_blocked = params.get('blocked')
+            filter_vip = params.get('vip')
+            
+            offset = (page - 1) * limit
+            
+            query = "SELECT id, email, name, nickname, is_vip, vip_expires_at, is_blocked, block_reason, created_at, last_login_at FROM users WHERE 1=1"
+            count_query = "SELECT COUNT(*) FROM users WHERE 1=1"
+            query_params = []
+            
+            if search:
+                query += " AND (email ILIKE %s OR name ILIKE %s OR nickname ILIKE %s)"
+                count_query += " AND (email ILIKE %s OR name ILIKE %s OR nickname ILIKE %s)"
+                search_param = f'%{search}%'
+                query_params.extend([search_param, search_param, search_param])
+            
+            if filter_blocked == 'true':
+                query += " AND is_blocked = true"
+                count_query += " AND is_blocked = true"
+            elif filter_blocked == 'false':
+                query += " AND is_blocked = false"
+                count_query += " AND is_blocked = false"
+            
+            if filter_vip == 'true':
+                query += " AND is_vip = true"
+                count_query += " AND is_vip = true"
+            elif filter_vip == 'false':
+                query += " AND is_vip = false"
+                count_query += " AND is_vip = false"
+            
+            cur.execute(count_query, query_params if search or filter_blocked or filter_vip else [])
+            total = cur.fetchone()[0]
+            
+            query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+            cur.execute(query, query_params + [limit, offset])
+            
+            users = []
+            for row in cur.fetchall():
+                users.append({
+                    'id': row[0], 'email': row[1], 'name': row[2], 'nickname': row[3],
+                    'is_vip': row[4], 'vip_expires_at': row[5].isoformat() if row[5] else None,
+                    'is_blocked': row[6], 'block_reason': row[7],
+                    'created_at': row[8].isoformat() if row[8] else None,
+                    'last_login_at': row[9].isoformat() if row[9] else None
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'users': users, 'total': total, 'page': page, 'limit': limit}),
+                'isBase64Encoded': False
+            }
+        
+        # Получить детали пользователя
+        if action == 'get_user_details':
+            user_id = params.get('user_id') or body.get('user_id')
+            
+            cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+            columns = [desc[0] for desc in cur.description]
+            row = cur.fetchone()
+            
+            if not row:
+                return {'statusCode': 404, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Пользователь не найден'}), 'isBase64Encoded': False}
+            
+            user = dict(zip(columns, row))
+            for key in user:
+                if isinstance(user[key], datetime):
+                    user[key] = user[key].isoformat()
+            
+            cur.execute("SELECT ip_address, user_agent, login_at, success FROM user_login_history WHERE user_id = %s ORDER BY login_at DESC LIMIT 50", (user_id,))
+            login_history = [{'ip': r[0], 'user_agent': r[1], 'login_at': r[2].isoformat(), 'success': r[3]} for r in cur.fetchall()]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'user': user, 'login_history': login_history}),
+                'isBase64Encoded': False
+            }
+        
+        # Блокировать пользователя
+        if action == 'block_user':
+            user_id = body.get('user_id')
+            reason = body.get('reason', 'Нарушение правил')
+            
+            cur.execute("UPDATE users SET is_blocked = true, block_reason = %s, blocked_at = %s, blocked_by = %s WHERE id = %s",
+                       (reason, datetime.now(), admin_id, user_id))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'block_user', 'user', user_id, {'reason': reason}, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Разблокировать пользователя
+        if action == 'unblock_user':
+            user_id = body.get('user_id')
+            
+            cur.execute("UPDATE users SET is_blocked = false, block_reason = NULL, blocked_at = NULL, blocked_by = NULL WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'unblock_user', 'user', user_id, None, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Установить VIP статус
+        if action == 'set_vip':
+            user_id = body.get('user_id')
+            days = body.get('days', 30)
+            
+            expires_at = datetime.now() + timedelta(days=days)
+            cur.execute("UPDATE users SET is_vip = true, vip_expires_at = %s WHERE id = %s", (expires_at, user_id))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'set_vip', 'user', user_id, {'days': days}, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True, 'expires_at': expires_at.isoformat()}), 'isBase64Encoded': False}
+        
+        # Убрать VIP статус
+        if action == 'remove_vip':
+            user_id = body.get('user_id')
+            
+            cur.execute("UPDATE users SET is_vip = false, vip_expires_at = NULL WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'remove_vip', 'user', user_id, None, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Управление разделами сайта
+        if action == 'get_sections':
+            cur.execute("SELECT id, section_key, section_name, is_enabled, settings, updated_at FROM site_sections ORDER BY section_key")
+            sections = []
+            for row in cur.fetchall():
+                sections.append({
+                    'id': row[0], 'key': row[1], 'name': row[2], 'enabled': row[3],
+                    'settings': row[4], 'updated_at': row[5].isoformat() if row[5] else None
+                })
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'sections': sections}), 'isBase64Encoded': False}
+        
+        if action == 'update_section':
+            section_id = body.get('section_id')
+            is_enabled = body.get('is_enabled')
+            settings = body.get('settings')
+            
+            cur.execute("UPDATE site_sections SET is_enabled = %s, settings = %s, updated_at = %s, updated_by = %s WHERE id = %s",
+                       (is_enabled, json.dumps(settings) if settings else None, datetime.now(), admin_id, section_id))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'update_section', 'section', section_id, {'enabled': is_enabled}, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Управление фильтрами
+        if action == 'get_filters':
+            section = params.get('section')
+            cur.execute("SELECT id, section, filter_key, filter_label, filter_type, options, is_active, sort_order FROM site_filters WHERE section = %s ORDER BY sort_order, id", (section,))
+            filters = []
+            for row in cur.fetchall():
+                filters.append({
+                    'id': row[0], 'section': row[1], 'key': row[2], 'label': row[3],
+                    'type': row[4], 'options': row[5], 'active': row[6], 'sort_order': row[7]
+                })
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'filters': filters}), 'isBase64Encoded': False}
+        
+        if action == 'create_filter':
+            section = body.get('section')
+            filter_key = body.get('filter_key')
+            filter_label = body.get('filter_label')
+            filter_type = body.get('filter_type')
+            options = body.get('options')
+            
+            cur.execute("INSERT INTO site_filters (section, filter_key, filter_label, filter_type, options) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                       (section, filter_key, filter_label, filter_type, json.dumps(options) if options else None))
+            filter_id = cur.fetchone()[0]
+            conn.commit()
+            
+            log_admin_action(admin_id, 'create_filter', 'filter', filter_id, {'section': section, 'key': filter_key}, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True, 'id': filter_id}), 'isBase64Encoded': False}
+        
+        if action == 'update_filter':
+            filter_id = body.get('filter_id')
+            filter_label = body.get('filter_label')
+            filter_type = body.get('filter_type')
+            options = body.get('options')
+            is_active = body.get('is_active')
+            
+            cur.execute("UPDATE site_filters SET filter_label = %s, filter_type = %s, options = %s, is_active = %s, updated_at = %s WHERE id = %s",
+                       (filter_label, filter_type, json.dumps(options) if options else None, is_active, datetime.now(), filter_id))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'update_filter', 'filter', filter_id, None, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Логи действий админов
+        if action == 'get_logs':
+            page = int(params.get('page', 1))
+            limit = int(params.get('limit', 100))
+            offset = (page - 1) * limit
+            
+            cur.execute("SELECT al.id, al.admin_id, a.email, al.action, al.target_type, al.target_id, al.details, al.ip_address, al.created_at FROM admin_logs al LEFT JOIN admins a ON al.admin_id = a.id ORDER BY al.created_at DESC LIMIT %s OFFSET %s", (limit, offset))
+            logs = []
+            for row in cur.fetchall():
+                logs.append({
+                    'id': row[0], 'admin_id': row[1], 'admin_email': row[2], 'action': row[3],
+                    'target_type': row[4], 'target_id': row[5], 'details': row[6],
+                    'ip': row[7], 'created_at': row[8].isoformat()
+                })
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'logs': logs}), 'isBase64Encoded': False}
+        
+        return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Неизвестное действие'}), 'isBase64Encoded': False}
+    
+    except Exception as e:
+        return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
+    
+    finally:
+        cur.close()
+        conn.close()

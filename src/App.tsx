@@ -26,6 +26,13 @@ import Wallet from "./pages/Wallet";
 import VkCallback from "./pages/VkCallback";
 import YandexCallback from "./pages/YandexCallback";
 import GoogleCallback from "./pages/GoogleCallback";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSections from "./pages/admin/AdminSections";
+import AdminFilters from "./pages/admin/AdminFilters";
+import AdminLogs from "./pages/admin/AdminLogs";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +64,13 @@ const App = () => (
           <Route path="/auth/vk/callback" element={<VkCallback />} />
           <Route path="/auth/yandex/callback" element={<YandexCallback />} />
           <Route path="/auth/google/callback" element={<GoogleCallback />} />
+          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/sections" element={<AdminSections />} />
+          <Route path="/admin/filters" element={<AdminFilters />} />
+          <Route path="/admin/logs" element={<AdminLogs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
