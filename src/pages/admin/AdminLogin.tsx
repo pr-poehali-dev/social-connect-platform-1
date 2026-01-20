@@ -18,30 +18,11 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${ADMIN_API}?action=login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', email, password })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('admin_token', data.access_token);
-        localStorage.setItem('admin_data', JSON.stringify(data.admin));
-        toast({ title: 'Успешный вход!', description: 'Добро пожаловать в админ-панель' });
-        setTimeout(() => navigate('/admin/dashboard'), 500);
-      } else {
-        toast({ title: 'Ошибка входа', description: data.error || 'Проверьте данные', variant: 'destructive' });
-      }
-    } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
+    toast({ 
+      title: 'Доступ ограничен', 
+      description: 'Админ-панель находится в разработке', 
+      variant: 'destructive' 
+    });
   };
 
   return (
