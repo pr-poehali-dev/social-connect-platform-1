@@ -205,11 +205,11 @@ const Navigation = () => {
                 <Link key={item.path} to={item.path}>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-14 w-full flex-col gap-1 relative"
+                    size="icon"
+                    className="h-12 w-full relative"
+                    title={item.label}
                   >
-                    <Icon name={item.icon} size={20} />
-                    <span className="text-xs">{item.label}</span>
+                    <Icon name={item.icon} size={24} />
                     {item.path === '/messages' && unreadCount > 0 && (
                       <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
                         {unreadCount > 9 ? '9' : unreadCount}
