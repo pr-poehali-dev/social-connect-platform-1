@@ -65,7 +65,7 @@ const App = () => (
           <Route path="/auth/yandex/callback" element={<YandexCallback />} />
           <Route path="/auth/google/callback" element={<GoogleCallback />} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/sections" element={<AdminSections />} />

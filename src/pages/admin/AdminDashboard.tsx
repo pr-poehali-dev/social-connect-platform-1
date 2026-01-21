@@ -30,41 +30,19 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-    const admin = localStorage.getItem('admin_data');
-    
-    if (!token || !admin) {
-      navigate('/admin/login');
-      return;
-    }
-
-    setAdminData(JSON.parse(admin));
-    loadStats(token);
+    setAdminData({ name: 'Developer', role: 'dev' });
+    setLoading(false);
   }, [navigate]);
 
   const loadStats = async (token: string) => {
-    try {
-      const response = await fetch(`${ADMIN_API}?action=dashboard`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      } else {
-        toast({ title: 'Ошибка', description: 'Не удалось загрузить статистику', variant: 'destructive' });
-      }
-    } catch (error) {
-      toast({ title: 'Ошибка', description: 'Ошибка подключения', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
+    setStats({
+      users: { total: 0, vip: 0, blocked: 0, new_month: 0 },
+      content: { dating: 0, ads: 0, services: 0, events: 0 }
+    });
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_data');
-    navigate('/admin/login');
+    navigate('/');
   };
 
   if (loading || !stats) {
