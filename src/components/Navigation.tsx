@@ -182,23 +182,6 @@ const Navigation = () => {
 
       {isAuth && (
         <>
-          <div className="lg:hidden fixed top-0 left-0 right-0 pt-16 z-40 bg-white/95 backdrop-blur-lg border-b border-border">
-            <div className="flex overflow-x-auto hide-scrollbar">
-              {mainNavItems.map((item) => (
-                <Link key={item.path} to={item.path} className="flex-shrink-0">
-                  <Button
-                    variant={location.pathname === item.path ? 'default' : 'ghost'}
-                    className="gap-2 rounded-none border-b-2 border-transparent data-[active=true]:border-primary h-12"
-                    data-active={location.pathname === item.path}
-                  >
-                    <Icon name={item.icon} size={18} />
-                    <span className="text-sm">{item.label}</span>
-                  </Button>
-                </Link>
-              ))}
-            </div>
-          </div>
-
           <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-border pb-safe">
             <div className="grid grid-cols-7 gap-1 px-2 py-2">
               {bottomNavItems.map((item) => (
