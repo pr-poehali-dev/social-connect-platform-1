@@ -65,10 +65,10 @@ const Navigation = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
+      <nav className={`fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border ${isAuth ? 'lg:block hidden' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className={`flex items-center gap-2 group ${isAuth ? 'lg:flex hidden' : ''}`}>
+            <Link to="/" className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center transform group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🚀</span>
               </div>
@@ -182,7 +182,7 @@ const Navigation = () => {
 
       {isAuth && (
         <>
-          <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-b border-border">
+          <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-border">
             <div className="flex overflow-x-auto hide-scrollbar">
               {mainNavItems.map((item) => (
                 <Link key={item.path} to={item.path} className="flex-shrink-0">
