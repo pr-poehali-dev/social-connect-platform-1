@@ -2,28 +2,43 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_API = 'https://functions.poehali.dev/1a9ecaa4-2882-4498-965a-c16eb32920ec';
 
-interface DashboardStats {
-  users: {
-    total: number;
-    vip: number;
-    blocked: number;
-    new_month: number;
-  };
-  content: {
-    dating: number;
-    ads: number;
-    services: number;
-    events: number;
-  };
+interface PeriodStats {
+  new_users: number;
+  revenue: number;
+  active_users: number;
+  user_growth_percent: number;
+  revenue_growth_percent: number;
+  activity_growth_percent: number;
+}
+
+interface CityStats {
+  city: string;
+  new_users: number;
+  revenue: number;
+  active_users: number;
 }
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [period, setPeriod] = useState<'today' | 'yesterday' | 'month' | 'year' | 'custom'>('today');
+  const [customDateFrom, setCustomDateFrom] = useState('');
+  const [customDateTo, setCustomDateTo] = useState('');
+  const [periodStats, setPeriodStats] = useState<PeriodStats>({
+    new_users: 0,
+    revenue: 0,
+    active_users: 0,
+    user_growth_percent: 0,
+    revenue_growth_percent: 0,
+    activity_growth_percent: 0
+  });
+  const [citiesStats, setCitiesStats] = useState<CityStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminData, setAdminData] = useState<any>(null);
   const { toast } = useToast();
@@ -31,25 +46,61 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     setAdminData({ name: 'Developer', role: 'dev' });
-    setStats({
-      users: { total: 0, vip: 0, blocked: 0, new_month: 0 },
-      content: { dating: 0, ads: 0, services: 0, events: 0 }
-    });
-    setLoading(false);
+    loadPeriodStats();
   }, [navigate]);
 
-  const loadStats = async (token: string) => {
-    setStats({
-      users: { total: 0, vip: 0, blocked: 0, new_month: 0 },
-      content: { dating: 0, ads: 0, services: 0, events: 0 }
-    });
+  useEffect(() => {
+    loadPeriodStats();
+  }, [period, customDateFrom, customDateTo]);
+
+  const loadPeriodStats = async () => {
+    setLoading(true);
+    
+    const mockStats: PeriodStats = {
+      new_users: Math.floor(Math.random() * 150) + 20,
+      revenue: Math.floor(Math.random() * 50000) + 10000,
+      active_users: Math.floor(Math.random() * 500) + 100,
+      user_growth_percent: (Math.random() * 30 - 5),
+      revenue_growth_percent: (Math.random() * 40 - 10),
+      activity_growth_percent: (Math.random() * 25 - 5)
+    };
+
+    const mockCities: CityStats[] = [
+      { city: 'Москва', new_users: 45, revenue: 18500, active_users: 230 },
+      { city: 'Санкт-Петербург', new_users: 32, revenue: 12300, active_users: 165 },
+      { city: 'Новосибирск', new_users: 18, revenue: 7200, active_users: 89 },
+      { city: 'Екатеринбург', new_users: 15, revenue: 6100, active_users: 72 },
+      { city: 'Казань', new_users: 12, revenue: 4800, active_users: 58 },
+      { city: 'Нижний Новгород', new_users: 9, revenue: 3600, active_users: 45 },
+      { city: 'Челябинск', new_users: 8, revenue: 3200, active_users: 38 },
+      { city: 'Самара', new_users: 7, revenue: 2900, active_users: 34 },
+    ];
+
+    setPeriodStats(mockStats);
+    setCitiesStats(mockCities);
+    setLoading(false);
   };
 
   const handleLogout = () => {
     navigate('/');
   };
 
-  if (loading || !stats) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(amount);
+  };
+
+  const getPeriodLabel = () => {
+    switch(period) {
+      case 'today': return 'Сегодня';
+      case 'yesterday': return 'Вчера';
+      case 'month': return 'За месяц';
+      case 'year': return 'За год';
+      case 'custom': return 'Выбранный период';
+      default: return 'Период';
+    }
+  };
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-white text-2xl">Загрузка...</div>
@@ -80,59 +131,141 @@ const AdminDashboard = () => {
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card className="bg-white/95 backdrop-blur border-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Icon name="Users" size={18} className="text-blue-500" />
-                Всего пользователей
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.users.total}</div>
-              <p className="text-sm text-muted-foreground mt-1">+{stats.users.new_month} за месяц</p>
-            </CardContent>
-          </Card>
+        <Card className="bg-white/95 backdrop-blur mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Icon name="BarChart3" size={24} />
+                Статистика площадки
+              </div>
+            </CardTitle>
+            <div className="flex flex-wrap gap-4 mt-4">
+              <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">Сегодня</SelectItem>
+                  <SelectItem value="yesterday">Вчера</SelectItem>
+                  <SelectItem value="month">За месяц</SelectItem>
+                  <SelectItem value="year">За год</SelectItem>
+                  <SelectItem value="custom">Выбрать период</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {period === 'custom' && (
+                <>
+                  <Input
+                    type="date"
+                    value={customDateFrom}
+                    onChange={(e) => setCustomDateFrom(e.target.value)}
+                    className="w-40"
+                    placeholder="С даты"
+                  />
+                  <Input
+                    type="date"
+                    value={customDateTo}
+                    onChange={(e) => setCustomDateTo(e.target.value)}
+                    className="w-40"
+                    placeholder="По дату"
+                  />
+                </>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="general" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="general">Общая статистика</TabsTrigger>
+                <TabsTrigger value="cities">По городам</TabsTrigger>
+              </TabsList>
 
-          <Card className="bg-white/95 backdrop-blur border-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Icon name="Crown" size={18} className="text-yellow-500" />
-                VIP пользователи
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.users.vip}</div>
-              <p className="text-sm text-muted-foreground mt-1">{((stats.users.vip / stats.users.total) * 100).toFixed(1)}% от всех</p>
-            </CardContent>
-          </Card>
+              <TabsContent value="general" className="space-y-6 mt-6">
+                <div className="grid gap-6 md:grid-cols-3">
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Icon name="UserPlus" size={18} className="text-blue-500" />
+                        Новые пользователи
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{periodStats.new_users}</div>
+                      <p className={`text-sm mt-1 flex items-center gap-1 ${periodStats.user_growth_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <Icon name={periodStats.user_growth_percent >= 0 ? 'TrendingUp' : 'TrendingDown'} size={16} />
+                        {periodStats.user_growth_percent >= 0 ? '+' : ''}{periodStats.user_growth_percent.toFixed(1)}% к предыдущему периоду
+                      </p>
+                    </CardContent>
+                  </Card>
 
-          <Card className="bg-white/95 backdrop-blur border-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Icon name="Ban" size={18} className="text-red-500" />
-                Заблокированные
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.users.blocked}</div>
-              <p className="text-sm text-muted-foreground mt-1">{((stats.users.blocked / stats.users.total) * 100).toFixed(1)}% от всех</p>
-            </CardContent>
-          </Card>
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Icon name="Wallet" size={18} className="text-green-500" />
+                        Заработок площадки
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{formatCurrency(periodStats.revenue)}</div>
+                      <p className={`text-sm mt-1 flex items-center gap-1 ${periodStats.revenue_growth_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <Icon name={periodStats.revenue_growth_percent >= 0 ? 'TrendingUp' : 'TrendingDown'} size={16} />
+                        {periodStats.revenue_growth_percent >= 0 ? '+' : ''}{periodStats.revenue_growth_percent.toFixed(1)}% к предыдущему периоду
+                      </p>
+                    </CardContent>
+                  </Card>
 
-          <Card className="bg-white/95 backdrop-blur border-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Icon name="Heart" size={18} className="text-pink-500" />
-                Анкеты знакомств
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.content.dating}</div>
-              <p className="text-sm text-muted-foreground mt-1">Активные профили</p>
-            </CardContent>
-          </Card>
-        </div>
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Icon name="Activity" size={18} className="text-purple-500" />
+                        Активные пользователи
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{periodStats.active_users}</div>
+                      <p className={`text-sm mt-1 flex items-center gap-1 ${periodStats.activity_growth_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <Icon name={periodStats.activity_growth_percent >= 0 ? 'TrendingUp' : 'TrendingDown'} size={16} />
+                        {periodStats.activity_growth_percent >= 0 ? '+' : ''}{periodStats.activity_growth_percent.toFixed(1)}% к предыдущему периоду
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="cities" className="mt-6">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-4 gap-4 px-4 py-2 bg-muted rounded-lg font-semibold text-sm">
+                    <div>Город</div>
+                    <div className="text-center">Новые пользователи</div>
+                    <div className="text-center">Заработок</div>
+                    <div className="text-center">Активные</div>
+                  </div>
+                  {citiesStats.map((city) => (
+                    <Card key={city.city} className="border">
+                      <CardContent className="p-4">
+                        <div className="grid grid-cols-4 gap-4 items-center">
+                          <div className="flex items-center gap-2">
+                            <Icon name="MapPin" size={16} className="text-blue-500" />
+                            <span className="font-medium">{city.city}</span>
+                          </div>
+                          <div className="text-center">
+                            <span className="text-2xl font-bold text-blue-600">{city.new_users}</span>
+                          </div>
+                          <div className="text-center">
+                            <span className="text-2xl font-bold text-green-600">{formatCurrency(city.revenue)}</span>
+                          </div>
+                          <div className="text-center">
+                            <span className="text-2xl font-bold text-purple-600">{city.active_users}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Link to="/admin/users">
@@ -190,22 +323,6 @@ const AdminDashboard = () => {
               </CardHeader>
             </Card>
           </Link>
-
-          <Card className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="BarChart3" size={24} />
-                Контент
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                <div className="mt-2 space-y-1">
-                  <div>Объявления: {stats.content.ads}</div>
-                  <div>Услуги: {stats.content.services}</div>
-                  <div>Мероприятия: {stats.content.events}</div>
-                </div>
-              </CardDescription>
-            </CardHeader>
-          </Card>
         </div>
       </main>
     </div>
