@@ -91,17 +91,18 @@ const Services = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 bg-clip-text text-transparent">
+              <div className="mb-6">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 bg-clip-text text-transparent whitespace-nowrap">
                     Услуги пользователей
                   </h1>
-                  <p className="text-muted-foreground">Найдите исполнителя или предложите свою услугу</p>
+                  <Button className="gap-2 rounded-2xl shrink-0">
+                    <Icon name="Plus" size={20} />
+                    <span className="hidden sm:inline">Создать услугу</span>
+                    <span className="sm:hidden">Создать</span>
+                  </Button>
                 </div>
-                <Button className="gap-2 rounded-2xl">
-                  <Icon name="Plus" size={20} />
-                  Создать услугу
-                </Button>
+                <p className="text-muted-foreground text-sm md:text-base">Найдите исполнителя или предложите свою услугу</p>
               </div>
               
               <div className="relative mb-6">
