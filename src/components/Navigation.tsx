@@ -188,12 +188,10 @@ const Navigation = () => {
                 <Link key={item.path} to={item.path} className="flex-1">
                   <Button
                     variant={location.pathname === item.path ? 'default' : 'ghost'}
-                    size="icon"
-                    className="w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary"
+                    className="w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1"
                     data-active={location.pathname === item.path}
-                    title={item.label}
                   >
-                    <Icon name={item.icon} size={24} />
+                    {item.label}
                   </Button>
                 </Link>
               ))}
