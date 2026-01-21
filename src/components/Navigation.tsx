@@ -182,13 +182,13 @@ const Navigation = () => {
 
       {isAuth && (
         <>
-          <div className="lg:hidden fixed top-0 left-0 right-0 pt-16 z-40 bg-white/95 backdrop-blur-lg border-b border-border">
+          <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-b border-border">
             <div className="flex overflow-x-auto hide-scrollbar">
               {mainNavItems.map((item) => (
                 <Link key={item.path} to={item.path} className="flex-shrink-0">
                   <Button
                     variant={location.pathname === item.path ? 'default' : 'ghost'}
-                    className="gap-2 rounded-none border-b-2 border-transparent data-[active=true]:border-primary h-12"
+                    className="gap-2 rounded-none border-b-2 border-transparent data-[active=true]:border-primary h-14"
                     data-active={location.pathname === item.path}
                   >
                     <Icon name={item.icon} size={18} />
