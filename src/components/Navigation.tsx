@@ -13,8 +13,9 @@ const Navigation = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    setIsAuth(isAuthenticated());
-    if (isAuthenticated()) {
+    const authStatus = isAuthenticated();
+    setIsAuth(authStatus);
+    if (authStatus) {
       loadUnreadCount();
     }
   }, [location]);
@@ -23,9 +24,9 @@ const Navigation = () => {
     if (!isAuthenticated()) return;
 
     loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 30000);
+    const interval = setInterval(loadUnreadCount, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuth]);
 
   const loadUnreadCount = async () => {
     const token = localStorage.getItem('access_token');
