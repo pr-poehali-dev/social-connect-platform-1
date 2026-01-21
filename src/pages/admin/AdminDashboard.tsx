@@ -31,6 +31,10 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     setAdminData({ name: 'Developer', role: 'dev' });
+    setStats({
+      users: { total: 0, vip: 0, blocked: 0, new_month: 0 },
+      content: { dating: 0, ads: 0, services: 0, events: 0 }
+    });
     setLoading(false);
   }, [navigate]);
 
