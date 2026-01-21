@@ -46,140 +46,65 @@ const Navigation = () => {
     }
   };
 
-  const publicItems: { path: string; label: string; icon: string }[] = [];
-
   const mainNavItems = [
-    { path: '/dating', label: 'Знакомства', icon: 'Heart', showLabel: true },
-    { path: '/ads', label: 'Объявления', icon: 'MessageSquare', showLabel: true },
-    { path: '/services', label: 'Услуги', icon: 'Briefcase', showLabel: true },
-    { path: '/events', label: 'Мероприятия', icon: 'Calendar', showLabel: true },
+    { path: '/dating', label: 'Знакомства', icon: 'Heart' },
+    { path: '/ads', label: 'Объявления', icon: 'MessageSquare' },
+    { path: '/services', label: 'Услуги', icon: 'Briefcase' },
+    { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
   ];
 
-  const iconOnlyItems = [
-    { path: '/friends', label: 'Мои друзья', icon: 'UserPlus', showLabel: false },
-    { path: '/favorites', label: 'Избранное', icon: 'Star', showLabel: false },
-    { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', showLabel: false },
-    { path: '/notifications', label: 'Уведомления', icon: 'Bell', showLabel: false },
-    { path: '/referral', label: 'Партнёрка', icon: 'Users', showLabel: false },
-    { path: '/wallet', label: 'Кошелёк', icon: 'Wallet', showLabel: false },
-    { path: '/profile', label: 'Профиль', icon: 'User', showLabel: false },
+  const bottomNavItems = [
+    { path: '/friends', label: 'Друзья', icon: 'UserPlus' },
+    { path: '/favorites', label: 'Избранное', icon: 'Star' },
+    { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', badge: unreadCount },
+    { path: '/notifications', label: 'Уведомления', icon: 'Bell' },
+    { path: '/referral', label: 'Партнёрка', icon: 'Users' },
+    { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
+    { path: '/profile', label: 'Профиль', icon: 'User' },
   ];
-
-  const navItems = isAuth ? publicItems : publicItems;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center transform group-hover:scale-110 transition-transform">
-              <span className="text-2xl">🚀</span>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              ConnectHub
-            </span>
-          </Link>
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                ConnectHub
+              </span>
+            </Link>
 
-          <div className="hidden lg:flex items-center gap-1">
-            {isAuth ? (
-              <>
-                {mainNavItems.map((item) => (
-                  <Link key={item.path} to={item.path}>
-                    <Button
-                      variant={location.pathname === item.path ? 'default' : 'ghost'}
-                      className="gap-1.5 px-3 text-sm"
-                    >
-                      <Icon name={item.icon} size={16} />
-                      {item.label}
-                    </Button>
-                  </Link>
-                ))}
-                <div className="w-px h-6 bg-border mx-1" />
-                {iconOnlyItems.map((item) => (
-                  <Link key={item.path} to={item.path}>
-                    <Button
-                      variant={location.pathname === item.path ? 'default' : 'ghost'}
-                      size="icon"
-                      title={item.label}
-                      className="h-9 w-9 relative"
-                    >
-                      <Icon name={item.icon} size={16} />
-                      {item.path === '/messages' && unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-                ))}
-              </>
-            ) : (
-              <>
-                {navItems.map((item) => (
-                  <Link key={item.path} to={item.path}>
-                    <Button
-                      variant={location.pathname === item.path ? 'default' : 'ghost'}
-                      className="gap-2"
-                    >
-                      <Icon name={item.icon} size={18} />
-                      {item.label}
-                    </Button>
-                  </Link>
-                ))}
-                <Link to="/login">
-                  <Button variant="ghost" className="gap-2">
-                    <Icon name="LogIn" size={18} />
-                    Войти
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="gap-2">
-                    <Icon name="UserPlus" size={18} />
-                    Регистрация
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <Icon name={isOpen ? 'X' : 'Menu'} size={24} />
-          </Button>
-        </div>
-
-        {isOpen && (
-          <div className="lg:hidden pb-4 animate-fade-in">
-            <div className="flex flex-col gap-2">
+            <div className="hidden lg:flex items-center gap-1">
               {isAuth ? (
                 <>
                   {mainNavItems.map((item) => (
-                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                    <Link key={item.path} to={item.path}>
                       <Button
                         variant={location.pathname === item.path ? 'default' : 'ghost'}
-                        className="w-full justify-start gap-2"
+                        className="gap-1.5 px-3 text-sm"
                       >
-                        <Icon name={item.icon} size={18} />
+                        <Icon name={item.icon} size={16} />
                         {item.label}
                       </Button>
                     </Link>
                   ))}
-                  {iconOnlyItems.map((item) => (
-                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                  <div className="w-px h-6 bg-border mx-1" />
+                  {bottomNavItems.map((item) => (
+                    <Link key={item.path} to={item.path}>
                       <Button
                         variant={location.pathname === item.path ? 'default' : 'ghost'}
-                        className="w-full justify-start gap-2 relative"
+                        size="icon"
+                        title={item.label}
+                        className="h-9 w-9 relative"
                       >
-                        <Icon name={item.icon} size={18} />
-                        {item.label}
+                        <Icon name={item.icon} size={16} />
                         {item.path === '/messages' && unreadCount > 0 && (
-                          <Badge className="ml-auto bg-red-500">
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                             {unreadCount > 9 ? '9+' : unreadCount}
-                          </Badge>
+                          </span>
                         )}
                       </Button>
                     </Link>
@@ -187,25 +112,14 @@ const Navigation = () => {
                 </>
               ) : (
                 <>
-                  {navItems.map((item) => (
-                    <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
-                      <Button
-                        variant={location.pathname === item.path ? 'default' : 'ghost'}
-                        className="w-full justify-start gap-2"
-                      >
-                        <Icon name={item.icon} size={18} />
-                        {item.label}
-                      </Button>
-                    </Link>
-                  ))}
-                  <Link to="/login" onClick={() => setIsOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start gap-2">
+                  <Link to="/login">
+                    <Button variant="ghost" className="gap-2">
                       <Icon name="LogIn" size={18} />
                       Войти
                     </Button>
                   </Link>
-                  <Link to="/register" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full justify-start gap-2">
+                  <Link to="/register">
+                    <Button className="gap-2">
                       <Icon name="UserPlus" size={18} />
                       Регистрация
                     </Button>
@@ -213,10 +127,102 @@ const Navigation = () => {
                 </>
               )}
             </div>
+
+            {isAuth && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                <Icon name={isOpen ? 'X' : 'Menu'} size={24} />
+              </Button>
+            )}
+
+            {!isAuth && (
+              <div className="flex lg:hidden gap-2">
+                <Link to="/login">
+                  <Button variant="ghost" size="sm">
+                    Войти
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button size="sm">
+                    Регистрация
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </nav>
+
+          {isOpen && isAuth && (
+            <div className="lg:hidden pb-4 animate-fade-in">
+              <div className="flex flex-col gap-2">
+                {[...mainNavItems, ...bottomNavItems].map((item) => (
+                  <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                    <Button
+                      variant={location.pathname === item.path ? 'default' : 'ghost'}
+                      className="w-full justify-start gap-2 relative"
+                    >
+                      <Icon name={item.icon} size={18} />
+                      {item.label}
+                      {item.path === '/messages' && unreadCount > 0 && (
+                        <Badge className="ml-auto bg-red-500">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {isAuth && (
+        <>
+          <div className="lg:hidden fixed top-0 left-0 right-0 pt-16 z-40 bg-white/95 backdrop-blur-lg border-b border-border">
+            <div className="flex overflow-x-auto hide-scrollbar">
+              {mainNavItems.map((item) => (
+                <Link key={item.path} to={item.path} className="flex-shrink-0">
+                  <Button
+                    variant={location.pathname === item.path ? 'default' : 'ghost'}
+                    className="gap-2 rounded-none border-b-2 border-transparent data-[active=true]:border-primary h-12"
+                    data-active={location.pathname === item.path}
+                  >
+                    <Icon name={item.icon} size={18} />
+                    <span className="text-sm">{item.label}</span>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-border pb-safe">
+            <div className="grid grid-cols-7 gap-1 px-2 py-2">
+              {bottomNavItems.map((item) => (
+                <Link key={item.path} to={item.path}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-14 w-full flex-col gap-1 relative"
+                  >
+                    <Icon name={item.icon} size={20} />
+                    <span className="text-xs">{item.label}</span>
+                    {item.path === '/messages' && unreadCount > 0 && (
+                      <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                        {unreadCount > 9 ? '9' : unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
