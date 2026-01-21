@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 
@@ -9,10 +10,40 @@ const Navigation = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     setIsAuth(isAuthenticated());
+    if (isAuthenticated()) {
+      loadUnreadCount();
+    }
   }, [location]);
+
+  useEffect(() => {
+    if (!isAuthenticated()) return;
+
+    loadUnreadCount();
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadUnreadCount = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=unread_count',
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadCount(data.unread_count || 0);
+      }
+    } catch (error) {
+      console.error('Failed to load unread count:', error);
+    }
+  };
 
   const publicItems: { path: string; label: string; icon: string }[] = [];
 
@@ -69,9 +100,14 @@ const Navigation = () => {
                       variant={location.pathname === item.path ? 'default' : 'ghost'}
                       size="icon"
                       title={item.label}
-                      className="h-9 w-9"
+                      className="h-9 w-9 relative"
                     >
                       <Icon name={item.icon} size={16} />
+                      {item.path === '/messages' && unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
                     </Button>
                   </Link>
                 ))}
@@ -135,10 +171,15 @@ const Navigation = () => {
                     <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
                       <Button
                         variant={location.pathname === item.path ? 'default' : 'ghost'}
-                        className="w-full justify-start gap-2"
+                        className="w-full justify-start gap-2 relative"
                       >
                         <Icon name={item.icon} size={18} />
                         {item.label}
+                        {item.path === '/messages' && unreadCount > 0 && (
+                          <Badge className="ml-auto bg-red-500">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </Badge>
+                        )}
                       </Button>
                     </Link>
                   ))}
