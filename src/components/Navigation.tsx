@@ -68,7 +68,7 @@ const Navigation = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to="/" className={`flex items-center gap-2 group ${isAuth ? 'lg:flex hidden' : ''}`}>
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center transform group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🚀</span>
               </div>
@@ -132,7 +132,7 @@ const Navigation = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="lg:hidden hidden"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <Icon name={isOpen ? 'X' : 'Menu'} size={24} />
