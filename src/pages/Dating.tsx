@@ -153,7 +153,7 @@ const Dating = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
       
-      <main className="pt-24 pb-24 lg:pb-12">
+      <main className="pt-24 lg:pt-24 pb-12 lg:pb-12 pb-24">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <TopAdsCarousel ads={topAds} />
