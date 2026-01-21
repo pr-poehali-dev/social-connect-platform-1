@@ -55,11 +55,11 @@ const TopAdsCarousel = ({ ads }: TopAdsCarouselProps) => {
         onMouseLeave={() => setIsPaused(false)}
       >
         <Card className="flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1">
-          <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[280px]">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-3 transition-transform hover:scale-110">
-              <Icon name="Plus" size={32} className="text-white" />
+          <CardContent className="p-4 flex flex-col items-center justify-center h-full min-h-[140px]">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2 transition-transform hover:scale-110">
+              <Icon name="Plus" size={24} className="text-white" />
             </div>
-            <p className="text-sm font-semibold text-center">Разместить объявление</p>
+            <p className="text-xs font-semibold text-center">Разместить объявление</p>
           </CardContent>
         </Card>
 
