@@ -90,16 +90,16 @@ const Dating = () => {
           ) : (
             <>
               <div className="grid grid-cols-2 gap-4">
-                <Card className="rounded-[2rem] p-6 bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col justify-center items-center aspect-[3/4] border-0 shadow-lg">
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="bg-pink-300 rounded-full p-6">
-                      <Icon name="ArrowUpRight" size={48} className="text-white" />
+                <Card className="rounded-[2rem] p-3 bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col justify-center items-center aspect-[3/4] border-0 shadow-lg">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="bg-pink-300 rounded-full p-4">
+                      <Icon name="ArrowUpRight" size={32} className="text-white" />
                     </div>
                   </div>
-                  <p className="font-thin text-center px-0 text-xs my-0">
+                  <p className="text-center px-1 text-sm leading-tight mb-2">
                     Подними свой профиль наверх в поиске и тебя будет проще найти
                   </p>
-                  <Button className="w-full rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-semibold">
+                  <Button className="w-full rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-semibold py-5 text-sm">
                     Поднять профиль
                   </Button>
                 </Card>
