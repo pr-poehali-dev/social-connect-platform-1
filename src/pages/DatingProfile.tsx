@@ -225,20 +225,7 @@ const DatingProfile = () => {
               onToggleFavorite={handleToggleFavorite}
             />
             
-            <div className="px-4 md:px-0 space-y-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-2xl font-bold">{profile.name}</h1>
-                  <span className="text-xl text-muted-foreground">{profile.age}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                  <span>
-                    {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
-                  </span>
-                </div>
-              </div>
-              
+            <div className="px-4 md:px-0">
               <ProfileActions
                 isOwnProfile={isOwnProfile}
                 isFriend={isFriend}
@@ -251,6 +238,21 @@ const DatingProfile = () => {
           </div>
 
           <div className="p-6 space-y-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-3xl font-bold">{profile.name}</h1>
+                  <span className="text-2xl text-muted-foreground">{profile.age}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <span>
+                    {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <ProfileInfo profile={profile} />
 
             <PhotoGallery photos={photos} />
