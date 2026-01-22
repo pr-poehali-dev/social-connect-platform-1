@@ -12,12 +12,12 @@ interface ProfileHeaderProps {
 const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavorite }: ProfileHeaderProps) => {
   return (
     <div className="relative">
-      <div className="h-80 bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden">
+      <div className="h-80 bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden flex items-center justify-center">
         {profile.image ? (
           <img 
             src={profile.image} 
             alt={profile.name}
-            className="w-full h-full object-cover"
+            className="h-full w-auto max-w-none object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
