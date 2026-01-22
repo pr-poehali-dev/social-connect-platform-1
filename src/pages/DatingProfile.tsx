@@ -216,7 +216,7 @@ const DatingProfile = () => {
       
       <div className="max-w-4xl mx-auto">
         <div className="grid md:grid-cols-[300px_1fr] gap-6">
-          <div className="md:sticky md:top-20 h-fit">
+          <div className="md:sticky md:top-20 h-fit space-y-4">
             <ProfileHeader
               profile={profile}
               isOwnProfile={isOwnProfile}
@@ -224,6 +224,17 @@ const DatingProfile = () => {
               onBack={() => navigate(-1)}
               onToggleFavorite={handleToggleFavorite}
             />
+            
+            <div className="px-4 md:px-0">
+              <ProfileActions
+                isOwnProfile={isOwnProfile}
+                isFriend={isFriend}
+                requestSent={requestSent}
+                onSendMessage={handleSendMessage}
+                onAddFriend={handleAddFriend}
+                onEditProfile={() => navigate('/profile')}
+              />
+            </div>
           </div>
 
           <div className="p-6 space-y-6">
@@ -241,15 +252,6 @@ const DatingProfile = () => {
                 </div>
               </div>
             </div>
-
-            <ProfileActions
-              isOwnProfile={isOwnProfile}
-              isFriend={isFriend}
-              requestSent={requestSent}
-              onSendMessage={handleSendMessage}
-              onAddFriend={handleAddFriend}
-              onEditProfile={() => navigate('/profile')}
-            />
 
             <ProfileInfo profile={profile} />
 

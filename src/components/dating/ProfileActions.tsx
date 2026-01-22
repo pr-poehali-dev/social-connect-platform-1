@@ -32,10 +32,10 @@ const ProfileActions = ({
   }
 
   return (
-    <div className="flex gap-3">
+    <div className="flex flex-col gap-3">
       <Button 
         onClick={onSendMessage}
-        className="flex-1 rounded-xl h-12 text-base font-semibold"
+        className="w-full rounded-xl h-12 text-base font-semibold"
       >
         <Icon name="MessageCircle" size={20} className="mr-2" />
         Написать
@@ -44,7 +44,7 @@ const ProfileActions = ({
         <Button 
           onClick={onAddFriend}
           variant="outline"
-          className="flex-1 rounded-xl h-12 text-base font-semibold"
+          className="w-full rounded-xl h-12 text-base font-semibold"
         >
           <Icon name="UserPlus" size={20} className="mr-2" />
           Добавить в друзья
@@ -53,7 +53,7 @@ const ProfileActions = ({
         <Button 
           variant="outline"
           disabled
-          className="flex-1 rounded-xl h-12 text-base"
+          className="w-full rounded-xl h-12 text-base"
         >
           <Icon name="Clock" size={20} className="mr-2" />
           Заявка отправлена
@@ -61,7 +61,7 @@ const ProfileActions = ({
       ) : (
         <Button 
           variant="outline"
-          className="flex-1 rounded-xl h-12 text-base font-semibold"
+          className="w-full rounded-xl h-12 text-base font-semibold"
         >
           <Icon name="UserCheck" size={20} className="mr-2" />
           В друзьях
