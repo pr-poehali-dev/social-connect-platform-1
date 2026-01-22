@@ -214,7 +214,7 @@ const DatingProfile = () => {
     <div className="min-h-screen bg-background pb-20">
       <Navigation />
       
-      <div className="max-w-4xl mx-auto pt-6">
+      <div className="max-w-4xl mx-auto pt-20 md:pt-6">
         <div className="grid md:grid-cols-[300px_1fr] gap-6">
           <div className="md:sticky md:top-20 h-fit space-y-4">
             <ProfileHeader
