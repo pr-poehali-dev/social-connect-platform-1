@@ -214,12 +214,19 @@ const Dating = () => {
                           </div>
                         )}
                         
-                        <div className="absolute inset-x-0 bottom-0 from-black/70 via-black/40 to-transparent pt-12 pb-3 px-3 bg-transparent">
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-bold text-lg">
-                              {profile.name}, {profile.age}
-                            </span>
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-12 pb-3 px-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-bold text-lg">
+                                {profile.name}, {profile.age}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-white/80 text-xs">
+                              <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+                              <span>
+                                {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </Card>
