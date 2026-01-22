@@ -176,10 +176,11 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
               size="sm"
               onClick={detectLocation}
               disabled={isDetectingLocation}
-              className="gap-2 rounded-xl h-8 text-xs"
+              className="gap-1 md:gap-2 rounded-xl h-8 text-xs px-2 md:px-3"
             >
               <Icon name={isDetectingLocation ? "Loader2" : "MapPin"} size={14} className={isDetectingLocation ? "animate-spin" : ""} />
-              {isDetectingLocation ? 'Определяю...' : 'Моё местоположение'}
+              <span className="hidden sm:inline">{isDetectingLocation ? 'Определяю...' : 'Моё местоположение'}</span>
+              <span className="sm:hidden">{isDetectingLocation ? '...' : 'GPS'}</span>
             </Button>
           </div>
           <div className="relative">
