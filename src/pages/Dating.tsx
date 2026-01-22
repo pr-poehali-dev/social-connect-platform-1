@@ -150,62 +150,94 @@ const Dating = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-24 lg:pt-24 pb-12 lg:pb-12 pb-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <TopAdsCarousel ads={topAds} />
-
-            <DatingFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              showFilters={showFilters}
-              setShowFilters={setShowFilters}
-              filters={filters}
-              handleFilterChange={handleFilterChange}
-              resetFilters={resetFilters}
-            />
-
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">Анкеты пользователей</h2>
-              <p className="text-muted-foreground">Найдите свою половинку</p>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-12">
-                <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
-                <p className="text-muted-foreground">Загрузка профилей...</p>
-              </div>
-            ) : (
-              <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {profiles
-                    .filter(profile => profile.id !== currentUserId)
-                    .map((profile) => (
-                      <ProfileCard
-                        key={profile.id}
-                        profile={profile}
-                        isFavorite={favorites.includes(profile.id)}
-                        isFriendRequestSent={friendRequests.includes(profile.id)}
-                        isFriend={friends.includes(profile.id)}
-                        onToggleFavorite={handleToggleFavorite}
-                        onAddFriend={handleAddFriend}
-                      />
-                    ))}
-                </div>
-
-                {profiles.length === 0 && (
-              <Card className="max-w-md mx-auto text-center p-12 rounded-3xl">
-                <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground" />
-                <p className="text-xl font-semibold mb-2">Пока никого нет</p>
-                <p className="text-muted-foreground">Скоро здесь появятся новые анкеты</p>
-              </Card>
-            )}
-              </>
-            )}
+      <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">Знакомства</h1>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="p-2"
+            >
+              <Icon name="SlidersHorizontal" size={24} />
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="mb-6">
+              <DatingFilters
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                showFilters={showFilters}
+                setShowFilters={setShowFilters}
+                filters={filters}
+                handleFilterChange={handleFilterChange}
+                resetFilters={resetFilters}
+              />
+            </div>
+          )}
+
+          {loading ? (
+            <div className="text-center py-12">
+              <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
+              <p className="text-muted-foreground">Загрузка профилей...</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <Card className="rounded-[2rem] p-4 bg-gradient-to-br from-pink-100 to-pink-200 flex flex-col justify-center items-center aspect-square border-0">
+                  <div className="flex-1 flex items-center justify-center mb-3">
+                    <div className="text-6xl">🚀</div>
+                  </div>
+                  <p className="text-center text-sm font-medium mb-3 leading-tight">
+                    Подними свой профиль наверх в поиске и тебя будет проще найти
+                  </p>
+                  <button className="w-full bg-foreground text-background font-semibold py-3 px-4 rounded-2xl text-sm">
+                    Поднять профиль
+                  </button>
+                </Card>
+
+                {profiles
+                  .filter(profile => profile.id !== currentUserId)
+                  .map((profile) => (
+                    <div key={profile.id} className="relative">
+                      <Card className="rounded-[2rem] overflow-hidden border-0 aspect-square">
+                        {profile.image ? (
+                          <img 
+                            src={profile.image} 
+                            alt={profile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                            <Icon name="User" size={48} className="text-gray-400" />
+                          </div>
+                        )}
+                      </Card>
+                      
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                            {profile.name}, {profile.age}
+                          </span>
+                          <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+
+              {profiles.length === 0 && (
+                <Card className="max-w-md mx-auto text-center p-12 rounded-3xl">
+                  <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-xl font-semibold mb-2">Пока никого нет</p>
+                  <p className="text-muted-foreground">Скоро здесь появятся новые анкеты</p>
+                </Card>
+              )}
+            </>
+          )}
         </div>
       </main>
     </div>
