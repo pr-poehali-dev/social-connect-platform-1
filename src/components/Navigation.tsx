@@ -182,13 +182,13 @@ const Navigation = () => {
 
       {isAuth && (
         <>
-          <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg border-b border-gray-800">
+          <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-border">
             <div className="flex justify-around items-center h-14">
               {mainNavItems.map((item) => (
                 <Link key={item.path} to={item.path} className="flex-1">
                   <Button
                     variant={location.pathname === item.path ? 'default' : 'ghost'}
-                    className="w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-purple-500 text-xs px-1 text-white hover:bg-white/10"
+                    className="w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1"
                     data-active={location.pathname === item.path}
                   >
                     {item.label}
@@ -198,14 +198,14 @@ const Navigation = () => {
             </div>
           </div>
 
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-lg border-t border-gray-800 pb-safe">
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-border pb-safe">
             <div className="grid grid-cols-7 gap-1 px-2 py-2">
               {bottomNavItems.map((item) => (
                 <Link key={item.path} to={item.path}>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-12 w-full relative text-white hover:bg-white/10"
+                    className="h-12 w-full relative"
                     title={item.label}
                   >
                     <Icon name={item.icon} size={24} />
