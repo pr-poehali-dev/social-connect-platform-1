@@ -214,43 +214,47 @@ const DatingProfile = () => {
     <div className="min-h-screen bg-background pb-20">
       <Navigation />
       
-      <div className="max-w-2xl mx-auto">
-        <ProfileHeader
-          profile={profile}
-          isOwnProfile={isOwnProfile}
-          isFavorite={isFavorite}
-          onBack={() => navigate(-1)}
-          onToggleFavorite={handleToggleFavorite}
-        />
-
-        <div className="p-6 space-y-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold">{profile.name}</h1>
-                <span className="text-2xl text-muted-foreground">{profile.age}</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                <span>
-                  {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
-                </span>
-              </div>
-            </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-[300px_1fr] gap-6">
+          <div className="md:sticky md:top-20 h-fit">
+            <ProfileHeader
+              profile={profile}
+              isOwnProfile={isOwnProfile}
+              isFavorite={isFavorite}
+              onBack={() => navigate(-1)}
+              onToggleFavorite={handleToggleFavorite}
+            />
           </div>
 
-          <ProfileActions
-            isOwnProfile={isOwnProfile}
-            isFriend={isFriend}
-            requestSent={requestSent}
-            onSendMessage={handleSendMessage}
-            onAddFriend={handleAddFriend}
-            onEditProfile={() => navigate('/profile')}
-          />
+          <div className="p-6 space-y-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-3xl font-bold">{profile.name}</h1>
+                  <span className="text-2xl text-muted-foreground">{profile.age}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <span>
+                    {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-          <ProfileInfo profile={profile} />
+            <ProfileActions
+              isOwnProfile={isOwnProfile}
+              isFriend={isFriend}
+              requestSent={requestSent}
+              onSendMessage={handleSendMessage}
+              onAddFriend={handleAddFriend}
+              onEditProfile={() => navigate('/profile')}
+            />
 
-          <PhotoGallery photos={photos} />
+            <ProfileInfo profile={profile} />
+
+            <PhotoGallery photos={photos} />
+          </div>
         </div>
       </div>
     </div>
