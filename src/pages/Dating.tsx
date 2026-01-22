@@ -174,7 +174,7 @@ const Dating = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 <Card className="rounded-[2rem] p-3 bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col justify-center items-center aspect-[3/4] border-0 shadow-lg">
                   <div className="flex items-center justify-center mb-2">
                     <div className="bg-pink-300 rounded-full p-4">
