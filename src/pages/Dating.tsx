@@ -141,17 +141,22 @@ const Dating = () => {
       <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl md:text-4xl font-bold">Знакомства</h1>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Icon name="SlidersHorizontal" size={24} />
-            </Button>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl md:text-4xl font-bold">Поиск</h1>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Icon name="SlidersHorizontal" size={24} />
+              </Button>
+            </div>
+            <div className="text-orange-500 font-bold text-2xl md:text-3xl tracking-wider">
+              mamba
+            </div>
           </div>
 
           <DatingFiltersModal 
@@ -169,7 +174,7 @@ const Dating = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <Card className="rounded-[2rem] p-3 bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col justify-center items-center aspect-[3/4] border-0 shadow-lg">
                   <div className="flex items-center justify-center mb-2">
                     <div className="bg-pink-300 rounded-full p-4">
