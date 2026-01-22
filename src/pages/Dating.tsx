@@ -214,7 +214,7 @@ const Dating = () => {
                           </div>
                         )}
                         
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-12 pb-3 px-3">
+                        <div className="absolute inset-x-0 bottom-0 from-black/70 via-black/40 to-transparent pt-12 pb-3 px-3 bg-transparent">
                           <div className="flex items-center gap-2">
                             <span className="text-white font-bold text-lg">
                               {profile.name}, {profile.age}
