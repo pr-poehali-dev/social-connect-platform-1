@@ -54,22 +54,112 @@ const DatingProfile = () => {
   };
 
   const loadProfile = async () => {
-    try {
-      const response = await fetch(`https://functions.poehali.dev/0e71c64b-8a34-4a49-8a35-e5e1c5e0da20?user_id=${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data);
+    const mockProfiles: any = {
+      '1': {
+        id: 1,
+        name: 'Александра',
+        age: 24,
+        city: 'Москва',
+        district: 'Центральный',
+        gender: 'female',
+        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800',
+        isOnline: true,
+        lastSeen: null,
+        height: 168,
+        weight: 55,
+        physique: 'Стройное',
+        about: 'Люблю путешествовать и фотографировать. Работаю фотографом, обожаю природу и новые места. Ищу интересного собеседника для приятного общения.',
+        interests: ['Путешествия', 'Фотография', 'Йога', 'Природа', 'Книги']
+      },
+      '2': {
+        id: 2,
+        name: 'Дмитрий',
+        age: 28,
+        city: 'Москва',
+        district: 'Северный',
+        gender: 'male',
+        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
+        isOnline: false,
+        lastSeen: '2 часа назад',
+        height: 182,
+        weight: 78,
+        physique: 'Спортивное',
+        about: 'Занимаюсь спортом, люблю активный отдых. Тренер в фитнес-клубе. В свободное время смотрю фильмы и слушаю музыку.',
+        interests: ['Спорт', 'Кино', 'Музыка', 'Путешествия']
+      },
+      '3': {
+        id: 3,
+        name: 'Елена',
+        age: 26,
+        city: 'Москва',
+        district: 'Южный',
+        gender: 'female',
+        image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800',
+        isOnline: true,
+        lastSeen: null,
+        height: 165,
+        weight: 52,
+        physique: 'Стройное',
+        about: 'Дизайнер, обожаю искусство и творчество. Работаю в креативном агентстве, люблю кофейни и выставки.',
+        interests: ['Дизайн', 'Искусство', 'Кофе', 'Выставки', 'Творчество']
+      },
+      '4': {
+        id: 4,
+        name: 'Михаил',
+        age: 30,
+        city: 'Москва',
+        district: 'Западный',
+        gender: 'male',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+        isOnline: false,
+        lastSeen: 'вчера',
+        height: 178,
+        weight: 75,
+        physique: 'Обычное',
+        about: 'IT-специалист, люблю технологии и программирование. В свободное время играю в игры и читаю научную фантастику.',
+        interests: ['Технологии', 'Игры', 'Книги', 'Программирование']
+      },
+      '5': {
+        id: 5,
+        name: 'Анна',
+        age: 22,
+        city: 'Москва',
+        district: 'Восточный',
+        gender: 'female',
+        image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800',
+        isOnline: true,
+        lastSeen: null,
+        height: 170,
+        weight: 58,
+        physique: 'Стройное',
+        about: 'Студентка факультета моды, интересуюсь стилем и трендами. Люблю танцевать и вести блог.',
+        interests: ['Мода', 'Танцы', 'Instagram', 'Блогинг', 'Стиль']
+      },
+      '6': {
+        id: 6,
+        name: 'Максим',
+        age: 27,
+        city: 'Москва',
+        district: 'Центральный',
+        gender: 'male',
+        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800',
+        isOnline: false,
+        lastSeen: '5 часов назад',
+        height: 185,
+        weight: 82,
+        physique: 'Спортивное',
+        about: 'Предприниматель, занимаюсь бизнесом в сфере IT. Люблю путешествовать и пробовать что-то новое.',
+        interests: ['Бизнес', 'Путешествия', 'Спорт', 'Стартапы', 'Технологии']
       }
-    } catch (error) {
-      console.error('Failed to load profile:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить профиль',
-        variant: 'destructive'
-      });
-    } finally {
+    };
+
+    setTimeout(() => {
+      const mockProfile = mockProfiles[userId || '1'];
+      if (mockProfile) {
+        setProfile(mockProfile);
+      }
       setLoading(false);
-    }
+    }, 500);
   };
 
   const handleAddFriend = () => {

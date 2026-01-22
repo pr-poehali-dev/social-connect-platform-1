@@ -91,34 +91,131 @@ const Dating = () => {
 
   const loadProfiles = async () => {
     setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filters.gender) params.append('gender', filters.gender);
-      if (filters.ageFrom) params.append('ageFrom', filters.ageFrom);
-      if (filters.ageTo) params.append('ageTo', filters.ageTo);
-      if (filters.city) params.append('city', filters.city);
-      if (filters.district) params.append('district', filters.district);
-      if (filters.heightFrom) params.append('heightFrom', filters.heightFrom);
-      if (filters.heightTo) params.append('heightTo', filters.heightTo);
-      if (filters.bodyType) params.append('bodyType', filters.bodyType);
-      if (filters.maritalStatus) params.append('maritalStatus', filters.maritalStatus);
-      if (filters.hasChildren) params.append('hasChildren', filters.hasChildren);
-      if (filters.financialStatus) params.append('financialStatus', filters.financialStatus);
-      if (filters.hasCar) params.append('hasCar', filters.hasCar);
-      if (filters.hasHousing) params.append('hasHousing', filters.hasHousing);
-      if (filters.datingGoal) params.append('datingGoal', filters.datingGoal);
-      if (filters.withPhoto) params.append('withPhoto', 'true');
-
-      const response = await fetch(`https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProfiles(data.profiles || []);
+    
+    const mockProfiles = [
+      {
+        id: 1,
+        name: 'Александра',
+        age: 24,
+        city: 'Москва',
+        district: 'Центральный',
+        gender: 'female',
+        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800',
+        isOnline: true,
+        lastSeen: null,
+        height: 168,
+        weight: 55,
+        physique: 'Стройное',
+        about: 'Люблю путешествовать и фотографировать',
+        interests: ['Путешествия', 'Фотография', 'Йога']
+      },
+      {
+        id: 2,
+        name: 'Дмитрий',
+        age: 28,
+        city: 'Москва',
+        district: 'Северный',
+        gender: 'male',
+        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
+        isOnline: false,
+        lastSeen: '2 часа назад',
+        height: 182,
+        weight: 78,
+        physique: 'Спортивное',
+        about: 'Занимаюсь спортом, люблю активный отдых',
+        interests: ['Спорт', 'Кино', 'Музыка']
+      },
+      {
+        id: 3,
+        name: 'Елена',
+        age: 26,
+        city: 'Москва',
+        district: 'Южный',
+        gender: 'female',
+        image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800',
+        isOnline: true,
+        lastSeen: null,
+        height: 165,
+        weight: 52,
+        physique: 'Стройное',
+        about: 'Дизайнер, обожаю искусство и творчество',
+        interests: ['Дизайн', 'Искусство', 'Кофе']
+      },
+      {
+        id: 4,
+        name: 'Михаил',
+        age: 30,
+        city: 'Москва',
+        district: 'Западный',
+        gender: 'male',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+        isOnline: false,
+        lastSeen: 'вчера',
+        height: 178,
+        weight: 75,
+        physique: 'Обычное',
+        about: 'IT-специалист, люблю технологии',
+        interests: ['Технологии', 'Игры', 'Книги']
+      },
+      {
+        id: 5,
+        name: 'Анна',
+        age: 22,
+        city: 'Москва',
+        district: 'Восточный',
+        gender: 'female',
+        image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800',
+        isOnline: true,
+        lastSeen: null,
+        height: 170,
+        weight: 58,
+        physique: 'Стройное',
+        about: 'Студентка, интересуюсь модой',
+        interests: ['Мода', 'Танцы', 'Instagram']
+      },
+      {
+        id: 6,
+        name: 'Максим',
+        age: 27,
+        city: 'Москва',
+        district: 'Центральный',
+        gender: 'male',
+        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800',
+        isOnline: false,
+        lastSeen: '5 часов назад',
+        height: 185,
+        weight: 82,
+        physique: 'Спортивное',
+        about: 'Предприниматель, люблю путешествия',
+        interests: ['Бизнес', 'Путешествия', 'Спорт']
       }
-    } catch (error) {
-      console.error('Failed to load profiles:', error);
-    } finally {
-      setLoading(false);
+    ];
+
+    let filteredProfiles = [...mockProfiles];
+
+    if (filters.gender) {
+      filteredProfiles = filteredProfiles.filter(p => p.gender === filters.gender);
     }
+    if (filters.ageFrom) {
+      filteredProfiles = filteredProfiles.filter(p => p.age >= parseInt(filters.ageFrom));
+    }
+    if (filters.ageTo) {
+      filteredProfiles = filteredProfiles.filter(p => p.age <= parseInt(filters.ageTo));
+    }
+    if (filters.city) {
+      filteredProfiles = filteredProfiles.filter(p => p.city.toLowerCase().includes(filters.city.toLowerCase()));
+    }
+    if (filters.online) {
+      filteredProfiles = filteredProfiles.filter(p => p.isOnline);
+    }
+    if (filters.withPhoto) {
+      filteredProfiles = filteredProfiles.filter(p => p.image);
+    }
+
+    setTimeout(() => {
+      setProfiles(filteredProfiles);
+      setLoading(false);
+    }, 500);
   };
 
   const topAds = profiles.filter(p => p.isTopAd);
