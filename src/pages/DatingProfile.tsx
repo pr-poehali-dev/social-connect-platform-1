@@ -16,6 +16,16 @@ const DatingProfile = () => {
   const [isFriend, setIsFriend] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  
+  const photos = [
+    profile?.image,
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800'
+  ].filter(Boolean);
 
   useEffect(() => {
     loadProfile();
@@ -289,8 +299,73 @@ const DatingProfile = () => {
               </div>
             </Card>
           )}
+
+          <Card className="p-6 rounded-2xl">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Icon name="Images" size={20} />
+              Фотографии
+              <span className="text-sm font-normal text-muted-foreground ml-1">
+                {photos.length}
+              </span>
+            </h2>
+            <div className="grid grid-cols-3 gap-2">
+              {photos.map((photo, index) => (
+                <div
+                  key={index}
+                  className="aspect-square rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => setSelectedPhoto(photo)}
+                >
+                  <img
+                    src={photo}
+                    alt={`Фото ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
+
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full"
+            onClick={() => setSelectedPhoto(null)}
+          >
+            <Icon name="X" size={24} />
+          </Button>
+          
+          <div className="relative max-w-4xl w-full max-h-[90vh]">
+            <img
+              src={selectedPhoto}
+              alt="Полное фото"
+              className="w-full h-full object-contain rounded-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+            
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              {photos.map((photo, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    photo === selectedPhoto ? 'bg-white w-6' : 'bg-white/50'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPhoto(photo);
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
