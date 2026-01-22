@@ -24,6 +24,7 @@ interface Profile {
   hasCar?: string;
   hasHousing?: string;
   datingGoal?: string;
+  distance?: number;
 }
 
 interface ProfileCardProps {
@@ -143,12 +144,20 @@ const ProfileCard = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
             <div className="absolute bottom-4 left-4 text-white">
               <h3 className="text-2xl font-bold mb-1">{profile.name}{profile.age ? `, ${profile.age}` : ''}</h3>
-              {profile.city && (
-                <p className="flex items-center gap-1 text-sm">
-                  <Icon name="MapPin" size={14} />
-                  {profile.city}
-                </p>
-              )}
+              <div className="space-y-1">
+                {profile.city && (
+                  <p className="flex items-center gap-1 text-sm">
+                    <Icon name="MapPin" size={14} />
+                    {profile.city}
+                  </p>
+                )}
+                {profile.distance !== undefined && (
+                  <p className="flex items-center gap-1 text-sm">
+                    <Icon name="Navigation" size={14} />
+                    {profile.distance < 1 ? `${Math.round(profile.distance * 1000)} м` : `${profile.distance} км`} от вас
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           

@@ -22,6 +22,13 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
             </div>
           )}
 
+          {profile.distance !== undefined && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Navigation" size={18} />
+              <span>{profile.distance < 1 ? `${Math.round(profile.distance * 1000)} м` : `${profile.distance} км`} от вас</span>
+            </div>
+          )}
+
           {profile.gender && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="Users" size={18} />
