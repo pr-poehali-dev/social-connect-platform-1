@@ -201,15 +201,15 @@ const Dating = () => {
                   .filter(profile => profile.id !== currentUserId)
                   .map((profile) => (
                     <div key={profile.id} className="relative">
-                      <Card className="rounded-[2rem] overflow-hidden border-0 aspect-square">
+                      <Card className="rounded-[2rem] overflow-hidden border-0 aspect-square relative">
                         {profile.image ? (
                           <img 
                             src={profile.image} 
                             alt={profile.name}
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                             <Icon name="User" size={48} className="text-gray-400" />
                           </div>
                         )}
