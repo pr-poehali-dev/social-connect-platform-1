@@ -15,17 +15,72 @@ interface Profile {
   isVerified?: boolean;
 }
 
+export interface DatingFilters {
+  location: string;
+  lookingFor: 'male' | 'female' | 'any';
+  ageFrom: number;
+  ageTo: number;
+  goals: string[];
+  education: string[];
+  financialStatus: string[];
+  housing: string[];
+  children: string[];
+  smoking: string[];
+  alcohol: string[];
+  interests: string[];
+  languages: string[];
+  appearance: string[];
+  bodyType: string[];
+  heightFrom: number;
+  heightTo: number;
+  weightFrom: number;
+  weightTo: number;
+  zodiacSign: string[];
+  profileAge: 'all' | 'new' | 'active';
+  withPhoto: boolean;
+}
+
 const Dating = () => {
   const { toast } = useToast();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<DatingFilters>({
+    location: 'Екатеринбург, Свердловская область',
+    lookingFor: 'female',
+    ageFrom: 18,
+    ageTo: 24,
+    goals: ['friendship', 'relationship', 'flirt'],
+    education: [],
+    financialStatus: [],
+    housing: [],
+    children: [],
+    smoking: [],
+    alcohol: [],
+    interests: [],
+    languages: [],
+    appearance: [],
+    bodyType: [],
+    heightFrom: 150,
+    heightTo: 220,
+    weightFrom: 40,
+    weightTo: 160,
+    zodiacSign: [],
+    profileAge: 'all',
+    withPhoto: true,
+  });
 
   useEffect(() => {
     loadUserData();
     loadProfiles();
   }, []);
+
+  useEffect(() => {
+    if (!showFilters) {
+      loadProfiles();
+    }
+  }, [filters, showFilters]);
 
   const loadUserData = async () => {
     const token = localStorage.getItem('access_token');
@@ -47,7 +102,17 @@ const Dating = () => {
   const loadProfiles = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f');
+      const params = new URLSearchParams();
+      params.append('lookingFor', filters.lookingFor);
+      params.append('ageFrom', filters.ageFrom.toString());
+      params.append('ageTo', filters.ageTo.toString());
+      params.append('heightFrom', filters.heightFrom.toString());
+      params.append('heightTo', filters.heightTo.toString());
+      params.append('weightFrom', filters.weightFrom.toString());
+      params.append('weightTo', filters.weightTo.toString());
+      if (filters.withPhoto) params.append('withPhoto', 'true');
+
+      const response = await fetch(`https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`);
       if (response.ok) {
         const data = await response.json();
         setProfiles(data.profiles || []);
@@ -57,6 +122,18 @@ const Dating = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (newFilters: Partial<DatingFilters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+
+  const handleSaveFilters = () => {
+    setShowFilters(false);
+    toast({
+      title: 'Фильтры применены',
+      description: 'Результаты обновлены согласно выбранным фильтрам',
+    });
   };
 
   return (
@@ -79,7 +156,10 @@ const Dating = () => {
 
           <DatingFiltersModal 
             isOpen={showFilters} 
-            onClose={() => setShowFilters(false)} 
+            onClose={() => setShowFilters(false)}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onSave={handleSaveFilters}
           />
 
           {loading ? (
