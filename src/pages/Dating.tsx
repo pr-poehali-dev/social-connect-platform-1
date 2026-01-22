@@ -103,19 +103,31 @@ const Dating = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append('lookingFor', filters.lookingFor);
+      
+      if (filters.lookingFor === 'male') {
+        params.append('gender', 'male');
+      } else if (filters.lookingFor === 'female') {
+        params.append('gender', 'female');
+      }
+      
       params.append('ageFrom', filters.ageFrom.toString());
       params.append('ageTo', filters.ageTo.toString());
       params.append('heightFrom', filters.heightFrom.toString());
       params.append('heightTo', filters.heightTo.toString());
-      params.append('weightFrom', filters.weightFrom.toString());
-      params.append('weightTo', filters.weightTo.toString());
       if (filters.withPhoto) params.append('withPhoto', 'true');
 
       const response = await fetch(`https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`);
       if (response.ok) {
         const data = await response.json();
-        setProfiles(data.profiles || []);
+        const profilesData = (data.profiles || []).map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          age: p.age,
+          photo: p.image,
+          isOnline: false,
+          isVerified: false
+        }));
+        setProfiles(profilesData);
       }
     } catch (error) {
       console.error('Failed to load profiles:', error);
