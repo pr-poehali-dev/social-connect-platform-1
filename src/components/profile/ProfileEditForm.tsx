@@ -4,8 +4,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 import { russianCities } from '@/data/cities';
 import { getDistrictsForCity } from '@/data/districts';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileEditFormProps {
   formData: any;
@@ -20,6 +23,8 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
   const [districtSearch, setDistrictSearch] = useState('');
   const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
   const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const { toast } = useToast();
 
   const filteredCities = russianCities.filter(city =>
     city.toLowerCase().includes(citySearch.toLowerCase())
@@ -49,6 +54,74 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
   const filteredDistricts = availableDistricts.filter(district =>
     district.toLowerCase().includes(districtSearch.toLowerCase())
   ).slice(0, 10);
+
+  const detectLocation = async () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: 'Ошибка',
+        description: 'Ваш браузер не поддерживает геолокацию',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsDetectingLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ru`
+          );
+          const data = await response.json();
+          
+          const city = data.address?.city || data.address?.town || data.address?.village || '';
+          
+          if (city) {
+            setFormData({ ...formData, city, district: '' });
+            toast({
+              title: 'Местоположение определено',
+              description: `Город: ${city}`
+            });
+          } else {
+            toast({
+              title: 'Не удалось определить город',
+              description: 'Попробуйте ввести вручную',
+              variant: 'destructive'
+            });
+          }
+        } catch (error) {
+          toast({
+            title: 'Ошибка определения города',
+            description: 'Не удалось получить данные о местоположении',
+            variant: 'destructive'
+          });
+        } finally {
+          setIsDetectingLocation(false);
+        }
+      },
+      (error) => {
+        setIsDetectingLocation(false);
+        let message = 'Не удалось получить доступ к местоположению';
+        
+        if (error.code === error.PERMISSION_DENIED) {
+          message = 'Вы запретили доступ к местоположению';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          message = 'Информация о местоположении недоступна';
+        } else if (error.code === error.TIMEOUT) {
+          message = 'Время ожидания истекло';
+        }
+        
+        toast({
+          title: 'Ошибка',
+          description: message,
+          variant: 'destructive'
+        });
+      }
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -95,7 +168,20 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="city">Город</Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="city">Город</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={detectLocation}
+              disabled={isDetectingLocation}
+              className="gap-2 rounded-xl h-8 text-xs"
+            >
+              <Icon name={isDetectingLocation ? "Loader2" : "MapPin"} size={14} className={isDetectingLocation ? "animate-spin" : ""} />
+              {isDetectingLocation ? 'Определяю...' : 'Моё местоположение'}
+            </Button>
+          </div>
           <div className="relative">
             <Input
               id="city"
