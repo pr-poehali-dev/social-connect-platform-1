@@ -195,7 +195,7 @@ const Dating = () => {
                     Подними свой профиль наверх в поиске и тебя будет проще найти
                   </p>
                   <button className="w-full bg-foreground text-background font-semibold py-3 px-4 rounded-2xl text-sm">
-                    Поднять профиль
+                    Поднять
                   </button>
                 </Card>
 
