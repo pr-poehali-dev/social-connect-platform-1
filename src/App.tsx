@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Dating from "./pages/Dating";
+import DatingProfile from "./pages/DatingProfile";
 import Ads from "./pages/Ads";
 import MyAds from "./pages/MyAds";
 import CreateAd from "./pages/CreateAd";
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
+          <Route path="/dating/:userId" element={<ProtectedRoute><DatingProfile /></ProtectedRoute>} />
           <Route path="/ads" element={<ProtectedRoute><Ads /></ProtectedRoute>} />
           <Route path="/my-ads" element={<ProtectedRoute><MyAds /></ProtectedRoute>} />
           <Route path="/create-ad" element={<ProtectedRoute><CreateAd /></ProtectedRoute>} />

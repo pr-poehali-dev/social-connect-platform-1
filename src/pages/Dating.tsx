@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
 import TopAdsCarousel from '@/components/dating/TopAdsCarousel';
@@ -10,6 +11,7 @@ import { Card } from '@/components/ui/card';
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [friendRequests, setFriendRequests] = useState<number[]>([]);
   const [friends, setFriends] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -201,7 +203,10 @@ const Dating = () => {
                   .filter(profile => profile.id !== currentUserId)
                   .map((profile) => (
                     <div key={profile.id} className="relative">
-                      <Card className="rounded-[2rem] overflow-hidden border-0 aspect-square relative">
+                      <Card 
+                        className="rounded-[2rem] overflow-hidden border-0 aspect-square relative cursor-pointer transition-transform hover:scale-[1.02]"
+                        onClick={() => navigate(`/dating/${profile.id}`)}
+                      >
                         {profile.image ? (
                           <img 
                             src={profile.image} 
