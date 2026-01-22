@@ -96,7 +96,7 @@ const Dating = () => {
                       <Icon name="ArrowUpRight" size={48} className="text-white" />
                     </div>
                   </div>
-                  <p className="text-center font-medium mb-4 px-2 text-sm">
+                  <p className="font-thin text-center px-0 text-xs my-0">
                     Подними свой профиль наверх в поиске и тебя будет проще найти
                   </p>
                   <Button className="w-full rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-semibold">
