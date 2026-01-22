@@ -1,86 +1,26 @@
 import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
+import TopAdsCarousel from '@/components/dating/TopAdsCarousel';
+import DatingFilters from '@/components/dating/DatingFilters';
+import ProfileCard from '@/components/dating/ProfileCard';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import DatingFiltersModal from '@/components/dating/DatingFiltersModal';
-
-interface Profile {
-  id: number;
-  name: string;
-  age: number;
-  photo?: string;
-  isOnline: boolean;
-  isVerified?: boolean;
-}
-
-export interface DatingFilters {
-  location: string;
-  lookingFor: 'male' | 'female' | 'any';
-  ageFrom: number;
-  ageTo: number;
-  goals: string[];
-  education: string[];
-  financialStatus: string[];
-  housing: string[];
-  children: string[];
-  smoking: string[];
-  alcohol: string[];
-  interests: string[];
-  languages: string[];
-  appearance: string[];
-  bodyType: string[];
-  heightFrom: number;
-  heightTo: number;
-  weightFrom: number;
-  weightTo: number;
-  zodiacSign: string[];
-  profileAge: 'all' | 'new' | 'active';
-  withPhoto: boolean;
-}
 
 const Dating = () => {
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [friendRequests, setFriendRequests] = useState<number[]>([]);
+  const [friends, setFriends] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<DatingFilters>({
-    location: 'Екатеринбург, Свердловская область',
-    lookingFor: 'female',
-    ageFrom: 18,
-    ageTo: 24,
-    goals: ['friendship', 'relationship', 'flirt'],
-    education: [],
-    financialStatus: [],
-    housing: [],
-    children: [],
-    smoking: [],
-    alcohol: [],
-    interests: [],
-    languages: [],
-    appearance: [],
-    bodyType: [],
-    heightFrom: 150,
-    heightTo: 220,
-    weightFrom: 40,
-    weightTo: 160,
-    zodiacSign: [],
-    profileAge: 'all',
-    withPhoto: true,
-  });
 
   useEffect(() => {
     loadUserData();
-    loadProfiles();
   }, []);
-
-  useEffect(() => {
-    if (!showFilters) {
-      loadProfiles();
-    }
-  }, [filters, showFilters]);
 
   const loadUserData = async () => {
     const token = localStorage.getItem('access_token');
@@ -99,35 +39,78 @@ const Dating = () => {
     }
   };
 
+  const [filters, setFilters] = useState({
+    gender: '',
+    ageFrom: '',
+    ageTo: '',
+    city: '',
+    online: false,
+    withPhoto: false,
+    district: '',
+    heightFrom: '',
+    heightTo: '',
+    bodyType: '',
+    maritalStatus: '',
+    hasChildren: '',
+    financialStatus: '',
+    hasCar: '',
+    hasHousing: '',
+    datingGoal: '',
+  });
+
+  const handleFilterChange = (key: string, value: string | boolean) => {
+    setFilters({ ...filters, [key]: value });
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      gender: '',
+      ageFrom: '',
+      ageTo: '',
+      city: '',
+      online: false,
+      withPhoto: false,
+      district: '',
+      heightFrom: '',
+      heightTo: '',
+      bodyType: '',
+      maritalStatus: '',
+      hasChildren: '',
+      financialStatus: '',
+      hasCar: '',
+      hasHousing: '',
+      datingGoal: '',
+    });
+  };
+
+  useEffect(() => {
+    loadProfiles();
+  }, [filters]);
+
   const loadProfiles = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      
-      if (filters.lookingFor === 'male') {
-        params.append('gender', 'male');
-      } else if (filters.lookingFor === 'female') {
-        params.append('gender', 'female');
-      }
-      
-      params.append('ageFrom', filters.ageFrom.toString());
-      params.append('ageTo', filters.ageTo.toString());
-      params.append('heightFrom', filters.heightFrom.toString());
-      params.append('heightTo', filters.heightTo.toString());
+      if (filters.gender) params.append('gender', filters.gender);
+      if (filters.ageFrom) params.append('ageFrom', filters.ageFrom);
+      if (filters.ageTo) params.append('ageTo', filters.ageTo);
+      if (filters.city) params.append('city', filters.city);
+      if (filters.district) params.append('district', filters.district);
+      if (filters.heightFrom) params.append('heightFrom', filters.heightFrom);
+      if (filters.heightTo) params.append('heightTo', filters.heightTo);
+      if (filters.bodyType) params.append('bodyType', filters.bodyType);
+      if (filters.maritalStatus) params.append('maritalStatus', filters.maritalStatus);
+      if (filters.hasChildren) params.append('hasChildren', filters.hasChildren);
+      if (filters.financialStatus) params.append('financialStatus', filters.financialStatus);
+      if (filters.hasCar) params.append('hasCar', filters.hasCar);
+      if (filters.hasHousing) params.append('hasHousing', filters.hasHousing);
+      if (filters.datingGoal) params.append('datingGoal', filters.datingGoal);
       if (filters.withPhoto) params.append('withPhoto', 'true');
 
       const response = await fetch(`https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`);
       if (response.ok) {
         const data = await response.json();
-        const profilesData = (data.profiles || []).map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          age: p.age,
-          photo: p.image,
-          isOnline: false,
-          isVerified: false
-        }));
-        setProfiles(profilesData);
+        setProfiles(data.profiles || []);
       }
     } catch (error) {
       console.error('Failed to load profiles:', error);
@@ -136,155 +119,93 @@ const Dating = () => {
     }
   };
 
-  const handleFilterChange = (newFilters: Partial<DatingFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+  const topAds = profiles.filter(p => p.isTopAd);
+
+  const handleAddFriend = async (profileId: number) => {
+    if (!friendRequests.includes(profileId) && !friends.includes(profileId)) {
+      // TODO: Отправка заявки в БД через API
+      setFriendRequests([...friendRequests, profileId]);
+      toast({
+        title: 'Заявка отправлена',
+        description: 'Ожидайте подтверждения',
+      });
+    }
   };
 
-  const handleSaveFilters = () => {
-    setShowFilters(false);
-    toast({
-      title: 'Фильтры применены',
-      description: 'Результаты обновлены согласно выбранным фильтрам',
-    });
+  const handleToggleFavorite = async (profileId: number) => {
+    const isFavorite = favorites.includes(profileId);
+    // TODO: Сохранение в БД через API
+    
+    if (isFavorite) {
+      setFavorites(favorites.filter(id => id !== profileId));
+      toast({
+        title: 'Удалено из избранного',
+      });
+    } else {
+      setFavorites([...favorites, profileId]);
+      toast({
+        title: 'Добавлено в избранное',
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
       
-      <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl md:text-4xl font-bold">Поиск</h1>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Icon name="SlidersHorizontal" size={24} />
-              </Button>
-            </div>
-            <div className="text-orange-500 font-bold text-2xl md:text-3xl tracking-wider">
-              mamba
-            </div>
-          </div>
+      <main className="pt-24 lg:pt-24 pb-12 lg:pb-12 pb-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <TopAdsCarousel ads={topAds} />
 
-          <DatingFiltersModal 
-            isOpen={showFilters} 
-            onClose={() => setShowFilters(false)}
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onSave={handleSaveFilters}
-          />
+            <DatingFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              filters={filters}
+              handleFilterChange={handleFilterChange}
+              resetFilters={resetFilters}
+            />
 
-          {loading ? (
-            <div className="text-center py-12">
-              <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
-              <p className="text-muted-foreground">Загрузка профилей...</p>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">Анкеты пользователей</h2>
+              <p className="text-muted-foreground">Найдите свою половинку</p>
             </div>
-          ) : (
-            <>
-              {/* Desktop version - Grid */}
-              <div className="hidden lg:block">
-                <div className="grid grid-cols-6 gap-4">
-                  <Card className="rounded-[2rem] p-3 bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col justify-center items-center aspect-[3/4] border-0 shadow-lg">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="bg-pink-300 rounded-full p-4">
-                        <span className="text-4xl">🚀</span>
-                      </div>
-                    </div>
-                    <p className="text-center px-1 text-sm leading-tight mb-2">
-                      Подними свой профиль наверх в поиске и тебя будет проще найти
-                    </p>
-                    <Button className="w-full rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-semibold py-5 text-sm">
-                      Поднять профиль
-                    </Button>
-                  </Card>
 
+            {loading ? (
+              <div className="text-center py-12">
+                <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
+                <p className="text-muted-foreground">Загрузка профилей...</p>
+              </div>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {profiles
                     .filter(profile => profile.id !== currentUserId)
                     .map((profile) => (
-                      <div key={profile.id} className="relative cursor-pointer hover:scale-105 transition-transform">
-                        <Card className="rounded-[2rem] overflow-hidden border-0 shadow-lg aspect-[3/4]">
-                          {profile.photo ? (
-                            <img 
-                              src={profile.photo} 
-                              alt={profile.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                              <Icon name="User" size={64} className="text-gray-400" />
-                            </div>
-                          )}
-                        </Card>
-                        
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-bold text-xl drop-shadow-lg">
-                              {profile.name}, {profile.age}
-                            </span>
-                            {profile.isOnline && (
-                              <div className="w-3 h-3 rounded-full bg-green-500 shadow-lg" />
-                            )}
-                            {profile.isVerified && (
-                              <Icon name="BadgeCheck" size={20} className="text-blue-400 drop-shadow-lg" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      <ProfileCard
+                        key={profile.id}
+                        profile={profile}
+                        isFavorite={favorites.includes(profile.id)}
+                        isFriendRequestSent={friendRequests.includes(profile.id)}
+                        isFriend={friends.includes(profile.id)}
+                        onToggleFavorite={handleToggleFavorite}
+                        onAddFriend={handleAddFriend}
+                      />
                     ))}
                 </div>
 
                 {profiles.length === 0 && (
-                  <Card className="max-w-md mx-auto text-center p-12 rounded-3xl">
-                    <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-xl font-semibold mb-2">Пока никого нет</p>
-                    <p className="text-muted-foreground">Скоро здесь появятся новые анкеты</p>
-                  </Card>
-                )}
-              </div>
-
-              {/* Mobile version - Swipeable cards (existing ProfileCard component would go here) */}
-              <div className="lg:hidden">
-                {profiles.length === 0 ? (
-                  <Card className="max-w-md mx-auto text-center p-12 rounded-3xl">
-                    <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-xl font-semibold mb-2">Пока никого нет</p>
-                    <p className="text-muted-foreground">Скоро здесь появятся новые анкеты</p>
-                  </Card>
-                ) : (
-                  <div className="space-y-4">
-                    {profiles
-                      .filter(profile => profile.id !== currentUserId)
-                      .map((profile) => (
-                        <Card key={profile.id} className="rounded-3xl overflow-hidden border-2">
-                          <div className="relative h-96">
-                            {profile.photo ? (
-                              <img 
-                                src={profile.photo} 
-                                alt={profile.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                                <Icon name="User" size={64} className="text-gray-400" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                            <div className="absolute bottom-4 left-4 text-white">
-                              <h3 className="text-2xl font-bold mb-1">{profile.name}, {profile.age}</h3>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+              <Card className="max-w-md mx-auto text-center p-12 rounded-3xl">
+                <Icon name="Users" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-xl font-semibold mb-2">Пока никого нет</p>
+                <p className="text-muted-foreground">Скоро здесь появятся новые анкеты</p>
+              </Card>
+            )}
+              </>
+            )}
+          </div>
         </div>
       </main>
     </div>
