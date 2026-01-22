@@ -191,9 +191,7 @@ const Dating = () => {
                   <div className="flex-1 flex items-center justify-center mb-3">
                     <div className="text-6xl">🚀</div>
                   </div>
-                  <p className="text-center text-sm font-medium mb-3 leading-tight">
-                    Подними свой профиль наверх в поиске и тебя будет проще найти
-                  </p>
+                  <p className="text-center text-sm leading-tight font-thin my-0">Подними свой профиль и тебя будет проще найти в поиске</p>
                   <button className="w-full bg-foreground text-background font-semibold py-3 px-4 rounded-2xl text-sm">
                     Поднять
                   </button>
