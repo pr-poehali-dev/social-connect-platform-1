@@ -105,9 +105,11 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
       (error) => {
         setIsDetectingLocation(false);
         let message = 'Не удалось получить доступ к местоположению';
+        let title = 'Ошибка';
         
         if (error.code === error.PERMISSION_DENIED) {
-          message = 'Вы запретили доступ к местоположению';
+          title = 'Доступ к геолокации запрещён';
+          message = 'Чтобы разрешить доступ: нажмите на иконку замка в адресной строке браузера → Настройки сайта → Разрешить доступ к местоположению';
         } else if (error.code === error.POSITION_UNAVAILABLE) {
           message = 'Информация о местоположении недоступна';
         } else if (error.code === error.TIMEOUT) {
@@ -115,9 +117,10 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
         }
         
         toast({
-          title: 'Ошибка',
+          title: title,
           description: message,
-          variant: 'destructive'
+          variant: 'destructive',
+          duration: 8000
         });
       }
     );
