@@ -93,7 +93,7 @@ const Dating = () => {
                 <Card className="rounded-[2rem] p-3 bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col justify-center items-center aspect-[3/4] border-0 shadow-lg">
                   <div className="flex items-center justify-center mb-2">
                     <div className="bg-pink-300 rounded-full p-4">
-                      <Icon name="ArrowUpRight" size={32} className="text-white" />
+                      <span className="text-4xl">🚀</span>
                     </div>
                   </div>
                   <p className="text-center px-1 text-sm leading-tight mb-2">
