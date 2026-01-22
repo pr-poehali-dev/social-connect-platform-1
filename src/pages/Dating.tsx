@@ -215,16 +215,16 @@ const Dating = () => {
                             <Icon name="User" size={48} className="text-gray-400" />
                           </div>
                         )}
-                      </Card>
-                      
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                            {profile.name}, {profile.age}
-                          </span>
-                          <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                        
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-12 pb-3 px-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-bold text-lg">
+                              {profile.name}, {profile.age}
+                            </span>
+                            <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                          </div>
                         </div>
-                      </div>
+                      </Card>
                     </div>
                   ))}
               </div>
