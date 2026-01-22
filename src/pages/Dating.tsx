@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import DatingFiltersModal from '@/components/dating/DatingFiltersModal';
 
 interface Profile {
   id: number;
@@ -76,11 +77,10 @@ const Dating = () => {
             </Button>
           </div>
 
-          {showFilters && (
-            <Card className="p-6 mb-6 rounded-3xl">
-              <p className="text-muted-foreground">Фильтры в разработке</p>
-            </Card>
-          )}
+          <DatingFiltersModal 
+            isOpen={showFilters} 
+            onClose={() => setShowFilters(false)} 
+          />
 
           {loading ? (
             <div className="text-center py-12">
