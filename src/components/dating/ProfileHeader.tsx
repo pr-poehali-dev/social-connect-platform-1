@@ -30,7 +30,7 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-4 left-4 bg-black/30 hover:bg-black/50 text-white rounded-full md:hidden"
+        className="absolute top-4 left-4 bg-black/30 hover:bg-black/50 text-white rounded-full"
         onClick={onBack}
       >
         <Icon name="ArrowLeft" size={24} />
