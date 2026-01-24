@@ -44,7 +44,16 @@ const MusicPlayer = () => {
   useEffect(() => {
     if (currentTrack && audioRef.current) {
       audioRef.current.src = currentTrack.audio;
-      audioRef.current.play();
+      audioRef.current.load();
+      audioRef.current.play().catch(error => {
+        console.error('Audio playback failed:', error);
+        toast({ 
+          title: 'Ошибка воспроизведения', 
+          description: 'Не удалось загрузить трек',
+          variant: 'destructive' 
+        });
+        setIsPlaying(false);
+      });
       setIsPlaying(true);
     }
   }, [currentTrack]);
@@ -259,6 +268,16 @@ const MusicPlayer = () => {
         onTimeUpdate={handleTimeUpdate}
         onEnded={nextTrack}
         onLoadedMetadata={handleTimeUpdate}
+        onError={(e) => {
+          console.error('Audio error:', e);
+          toast({ 
+            title: 'Ошибка загрузки', 
+            description: 'Трек недоступен для воспроизведения',
+            variant: 'destructive' 
+          });
+          setIsPlaying(false);
+        }}
+        crossOrigin="anonymous"
       />
     </Card>
   );
