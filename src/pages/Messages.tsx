@@ -336,17 +336,39 @@ const Messages = () => {
                               variant="ghost" 
                               size="icon" 
                               className="rounded-full hover:bg-blue-50"
-                              onClick={() => setCallModal({ isOpen: true, type: 'audio' })}
+                              onClick={() => {
+                                if (!currentChat.vkId) {
+                                  toast({
+                                    title: 'Звонок недоступен',
+                                    description: 'Пользователь зарегистрирован не через VK. Звонки доступны только для пользователей VK',
+                                    variant: 'destructive',
+                                  });
+                                  return;
+                                }
+                                setCallModal({ isOpen: true, type: 'audio' });
+                              }}
+                              disabled={!currentChat.vkId}
                             >
-                              <Icon name="Phone" size={20} className="text-blue-600" />
+                              <Icon name="Phone" size={20} className={currentChat.vkId ? "text-blue-600" : "text-gray-400"} />
                             </Button>
                             <Button 
                               variant="ghost" 
                               size="icon" 
                               className="rounded-full hover:bg-blue-50"
-                              onClick={() => setCallModal({ isOpen: true, type: 'video' })}
+                              onClick={() => {
+                                if (!currentChat.vkId) {
+                                  toast({
+                                    title: 'Видеозвонок недоступен',
+                                    description: 'Пользователь зарегистрирован не через VK. Видеозвонки доступны только для пользователей VK',
+                                    variant: 'destructive',
+                                  });
+                                  return;
+                                }
+                                setCallModal({ isOpen: true, type: 'video' });
+                              }}
+                              disabled={!currentChat.vkId}
                             >
-                              <Icon name="Video" size={20} className="text-blue-600" />
+                              <Icon name="Video" size={20} className={currentChat.vkId ? "text-blue-600" : "text-gray-400"} />
                             </Button>
                           </>
                         )}
