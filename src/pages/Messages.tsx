@@ -329,11 +329,25 @@ const Messages = () => {
                       <div className="flex gap-2">
                         {currentChat.type === 'personal' && (
                           <>
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                              <Icon name="Phone" size={20} />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="rounded-full hover:bg-blue-50"
+                              onClick={() => {
+                                window.open('https://vk.com/call', '_blank');
+                              }}
+                            >
+                              <Icon name="Phone" size={20} className="text-blue-600" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="rounded-full">
-                              <Icon name="Video" size={20} />
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="rounded-full hover:bg-blue-50"
+                              onClick={() => {
+                                window.open('https://vk.com/call', '_blank');
+                              }}
+                            >
+                              <Icon name="Video" size={20} className="text-blue-600" />
                             </Button>
                           </>
                         )}
