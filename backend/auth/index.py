@@ -17,7 +17,8 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     action = event.get('queryStringParameters', {}).get('action', 'login')
@@ -31,7 +32,8 @@ def handler(event: dict, context) -> dict:
     return {
         'statusCode': 400,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'error': 'Invalid request'})
+        'body': json.dumps({'error': 'Invalid request'}),
+        'isBase64Encoded': False
     }
 
 def handle_register(event: dict) -> dict:
@@ -52,7 +54,8 @@ def handle_register(event: dict) -> dict:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Пароль должен быть не менее 6 символов'})
+            'body': json.dumps({'error': 'Пароль должен быть не менее 6 символов'}),
+            'isBase64Encoded': False
         }
     
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
@@ -67,7 +70,8 @@ def handle_register(event: dict) -> dict:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Пользователь с таким email уже существует'})
+            'body': json.dumps({'error': 'Пользователь с таким email уже существует'}),
+            'isBase64Encoded': False
         }
     
     # Hash password
@@ -102,7 +106,8 @@ def handle_register(event: dict) -> dict:
             'access_token': access_token,
             'refresh_token': refresh_token,
             'user': {'id': user_id, 'email': email, 'name': name}
-        })
+        }),
+        'isBase64Encoded': False
     }
 
 def handle_login(event: dict) -> dict:
@@ -115,7 +120,8 @@ def handle_login(event: dict) -> dict:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Email и пароль обязательны'})
+            'body': json.dumps({'error': 'Email и пароль обязательны'}),
+            'isBase64Encoded': False
         }
     
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
@@ -132,7 +138,8 @@ def handle_login(event: dict) -> dict:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Неверный email или пароль'})
+            'body': json.dumps({'error': 'Неверный email или пароль'}),
+            'isBase64Encoded': False
         }
     
     user_id, user_email, password_hash, name = user
@@ -144,7 +151,8 @@ def handle_login(event: dict) -> dict:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Неверный email или пароль'})
+            'body': json.dumps({'error': 'Неверный email или пароль'}),
+            'isBase64Encoded': False
         }
     
     # Update last login
@@ -172,7 +180,8 @@ def handle_login(event: dict) -> dict:
             'access_token': access_token,
             'refresh_token': refresh_token,
             'user': {'id': user_id, 'email': user_email, 'name': name}
-        })
+        }),
+        'isBase64Encoded': False
     }
 
 def generate_access_token(user_id: int, email: str) -> str:

@@ -15,7 +15,8 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -33,7 +34,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(dict(profile) if profile else {})
+                    'body': json.dumps(dict(profile) if profile else {}),
+                    'isBase64Encoded': False
                 }
             
             city = query_params.get('city', '')
@@ -68,7 +70,8 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps([dict(p) for p in profiles], default=str)
+                'body': json.dumps([dict(p) for p in profiles], default=str),
+                'isBase64Encoded': False
             }
         
         elif method == 'POST':
@@ -97,7 +100,8 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 201,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'id': profile_id, 'status': 'created'})
+                'body': json.dumps({'id': profile_id, 'status': 'created'}),
+                'isBase64Encoded': False
             }
         
         elif method == 'PUT':
@@ -109,7 +113,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Profile ID required'})
+                    'body': json.dumps({'error': 'Profile ID required'}),
+                    'isBase64Encoded': False
                 }
             
             cursor.execute('''
@@ -134,13 +139,15 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'status': 'updated'})
+                'body': json.dumps({'status': 'updated'}),
+                'isBase64Encoded': False
             }
         
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     finally:

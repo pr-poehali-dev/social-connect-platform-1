@@ -60,6 +60,7 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
+    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
     conn = psycopg2.connect(dsn)
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     params = event.get('queryStringParameters') or {}
@@ -68,18 +69,18 @@ def handler(event: dict, context) -> dict:
     if method == 'GET' and action == 'conversations':
         conv_type = params.get('type', '')
         
-        query = '''
+        query = f'''
             SELECT DISTINCT c.id, c.type, c.name, c.avatar_url, c.deal_status,
-                   (SELECT content FROM t_p19021063_social_connect_platf.messages 
+                   (SELECT content FROM {schema}.messages 
                     WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message,
-                   (SELECT created_at FROM t_p19021063_social_connect_platf.messages 
+                   (SELECT created_at FROM {schema}.messages 
                     WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_time,
-                   (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.messages m 
+                   (SELECT COUNT(*) FROM {schema}.messages m 
                     WHERE m.conversation_id = c.id AND m.is_read = FALSE AND m.sender_id != %s) as unread_count,
-                   (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.conversation_participants 
+                   (SELECT COUNT(*) FROM {schema}.conversation_participants 
                     WHERE conversation_id = c.id) as participants_count
-            FROM t_p19021063_social_connect_platf.conversations c
-            JOIN t_p19021063_social_connect_platf.conversation_participants cp ON c.id = cp.conversation_id
+            FROM {schema}.conversations c
+            JOIN {schema}.conversation_participants cp ON c.id = cp.conversation_id
             WHERE cp.user_id = %s
         '''
         
@@ -128,19 +129,19 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        cursor.execute('''
+        cursor.execute(f'''
             SELECT m.id, m.content, m.sender_id, m.created_at, m.is_read,
                    u.name as sender_name, u.avatar_url as sender_avatar
-            FROM t_p19021063_social_connect_platf.messages m
-            JOIN t_p19021063_social_connect_platf.users u ON m.sender_id = u.id
+            FROM {schema}.messages m
+            JOIN {schema}.users u ON m.sender_id = u.id
             WHERE m.conversation_id = %s
             ORDER BY m.created_at ASC
         ''', (conversation_id,))
         
         messages = cursor.fetchall()
         
-        cursor.execute('''
-            UPDATE t_p19021063_social_connect_platf.messages 
+        cursor.execute(f'''
+            UPDATE {schema}.messages 
             SET is_read = TRUE 
             WHERE conversation_id = %s AND sender_id != %s AND is_read = FALSE
         ''', (conversation_id, user_id))
@@ -185,10 +186,10 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            cursor.execute('''
-                SELECT c.id FROM t_p19021063_social_connect_platf.conversations c
-                JOIN t_p19021063_social_connect_platf.conversation_participants cp1 ON c.id = cp1.conversation_id
-                JOIN t_p19021063_social_connect_platf.conversation_participants cp2 ON c.id = cp2.conversation_id
+            cursor.execute(f'''
+                SELECT c.id FROM {schema}.conversations c
+                JOIN {schema}.conversation_participants cp1 ON c.id = cp1.conversation_id
+                JOIN {schema}.conversation_participants cp2 ON c.id = cp2.conversation_id
                 WHERE c.type = 'personal' 
                 AND cp1.user_id = %s 
                 AND cp2.user_id = %s
@@ -207,13 +208,13 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            cursor.execute('''
-                SELECT name, avatar_url FROM t_p19021063_social_connect_platf.users WHERE id = %s
+            cursor.execute(f'''
+                SELECT name, avatar_url FROM {schema}.users WHERE id = %s
             ''', (other_user_id,))
             other_user = cursor.fetchone()
             
-            cursor.execute('''
-                INSERT INTO t_p19021063_social_connect_platf.conversations 
+            cursor.execute(f'''
+                INSERT INTO {schema}.conversations 
                 (type, name, avatar_url, created_by)
                 VALUES ('personal', %s, %s, %s)
                 RETURNING id
@@ -224,8 +225,8 @@ def handler(event: dict, context) -> dict:
             new_conv = cursor.fetchone()
             conv_id = new_conv['id']
             
-            cursor.execute('''
-                INSERT INTO t_p19021063_social_connect_platf.conversation_participants 
+            cursor.execute(f'''
+                INSERT INTO {schema}.conversation_participants 
                 (conversation_id, user_id) VALUES (%s, %s), (%s, %s)
             ''', (conv_id, user_id, conv_id, other_user_id))
             
@@ -253,8 +254,8 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        cursor.execute('''
-            INSERT INTO t_p19021063_social_connect_platf.messages 
+        cursor.execute(f'''
+            INSERT INTO {schema}.messages 
             (conversation_id, sender_id, content, created_at)
             VALUES (%s, %s, %s, NOW())
             RETURNING id, created_at
