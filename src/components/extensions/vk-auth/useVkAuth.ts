@@ -308,10 +308,24 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
         clearStoredState();
 
         // Set auth data
+        console.log('[VK AUTH] Callback successful, saving tokens:', {
+          access_token: data.access_token?.substring(0, 20) + '...',
+          user_id: data.user?.id,
+          refresh_token: data.refresh_token?.substring(0, 20) + '...'
+        });
         setAccessToken(data.access_token);
         setStoredAccessToken(data.access_token);
         setUser(data.user);
         setStoredRefreshToken(data.refresh_token);
+        
+        // Verify tokens were saved
+        const savedAccess = localStorage.getItem('access_token');
+        const savedRefresh = localStorage.getItem('refresh_token');
+        console.log('[VK AUTH] Tokens saved to localStorage:', {
+          access_saved: !!savedAccess,
+          refresh_saved: !!savedRefresh
+        });
+        
         scheduleRefresh(data.expires_in, refreshTokenFn);
         return true;
       } catch (err) {
