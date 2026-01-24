@@ -80,7 +80,7 @@ def create_access_token(user_id: int, email: str | None = None) -> tuple[str, in
     expire = now + expires_delta
 
     payload = {
-        'sub': str(user_id),
+        'user_id': user_id,
         'exp': expire,
         'iat': now,
         'type': 'access'
