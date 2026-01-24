@@ -34,6 +34,7 @@ import AdminSections from "./pages/admin/AdminSections";
 import AdminFilters from "./pages/admin/AdminFilters";
 import AdminLogs from "./pages/admin/AdminLogs";
 import Notifications from "./pages/Notifications";
+import CallHistory from "./pages/CallHistory";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
           <Route path="/yandex-callback" element={<YandexCallback />} />
           <Route path="/google-callback" element={<GoogleCallback />} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+          <Route path="/call-history" element={<ProtectedRoute><CallHistory /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />
