@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
-import MyProfile from "./pages/MyProfile";
 import UserProfile from "./pages/UserProfile";
 import Dating from "./pages/Dating";
 import DatingProfile from "./pages/DatingProfile";
@@ -49,8 +48,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
-          <Route path="/profile-old" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
           <Route path="/dating/:userId" element={<ProtectedRoute><DatingProfile /></ProtectedRoute>} />
