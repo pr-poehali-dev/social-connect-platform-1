@@ -63,9 +63,9 @@ const App = () => (
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/referral" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
-          <Route path="/auth/vk/callback" element={<VkCallback />} />
-          <Route path="/auth/yandex/callback" element={<YandexCallback />} />
-          <Route path="/auth/google/callback" element={<GoogleCallback />} />
+          <Route path="/vk-callback" element={<VkCallback />} />
+          <Route path="/yandex-callback" element={<YandexCallback />} />
+          <Route path="/google-callback" element={<GoogleCallback />} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
