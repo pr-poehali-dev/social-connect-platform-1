@@ -85,39 +85,36 @@ def handler(event: dict, context) -> dict:
             where_conditions = []
             
             if user_id:
-                where_conditions.append(f"dp.user_id != {user_id}")
+                where_conditions.append(f"u.id != {user_id}")
             
             if gender:
                 where_conditions.append(f"u.gender = '{gender}'")
-            if age_from:
-                where_conditions.append(f"dp.age >= {age_from}")
-            if age_to:
-                where_conditions.append(f"dp.age <= {age_to}")
             if city:
-                where_conditions.append(f"LOWER(dp.city) LIKE LOWER('%{city}%')")
+                where_conditions.append(f"LOWER(u.city) LIKE LOWER('%{city}%')")
             if with_photo:
-                where_conditions.append("dp.avatar_url IS NOT NULL")
+                where_conditions.append("u.avatar_url IS NOT NULL AND u.avatar_url != ''")
             
             where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
             
-            favorites_check = f"EXISTS(SELECT 1 FROM {S}dating_favorites WHERE user_id = {user_id} AND profile_id = dp.id)" if user_id else "FALSE"
-            friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = dp.user_id AND status = 'pending')" if user_id else "FALSE"
-            is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = dp.user_id AND status = 'accepted')" if user_id else "FALSE"
+            favorites_check = f"EXISTS(SELECT 1 FROM {S}dating_favorites df JOIN {S}dating_profiles dp ON df.profile_id = dp.id WHERE df.user_id = {user_id} AND dp.user_id = u.id)" if user_id else "FALSE"
+            friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = u.id AND status = 'pending')" if user_id else "FALSE"
+            is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = u.id AND status = 'accepted')" if user_id else "FALSE"
             
             cur.execute(f"""
                 SELECT 
-                    dp.id, dp.user_id, dp.name, dp.age, dp.city, dp.district,
-                    dp.interests, dp.bio, dp.avatar_url, dp.height, dp.body_type,
-                    u.gender, u.avatar_url as user_avatar,
+                    u.id, u.id as user_id, u.name, 
+                    COALESCE(u.age_from, 25) as age,
+                    u.city, u.district,
+                    u.interests, u.bio, u.avatar_url,
+                    u.height, u.body_type, u.gender,
                     FALSE as is_online,
-                    dp.is_top_ad,
+                    COALESCE(u.is_vip, FALSE) as is_top_ad,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
-                FROM {S}dating_profiles dp
-                JOIN {S}users u ON dp.user_id = u.id
+                FROM {S}users u
                 WHERE {where_clause}
-                ORDER BY dp.is_top_ad DESC, dp.created_at DESC
+                ORDER BY u.is_vip DESC NULLS LAST, u.created_at DESC
                 LIMIT 50
             """)
             
