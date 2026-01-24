@@ -53,133 +53,119 @@ const DatingProfile = () => {
   };
 
   const loadProfile = async () => {
-    const mockProfiles: any = {
-      '1': {
-        id: 1,
-        name: 'Александра',
-        age: 24,
-        city: 'Москва',
-        district: 'Центральный',
-        gender: 'female',
-        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800',
-        isOnline: true,
-        lastSeen: null,
-        height: 168,
-        weight: 55,
-        physique: 'Стройное',
-        about: 'Люблю путешествовать и фотографировать. Работаю фотографом, обожаю природу и новые места. Ищу интересного собеседника для приятного общения.',
-        interests: ['Путешествия', 'Фотография', 'Йога', 'Природа', 'Книги'],
-        distance: 1.2
-      },
-      '2': {
-        id: 2,
-        name: 'Дмитрий',
-        age: 28,
-        city: 'Москва',
-        district: 'Северный',
-        gender: 'male',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
-        isOnline: false,
-        lastSeen: '2 часа назад',
-        height: 182,
-        weight: 78,
-        physique: 'Спортивное',
-        about: 'Занимаюсь спортом, люблю активный отдых. Тренер в фитнес-клубе. В свободное время смотрю фильмы и слушаю музыку.',
-        interests: ['Спорт', 'Кино', 'Музыка', 'Путешествия'],
-        distance: 3.5
-      },
-      '3': {
-        id: 3,
-        name: 'Елена',
-        age: 26,
-        city: 'Москва',
-        district: 'Южный',
-        gender: 'female',
-        image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800',
-        isOnline: true,
-        lastSeen: null,
-        height: 165,
-        weight: 52,
-        physique: 'Стройное',
-        about: 'Дизайнер, обожаю искусство и творчество. Работаю в креативном агентстве, люблю кофейни и выставки.',
-        interests: ['Дизайн', 'Искусство', 'Кофе', 'Выставки', 'Творчество'],
-        distance: 5.8
-      },
-      '4': {
-        id: 4,
-        name: 'Михаил',
-        age: 30,
-        city: 'Москва',
-        district: 'Западный',
-        gender: 'male',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-        isOnline: false,
-        lastSeen: 'вчера',
-        height: 178,
-        weight: 75,
-        physique: 'Обычное',
-        about: 'IT-специалист, люблю технологии и программирование. В свободное время играю в игры и читаю научную фантастику.',
-        interests: ['Технологии', 'Игры', 'Книги', 'Программирование'],
-        distance: 2.1
-      },
-      '5': {
-        id: 5,
-        name: 'Анна',
-        age: 22,
-        city: 'Москва',
-        district: 'Восточный',
-        gender: 'female',
-        image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800',
-        isOnline: true,
-        lastSeen: null,
-        height: 170,
-        weight: 58,
-        physique: 'Стройное',
-        about: 'Студентка факультета моды, интересуюсь стилем и трендами. Люблю танцевать и вести блог.',
-        interests: ['Мода', 'Танцы', 'Instagram', 'Блогинг', 'Стиль'],
-        distance: 0.8
-      },
-      '6': {
-        id: 6,
-        name: 'Максим',
-        age: 27,
-        city: 'Москва',
-        district: 'Центральный',
-        gender: 'male',
-        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800',
-        isOnline: false,
-        lastSeen: '5 часов назад',
-        height: 185,
-        weight: 82,
-        physique: 'Спортивное',
-        about: 'Предприниматель, занимаюсь бизнесом в сфере IT. Люблю путешествовать и пробовать что-то новое.',
-        interests: ['Бизнес', 'Путешествия', 'Спорт', 'Стартапы', 'Технологии'],
-        distance: 4.2
-      }
-    };
+    setLoading(true);
+    
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=profiles`
+      );
 
-    setTimeout(() => {
-      const mockProfile = mockProfiles[userId || '1'];
-      if (mockProfile) {
-        setProfile(mockProfile);
+      if (response.ok) {
+        const data = await response.json();
+        const userProfile = data.profiles?.find((p: any) => p.id === parseInt(userId || '0'));
+        
+        if (userProfile) {
+          setProfile({
+            id: userProfile.id,
+            user_id: userProfile.user_id,
+            name: userProfile.name,
+            age: userProfile.age,
+            city: userProfile.city,
+            district: userProfile.district,
+            gender: userProfile.gender,
+            image: userProfile.avatar_url,
+            isOnline: userProfile.is_online,
+            lastSeen: userProfile.is_online ? null : '2 часа назад',
+            height: userProfile.height,
+            physique: userProfile.body_type,
+            about: userProfile.bio,
+            interests: userProfile.interests || [],
+            is_favorite: userProfile.is_favorite,
+            friend_request_sent: userProfile.friend_request_sent,
+            is_friend: userProfile.is_friend,
+          });
+          setIsFavorite(userProfile.is_favorite);
+          setRequestSent(userProfile.friend_request_sent);
+          setIsFriend(userProfile.is_friend);
+        } else {
+          toast({
+            title: 'Профиль не найден',
+            description: 'Пользователь не существует',
+            variant: 'destructive',
+          });
+          navigate('/dating');
+        }
       }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      toast({
+        title: 'Ошибка загрузки',
+        description: 'Не удалось загрузить профиль',
+        variant: 'destructive',
+      });
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
-  const handleAddFriend = () => {
-    setRequestSent(true);
-    toast({
-      title: 'Заявка отправлена',
-      description: 'Ожидайте подтверждения'
-    });
+  const handleAddFriend = async () => {
+    if (!profile) return;
+    
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=friend-request',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to_user_id: profile.user_id })
+        }
+      );
+
+      if (response.ok) {
+        setRequestSent(true);
+        toast({
+          title: 'Заявка отправлена',
+          description: 'Ожидайте подтверждения'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send friend request:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отправить заявку',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast({
-      title: isFavorite ? 'Удалено из избранного' : 'Добавлено в избранное'
-    });
+  const handleToggleFavorite = async () => {
+    if (!profile) return;
+    
+    try {
+      const action = isFavorite ? 'unfavorite' : 'favorite';
+      const response = await fetch(
+        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=${action}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile_id: profile.id })
+        }
+      );
+
+      if (response.ok) {
+        setIsFavorite(!isFavorite);
+        toast({
+          title: isFavorite ? 'Удалено из избранного' : 'Добавлено в избранное'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить избранное',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSendMessage = () => {
