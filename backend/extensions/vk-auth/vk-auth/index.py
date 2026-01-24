@@ -416,6 +416,13 @@ def handle_callback(event: dict, origin: str) -> dict:
             refresh_token = create_refresh_token()
             refresh_token_hash = hash_token(refresh_token)
             refresh_expires = (datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)).isoformat()
+            
+            # DEBUG: Log token payload
+            try:
+                decoded = jwt.decode(access_token, get_jwt_secret(), algorithms=['HS256'])
+                print(f"[VK AUTH] Created token for user {user_id}, payload: {decoded}")
+            except Exception as e:
+                print(f"[VK AUTH] Token decode error: {e}")
 
             # Store hashed refresh token
             cur.execute(
