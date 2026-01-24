@@ -413,10 +413,12 @@ const Messages = () => {
                                 <p className={`text-xs text-muted-foreground mt-1 ${
                                   msg.senderId === currentUserId ? 'text-right mr-2' : 'ml-2'
                                 }`}>
-                                  {new Date(msg.createdAt).toLocaleTimeString('ru-RU', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  })}
+                                  {(() => {
+                                    const date = new Date(msg.createdAt);
+                                    const hours = String(date.getHours()).padStart(2, '0');
+                                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                                    return `${hours}:${minutes}`;
+                                  })()}
                                 </p>
                               </div>
                             </div>
