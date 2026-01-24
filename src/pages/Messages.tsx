@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { VkCallModal } from '@/components/VkCallModal';
 
 interface Chat {
   id: number;
@@ -42,6 +43,7 @@ const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [callModal, setCallModal] = useState<{ isOpen: boolean; type: 'audio' | 'video' }>({ isOpen: false, type: 'audio' });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -333,9 +335,7 @@ const Messages = () => {
                               variant="ghost" 
                               size="icon" 
                               className="rounded-full hover:bg-blue-50"
-                              onClick={() => {
-                                window.open('https://vk.com/call', '_blank');
-                              }}
+                              onClick={() => setCallModal({ isOpen: true, type: 'audio' })}
                             >
                               <Icon name="Phone" size={20} className="text-blue-600" />
                             </Button>
@@ -343,9 +343,7 @@ const Messages = () => {
                               variant="ghost" 
                               size="icon" 
                               className="rounded-full hover:bg-blue-50"
-                              onClick={() => {
-                                window.open('https://vk.com/call', '_blank');
-                              }}
+                              onClick={() => setCallModal({ isOpen: true, type: 'video' })}
                             >
                               <Icon name="Video" size={20} className="text-blue-600" />
                             </Button>
@@ -440,6 +438,13 @@ const Messages = () => {
           </div>
         </div>
       </main>
+
+      <VkCallModal
+        isOpen={callModal.isOpen}
+        onClose={() => setCallModal({ ...callModal, isOpen: false })}
+        recipientName={currentChat?.name || 'Пользователь'}
+        callType={callModal.type}
+      />
     </div>
   );
 };
