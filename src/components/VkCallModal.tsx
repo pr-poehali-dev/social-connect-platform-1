@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 interface VkCallModalProps {
   isOpen: boolean;
   onClose: () => void;
-  recipientId?: string;
+  recipientId?: number;
   recipientName: string;
   callType: 'audio' | 'video';
 }
@@ -28,6 +28,8 @@ export function VkCallModal({
   const [isInitialized, setIsInitialized] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [callStatus, setCallStatus] = useState<'idle' | 'calling' | 'connected' | 'ended'>('idle');
+  const [callId, setCallId] = useState<number | null>(null);
+  const [callStartTime, setCallStartTime] = useState<Date | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -50,6 +52,42 @@ export function VkCallModal({
     }
   }, [isOpen, toast]);
 
+  const saveCallToHistory = async (status: string, duration?: number) => {
+    if (!recipientId) return;
+    
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const method = callId ? 'PUT' : 'POST';
+      const url = callId 
+        ? `https://functions.poehali.dev/103317da-ee6e-47c4-b6a3-3e12513ed2db?id=${callId}`
+        : 'https://functions.poehali.dev/103317da-ee6e-47c4-b6a3-3e12513ed2db';
+
+      const body: any = callId
+        ? { status, duration_seconds: duration }
+        : { recipient_id: recipientId, call_type: callType, status };
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!callId && data.call?.id) {
+          setCallId(data.call.id);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save call history:', error);
+    }
+  };
+
   const startCall = async () => {
     if (!isInitialized) {
       toast({
@@ -62,6 +100,8 @@ export function VkCallModal({
 
     setIsConnecting(true);
     setCallStatus('calling');
+    setCallStartTime(new Date());
+    await saveCallToHistory('initiated');
 
     try {
       const result = await bridge.send('VKWebAppCallAPIMethod', {
@@ -75,6 +115,7 @@ export function VkCallModal({
 
       if (result.response) {
         setCallStatus('connected');
+        await saveCallToHistory('connected');
         toast({
           title: 'Звонок начат',
           description: `${callType === 'video' ? 'Видеозвонок' : 'Аудиозвонок'} с ${recipientName}`,
@@ -83,6 +124,7 @@ export function VkCallModal({
     } catch (error: any) {
       console.error('Call error:', error);
       setCallStatus('ended');
+      await saveCallToHistory('failed');
       
       if (error.error_data?.error_code === 4) {
         toast({
@@ -106,15 +148,24 @@ export function VkCallModal({
     }
   };
 
-  const endCall = () => {
+  const endCall = async () => {
+    const duration = callStartTime 
+      ? Math.floor((new Date().getTime() - callStartTime.getTime()) / 1000)
+      : 0;
+    
     setCallStatus('ended');
+    await saveCallToHistory('ended', duration);
+    
     toast({
       title: 'Звонок завершен',
-      description: 'Звонок успешно завершен',
+      description: `Длительность: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
     });
+    
     setTimeout(() => {
       onClose();
       setCallStatus('idle');
+      setCallId(null);
+      setCallStartTime(null);
     }, 1500);
   };
 

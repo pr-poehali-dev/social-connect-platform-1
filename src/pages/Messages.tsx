@@ -442,6 +442,7 @@ const Messages = () => {
       <VkCallModal
         isOpen={callModal.isOpen}
         onClose={() => setCallModal({ ...callModal, isOpen: false })}
+        recipientId={selectedChat || undefined}
         recipientName={currentChat?.name || 'Пользователь'}
         callType={callModal.type}
       />
