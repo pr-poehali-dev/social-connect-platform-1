@@ -9,7 +9,8 @@ import { useState, useCallback, useEffect, useRef } from "react";
 // TYPES
 // =============================================================================
 
-const REFRESH_TOKEN_KEY = "vk_auth_refresh_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
+const ACCESS_TOKEN_KEY = "access_token";
 const CODE_VERIFIER_KEY = "vk_auth_code_verifier";
 const STATE_KEY = "vk_auth_state";
 
@@ -65,6 +66,16 @@ function setStoredRefreshToken(token: string): void {
 function clearStoredRefreshToken(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+function setStoredAccessToken(token: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+}
+
+function clearStoredAccessToken(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
 }
 
 function getStoredCodeVerifier(): string | null {
@@ -123,6 +134,7 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
     setAccessToken(null);
     setUser(null);
     clearStoredRefreshToken();
+    clearStoredAccessToken();
     clearStoredCodeVerifier();
     clearStoredState();
   }, []);
@@ -167,6 +179,7 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
 
       const data = await response.json();
       setAccessToken(data.access_token);
+      setStoredAccessToken(data.access_token);
       setUser(data.user);
       scheduleRefresh(data.expires_in, refreshTokenFn);
       return true;
@@ -296,6 +309,7 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
 
         // Set auth data
         setAccessToken(data.access_token);
+        setStoredAccessToken(data.access_token);
         setUser(data.user);
         setStoredRefreshToken(data.refresh_token);
         scheduleRefresh(data.expires_in, refreshTokenFn);
