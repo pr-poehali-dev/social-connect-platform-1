@@ -215,12 +215,22 @@ const Dating = () => {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Знакомства</h1>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="p-2"
-            >
-              <Icon name="SlidersHorizontal" size={24} />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/edit-profile')}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                title="Редактировать профиль"
+              >
+                <Icon name="UserCog" size={24} />
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                title="Фильтры"
+              >
+                <Icon name="SlidersHorizontal" size={24} />
+              </button>
+            </div>
           </div>
 
           {showFilters && (
