@@ -128,6 +128,18 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
 
   return (
     <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="name">Имя</Label>
+        <Input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Ваше имя"
+          className="rounded-xl"
+          maxLength={100}
+        />
+      </div>
+
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="nickname">Nickname</Label>
@@ -159,13 +171,16 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="birthdate">Дата рождения</Label>
+        <Label htmlFor="age">Возраст</Label>
         <Input
-          id="birthdate"
-          type="date"
+          id="age"
+          type="number"
           value={formData.age_from}
           onChange={(e) => setFormData({ ...formData, age_from: e.target.value })}
+          placeholder="25"
           className="rounded-xl"
+          min="18"
+          max="100"
         />
       </div>
 

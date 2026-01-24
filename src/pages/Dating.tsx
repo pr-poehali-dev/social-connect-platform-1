@@ -217,9 +217,9 @@ const Dating = () => {
             <h1 className="text-3xl font-bold">Знакомства</h1>
             <div className="flex gap-2">
               <button
-                onClick={() => navigate('/edit-profile')}
+                onClick={() => navigate('/profile')}
                 className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                title="Редактировать профиль"
+                title="Мой профиль"
               >
                 <Icon name="UserCog" size={24} />
               </button>

@@ -100,7 +100,7 @@ def handler(event: dict, context) -> dict:
             updates = []
             
             # Строковые поля
-            string_fields = ['nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
+            string_fields = ['name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
                            'dating_goal', 'profession']
             

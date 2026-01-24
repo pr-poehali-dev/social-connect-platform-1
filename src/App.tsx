@@ -35,7 +35,6 @@ import AdminFilters from "./pages/admin/AdminFilters";
 import AdminLogs from "./pages/admin/AdminLogs";
 import Notifications from "./pages/Notifications";
 import CallHistory from "./pages/CallHistory";
-import EditProfile from "./pages/EditProfile";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +52,6 @@ const App = () => (
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
           <Route path="/dating/:userId" element={<ProtectedRoute><DatingProfile /></ProtectedRoute>} />
-          <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path="/ads" element={<ProtectedRoute><Ads /></ProtectedRoute>} />
           <Route path="/my-ads" element={<ProtectedRoute><MyAds /></ProtectedRoute>} />
           <Route path="/create-ad" element={<ProtectedRoute><CreateAd /></ProtectedRoute>} />
