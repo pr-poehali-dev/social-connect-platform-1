@@ -22,6 +22,7 @@ interface Chat {
   online?: boolean;
   participants?: number;
   dealStatus?: string;
+  vkId?: string;
 }
 
 interface Message {
@@ -442,7 +443,7 @@ const Messages = () => {
       <VkCallModal
         isOpen={callModal.isOpen}
         onClose={() => setCallModal({ ...callModal, isOpen: false })}
-        recipientId={selectedChat || undefined}
+        recipientId={currentChat?.vkId ? parseInt(currentChat.vkId) : undefined}
         recipientName={currentChat?.name || 'Пользователь'}
         callType={callModal.type}
       />

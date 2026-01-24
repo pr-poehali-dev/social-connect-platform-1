@@ -78,7 +78,11 @@ def handler(event: dict, context) -> dict:
                    (SELECT COUNT(*) FROM {schema}.messages m 
                     WHERE m.conversation_id = c.id AND m.is_read = FALSE AND m.sender_id != %s) as unread_count,
                    (SELECT COUNT(*) FROM {schema}.conversation_participants 
-                    WHERE conversation_id = c.id) as participants_count
+                    WHERE conversation_id = c.id) as participants_count,
+                   (SELECT u.vk_id FROM {schema}.users u
+                    JOIN {schema}.conversation_participants cp2 ON u.id = cp2.user_id
+                    WHERE cp2.conversation_id = c.id AND cp2.user_id != %s
+                    LIMIT 1) as other_user_vk_id
             FROM {schema}.conversations c
             JOIN {schema}.conversation_participants cp ON c.id = cp.conversation_id
             WHERE cp.user_id = %s
@@ -89,7 +93,7 @@ def handler(event: dict, context) -> dict:
         
         query += " ORDER BY last_message_time DESC NULLS LAST"
         
-        cursor.execute(query, (user_id, user_id))
+        cursor.execute(query, (user_id, user_id, user_id))
         conversations = cursor.fetchall()
         
         result = []
@@ -103,7 +107,8 @@ def handler(event: dict, context) -> dict:
                 'time': format_time(conv['last_message_time']) if conv['last_message_time'] else '',
                 'unread': conv['unread_count'] or 0,
                 'participants': conv['participants_count'],
-                'dealStatus': conv['deal_status']
+                'dealStatus': conv['deal_status'],
+                'vkId': conv['other_user_vk_id']
             })
         
         cursor.close()
