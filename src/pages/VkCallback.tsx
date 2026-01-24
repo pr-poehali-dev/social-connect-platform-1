@@ -19,10 +19,15 @@ const VkCallback = () => {
 
   useEffect(() => {
     const processCallback = async () => {
+      console.log('[VK CALLBACK] Processing callback, URL params:', window.location.search);
       const success = await vkAuth.handleCallback();
+      console.log('[VK CALLBACK] Callback result:', success);
+      
       if (success) {
+        console.log('[VK CALLBACK] Success! Redirecting to /dating...');
         setTimeout(() => navigate('/dating'), 1000);
       } else {
+        console.log('[VK CALLBACK] Failed! Redirecting to /login...');
         setTimeout(() => navigate('/login'), 2000);
       }
     };

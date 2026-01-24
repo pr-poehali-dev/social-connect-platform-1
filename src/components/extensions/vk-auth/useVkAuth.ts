@@ -219,15 +219,19 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
   const login = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    console.log('[VK AUTH] Starting login flow...');
 
     try {
+      console.log('[VK AUTH] Fetching auth URL from:', apiUrls.authUrl);
       const response = await fetch(apiUrls.authUrl, {
         method: "GET",
       });
 
       const data = await response.json();
+      console.log('[VK AUTH] Auth URL response:', { ok: response.ok, hasAuthUrl: !!data.auth_url });
 
       if (!response.ok) {
+        console.error('[VK AUTH] Failed to get auth URL:', data.error);
         setError(data.error || "Failed to get auth URL");
         setIsLoading(false);
         return;
@@ -237,15 +241,19 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
       if (typeof window !== "undefined") {
         if (data.state) {
           setStoredState(data.state);
+          console.log('[VK AUTH] Stored state');
         }
         if (data.code_verifier) {
           setStoredCodeVerifier(data.code_verifier);
+          console.log('[VK AUTH] Stored code_verifier');
         }
       }
 
       // Redirect to VK (keep loading state, page will navigate away)
+      console.log('[VK AUTH] Redirecting to VK...');
       window.location.href = data.auth_url;
     } catch (err) {
+      console.error('[VK AUTH] Network error:', err);
       setError("Network error");
       setIsLoading(false);
     }
