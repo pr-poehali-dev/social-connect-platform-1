@@ -49,7 +49,7 @@ def handler(event: dict, context) -> dict:
         query = params.get('query', 'popular')
         limit = params.get('limit', '20')
         
-        url = f'https://api.jamendo.com/v3.0/tracks/?client_id={client_id}&format=json&limit={limit}&search={urllib.parse.quote(query)}&include=musicinfo&audiodownload=mp32'
+        url = f'https://api.jamendo.com/v3.0/tracks/?client_id={client_id}&format=json&limit={limit}&search={urllib.parse.quote(query)}&include=musicinfo&audiodownload=false'
         
         try:
             with urllib.request.urlopen(url) as response:
@@ -57,7 +57,6 @@ def handler(event: dict, context) -> dict:
                 
                 tracks = []
                 for track in data.get('results', []):
-                    audio_url = track.get('audiodownload_allowed') and track.get('audiodownload') or track.get('audio')
                     tracks.append({
                         'id': track.get('id'),
                         'name': track.get('name'),
@@ -65,7 +64,8 @@ def handler(event: dict, context) -> dict:
                         'album': track.get('album_name'),
                         'duration': track.get('duration'),
                         'image': track.get('album_image'),
-                        'audio': audio_url
+                        'audio': track.get('audio'),
+                        'audiodownload': track.get('audiodownload')
                     })
                 
                 return {
@@ -91,7 +91,7 @@ def handler(event: dict, context) -> dict:
     if action == 'popular':
         limit = params.get('limit', '20')
         
-        url = f'https://api.jamendo.com/v3.0/tracks/?client_id={client_id}&format=json&limit={limit}&order=popularity_total&include=musicinfo&audiodownload=mp32'
+        url = f'https://api.jamendo.com/v3.0/tracks/?client_id={client_id}&format=json&limit={limit}&order=popularity_total&include=musicinfo&audiodownload=false'
         
         try:
             with urllib.request.urlopen(url) as response:
@@ -99,7 +99,6 @@ def handler(event: dict, context) -> dict:
                 
                 tracks = []
                 for track in data.get('results', []):
-                    audio_url = track.get('audiodownload_allowed') and track.get('audiodownload') or track.get('audio')
                     tracks.append({
                         'id': track.get('id'),
                         'name': track.get('name'),
@@ -107,7 +106,8 @@ def handler(event: dict, context) -> dict:
                         'album': track.get('album_name'),
                         'duration': track.get('duration'),
                         'image': track.get('album_image'),
-                        'audio': audio_url
+                        'audio': track.get('audio'),
+                        'audiodownload': track.get('audiodownload')
                     })
                 
                 return {

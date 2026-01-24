@@ -10,6 +10,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileViewMode from '@/components/profile/ProfileViewMode';
 import ProfileStats from '@/components/profile/ProfileStats';
+import MusicPlayer from '@/components/profile/MusicPlayer';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -219,7 +220,7 @@ const Profile = () => {
           <Card className="max-w-5xl mx-auto rounded-3xl border-2 shadow-2xl overflow-hidden">
             <div className="p-8">
               <div className="flex flex-col lg:flex-row gap-8">
-                <div className="lg:w-1/3">
+                <div className="lg:w-1/3 space-y-6">
                   <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200">
                     {user.avatar_url ? (
                       <img 
@@ -233,6 +234,8 @@ const Profile = () => {
                       </div>
                     )}
                   </div>
+                  
+                  <MusicPlayer />
                 </div>
 
                 <div className="lg:w-2/3 space-y-6">
