@@ -52,17 +52,19 @@ def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': HEADERS, 'body': '', 'isBase64Encoded': False}
 
-    auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '')
+    auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
     token = auth_header.replace('Bearer ', '') if auth_header else ''
     
     payload = verify_token(token)
-    if not payload:
-        return response(401, {'error': 'Unauthorized'})
+    user_id = payload.get('user_id') if payload else None
     
-    user_id = payload.get('user_id')
     method = event.get('httpMethod', 'GET')
     query_params = event.get('queryStringParameters') or {}
     action = query_params.get('action', '')
+    
+    # Действия требующие авторизации
+    if action in ['favorite', 'unfavorite', 'friend-request'] and not user_id:
+        return response(401, {'error': 'Unauthorized'})
 
     S = get_schema()
     conn = get_connection()
@@ -80,7 +82,10 @@ def handler(event: dict, context) -> dict:
             online = query_params.get('online', '') == 'true'
             with_photo = query_params.get('withPhoto', '') == 'true'
             
-            where_conditions = [f"dp.user_id != {user_id}"]
+            where_conditions = []
+            
+            if user_id:
+                where_conditions.append(f"dp.user_id != {user_id}")
             
             if gender:
                 where_conditions.append(f"u.gender = '{gender}'")
@@ -93,7 +98,11 @@ def handler(event: dict, context) -> dict:
             if with_photo:
                 where_conditions.append("dp.avatar_url IS NOT NULL")
             
-            where_clause = " AND ".join(where_conditions)
+            where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
+            
+            favorites_check = f"EXISTS(SELECT 1 FROM {S}dating_favorites WHERE user_id = {user_id} AND profile_id = dp.id)" if user_id else "FALSE"
+            friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = dp.user_id AND status = 'pending')" if user_id else "FALSE"
+            is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = dp.user_id AND status = 'accepted')" if user_id else "FALSE"
             
             cur.execute(f"""
                 SELECT 
@@ -102,9 +111,9 @@ def handler(event: dict, context) -> dict:
                     u.gender, u.avatar_url as user_avatar,
                     FALSE as is_online,
                     dp.is_top_ad,
-                    EXISTS(SELECT 1 FROM {S}dating_favorites WHERE user_id = {user_id} AND profile_id = dp.id) as is_favorite,
-                    EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = dp.user_id AND status = 'pending') as friend_request_sent,
-                    EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = dp.user_id AND status = 'accepted') as is_friend
+                    {favorites_check} as is_favorite,
+                    {friend_request_check} as friend_request_sent,
+                    {is_friend_check} as is_friend
                 FROM {S}dating_profiles dp
                 JOIN {S}users u ON dp.user_id = u.id
                 WHERE {where_clause}

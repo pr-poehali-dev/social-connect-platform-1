@@ -25,17 +25,8 @@ const Dating = () => {
   }, []);
 
   const loadUserData = async () => {
-    try {
-      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        setCurrentUserId(userData.id);
-      }
-    } catch (error) {
-      console.error('Failed to load user data:', error);
-    }
+    // User data will be loaded from localStorage or session if needed
+    // For now, we work in guest mode
   };
 
   const [filters, setFilters] = useState({
@@ -101,10 +92,7 @@ const Dating = () => {
       });
 
       const response = await fetch(
-        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?${params}`,
-        {
-          credentials: 'include'
-        }
+        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?${params}`
       );
 
       if (response.ok) {
@@ -159,7 +147,6 @@ const Dating = () => {
           'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=friend-request',
           {
             method: 'POST',
-            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ to_user_id: profile?.user_id })
           }
@@ -192,7 +179,6 @@ const Dating = () => {
         `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=${action}`,
         {
           method: 'POST',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ profile_id: profileId })
         }
