@@ -66,25 +66,6 @@ def handler(event: dict, context) -> dict:
     params = event.get('queryStringParameters') or {}
     action = params.get('action', 'conversations')
     
-    if method == 'GET' and action == 'unread_count':
-        cursor.execute(f'''
-            SELECT COUNT(*) as total_unread
-            FROM {schema}.messages m
-            JOIN {schema}.conversation_participants cp ON m.conversation_id = cp.conversation_id
-            WHERE cp.user_id = %s AND m.sender_id != %s AND m.is_read = FALSE
-        ''', (user_id, user_id))
-        
-        result = cursor.fetchone()
-        cursor.close()
-        conn.close()
-        
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'unreadCount': result['total_unread'] or 0}),
-            'isBase64Encoded': False
-        }
-    
     if method == 'GET' and action == 'conversations':
         conv_type = params.get('type', '')
         
