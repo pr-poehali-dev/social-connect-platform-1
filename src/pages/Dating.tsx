@@ -20,6 +20,24 @@ const Dating = () => {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
+  const formatLastSeen = (lastLoginAt: string | null) => {
+    if (!lastLoginAt) return 'давно';
+    
+    const now = new Date();
+    const lastLogin = new Date(lastLoginAt);
+    const diffMs = now.getTime() - lastLogin.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'только что';
+    if (diffMins < 60) return `${diffMins} мин назад`;
+    if (diffHours < 24) return `${diffHours} ч назад`;
+    if (diffDays === 1) return 'вчера';
+    if (diffDays < 7) return `${diffDays} дн назад`;
+    return lastLogin.toLocaleDateString('ru-RU');
+  };
+
   useEffect(() => {
     loadUserData();
   }, []);
@@ -92,7 +110,7 @@ const Dating = () => {
       });
 
       const response = await fetch(
-        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?${params}`
+        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`
       );
 
       if (response.ok) {
@@ -105,17 +123,17 @@ const Dating = () => {
           city: p.city,
           district: p.district,
           gender: p.gender,
-          image: p.avatar_url || p.user_avatar,
-          isOnline: p.is_online,
-          lastSeen: p.is_online ? null : '2 часа назад',
+          image: p.avatar_url || p.user_avatar || p.image,
+          isOnline: p.isOnline || p.is_online,
+          lastSeen: p.lastLoginAt,
           height: p.height,
-          physique: p.body_type,
+          physique: p.body_type || p.bodyType,
           about: p.bio,
           interests: p.interests || [],
           is_favorite: p.is_favorite,
           friend_request_sent: p.friend_request_sent,
           is_friend: p.is_friend,
-          isTopAd: p.is_top_ad
+          isTopAd: p.is_top_ad || p.isTopAd
         }));
         setProfiles(mappedProfiles);
       } else {
@@ -295,7 +313,7 @@ const Dating = () => {
                             <div className="flex items-center gap-1.5 text-white/80 text-xs">
                               <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
                               <span>
-                                {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
+                                {profile.isOnline ? 'Онлайн' : `Был(а) в сети ${formatLastSeen(profile.lastSeen)}`}
                               </span>
                             </div>
                           </div>

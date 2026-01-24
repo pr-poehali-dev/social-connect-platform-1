@@ -20,6 +20,24 @@ const DatingProfile = () => {
   const [isFriend, setIsFriend] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+
+  const formatLastSeen = (lastLoginAt: string | null) => {
+    if (!lastLoginAt) return 'давно';
+    
+    const now = new Date();
+    const lastLogin = new Date(lastLoginAt);
+    const diffMs = now.getTime() - lastLogin.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'только что';
+    if (diffMins < 60) return `${diffMins} мин назад`;
+    if (diffHours < 24) return `${diffHours} ч назад`;
+    if (diffDays === 1) return 'вчера';
+    if (diffDays < 7) return `${diffDays} дн назад`;
+    return lastLogin.toLocaleDateString('ru-RU');
+  };
   
   const photos = [
     profile?.image,
@@ -57,7 +75,7 @@ const DatingProfile = () => {
     
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=profiles`
+        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f`
       );
 
       if (response.ok) {
@@ -73,11 +91,11 @@ const DatingProfile = () => {
             city: userProfile.city,
             district: userProfile.district,
             gender: userProfile.gender,
-            image: userProfile.avatar_url,
-            isOnline: userProfile.is_online,
-            lastSeen: userProfile.is_online ? null : '2 часа назад',
+            image: userProfile.avatar_url || userProfile.image,
+            isOnline: userProfile.isOnline || userProfile.is_online,
+            lastSeen: userProfile.lastLoginAt,
             height: userProfile.height,
-            physique: userProfile.body_type,
+            physique: userProfile.body_type || userProfile.bodyType,
             about: userProfile.bio,
             interests: userProfile.interests || [],
             is_favorite: userProfile.is_favorite,
@@ -285,7 +303,7 @@ const DatingProfile = () => {
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
                   <span>
-                    {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${profile.lastSeen}` : 'Был(а) в сети давно'}
+                    {profile.isOnline ? 'Онлайн' : `Был(а) в сети ${formatLastSeen(profile.lastSeen)}`}
                   </span>
                 </div>
               </div>
