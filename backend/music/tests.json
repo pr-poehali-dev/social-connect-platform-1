@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get popular tracks",
+      "method": "GET",
+      "path": "/?action=popular&limit=5",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "tracks": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Search tracks",
+      "method": "GET",
+      "path": "/?action=search&query=rock&limit=5",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "tracks": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

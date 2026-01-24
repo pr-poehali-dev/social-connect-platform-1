@@ -10,6 +10,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileViewMode from '@/components/profile/ProfileViewMode';
 import ProfileStats from '@/components/profile/ProfileStats';
+import MusicPlayer from '@/components/profile/MusicPlayer';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -347,6 +348,10 @@ const Profile = () => {
               </div>
             </div>
           </Card>
+
+          <div className="mt-6">
+            <MusicPlayer />
+          </div>
         </div>
       </main>
     </div>
