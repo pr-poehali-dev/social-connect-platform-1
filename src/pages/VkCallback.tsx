@@ -21,7 +21,7 @@ const VkCallback = () => {
     const processCallback = async () => {
       const success = await vkAuth.handleCallback();
       if (success) {
-        setTimeout(() => navigate('/profile'), 1000);
+        setTimeout(() => navigate('/dating'), 1000);
       } else {
         setTimeout(() => navigate('/login'), 2000);
       }
