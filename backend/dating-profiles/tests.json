@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get dating profiles",
+      "method": "GET",
+      "path": "/?action=profiles",
+      "headers": {
+        "Authorization": "Bearer valid_token"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "profiles": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Add to favorites",
+      "method": "POST",
+      "path": "/?action=favorite",
+      "headers": {
+        "Authorization": "Bearer valid_token",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "profile_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
