@@ -60,7 +60,7 @@ def handle_register(event: dict) -> dict:
     
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
-    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+    schema = 't_p19021063_social_connect_platf'
     
     # Check if user exists
     cur.execute(f"SELECT id FROM {schema}.users WHERE email = %s", (email,))
@@ -126,7 +126,7 @@ def handle_login(event: dict) -> dict:
     
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
-    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+    schema = 't_p19021063_social_connect_platf'
     
     # Get user
     cur.execute(f"SELECT id, email, password_hash, name FROM {schema}.users WHERE email = %s", (email,))
