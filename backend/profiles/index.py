@@ -46,6 +46,67 @@ def handler(event: dict, context) -> dict:
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     
     params = event.get('queryStringParameters') or {}
+    profile_id = params.get('id', '')
+    
+    if profile_id:
+        cursor.execute(
+            "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, created_at, last_login_at, CASE WHEN last_login_at > NOW() - INTERVAL '5 minutes' THEN true ELSE false END as is_online FROM t_p19021063_social_connect_platf.users WHERE id = %s",
+            (profile_id,)
+        )
+        profile = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if not profile:
+            return {
+                'statusCode': 404,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'Profile not found'}),
+                'isBase64Encoded': False
+            }
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'profile': {
+                    'id': profile['id'],
+                    'user_id': profile['id'],
+                    'name': profile['name'] or profile['nickname'],
+                    'nickname': profile['nickname'],
+                    'age': profile['age'],
+                    'city': profile['city'],
+                    'district': profile['district'],
+                    'gender': profile['gender'],
+                    'interests': profile['interests'] or [],
+                    'bio': profile['bio'],
+                    'image': profile['avatar_url'],
+                    'height': profile['height'],
+                    'bodyType': profile['body_type'],
+                    'maritalStatus': profile['marital_status'],
+                    'hasChildren': profile['children'],
+                    'profession': profile['profession'],
+                    'financialStatus': profile['financial_status'],
+                    'hasCar': profile['has_car'],
+                    'hasHousing': profile['has_housing'],
+                    'datingGoal': profile['dating_goal'],
+                    'isTopAd': False,
+                    'lastLoginAt': profile['last_login_at'].isoformat() if profile.get('last_login_at') else None,
+                    'isOnline': profile['is_online'],
+                    'is_favorite': False,
+                    'friend_request_sent': False,
+                    'is_friend': False
+                }
+            }),
+            'isBase64Encoded': False
+        }
+    
     gender = params.get('gender', '')
     age_from = params.get('ageFrom', '')
     age_to = params.get('ageTo', '')

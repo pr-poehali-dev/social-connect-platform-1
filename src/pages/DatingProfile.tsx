@@ -75,12 +75,12 @@ const DatingProfile = () => {
     
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f`
+        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?id=${userId}`
       );
 
       if (response.ok) {
         const data = await response.json();
-        const userProfile = data.profiles?.find((p: any) => p.id === parseInt(userId || '0'));
+        const userProfile = data.profile;
         
         if (userProfile) {
           setProfile({
@@ -91,11 +91,11 @@ const DatingProfile = () => {
             city: userProfile.city,
             district: userProfile.district,
             gender: userProfile.gender,
-            image: userProfile.avatar_url || userProfile.image,
-            isOnline: userProfile.isOnline || userProfile.is_online,
+            image: userProfile.image,
+            isOnline: userProfile.isOnline,
             lastSeen: userProfile.lastLoginAt,
             height: userProfile.height,
-            physique: userProfile.body_type || userProfile.bodyType,
+            physique: userProfile.bodyType,
             about: userProfile.bio,
             interests: userProfile.interests || [],
             is_favorite: userProfile.is_favorite,
