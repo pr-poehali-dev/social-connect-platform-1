@@ -216,52 +216,136 @@ const Profile = () => {
       
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto rounded-3xl border-2 shadow-2xl">
-            <ProfileHeader 
-              user={user} 
-              editMode={editMode} 
-              onLogout={handleLogout} 
-              onDeleteAccount={handleDeleteAccount}
-              onAvatarUpdate={handleAvatarUpdate}
-            />
-
-            <CardContent className="space-y-8">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold">Настройки профиля</h3>
-                  {!editMode ? (
-                    <Button onClick={() => setEditMode(true)} variant="outline" size="sm" className="gap-2 rounded-xl">
-                      <Icon name="Edit" size={16} />
-                      Редактировать
-                    </Button>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Button onClick={handleSaveProfile} size="sm" className="gap-2 rounded-xl">
-                        <Icon name="Check" size={16} />
-                        Сохранить
-                      </Button>
-                      <Button onClick={handleCancel} variant="outline" size="sm" className="gap-2 rounded-xl">
-                        <Icon name="X" size={16} />
-                        Отмена
-                      </Button>
-                    </div>
-                  )}
+          <Card className="max-w-5xl mx-auto rounded-3xl border-2 shadow-2xl overflow-hidden">
+            <div className="p-8">
+              <div className="flex flex-col lg:flex-row gap-8">
+                <div className="lg:w-1/3">
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200">
+                    {user.avatar_url ? (
+                      <img 
+                        src={user.avatar_url} 
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Icon name="User" size={80} className="text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {editMode ? (
-                  <ProfileEditForm
-                    formData={formData}
-                    setFormData={setFormData}
-                    availableInterests={availableInterests}
-                    toggleInterest={toggleInterest}
-                  />
-                ) : (
-                  <ProfileViewMode user={user} />
-                )}
-              </div>
+                <div className="lg:w-2/3 space-y-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h1 className="text-4xl font-bold mb-2">
+                        {user.name || user.nickname}
+                      </h1>
+                      <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span>Онлайн</span>
+                      </div>
+                      {(user.city || user.district) && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Icon name="MapPin" size={18} />
+                          <span>{[user.city, user.district].filter(Boolean).join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
 
-              <ProfileStats stats={stats} />
-            </CardContent>
+                    {!editMode ? (
+                      <Button onClick={() => setEditMode(true)} variant="outline" className="gap-2 rounded-xl h-12 px-6">
+                        <Icon name="Settings" size={20} />
+                        Редактировать
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button onClick={handleSaveProfile} className="gap-2 rounded-xl h-12 px-6">
+                          <Icon name="Check" size={20} />
+                          Сохранить
+                        </Button>
+                        <Button onClick={handleCancel} variant="outline" className="gap-2 rounded-xl h-12 px-6">
+                          <Icon name="X" size={20} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Button 
+                      onClick={() => navigate('/friends')}
+                      variant="outline"
+                      className="h-20 flex-col gap-2 rounded-2xl"
+                    >
+                      <Icon name="Users" size={24} />
+                      <span className="text-sm font-medium">Друзья</span>
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/my-ads')}
+                      variant="outline"
+                      className="h-20 flex-col gap-2 rounded-2xl"
+                    >
+                      <Icon name="MessageSquare" size={24} />
+                      <span className="text-sm font-medium">Объявления</span>
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/services')}
+                      variant="outline"
+                      className="h-20 flex-col gap-2 rounded-2xl"
+                    >
+                      <Icon name="Briefcase" size={24} />
+                      <span className="text-sm font-medium">Услуги</span>
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/my-events')}
+                      variant="outline"
+                      className="h-20 flex-col gap-2 rounded-2xl"
+                    >
+                      <Icon name="Calendar" size={24} />
+                      <span className="text-sm font-medium">Мероприятия</span>
+                    </Button>
+                  </div>
+
+                  {editMode ? (
+                    <div className="pt-6 border-t">
+                      <ProfileEditForm
+                        formData={formData}
+                        setFormData={setFormData}
+                        availableInterests={availableInterests}
+                        toggleInterest={toggleInterest}
+                      />
+                    </div>
+                  ) : (
+                    <div className="pt-6 border-t">
+                      <ProfileViewMode user={user} />
+                    </div>
+                  )}
+
+                  <div className="pt-6 border-t">
+                    <ProfileStats stats={stats} />
+                  </div>
+
+                  <div className="pt-6 border-t flex gap-3">
+                    <Button 
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="rounded-xl h-12 px-6 gap-2"
+                    >
+                      <Icon name="LogOut" size={20} />
+                      Выйти
+                    </Button>
+                    <Button 
+                      onClick={handleDeleteAccount}
+                      variant="destructive"
+                      className="rounded-xl h-12 px-6 gap-2"
+                    >
+                      <Icon name="Trash2" size={20} />
+                      Удалить аккаунт
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </Card>
         </div>
       </main>
