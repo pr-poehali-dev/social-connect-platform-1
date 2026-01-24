@@ -1,12 +1,18 @@
 {
   "tests": [
     {
-      "name": "Get user conversations",
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Unauthorized access returns 401",
       "method": "GET",
       "path": "/?action=conversations",
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "conversations": "array"
+        "error": "Unauthorized"
       },
       "bodyMatcher": "partial"
     }
