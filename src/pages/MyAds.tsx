@@ -107,43 +107,43 @@ const MyAds = () => {
                 <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-muted-foreground" />
                 <p className="text-muted-foreground">Загрузка...</p>
               </div>
-            ) : userAds.length === 0 ? (
-              <Card className="rounded-3xl border-2 shadow-xl">
-                <CardContent className="p-12 text-center">
-                  <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-2xl font-bold mb-2">У вас пока нет объявлений</h3>
-                  <p className="text-muted-foreground mb-6">Создайте первое объявление, чтобы начать знакомства</p>
-                  <Button className="gap-2 rounded-2xl" onClick={() => navigate('/create-ad')}>
-                    <Icon name="Plus" size={20} />
-                    Создать объявление
-                  </Button>
-                </CardContent>
-              </Card>
             ) : (
               <>
-                <div className="flex gap-2 mb-6">
-                  <Button
-                    variant={activeTab === 'active' ? 'default' : 'outline'}
-                    className="rounded-2xl flex-1"
-                    onClick={() => setActiveTab('active')}
-                  >
-                    <Icon name="CheckCircle" size={20} className="mr-2" />
-                    Активные ({userAds.filter(ad => ad.status === 'active' || ad.status === 'paused').length})
-                  </Button>
-                  <Button
-                    variant={activeTab === 'completed' ? 'default' : 'outline'}
-                    className="rounded-2xl flex-1"
-                    onClick={() => setActiveTab('completed')}
-                  >
-                    <Icon name="Archive" size={20} className="mr-2" />
-                    Завершенные ({userAds.filter(ad => ad.status === 'stopped').length})
-                  </Button>
-                </div>
-              </>  
-            )}
+                {userAds.length > 0 && (
+                  <div className="flex gap-2 mb-6">
+                    <Button
+                      variant={activeTab === 'active' ? 'default' : 'outline'}
+                      className="rounded-2xl flex-1"
+                      onClick={() => setActiveTab('active')}
+                    >
+                      <Icon name="CheckCircle" size={20} className="mr-2" />
+                      Активные ({userAds.filter(ad => ad.status === 'active' || ad.status === 'paused').length})
+                    </Button>
+                    <Button
+                      variant={activeTab === 'completed' ? 'default' : 'outline'}
+                      className="rounded-2xl flex-1"
+                      onClick={() => setActiveTab('completed')}
+                    >
+                      <Icon name="Archive" size={20} className="mr-2" />
+                      Завершенные ({userAds.filter(ad => ad.status === 'stopped').length})
+                    </Button>
+                  </div>
+                )}
 
-            {!isLoading && userAds.length > 0 && (
-              <div className="space-y-6">
+                {userAds.length === 0 ? (
+                  <Card className="rounded-3xl border-2 shadow-xl">
+                    <CardContent className="p-12 text-center">
+                      <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-2xl font-bold mb-2">У вас пока нет объявлений</h3>
+                      <p className="text-muted-foreground mb-6">Создайте первое объявление, чтобы начать знакомства</p>
+                      <Button className="gap-2 rounded-2xl" onClick={() => navigate('/create-ad')}>
+                        <Icon name="Plus" size={20} />
+                        Создать объявление
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-6">
                 {userAds.filter(ad => 
                   activeTab === 'active' 
                     ? (ad.status === 'active' || ad.status === 'paused')
@@ -261,8 +261,9 @@ const MyAds = () => {
                     </CardContent>
                   </Card>
                 )}
-              </div>
-            )}
+                  </div>
+                )}
+              </>
           </div>
         </div>
       </main>
