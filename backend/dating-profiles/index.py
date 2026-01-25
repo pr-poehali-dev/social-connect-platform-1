@@ -88,7 +88,7 @@ def handler(event: dict, context) -> dict:
                 where_conditions.append(f"u.id != {user_id}")
             
             if gender:
-                where_conditions.append(f"u.gender = '{gender}'")
+                where_conditions.append(f"dp.gender = '{gender}'")
             if age_from:
                 where_conditions.append(f"COALESCE(u.age_from, 25) >= {age_from}")
             if age_to:
@@ -106,19 +106,21 @@ def handler(event: dict, context) -> dict:
             
             cur.execute(f"""
                 SELECT 
-                    u.id, u.id as user_id, u.name, 
-                    COALESCE(u.age_from, 25) as age,
-                    u.city, u.district,
-                    u.interests, u.bio, u.avatar_url,
-                    u.height, u.body_type, u.gender,
+                    dp.id, dp.user_id, dp.name, 
+                    dp.age,
+                    dp.city, dp.district,
+                    dp.interests, dp.bio, 
+                    COALESCE(dp.avatar_url, u.avatar_url) as avatar_url,
+                    dp.height, dp.body_type, dp.gender,
                     FALSE as is_online,
-                    COALESCE(u.is_vip, FALSE) as is_top_ad,
+                    COALESCE(dp.is_top_ad, u.is_vip, FALSE) as is_top_ad,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
-                FROM {S}users u
+                FROM {S}dating_profiles dp
+                JOIN {S}users u ON dp.user_id = u.id
                 WHERE {where_clause}
-                ORDER BY u.is_vip DESC NULLS LAST, u.created_at DESC
+                ORDER BY dp.is_top_ad DESC NULLS LAST, dp.created_at DESC
                 LIMIT 50
             """)
             
