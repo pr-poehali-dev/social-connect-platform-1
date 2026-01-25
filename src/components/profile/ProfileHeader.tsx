@@ -109,6 +109,38 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
     setShowPhotoMenu(false);
   };
 
+  const handleDeleteAvatar = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ avatar_url: '' })
+      });
+
+      if (response.ok) {
+        if (onAvatarUpdate) {
+          onAvatarUpdate('');
+        }
+        toast({
+          title: 'Фото удалено',
+          description: 'Фото профиля успешно удалено',
+        });
+      } else {
+        throw new Error('Delete failed');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка удаления',
+        description: 'Не удалось удалить фото',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <>
       {showCropper && selectedFile && (
@@ -122,7 +154,7 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
         />
       )}
       <CardHeader className="text-center space-y-6 pb-8">
-      <div className="relative w-32 h-32 mx-auto">
+      <div className="relative w-32 h-32 mx-auto group">
         <Avatar className="w-32 h-32 border-4 border-primary">
           {user.avatar_url ? (
             <AvatarImage src={user.avatar_url} alt={user.name} />
@@ -141,26 +173,38 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
               onChange={handleFileSelect}
               className="hidden"
             />
-            <DropdownMenu open={showPhotoMenu} onOpenChange={setShowPhotoMenu}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon"
-                  className="absolute bottom-0 right-0 rounded-full w-10 h-10"
-                >
-                  <Icon name="Camera" size={20} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={handleCamera} className="gap-2 cursor-pointer">
-                  <Icon name="Camera" size={18} />
-                  Сделать фото с камеры
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleGallery} className="gap-2 cursor-pointer">
-                  <Icon name="Image" size={18} />
-                  Выбрать из галереи
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-full flex items-center justify-center">
+              <DropdownMenu open={showPhotoMenu} onOpenChange={setShowPhotoMenu}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-12 h-12 bg-white text-primary hover:bg-white/90"
+                  >
+                    <Icon name="Camera" size={24} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={handleCamera} className="gap-2 cursor-pointer">
+                    <Icon name="Camera" size={18} />
+                    Сделать фото с камеры
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleGallery} className="gap-2 cursor-pointer">
+                    <Icon name="Image" size={18} />
+                    Выбрать из галереи
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            {user.avatar_url && (
+              <Button
+                size="icon"
+                variant="destructive"
+                className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-8 h-8"
+                onClick={handleDeleteAvatar}
+              >
+                <Icon name="X" size={16} />
+              </Button>
+            )}
           </>
         )}
       </div>
