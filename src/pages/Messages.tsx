@@ -7,6 +7,7 @@ import MessagesTabs from './messages/MessagesTabs';
 import EmptyState from './messages/EmptyState';
 import ChatList from './messages/ChatList';
 import ChatWindow from './messages/ChatWindow';
+import ContactsList from './messages/ContactsList';
 
 interface Chat {
   id: number;
@@ -219,7 +220,7 @@ const Messages = () => {
             {activeTab === 'calls' ? (
               <EmptyState type="calls" />
             ) : activeTab === 'contacts' ? (
-              <EmptyState type="contacts" />
+              <ContactsList userId={currentUserId} toast={toast} />
             ) : (
               <div className="grid lg:grid-cols-3 gap-6">
                 <ChatList
