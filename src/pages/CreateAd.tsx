@@ -107,7 +107,8 @@ const CreateAd = () => {
         body: JSON.stringify({
           action,
           schedule,
-          events: eventsData
+          events: eventsData,
+          photos
         })
       });
 

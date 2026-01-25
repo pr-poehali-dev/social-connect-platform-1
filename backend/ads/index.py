@@ -31,7 +31,7 @@ def handler(event: dict, context) -> dict:
                 if user_id:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
-                               a.created_at, a.updated_at,
+                               a.created_at, a.updated_at, a.photos,
                                u.name, u.nickname, u.avatar_url, u.gender, u.city,
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
@@ -42,7 +42,7 @@ def handler(event: dict, context) -> dict:
                 elif action_filter:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
-                               a.created_at, a.updated_at,
+                               a.created_at, a.updated_at, a.photos,
                                u.name, u.nickname, u.avatar_url, u.gender, u.city,
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
@@ -53,7 +53,7 @@ def handler(event: dict, context) -> dict:
                 else:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
-                               a.created_at, a.updated_at,
+                               a.created_at, a.updated_at, a.photos,
                                u.name, u.nickname, u.avatar_url, u.gender, u.city,
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
@@ -89,6 +89,7 @@ def handler(event: dict, context) -> dict:
             action = data.get('action')
             schedule = data.get('schedule')
             events = data.get('events', [])
+            photos = data.get('photos', [])
             
             if not action or not schedule or not events:
                 return {
@@ -99,10 +100,10 @@ def handler(event: dict, context) -> dict:
             
             with conn.cursor() as cur:
                 cur.execute('''
-                    INSERT INTO t_p19021063_social_connect_platf.ads (user_id, action, schedule, status)
-                    VALUES (%s, %s, %s, 'active')
+                    INSERT INTO t_p19021063_social_connect_platf.ads (user_id, action, schedule, status, photos)
+                    VALUES (%s, %s, %s, 'active', %s)
                     RETURNING id
-                ''', (user_id, action, schedule))
+                ''', (user_id, action, schedule, photos))
                 ad_id = cur.fetchone()[0]
                 
                 for event in events:
