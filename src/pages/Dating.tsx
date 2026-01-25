@@ -309,6 +309,11 @@ const Dating = () => {
                               <span className="text-white font-bold text-lg">
                                 {profile.name}, {profile.age}
                               </span>
+                              {profile.is_verified ? (
+                                <Icon name="BadgeCheck" size={18} className="text-blue-500 flex-shrink-0" />
+                              ) : (
+                                <Icon name="BadgeCheck" size={18} className="text-gray-400 flex-shrink-0" />
+                              )}
                             </div>
                             <div className="flex items-center gap-1.5 text-white/80 text-xs">
                               <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />

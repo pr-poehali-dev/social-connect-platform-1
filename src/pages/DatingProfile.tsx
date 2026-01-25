@@ -298,6 +298,11 @@ const DatingProfile = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold">{profile.name}</h1>
+                  {profile.is_verified ? (
+                    <Icon name="BadgeCheck" size={24} className="text-blue-500" />
+                  ) : (
+                    <Icon name="BadgeCheck" size={24} className="text-gray-400" />
+                  )}
                   <span className="text-2xl text-muted-foreground">{profile.age}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">

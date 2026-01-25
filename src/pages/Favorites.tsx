@@ -137,7 +137,14 @@ const Favorites = () => {
                             <Icon name="Star" size={20} className="fill-yellow-400 text-yellow-400" />
                           </Button>
                           <div className="absolute bottom-4 left-4 text-white">
-                            <h3 className="text-2xl font-bold">{profile.name}, {profile.age}</h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-2xl font-bold">{profile.name}, {profile.age}</h3>
+                              {profile.is_verified ? (
+                                <Icon name="BadgeCheck" size={20} className="text-blue-500" />
+                              ) : (
+                                <Icon name="BadgeCheck" size={20} className="text-gray-400" />
+                              )}
+                            </div>
                             <p className="flex items-center gap-1 text-sm">
                               <Icon name="MapPin" size={14} />
                               {profile.city}
