@@ -92,7 +92,7 @@ const MyAds = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent">
                 Мои объявления
               </h1>
@@ -102,35 +102,33 @@ const MyAds = () => {
               </Button>
             </div>
 
+            {!isLoading && userAds.length > 0 && (
+              <div className="flex gap-2 mb-8">
+                <Button
+                  variant={activeTab === 'active' ? 'default' : 'outline'}
+                  className="rounded-2xl flex-1"
+                  onClick={() => setActiveTab('active')}
+                >
+                  <Icon name="CheckCircle" size={20} className="mr-2" />
+                  Активные ({userAds.filter(ad => ad.status === 'active' || ad.status === 'paused').length})
+                </Button>
+                <Button
+                  variant={activeTab === 'completed' ? 'default' : 'outline'}
+                  className="rounded-2xl flex-1"
+                  onClick={() => setActiveTab('completed')}
+                >
+                  <Icon name="Archive" size={20} className="mr-2" />
+                  Завершенные ({userAds.filter(ad => ad.status === 'stopped').length})
+                </Button>
+              </div>
+            )}
+
             {isLoading ? (
               <div className="text-center py-12">
                 <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-muted-foreground" />
                 <p className="text-muted-foreground">Загрузка...</p>
               </div>
-            ) : (
-              <>
-                {userAds.length > 0 && (
-                  <div className="flex gap-2 mb-6">
-                    <Button
-                      variant={activeTab === 'active' ? 'default' : 'outline'}
-                      className="rounded-2xl flex-1"
-                      onClick={() => setActiveTab('active')}
-                    >
-                      <Icon name="CheckCircle" size={20} className="mr-2" />
-                      Активные ({userAds.filter(ad => ad.status === 'active' || ad.status === 'paused').length})
-                    </Button>
-                    <Button
-                      variant={activeTab === 'completed' ? 'default' : 'outline'}
-                      className="rounded-2xl flex-1"
-                      onClick={() => setActiveTab('completed')}
-                    >
-                      <Icon name="Archive" size={20} className="mr-2" />
-                      Завершенные ({userAds.filter(ad => ad.status === 'stopped').length})
-                    </Button>
-                  </div>
-                )}
-
-                {userAds.length === 0 ? (
+            ) : userAds.length === 0 ? (
                   <Card className="rounded-3xl border-2 shadow-xl">
                     <CardContent className="p-12 text-center">
                       <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
