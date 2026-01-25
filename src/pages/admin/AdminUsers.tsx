@@ -76,10 +76,14 @@ const AdminUsers = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users);
-        setTotal(data.total);
+        console.log('Loaded users:', data);
+        setUsers(data.users || []);
+        setTotal(data.total || 0);
+      } else {
+        console.error('Response not ok:', response.status, await response.text());
       }
     } catch (error) {
+      console.error('Load users error:', error);
       toast({ title: 'Ошибка', description: 'Не удалось загрузить пользователей', variant: 'destructive' });
     } finally {
       setLoading(false);
