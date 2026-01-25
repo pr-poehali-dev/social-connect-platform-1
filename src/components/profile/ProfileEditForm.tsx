@@ -184,18 +184,43 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="age">Возраст</Label>
-        <Input
-          id="age"
-          type="number"
-          value={formData.age_from}
-          onChange={(e) => setFormData({ ...formData, age_from: e.target.value })}
-          placeholder="25"
-          className="rounded-xl"
-          min="18"
-          max="100"
-        />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="age">Возраст</Label>
+          <Input
+            id="age"
+            type="number"
+            value={formData.age_from}
+            onChange={(e) => setFormData({ ...formData, age_from: e.target.value })}
+            placeholder="25"
+            className="rounded-xl"
+            min="18"
+            max="100"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="zodiac_sign">Знак зодиака</Label>
+          <Select value={formData.zodiac_sign} onValueChange={(value) => setFormData({ ...formData, zodiac_sign: value })}>
+            <SelectTrigger className="rounded-xl">
+              <SelectValue placeholder="Выберите знак" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="aries">♈ Овен</SelectItem>
+              <SelectItem value="taurus">♉ Телец</SelectItem>
+              <SelectItem value="gemini">♊ Близнецы</SelectItem>
+              <SelectItem value="cancer">♋ Рак</SelectItem>
+              <SelectItem value="leo">♌ Лев</SelectItem>
+              <SelectItem value="virgo">♍ Дева</SelectItem>
+              <SelectItem value="libra">♎ Весы</SelectItem>
+              <SelectItem value="scorpio">♏ Скорпион</SelectItem>
+              <SelectItem value="sagittarius">♐ Стрелец</SelectItem>
+              <SelectItem value="capricorn">♑ Козерог</SelectItem>
+              <SelectItem value="aquarius">♒ Водолей</SelectItem>
+              <SelectItem value="pisces">♓ Рыбы</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
