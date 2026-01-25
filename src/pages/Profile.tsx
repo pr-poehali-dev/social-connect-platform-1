@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { logout as authLogout } from '@/utils/auth';
@@ -11,6 +11,10 @@ import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileViewMode from '@/components/profile/ProfileViewMode';
 import ProfileStats from '@/components/profile/ProfileStats';
 import PhotoGallery from '@/components/profile/PhotoGallery';
+import ProfileAvatar from '@/components/profile/ProfileAvatar';
+import ProfileInfo from '@/components/profile/ProfileInfo';
+import ProfileActions from '@/components/profile/ProfileActions';
+import ProfileContact from '@/components/profile/ProfileContact';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -42,6 +46,7 @@ const Profile = () => {
     interests: [] as string[],
     profession: '',
     status_text: '',
+    phone: '',
   });
 
   useEffect(() => {
@@ -87,6 +92,7 @@ const Profile = () => {
             interests: userData.interests || [],
             profession: userData.profession || '',
             status_text: userData.status_text || '',
+            phone: userData.phone || '',
           });
         } else {
           toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });
@@ -182,6 +188,7 @@ const Profile = () => {
       interests: user.interests || [],
       profession: user.profession || '',
       status_text: user.status_text || '',
+      phone: user.phone || '',
     });
     setEditMode(false);
   };
@@ -253,108 +260,19 @@ const Profile = () => {
             <div className="p-8">
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="lg:w-1/3">
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200 group">
-                    {user.avatar_url ? (
-                      <img 
-                        src={user.avatar_url} 
-                        alt={user.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Icon name="User" size={80} className="text-muted-foreground" />
-                      </div>
-                    )}
-                    {editMode && (
-                      <>
-                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center">
-                          <Button
-                            size="lg"
-                            className="opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-xl gap-2 bg-white text-primary hover:bg-white/90"
-                            onClick={() => {
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.accept = 'image/*';
-                              input.onchange = async (e: any) => {
-                                const file = e.target?.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onloadend = async () => {
-                                    const base64String = (reader.result as string).split(',')[1];
-                                    const token = localStorage.getItem('access_token');
-                                    try {
-                                      const response = await fetch('https://functions.poehali.dev/99ffce65-6223-4c0e-93d7-d7d44514ef4b', {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                          'Authorization': `Bearer ${token}`
-                                        },
-                                        body: JSON.stringify({ image: base64String })
-                                      });
-                                      if (response.ok) {
-                                        const data = await response.json();
-                                        setUser({ ...user, avatar_url: data.url });
-                                        setFormData({ ...formData, avatar_url: data.url });
-                                        toast({ title: 'Фото обновлено', description: 'Фото профиля успешно загружено' });
-                                      } else {
-                                        toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
-                                      }
-                                    } catch (error) {
-                                      toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              };
-                              input.click();
-                            }}
-                          >
-                            <Icon name="Camera" size={24} />
-                            Загрузить фото
-                          </Button>
-                        </div>
-                        {user.avatar_url && (
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-10 h-10"
-                            onClick={async () => {
-                              const token = localStorage.getItem('access_token');
-                              try {
-                                const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                  },
-                                  body: JSON.stringify({ avatar_url: '' })
-                                });
-                                if (response.ok) {
-                                  setUser({ ...user, avatar_url: '' });
-                                  setFormData({ ...formData, avatar_url: '' });
-                                  toast({ title: 'Фото удалено', description: 'Фото профиля успешно удалено' });
-                                } else {
-                                  toast({ title: 'Ошибка', description: 'Не удалось удалить фото', variant: 'destructive' });
-                                }
-                              } catch (error) {
-                                toast({ title: 'Ошибка', description: 'Не удалось удалить фото', variant: 'destructive' });
-                              }
-                            }}
-                          >
-                            <Icon name="X" size={20} />
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
+                  <ProfileAvatar 
+                    user={user}
+                    editMode={editMode}
+                    onAvatarUpdate={handleAvatarUpdate}
+                  />
                   
                   {!editMode ? (
-                    <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12">
+                    <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12 mt-4">
                       <Icon name="Settings" size={20} />
                       Редактировать
                     </Button>
                   ) : (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-4">
                       <Button onClick={handleSaveProfile} className="flex-1 gap-2 rounded-xl h-12">
                         <Icon name="Check" size={20} />
                         Сохранить
@@ -367,73 +285,14 @@ const Profile = () => {
                 </div>
 
                 <div className="lg:w-2/3 space-y-6">
-                  <div>
-                    <h1 className="text-4xl font-bold mb-2">
-                      {user.name || user.nickname}
-                    </h1>
-                    <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span>Онлайн</span>
-                    </div>
-                    {!editMode && user.status_text && (
-                      <div className="mb-3 text-muted-foreground italic">
-                        {user.status_text}
-                      </div>
-                    )}
-                    {editMode && (
-                      <div className="mb-3">
-                        <input
-                          type="text"
-                          value={formData.status_text}
-                          onChange={(e) => setFormData({ ...formData, status_text: e.target.value })}
-                          placeholder="Статус (например: На работе, В отпуске...)" 
-                          className="w-full px-3 py-2 border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                          maxLength={150}
-                        />
-                      </div>
-                    )}
-                    {(user.city || user.district) && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Icon name="MapPin" size={18} />
-                        <span>{[user.city, user.district].filter(Boolean).join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
+                  <ProfileInfo 
+                    user={user}
+                    editMode={editMode}
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <Button 
-                      onClick={() => navigate('/friends')}
-                      variant="outline"
-                      className="h-20 flex-col gap-2 rounded-2xl"
-                    >
-                      <Icon name="Users" size={24} />
-                      <span className="text-sm font-medium">Друзья</span>
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/my-ads')}
-                      variant="outline"
-                      className="h-20 flex-col gap-2 rounded-2xl"
-                    >
-                      <Icon name="MessageSquare" size={24} />
-                      <span className="text-sm font-medium">Объявления</span>
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/services')}
-                      variant="outline"
-                      className="h-20 flex-col gap-2 rounded-2xl"
-                    >
-                      <Icon name="Briefcase" size={24} />
-                      <span className="text-sm font-medium">Услуги</span>
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/my-events')}
-                      variant="outline"
-                      className="h-20 flex-col gap-2 rounded-2xl"
-                    >
-                      <Icon name="Calendar" size={24} />
-                      <span className="text-sm font-medium">Мероприятия</span>
-                    </Button>
-                  </div>
+                  <ProfileActions />
 
                   {editMode ? (
                     <div className="pt-6 border-t">
@@ -454,55 +313,12 @@ const Profile = () => {
                     <ProfileStats stats={stats} />
                   </div>
 
-                  <div className="pt-6 border-t">
-                    <h2 className="text-2xl font-bold mb-4">Контактная информация</h2>
-                    {editMode ? (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            <Icon name="Phone" size={16} className="inline mr-2" />
-                            Телефон
-                          </label>
-                          <input
-                            type="tel"
-                            value={formData.phone || ''}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            placeholder="+7 (___) ___-__-__"
-                            className="w-full px-4 py-3 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            <Icon name="Mail" size={16} className="inline mr-2" />
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            value={user.email || ''}
-                            disabled
-                            className="w-full px-4 py-3 border border-input rounded-xl bg-muted"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">Email нельзя изменить</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {user.phone && (
-                          <div className="flex items-center gap-3">
-                            <Icon name="Phone" size={20} className="text-muted-foreground" />
-                            <span className="text-lg">{user.phone}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-3">
-                          <Icon name="Mail" size={20} className="text-muted-foreground" />
-                          <span className="text-lg">{user.email}</span>
-                        </div>
-                        {!user.phone && (
-                          <p className="text-muted-foreground text-sm">Добавьте номер телефона в режиме редактирования</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <ProfileContact 
+                    user={user}
+                    editMode={editMode}
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
 
                   <div className="pt-6 border-t">
                     <PhotoGallery 
@@ -512,19 +328,19 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div className="pt-6 border-t flex gap-3">
+                  <div className="pt-6 border-t flex flex-col gap-3">
                     <Button 
                       onClick={handleLogout}
-                      variant="outline"
-                      className="rounded-xl h-12 px-6 gap-2"
+                      variant="outline" 
+                      className="w-full gap-2 rounded-xl h-12"
                     >
                       <Icon name="LogOut" size={20} />
-                      Выйти
+                      Выйти из аккаунта
                     </Button>
                     <Button 
                       onClick={handleDeleteAccount}
-                      variant="destructive"
-                      className="rounded-xl h-12 px-6 gap-2"
+                      variant="destructive" 
+                      className="w-full gap-2 rounded-xl h-12"
                     >
                       <Icon name="Trash2" size={20} />
                       Удалить аккаунт
