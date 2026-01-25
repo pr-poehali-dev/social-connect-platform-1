@@ -176,8 +176,8 @@ def handler(event: dict, context) -> dict:
         
         # GET /profile - получить конкретный профиль
         elif method == 'GET' and action == 'profile':
-            profile_id = query_params.get('id')
-            if not profile_id:
+            target_id = query_params.get('id')
+            if not target_id:
                 return response(400, {'error': 'id is required'})
             
             favorites_check = f"EXISTS(SELECT 1 FROM {S}dating_favorites df JOIN {S}dating_profiles dp ON df.profile_id = dp.id WHERE df.user_id = {user_id} AND dp.user_id = u.id)" if user_id else "FALSE"
@@ -203,7 +203,7 @@ def handler(event: dict, context) -> dict:
                     {is_friend_check} as is_friend
                 FROM {S}dating_profiles dp
                 JOIN {S}users u ON dp.user_id = u.id
-                WHERE dp.id = {profile_id}
+                WHERE dp.user_id = {target_id} OR dp.id = {target_id}
             """)
             
             profile = cur.fetchone()
