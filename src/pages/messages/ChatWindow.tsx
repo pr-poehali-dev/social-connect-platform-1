@@ -46,7 +46,16 @@ interface ChatWindowProps {
   toast: any;
 }
 
-const STICKERS = [
+const IMAGE_STICKERS = [
+  'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/64302c20-3531-4a16-80ad-ca6760943f00.jpg',
+  'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/36ff3966-eb01-48d0-bddc-9b4603f7364b.jpg',
+  'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/107cec0c-a79e-4b36-a5d2-6c438edf4b6b.jpg',
+  'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/023bd8ec-beda-4bc1-926f-5b450f58b8aa.jpg',
+  'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/f11de093-66a1-4df4-a9f0-d2506c4c7e9a.jpg',
+  'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/17988fa2-9d82-4173-acda-b019c0b18d64.jpg'
+];
+
+const EMOJI_STICKERS = [
   '😀', '😂', '🤣', '😊', '😍', '🥰', '😘', '😜',
   '🤔', '🤗', '🥳', '😎', '🤩', '😇', '🙃', '😉',
   '👍', '👏', '🙌', '👋', '🤝', '💪', '✌️', '🤞',
@@ -67,6 +76,7 @@ const ChatWindow = ({
 }: ChatWindowProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showStickers, setShowStickers] = useState(false);
+  const [stickerTab, setStickerTab] = useState<'image' | 'emoji'>('image');
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -76,6 +86,11 @@ const ChatWindow = ({
 
   const handleStickerClick = (sticker: string) => {
     setMessageText(messageText + sticker);
+    setShowStickers(false);
+  };
+
+  const handleImageStickerClick = (url: string) => {
+    setMessageText(messageText + `[sticker:${url}]`);
     setShowStickers(false);
   };
   if (!currentChat) {
@@ -194,13 +209,23 @@ const ChatWindow = ({
                       </div>
                     )}
                     <div 
-                      className={`rounded-2xl p-3 ${
+                      className={`rounded-2xl ${
+                        msg.content.startsWith('[sticker:') ? 'p-1' : 'p-3'
+                      } ${
                         msg.senderId === currentUserId 
                           ? 'bg-primary text-primary-foreground rounded-tr-none' 
                           : 'bg-accent rounded-tl-none'
                       }`}
                     >
-                      <p className="text-sm">{msg.content}</p>
+                      {msg.content.startsWith('[sticker:') ? (
+                        <img 
+                          src={msg.content.slice(9, -1)} 
+                          alt="sticker" 
+                          className="w-32 h-32 object-cover rounded-xl"
+                        />
+                      ) : (
+                        <p className="text-sm">{msg.content}</p>
+                      )}
                     </div>
                     <p className={`text-xs text-muted-foreground mt-1 ${
                       msg.senderId === currentUserId ? 'text-right mr-2' : 'ml-2'
@@ -230,18 +255,48 @@ const ChatWindow = ({
                   <Icon name="Smile" size={20} />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-2" align="start">
-                <div className="grid grid-cols-8 gap-2">
-                  {STICKERS.map((sticker, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleStickerClick(sticker)}
-                      className="text-2xl hover:bg-accent rounded-lg p-2 transition-colors"
-                    >
-                      {sticker}
-                    </button>
-                  ))}
+              <PopoverContent className="w-80 p-3" align="start">
+                <div className="flex gap-2 mb-3 border-b pb-2">
+                  <Button
+                    variant={stickerTab === 'image' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setStickerTab('image')}
+                  >
+                    Love Is
+                  </Button>
+                  <Button
+                    variant={stickerTab === 'emoji' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setStickerTab('emoji')}
+                  >
+                    Эмодзи
+                  </Button>
                 </div>
+                {stickerTab === 'image' ? (
+                  <div className="grid grid-cols-3 gap-2">
+                    {IMAGE_STICKERS.map((url, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleImageStickerClick(url)}
+                        className="hover:bg-accent rounded-lg p-1 transition-colors aspect-square"
+                      >
+                        <img src={url} alt="sticker" className="w-full h-full object-cover rounded" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-8 gap-2">
+                    {EMOJI_STICKERS.map((sticker, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleStickerClick(sticker)}
+                        className="text-2xl hover:bg-accent rounded-lg p-2 transition-colors"
+                      >
+                        {sticker}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </PopoverContent>
             </Popover>
             <Input
