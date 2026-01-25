@@ -12,6 +12,7 @@ const MyAds = () => {
   const { toast } = useToast();
   const [userAds, setUserAds] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
 
   useEffect(() => {
     loadAds();
@@ -119,8 +120,35 @@ const MyAds = () => {
                 </CardContent>
               </Card>
             ) : (
+              <>
+                <div className="flex gap-2 mb-6">
+                  <Button
+                    variant={activeTab === 'active' ? 'default' : 'outline'}
+                    className="rounded-2xl flex-1"
+                    onClick={() => setActiveTab('active')}
+                  >
+                    <Icon name="CheckCircle" size={20} className="mr-2" />
+                    Активные ({userAds.filter(ad => ad.status === 'active' || ad.status === 'paused').length})
+                  </Button>
+                  <Button
+                    variant={activeTab === 'completed' ? 'default' : 'outline'}
+                    className="rounded-2xl flex-1"
+                    onClick={() => setActiveTab('completed')}
+                  >
+                    <Icon name="Archive" size={20} className="mr-2" />
+                    Завершенные ({userAds.filter(ad => ad.status === 'stopped').length})
+                  </Button>
+                </div>
+              </>  
+            )}
+
+            {!isLoading && userAds.length > 0 && (
               <div className="space-y-6">
-                {userAds.map((ad) => {
+                {userAds.filter(ad => 
+                  activeTab === 'active' 
+                    ? (ad.status === 'active' || ad.status === 'paused')
+                    : ad.status === 'stopped'
+                ).map((ad) => {
                   const eventLabels: Record<string, string> = {
                     'date': 'Свидание',
                     'cinema': 'Кино',
@@ -215,6 +243,24 @@ const MyAds = () => {
                     </Card>
                   );
                 })}
+                
+                {userAds.filter(ad => 
+                  activeTab === 'active' 
+                    ? (ad.status === 'active' || ad.status === 'paused')
+                    : ad.status === 'stopped'
+                ).length === 0 && (
+                  <Card className="rounded-3xl border-2 shadow-xl">
+                    <CardContent className="p-12 text-center">
+                      <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
+                      <h3 className="text-xl font-bold mb-2">
+                        {activeTab === 'active' ? 'Нет активных объявлений' : 'Нет завершенных объявлений'}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {activeTab === 'active' ? 'Создайте новое объявление' : 'Здесь будут остановленные объявления'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </div>
