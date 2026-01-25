@@ -140,67 +140,85 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
       <Card className="rounded-3xl border-2">
         <CardContent className="p-6">
           <h3 className="text-xl font-bold mb-4">Галерея фотографий</h3>
-          <div className="grid grid-cols-3 gap-4">
-            {slots.map(({ position, photo }) => (
-              <div key={position} className="relative aspect-square group">
-                {photo ? (
-                  <>
-                    <img
-                      src={photo.photo_url}
-                      alt={`Фото ${position + 1}`}
-                      className="w-full h-full object-cover rounded-2xl cursor-pointer"
-                      onClick={() => !editMode && setFullscreenPhoto(position)}
-                    />
-                    {editMode && (
-                      <>
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-2xl flex items-center justify-center">
+          
+          {photos.length === 0 && !editMode ? (
+            <p className="text-center text-muted-foreground py-8">Фотографий пока нет</p>
+          ) : photos.length === 0 && editMode ? (
+            <div className="flex justify-center py-4">
+              <Button
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e) => handleFileSelect(e as any, 0);
+                  input.click();
+                }}
+                className="gap-2 rounded-xl"
+              >
+                <Icon name="Plus" size={20} />
+                Добавить фото в галерею
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-4">
+              {slots.map(({ position, photo }) => (
+                <div key={position} className="relative aspect-square group">
+                  {photo ? (
+                    <>
+                      <img
+                        src={photo.photo_url}
+                        alt={`Фото ${position + 1}`}
+                        className="w-full h-full object-cover rounded-2xl cursor-pointer"
+                        onClick={() => !editMode && setFullscreenPhoto(position)}
+                      />
+                      {editMode && (
+                        <>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-2xl flex items-center justify-center">
+                            <Button
+                              size="icon"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-12 h-12 bg-white text-primary hover:bg-white/90"
+                              onClick={() => {
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                input.onchange = (e) => handleFileSelect(e as any, position);
+                                input.click();
+                              }}
+                            >
+                              <Icon name="Camera" size={24} />
+                            </Button>
+                          </div>
                           <Button
                             size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-12 h-12 bg-white text-primary hover:bg-white/90"
-                            onClick={() => {
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.accept = 'image/*';
-                              input.onchange = (e) => handleFileSelect(e as any, position);
-                              input.click();
-                            }}
+                            variant="destructive"
+                            className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-8 h-8"
+                            onClick={() => handleDeletePhoto(photo.id)}
                           >
-                            <Icon name="Camera" size={24} />
+                            <Icon name="X" size={16} />
                           </Button>
-                        </div>
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-8 h-8"
-                          onClick={() => handleDeletePhoto(photo.id)}
-                        >
-                          <Icon name="X" size={16} />
-                        </Button>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  editMode && (
-                    <button
-                      onClick={() => {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.onchange = (e) => handleFileSelect(e as any, position);
-                        input.click();
-                      }}
-                      className="w-full h-full border-2 border-dashed border-muted-foreground/30 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary"
-                    >
-                      <Icon name="Plus" size={32} />
-                      <span className="text-xs">Добавить фото</span>
-                    </button>
-                  )
-                )}
-              </div>
-            ))}
-          </div>
-          {!editMode && photos.length === 0 && (
-            <p className="text-center text-muted-foreground py-8">Фотографий пока нет</p>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    editMode && (
+                      <button
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'image/*';
+                          input.onchange = (e) => handleFileSelect(e as any, position);
+                          input.click();
+                        }}
+                        className="w-full h-full border-2 border-dashed border-muted-foreground/30 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary"
+                      >
+                        <Icon name="Plus" size={32} />
+                        <span className="text-xs">Добавить фото</span>
+                      </button>
+                    )
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
