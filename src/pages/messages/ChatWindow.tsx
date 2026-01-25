@@ -4,7 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface Chat {
   id: number;
@@ -41,6 +46,15 @@ interface ChatWindowProps {
   toast: any;
 }
 
+const STICKERS = [
+  '😀', '😂', '🤣', '😊', '😍', '🥰', '😘', '😜',
+  '🤔', '🤗', '🥳', '😎', '🤩', '😇', '🙃', '😉',
+  '👍', '👏', '🙌', '👋', '🤝', '💪', '✌️', '🤞',
+  '❤️', '💕', '💖', '💗', '💙', '💚', '💛', '🧡',
+  '🎉', '🎊', '🎈', '🎁', '🌹', '🌺', '🌸', '🌼',
+  '⭐', '✨', '💫', '🔥', '💯', '👑', '🏆', '🎯'
+];
+
 const ChatWindow = ({
   currentChat,
   messages,
@@ -52,12 +66,18 @@ const ChatWindow = ({
   toast
 }: ChatWindowProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showStickers, setShowStickers] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleStickerClick = (sticker: string) => {
+    setMessageText(messageText + sticker);
+    setShowStickers(false);
+  };
   if (!currentChat) {
     return (
       <Card className="rounded-3xl border-2 lg:col-span-2">
@@ -204,6 +224,26 @@ const ChatWindow = ({
             <Button variant="ghost" size="icon" className="rounded-full flex-shrink-0">
               <Icon name="Paperclip" size={20} />
             </Button>
+            <Popover open={showStickers} onOpenChange={setShowStickers}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full flex-shrink-0">
+                  <Icon name="Smile" size={20} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-2" align="start">
+                <div className="grid grid-cols-8 gap-2">
+                  {STICKERS.map((sticker, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleStickerClick(sticker)}
+                      className="text-2xl hover:bg-accent rounded-lg p-2 transition-colors"
+                    >
+                      {sticker}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Input
               placeholder="Введите сообщение..."
               value={messageText}
