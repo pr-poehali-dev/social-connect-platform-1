@@ -108,25 +108,14 @@ const ProfileContact = ({ user, editMode, formData, setFormData }: ProfileContac
                 </span>
               )}
             </label>
-            <div className="flex gap-2">
-              <input
-                type="tel"
-                value={formData.phone || ''}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+7 (___) ___-__-__"
-                className="flex-1 px-4 py-3 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
-                disabled={verificationStep === 'verified'}
-              />
-              {!user.phone_verified && verificationStep === 'idle' && (
-                <Button
-                  onClick={sendVerificationCode}
-                  disabled={isLoading || !formData.phone}
-                  className="rounded-xl"
-                >
-                  Подтвердить
-                </Button>
-              )}
-            </div>
+            <input
+              type="tel"
+              value={formData.phone || ''}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="+7 (___) ___-__-__"
+              className="w-full px-4 py-3 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
+              disabled={verificationStep === 'verified'}
+            />
             {verificationStep === 'code-sent' && (
               <div className="mt-3 p-4 bg-muted rounded-xl">
                 <p className="text-sm mb-2">Введите код из SMS:</p>
@@ -208,8 +197,16 @@ const ProfileContact = ({ user, editMode, formData, setFormData }: ProfileContac
             <div className="flex items-center gap-2">
               <Icon name="Phone" size={18} className="text-muted-foreground" />
               <span className="text-sm">{user.phone}</span>
-              {user.phone_verified && (
+              {user.phone_verified ? (
                 <Icon name="CheckCircle" size={16} className="text-green-600" />
+              ) : (
+                <button
+                  onClick={sendVerificationCode}
+                  disabled={isLoading}
+                  className="ml-auto text-xs px-2 py-1 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                >
+                  Подтвердить
+                </button>
               )}
             </div>
           )}
