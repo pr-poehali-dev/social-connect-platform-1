@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -72,9 +71,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      <Navigation />
-      
-      <main className="pt-24 pb-12">
+      <main className="pt-12 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <Card className="rounded-3xl border-2 shadow-2xl">
