@@ -23,8 +23,26 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
+    params = event.get('queryStringParameters', {}) or {}
+    action = params.get('action', 'list')
+    
+    # Для просмотра галереи другого пользователя авторизация не нужна
     auth_header = event.get('headers', {}).get('X-Authorization', '')
-    if not auth_header.startswith('Bearer '):
+    user_id = None
+    
+    if auth_header and auth_header.startswith('Bearer '):
+        token = auth_header.replace('Bearer ', '')
+        try:
+            import jwt as pyjwt
+            jwt_secret = os.environ.get('JWT_SECRET', '')
+            if jwt_secret:
+                payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
+                user_id = payload.get('user_id')
+        except Exception:
+            pass
+    
+    # Для модификации требуется авторизация
+    if method in ['POST', 'DELETE'] and not user_id:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -32,44 +50,31 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
-    token = auth_header.replace('Bearer ', '')
+    dsn = os.environ.get('DATABASE_URL')
+    schema = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
     
     try:
-        import jwt as pyjwt
-        jwt_secret = os.environ.get('JWT_SECRET', '')
-        if not jwt_secret:
-            return {
-                'statusCode': 500,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Server configuration error'}),
-                'isBase64Encoded': False
-            }
-        
-        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
-        user_id = payload.get('user_id')
-        
-        if not user_id:
-            return {
-                'statusCode': 401,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Invalid token'}),
-                'isBase64Encoded': False
-            }
-        
-        dsn = os.environ.get('DATABASE_URL')
-        schema = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
         conn = psycopg2.connect(dsn)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        params = event.get('queryStringParameters', {}) or {}
-        action = params.get('action', 'list')
         
         if method == 'GET' and action == 'list':
+            # Если передан user_id в параметрах - показываем фото этого пользователя
+            target_user_id = params.get('user_id') or user_id
+            
+            if not target_user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'user_id is required'}),
+                    'isBase64Encoded': False
+                }
+            
             cursor.execute(f"""
                 SELECT id, photo_url, position, created_at
                 FROM {schema}.user_photos
                 WHERE user_id = %s
                 ORDER BY position ASC
-            """, (user_id,))
+            """, (target_user_id,))
             
             photos = cursor.fetchall()
             cursor.close()

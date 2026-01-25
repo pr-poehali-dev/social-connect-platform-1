@@ -109,8 +109,12 @@ const Dating = () => {
         ...(filters.withPhoto && { withPhoto: 'true' })
       });
 
+      const token = localStorage.getItem('access_token');
       const response = await fetch(
-        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?${params}`
+        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?${params}`,
+        {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        }
       );
 
       if (response.ok) {
