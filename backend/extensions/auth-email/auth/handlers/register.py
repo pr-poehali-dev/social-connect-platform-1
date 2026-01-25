@@ -128,6 +128,13 @@ def handle(event: dict, origin: str = '*') -> dict:
         RETURNING id
     """)
 
+    # Create dating profile automatically
+    execute(f"""
+        INSERT INTO {S}dating_profiles (user_id, is_active, is_top_ad, created_at, updated_at)
+        VALUES ({escape(user_id)}, TRUE, FALSE, {escape(now)}, {escape(now)})
+        ON CONFLICT (user_id) DO NOTHING
+    """)
+
     result = {
         'user_id': user_id,
         'message': 'Регистрация успешна',
