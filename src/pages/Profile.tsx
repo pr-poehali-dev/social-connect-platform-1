@@ -347,57 +347,55 @@ const Profile = () => {
                       </>
                     )}
                   </div>
+                  
+                  {!editMode ? (
+                    <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12">
+                      <Icon name="Settings" size={20} />
+                      Редактировать
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveProfile} className="flex-1 gap-2 rounded-xl h-12">
+                        <Icon name="Check" size={20} />
+                        Сохранить
+                      </Button>
+                      <Button onClick={handleCancel} variant="outline" className="gap-2 rounded-xl h-12 px-4">
+                        <Icon name="X" size={20} />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="lg:w-2/3 space-y-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h1 className="text-4xl font-bold mb-2">
-                        {user.name || user.nickname}
-                      </h1>
-                      <div className="flex items-center gap-2 text-muted-foreground mb-3">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span>Онлайн</span>
-                      </div>
-                      {!editMode && user.status_text && (
-                        <div className="mb-3 text-muted-foreground italic">
-                          {user.status_text}
-                        </div>
-                      )}
-                      {editMode && (
-                        <div className="mb-3">
-                          <input
-                            type="text"
-                            value={formData.status_text}
-                            onChange={(e) => setFormData({ ...formData, status_text: e.target.value })}
-                            placeholder="Статус (например: На работе, В отпуске...)" 
-                            className="w-full px-3 py-2 border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            maxLength={150}
-                          />
-                        </div>
-                      )}
-                      {(user.city || user.district) && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Icon name="MapPin" size={18} />
-                          <span>{[user.city, user.district].filter(Boolean).join(', ')}</span>
-                        </div>
-                      )}
+                  <div>
+                    <h1 className="text-4xl font-bold mb-2">
+                      {user.name || user.nickname}
+                    </h1>
+                    <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      <span>Онлайн</span>
                     </div>
-
-                    {!editMode ? (
-                      <Button onClick={() => setEditMode(true)} variant="outline" className="gap-2 rounded-xl h-12 px-6">
-                        <Icon name="Settings" size={20} />
-                        Редактировать
-                      </Button>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Button onClick={handleSaveProfile} className="gap-2 rounded-xl h-12 px-6">
-                          <Icon name="Check" size={20} />
-                          Сохранить
-                        </Button>
-                        <Button onClick={handleCancel} variant="outline" className="gap-2 rounded-xl h-12 px-6">
-                          <Icon name="X" size={20} />
-                        </Button>
+                    {!editMode && user.status_text && (
+                      <div className="mb-3 text-muted-foreground italic">
+                        {user.status_text}
+                      </div>
+                    )}
+                    {editMode && (
+                      <div className="mb-3">
+                        <input
+                          type="text"
+                          value={formData.status_text}
+                          onChange={(e) => setFormData({ ...formData, status_text: e.target.value })}
+                          placeholder="Статус (например: На работе, В отпуске...)" 
+                          className="w-full px-3 py-2 border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          maxLength={150}
+                        />
+                      </div>
+                    )}
+                    {(user.city || user.district) && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Icon name="MapPin" size={18} />
+                        <span>{[user.city, user.district].filter(Boolean).join(', ')}</span>
                       </div>
                     )}
                   </div>
