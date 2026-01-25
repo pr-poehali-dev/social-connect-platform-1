@@ -174,6 +174,45 @@ def handler(event: dict, context) -> dict:
             
             return response(200, {'success': True})
         
+        # GET /profile - получить конкретный профиль
+        elif method == 'GET' and action == 'profile':
+            profile_id = query_params.get('id')
+            if not profile_id:
+                return response(400, {'error': 'id is required'})
+            
+            favorites_check = f"EXISTS(SELECT 1 FROM {S}dating_favorites df JOIN {S}dating_profiles dp ON df.profile_id = dp.id WHERE df.user_id = {user_id} AND dp.user_id = u.id)" if user_id else "FALSE"
+            friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests dfr JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id WHERE dfr.from_user_id = {user_id} AND dp.user_id = u.id AND dfr.status = 'pending')" if user_id else "FALSE"
+            is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests dfr JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id WHERE dfr.from_user_id = {user_id} AND dp.user_id = u.id AND dfr.status = 'accepted')" if user_id else "FALSE"
+            
+            cur.execute(f"""
+                SELECT 
+                    dp.id, dp.user_id, dp.name, 
+                    dp.age, dp.city, dp.district,
+                    dp.interests, dp.bio, 
+                    COALESCE(
+                        (SELECT photo_url FROM {S}user_photos WHERE user_id = dp.user_id ORDER BY position LIMIT 1),
+                        dp.avatar_url, 
+                        u.avatar_url
+                    ) as image,
+                    dp.height, dp.body_type as bodyType, dp.gender,
+                    FALSE as isOnline,
+                    u.last_login_at as lastLoginAt,
+                    u.status_text,
+                    {favorites_check} as is_favorite,
+                    {friend_request_check} as friend_request_sent,
+                    {is_friend_check} as is_friend
+                FROM {S}dating_profiles dp
+                JOIN {S}users u ON dp.user_id = u.id
+                WHERE dp.id = {profile_id}
+            """)
+            
+            profile = cur.fetchone()
+            
+            if not profile:
+                return response(404, {'error': 'Profile not found'})
+            
+            return response(200, dict(profile))
+        
         # POST /friend-request - отправить заявку в друзья
         elif method == 'POST' and action == 'friend-request':
             body_str = event.get('body', '{}')
