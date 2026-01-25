@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Popover,
   PopoverContent,
@@ -74,6 +75,7 @@ const ChatWindow = ({
   onCall,
   toast
 }: ChatWindowProps) => {
+  const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showStickers, setShowStickers] = useState(false);
   const [stickerTab, setStickerTab] = useState<'image' | 'emoji'>('image');
@@ -201,11 +203,11 @@ const ChatWindow = ({
                   <div className="max-w-[70%]">
                     {msg.senderId !== currentUserId && (
                       <div className="flex items-center gap-2 mb-1">
-                        <Avatar className="w-6 h-6">
+                        <Avatar className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(`/profile/${msg.senderId}`)}>
                           <AvatarImage src={msg.senderAvatar} alt={msg.senderName} />
                           <AvatarFallback>{msg.senderName.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <span className="text-xs font-medium">{msg.senderName}</span>
+                        <span className="text-xs font-medium cursor-pointer hover:underline" onClick={() => navigate(`/profile/${msg.senderId}`)}>{msg.senderName}</span>
                       </div>
                     )}
                     <div 
