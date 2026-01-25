@@ -152,7 +152,9 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
       refreshTimerRef.current = setTimeout(async () => {
         const success = await refreshFn();
         if (!success) {
-          clearAuth();
+          // Не разлогиниваем, просто запланируем следующую попытку через 5 минут
+          console.warn('[VK AUTH] Refresh failed, will retry in 5 minutes');
+          scheduleRefresh(300, refreshFn); // Повторная попытка через 5 минут
         }
       }, refreshIn);
     },
@@ -173,7 +175,9 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
       });
 
       if (!response.ok) {
-        clearAuth();
+        // Не разлогиниваем, просто возвращаем false
+        // Пользователь останется залогиненным до следующей попытки
+        console.warn('[VK AUTH] Refresh token failed, will retry later');
         return false;
       }
 
@@ -183,11 +187,12 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
       setUser(data.user);
       scheduleRefresh(data.expires_in, refreshTokenFn);
       return true;
-    } catch {
-      clearAuth();
+    } catch (error) {
+      // Не разлогиниваем при сетевых ошибках
+      console.warn('[VK AUTH] Refresh token network error:', error);
       return false;
     }
-  }, [apiUrls.refresh, clearAuth, scheduleRefresh]);
+  }, [apiUrls.refresh, scheduleRefresh]);
 
   // Restore session on mount
   useEffect(() => {

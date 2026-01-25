@@ -20,8 +20,8 @@ VK_AUTHORIZE_URL = "https://id.vk.com/authorize"
 VK_TOKEN_URL = "https://id.vk.com/oauth2/auth"
 VK_USER_INFO_URL = "https://id.vk.com/oauth2/user_info"
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7 дней
+REFRESH_TOKEN_EXPIRE_DAYS = 365  # 1 год
 
 HEADERS = {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
