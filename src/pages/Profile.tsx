@@ -282,6 +282,13 @@ const Profile = () => {
                       </Button>
                     </div>
                   )}
+
+                  <ProfileContact 
+                    user={user}
+                    editMode={editMode}
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
                 </div>
 
                 <div className="lg:w-2/3 space-y-6">
@@ -312,13 +319,6 @@ const Profile = () => {
                   <div className="pt-6 border-t">
                     <ProfileStats stats={stats} />
                   </div>
-
-                  <ProfileContact 
-                    user={user}
-                    editMode={editMode}
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
 
                   <div className="pt-6 border-t">
                     <PhotoGallery 
