@@ -133,7 +133,8 @@ const Dating = () => {
           is_favorite: p.is_favorite,
           friend_request_sent: p.friend_request_sent,
           is_friend: p.is_friend,
-          isTopAd: p.is_top_ad || p.isTopAd
+          isTopAd: p.is_top_ad || p.isTopAd,
+          status_text: p.status_text
         }));
         setProfiles(mappedProfiles);
       } else {
@@ -314,6 +315,11 @@ const Dating = () => {
                                 {profile.isOnline ? 'Онлайн' : `Был(а) в сети ${formatLastSeen(profile.lastSeen)}`}
                               </span>
                             </div>
+                            {profile.status_text && (
+                              <div className="text-white/90 text-xs italic truncate">
+                                {profile.status_text}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </Card>

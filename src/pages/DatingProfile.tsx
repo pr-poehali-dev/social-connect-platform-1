@@ -112,6 +112,7 @@ const DatingProfile = () => {
             is_favorite: userProfile.is_favorite,
             friend_request_sent: userProfile.friend_request_sent,
             is_friend: userProfile.is_friend,
+            status_text: userProfile.status_text,
           });
           setIsFavorite(userProfile.is_favorite);
           setRequestSent(userProfile.friend_request_sent);

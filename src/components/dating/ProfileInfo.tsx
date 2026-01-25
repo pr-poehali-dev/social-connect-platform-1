@@ -15,6 +15,13 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
         </h2>
         
         <div className="space-y-3">
+          {profile.status_text && (
+            <div className="flex items-center gap-3 text-muted-foreground italic">
+              <Icon name="MessageSquare" size={18} />
+              <span>{profile.status_text}</span>
+            </div>
+          )}
+          
           {profile.city && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="MapPin" size={18} />
