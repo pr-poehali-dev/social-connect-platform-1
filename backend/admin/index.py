@@ -156,7 +156,7 @@ def handler(event: dict, context) -> dict:
             
             offset = (page - 1) * limit
             
-            query = "SELECT id, email, name, nickname, is_vip, vip_expires_at, is_blocked, block_reason, created_at, last_login_at FROM users WHERE 1=1"
+            query = "SELECT id, email, name, nickname, is_vip, vip_expires_at, is_blocked, block_reason, is_verified, created_at, last_login_at FROM users WHERE 1=1"
             count_query = "SELECT COUNT(*) FROM users WHERE 1=1"
             query_params = []
             
@@ -191,9 +191,9 @@ def handler(event: dict, context) -> dict:
                 users.append({
                     'id': row[0], 'email': row[1], 'name': row[2], 'nickname': row[3],
                     'is_vip': row[4], 'vip_expires_at': row[5].isoformat() if row[5] else None,
-                    'is_blocked': row[6], 'block_reason': row[7],
-                    'created_at': row[8].isoformat() if row[8] else None,
-                    'last_login_at': row[9].isoformat() if row[9] else None
+                    'is_blocked': row[6], 'block_reason': row[7], 'is_verified': row[8],
+                    'created_at': row[9].isoformat() if row[9] else None,
+                    'last_login_at': row[10].isoformat() if row[10] else None
                 })
             
             return {
@@ -274,6 +274,28 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             
             log_admin_action(admin_id, 'remove_vip', 'user', user_id, None, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Установить верификацию
+        if action == 'verify_user':
+            user_id = body.get('user_id')
+            
+            cur.execute("UPDATE users SET is_verified = true WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'verify_user', 'user', user_id, None, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
+        # Убрать верификацию
+        if action == 'unverify_user':
+            user_id = body.get('user_id')
+            
+            cur.execute("UPDATE users SET is_verified = false WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'unverify_user', 'user', user_id, None, ip, user_agent)
             
             return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
         
