@@ -20,6 +20,7 @@ const DatingProfile = () => {
   const [isFriend, setIsFriend] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
 
   const formatLastSeen = (lastLoginAt: string | null) => {
     if (!lastLoginAt) return 'давно';
@@ -38,20 +39,30 @@ const DatingProfile = () => {
     if (diffDays < 7) return `${diffDays} дн назад`;
     return lastLogin.toLocaleDateString('ru-RU');
   };
-  
-  const photos = [
-    profile?.image,
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800',
-    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800'
-  ].filter(Boolean);
 
   useEffect(() => {
     loadProfile();
     loadCurrentUser();
+    loadPhotos();
   }, [userId]);
+
+  const loadPhotos = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/e762cdb2-751d-45d3-8ac1-62e736480782?action=list&user_id=${userId}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const photoUrls = (data.photos || []).map((p: any) => p.photo_url);
+        setPhotos(photoUrls);
+      }
+    } catch (error) {
+      console.error('Failed to load photos:', error);
+    }
+  };
 
   const loadCurrentUser = async () => {
     const token = localStorage.getItem('access_token');
