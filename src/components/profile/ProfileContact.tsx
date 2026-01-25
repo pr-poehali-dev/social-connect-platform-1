@@ -32,6 +32,7 @@ const ProfileContact = ({ user, editMode, formData, setFormData }: ProfileContac
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'send', phone: formData.phone })
       });
 
@@ -39,11 +40,16 @@ const ProfileContact = ({ user, editMode, formData, setFormData }: ProfileContac
         setVerificationStep('code-sent');
         toast({ title: 'Код отправлен', description: 'Проверьте SMS на вашем телефоне' });
       } else {
-        const data = await response.json();
-        toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить код', variant: 'destructive' });
+        const data = await response.json().catch(() => ({ error: 'Ошибка сервера' }));
+        if (response.status === 401) {
+          toast({ title: 'Ошибка', description: 'Сессия истекла, обновите страницу', variant: 'destructive' });
+        } else {
+          toast({ title: 'Ошибка', description: data.error || 'Не удалось отправить код', variant: 'destructive' });
+        }
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось отправить код', variant: 'destructive' });
+      console.error('Send verification error:', error);
+      toast({ title: 'Ошибка', description: 'Проверьте подключение к интернету', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +71,7 @@ const ProfileContact = ({ user, editMode, formData, setFormData }: ProfileContac
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'verify', phone: formData.phone, code: verificationCode })
       });
 
@@ -72,11 +79,16 @@ const ProfileContact = ({ user, editMode, formData, setFormData }: ProfileContac
         setVerificationStep('verified');
         toast({ title: 'Успех', description: 'Телефон подтверждён!' });
       } else {
-        const data = await response.json();
-        toast({ title: 'Ошибка', description: data.error || 'Неверный код', variant: 'destructive' });
+        const data = await response.json().catch(() => ({ error: 'Ошибка сервера' }));
+        if (response.status === 401) {
+          toast({ title: 'Ошибка', description: 'Сессия истекла, обновите страницу', variant: 'destructive' });
+        } else {
+          toast({ title: 'Ошибка', description: data.error || 'Неверный код', variant: 'destructive' });
+        }
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось подтвердить код', variant: 'destructive' });
+      console.error('Verify code error:', error);
+      toast({ title: 'Ошибка', description: 'Проверьте подключение к интернету', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
