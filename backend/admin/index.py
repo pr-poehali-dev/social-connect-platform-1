@@ -105,15 +105,11 @@ def handler(event: dict, context) -> dict:
             }
         
         # Все остальные действия требуют авторизации
-        # DEV MODE: allow 'dev-token' for development
-        if token == 'dev-token':
-            admin_data = {'admin_id': 1, 'email': 'admin@connecthub.ru', 'role': 'superadmin'}
-            admin_id = 1
-        else:
-            admin_data = verify_admin_token(token)
-            if not admin_data:
-                return {'statusCode': 401, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Требуется авторизация'}), 'isBase64Encoded': False}
-            admin_id = admin_data['admin_id']
+        admin_data = verify_admin_token(token)
+        if not admin_data:
+            return {'statusCode': 401, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Требуется авторизация'}), 'isBase64Encoded': False}
+        
+        admin_id = admin_data['admin_id']
         
         # Дашборд - статистика
         if action == 'dashboard':
