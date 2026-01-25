@@ -110,15 +110,7 @@ const Ads = () => {
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-8 text-center">
-              <h1 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
-                <span className="animate-pulse text-5xl">🔴</span>
-                <span>LIVE</span>
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Живые предложения и приглашения
-              </p>
-            </div>
+
 
             <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
               <TabsList className="w-full justify-center rounded-2xl">
