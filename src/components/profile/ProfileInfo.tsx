@@ -13,10 +13,6 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
       <h1 className="text-4xl font-bold mb-2">
         {user.name || user.nickname}
       </h1>
-      <div className="flex items-center gap-2 text-muted-foreground mb-3">
-        <div className="w-2 h-2 rounded-full bg-green-500" />
-        <span>Онлайн</span>
-      </div>
       {!editMode && user.status_text && (
         <div className="mb-3 text-muted-foreground italic">
           {user.status_text}
