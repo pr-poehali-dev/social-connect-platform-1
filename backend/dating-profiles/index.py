@@ -110,7 +110,11 @@ def handler(event: dict, context) -> dict:
                     dp.age,
                     dp.city, dp.district,
                     dp.interests, dp.bio, 
-                    COALESCE(dp.avatar_url, u.avatar_url) as avatar_url,
+                    COALESCE(
+                        (SELECT photo_url FROM {S}user_photos WHERE user_id = dp.user_id ORDER BY position LIMIT 1),
+                        dp.avatar_url, 
+                        u.avatar_url
+                    ) as avatar_url,
                     dp.height, dp.body_type, dp.gender,
                     FALSE as is_online,
                     COALESCE(dp.is_top_ad, u.is_vip, FALSE) as is_top_ad,
