@@ -54,7 +54,6 @@ const Navigation = () => {
   ];
 
   const bottomNavItems = [
-    { path: '/friends', label: 'Друзья', icon: 'UserPlus' },
     { path: '/favorites', label: 'Избранное', icon: 'Star' },
     { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', badge: unreadCount },
     { path: '/call-history', label: 'Звонки', icon: 'PhoneCall' },
