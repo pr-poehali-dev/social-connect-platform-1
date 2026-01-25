@@ -10,10 +10,12 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileViewMode from '@/components/profile/ProfileViewMode';
 import ProfileStats from '@/components/profile/ProfileStats';
+import PhotoGallery from '@/components/profile/PhotoGallery';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [editMode, setEditMode] = useState(false);
+  const [photos, setPhotos] = useState<any[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -92,7 +94,29 @@ const Profile = () => {
     };
 
     loadProfile();
+    loadPhotos();
   }, [navigate, toast]);
+
+  const loadPhotos = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/e762cdb2-751d-45d3-8ac1-62e736480782?action=list', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPhotos(data.photos || []);
+      }
+    } catch (error) {
+      console.error('Failed to load photos', error);
+    }
+  };
 
   const handleLogout = () => {
     authLogout();
@@ -326,6 +350,14 @@ const Profile = () => {
 
                   <div className="pt-6 border-t">
                     <ProfileStats stats={stats} />
+                  </div>
+
+                  <div className="pt-6 border-t">
+                    <PhotoGallery 
+                      photos={photos}
+                      editMode={editMode}
+                      onPhotosUpdate={loadPhotos}
+                    />
                   </div>
 
                   <div className="pt-6 border-t flex gap-3">
