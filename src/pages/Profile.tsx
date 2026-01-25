@@ -47,6 +47,8 @@ const Profile = () => {
     profession: '',
     status_text: '',
     phone: '',
+    telegram: '',
+    instagram: '',
   });
 
   useEffect(() => {
@@ -93,6 +95,8 @@ const Profile = () => {
             profession: userData.profession || '',
             status_text: userData.status_text || '',
             phone: userData.phone || '',
+            telegram: userData.telegram || '',
+            instagram: userData.instagram || '',
           });
         } else {
           toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });
@@ -189,6 +193,8 @@ const Profile = () => {
       profession: user.profession || '',
       status_text: user.status_text || '',
       phone: user.phone || '',
+      telegram: user.telegram || '',
+      instagram: user.instagram || '',
     });
     setEditMode(false);
   };

@@ -72,7 +72,8 @@ def handler(event: dict, context) -> dict:
                            gender, age_from, age_to, city, district, height,
                            body_type, marital_status, children, financial_status,
                            has_car, has_housing, dating_goal, interests, profession,
-                           zodiac_sign, status_text, phone, created_at, updated_at
+                           zodiac_sign, status_text, phone, telegram, instagram,
+                           created_at, updated_at
                     FROM t_p19021063_social_connect_platf.users
                     WHERE id = {user_id}
                 '''
@@ -102,7 +103,7 @@ def handler(event: dict, context) -> dict:
             # Строковые поля
             string_fields = ['name', 'last_name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
-                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone']
+                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram']
             
             for field in string_fields:
                 if field in data and data[field] is not None:
