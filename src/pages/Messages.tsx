@@ -287,20 +287,24 @@ const Messages = () => {
     await handleEditReminder(id, { completed });
   };
 
+  const messageCounts = {
+    personal: chats.filter(c => c.type === 'personal').length,
+    group: chats.filter(c => c.type === 'group').length,
+    deal: chats.filter(c => c.type === 'deal').length,
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      <Navigation />
+      <Navigation 
+        showMessagesTabs={true}
+        activeMessagesTab={activeTab}
+        onMessagesTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'calls' | 'contacts' | 'calendar')}
+        messageCounts={messageCounts}
+      />
       
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <MessagesTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              chats={chats}
-              onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'calls' | 'contacts' | 'calendar')}
-            />
-
             {activeTab === 'calls' ? (
               <EmptyState type="calls" />
             ) : activeTab === 'contacts' ? (

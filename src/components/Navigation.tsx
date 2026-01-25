@@ -5,7 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 
-const Navigation = () => {
+interface NavigationProps {
+  showMessagesTabs?: boolean;
+  activeMessagesTab?: string;
+  onMessagesTabChange?: (tab: string) => void;
+  messageCounts?: { personal: number; group: number; deal: number };
+}
+
+const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, messageCounts }: NavigationProps = {}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -149,6 +156,64 @@ const Navigation = () => {
               <Icon name={isOpen ? 'X' : 'Menu'} size={24} />
             </Button>
           </div>
+
+          {showMessagesTabs && location.pathname === '/messages' && (
+            <div className="border-t border-border py-3 overflow-x-auto">
+              <div className="flex gap-2 px-1">
+                <Button
+                  variant={activeMessagesTab === 'personal' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  onClick={() => onMessagesTabChange?.('personal')}
+                >
+                  <Icon name="MessageCircle" size={16} />
+                  Личные сообщения
+                  {messageCounts?.personal ? <Badge variant={activeMessagesTab === 'personal' ? 'secondary' : 'outline'}>{messageCounts.personal}</Badge> : null}
+                </Button>
+                <Button
+                  variant={activeMessagesTab === 'group' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  onClick={() => onMessagesTabChange?.('group')}
+                >
+                  <Icon name="Users" size={16} />
+                  Групповые чаты
+                  {messageCounts?.group ? <Badge variant={activeMessagesTab === 'group' ? 'secondary' : 'outline'}>{messageCounts.group}</Badge> : null}
+                </Button>
+                <Button
+                  variant={activeMessagesTab === 'deal' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  onClick={() => onMessagesTabChange?.('deal')}
+                >
+                  <Icon name="Briefcase" size={16} />
+                  Обсуждение сделок
+                  {messageCounts?.deal ? <Badge variant={activeMessagesTab === 'deal' ? 'secondary' : 'outline'}>{messageCounts.deal}</Badge> : null}
+                </Button>
+                <Button
+                  variant={activeMessagesTab === 'calls' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  onClick={() => onMessagesTabChange?.('calls')}
+                >
+                  <Icon name="PhoneCall" size={16} />
+                  Звонки
+                </Button>
+                <Button
+                  variant={activeMessagesTab === 'contacts' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  onClick={() => onMessagesTabChange?.('contacts')}
+                >
+                  <Icon name="BookUser" size={16} />
+                  Телефонная книга
+                </Button>
+                <Button
+                  variant={activeMessagesTab === 'calendar' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  onClick={() => onMessagesTabChange?.('calendar')}
+                >
+                  <Icon name="Calendar" size={16} />
+                  Ежедневник
+                </Button>
+              </div>
+            </div>
+          )}
 
           {isOpen && (
             <div className="lg:hidden pb-4 animate-fade-in">
