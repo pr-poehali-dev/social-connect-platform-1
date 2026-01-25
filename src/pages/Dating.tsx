@@ -235,13 +235,6 @@ const Dating = () => {
             <h1 className="text-3xl font-bold">Знакомства</h1>
             <div className="flex gap-2">
               <button
-                onClick={() => navigate('/profile')}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                title="Мой профиль"
-              >
-                <Icon name="UserCog" size={24} />
-              </button>
-              <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="p-2 hover:bg-secondary rounded-lg transition-colors"
                 title="Фильтры"
