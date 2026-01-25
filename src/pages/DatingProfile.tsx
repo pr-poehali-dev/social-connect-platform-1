@@ -285,12 +285,12 @@ const DatingProfile = () => {
   const isOwnProfile = currentUserId === profile.id;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 lg:pb-0">
       <Navigation />
       
-      <div className="max-w-4xl mx-auto pt-20">
-        <div className="grid md:grid-cols-[300px_1fr] gap-6">
-          <div className="md:sticky md:top-20 h-fit space-y-4">
+      <div className="max-w-4xl mx-auto lg:pt-20 pt-16">
+        <div className="grid md:grid-cols-[300px_1fr] gap-0 md:gap-6">
+          <div className="md:sticky md:top-20 h-fit">
             <ProfileHeader
               profile={profile}
               isOwnProfile={isOwnProfile}
@@ -299,7 +299,7 @@ const DatingProfile = () => {
               onToggleFavorite={handleToggleFavorite}
             />
             
-            <div className="px-4 md:px-0">
+            <div className="hidden md:block">
               <ProfileActions
                 isOwnProfile={isOwnProfile}
                 isFriend={isFriend}
@@ -311,25 +311,36 @@ const DatingProfile = () => {
             </div>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="px-4 md:px-6 py-6 space-y-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold">{profile.name}</h1>
+                <div className="flex items-center gap-2 md:gap-3 mb-2">
+                  <h1 className="text-2xl md:text-3xl font-bold">{profile.name}</h1>
                   {profile.is_verified ? (
-                    <Icon name="BadgeCheck" size={24} className="text-blue-500" />
+                    <Icon name="BadgeCheck" size={20} className="text-blue-500 md:w-6 md:h-6" />
                   ) : (
-                    <Icon name="BadgeCheck" size={24} className="text-gray-400" />
+                    <Icon name="BadgeCheck" size={20} className="text-gray-400 md:w-6 md:h-6" />
                   )}
-                  <span className="text-2xl text-muted-foreground">{profile.age}</span>
+                  <span className="text-xl md:text-2xl text-muted-foreground">{profile.age}</span>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
                   <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
                   <span>
                     {profile.isOnline ? 'Онлайн' : `Был(а) в сети ${formatLastSeen(profile.lastSeen)}`}
                   </span>
                 </div>
               </div>
+            </div>
+
+            <div className="md:hidden">
+              <ProfileActions
+                isOwnProfile={isOwnProfile}
+                isFriend={isFriend}
+                requestSent={requestSent}
+                onSendMessage={handleSendMessage}
+                onAddFriend={handleAddFriend}
+                onEditProfile={() => navigate('/profile')}
+              />
             </div>
 
             <ProfileInfo profile={profile} />

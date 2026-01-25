@@ -11,8 +11,8 @@ interface ProfileHeaderProps {
 
 const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavorite }: ProfileHeaderProps) => {
   return (
-    <div className="relative rounded-3xl overflow-hidden">
-      <div className="aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden flex items-center justify-center">
+    <div className="relative md:rounded-3xl overflow-hidden">
+      <div className="aspect-[3/4] md:aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden flex items-center justify-center">
         {profile.image ? (
           <img 
             src={profile.image} 
@@ -30,7 +30,7 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-4 -left-16 bg-black/30 hover:bg-black/50 text-white rounded-full"
+        className="absolute top-4 left-4 md:-left-16 bg-black/30 hover:bg-black/50 text-white rounded-full"
         onClick={onBack}
       >
         <Icon name="ArrowLeft" size={24} />
