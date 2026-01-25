@@ -21,6 +21,7 @@ const CreateAd = () => {
   const [userName, setUserName] = useState('Алексей');
   const [userAge, setUserAge] = useState('28');
   const [isLoading, setIsLoading] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -49,6 +50,30 @@ const CreateAd = () => {
 
   const handleEventDetailChange = (eventId: string, value: string) => {
     setEventDetails({ ...eventDetails, [eventId]: value });
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const maxPhotos = 6;
+    const remainingSlots = maxPhotos - photos.length;
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+
+    filesToProcess.forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64 = event.target?.result as string;
+          setPhotos((prev) => [...prev, base64]);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,6 +240,40 @@ const CreateAd = () => {
                       onChange={(e) => setSchedule(e.target.value)}
                       required
                     />
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label>Фото (до 6 шт)</Label>
+                    <p className="text-sm text-muted-foreground">Добавьте фотографии к объявлению</p>
+                    
+                    <div className="grid grid-cols-3 gap-3">
+                      {photos.map((photo, index) => (
+                        <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-border group">
+                          <img src={photo} alt={`Фото ${index + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(index)}
+                            className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Icon name="X" size={16} />
+                          </button>
+                        </div>
+                      ))}
+                      
+                      {photos.length < 6 && (
+                        <label className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 bg-muted/50">
+                          <Icon name="ImagePlus" size={32} className="text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Добавить</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handlePhotoUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex gap-4 pt-4">
