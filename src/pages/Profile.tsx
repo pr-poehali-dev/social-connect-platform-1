@@ -19,6 +19,7 @@ const Profile = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    last_name: '',
     nickname: '',
     bio: '',
     avatar_url: '',
@@ -61,6 +62,7 @@ const Profile = () => {
           setUser(userData);
           setFormData({
             name: userData.name || '',
+            last_name: userData.last_name || '',
             nickname: userData.nickname || '',
             bio: userData.bio || '',
             avatar_url: userData.avatar_url || '',
@@ -131,6 +133,7 @@ const Profile = () => {
   const handleCancel = () => {
     setFormData({
       name: user.name,
+      last_name: user.last_name,
       nickname: user.nickname,
       bio: user.bio,
       avatar_url: user.avatar_url || '',

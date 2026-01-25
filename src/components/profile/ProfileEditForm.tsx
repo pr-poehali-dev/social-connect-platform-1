@@ -128,16 +128,30 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="name">Имя</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="Ваше имя"
-          className="rounded-xl"
-          maxLength={100}
-        />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Имя</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Ваше имя"
+            className="rounded-xl"
+            maxLength={100}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="last_name">Фамилия</Label>
+          <Input
+            id="last_name"
+            value={formData.last_name}
+            onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+            placeholder="Ваша фамилия"
+            className="rounded-xl"
+            maxLength={100}
+          />
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">

@@ -68,7 +68,7 @@ def handler(event: dict, context) -> dict:
         if method == 'GET':
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 query = f'''
-                    SELECT id, email, name, nickname, bio, avatar_url,
+                    SELECT id, email, name, last_name, nickname, bio, avatar_url,
                            gender, age_from, age_to, city, district, height,
                            body_type, marital_status, children, financial_status,
                            has_car, has_housing, dating_goal, interests, profession,
@@ -100,7 +100,7 @@ def handler(event: dict, context) -> dict:
             updates = []
             
             # Строковые поля
-            string_fields = ['name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
+            string_fields = ['name', 'last_name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
                            'dating_goal', 'profession']
             
