@@ -85,8 +85,11 @@ const Register = () => {
           setNeedsVerification(true);
           toast({ title: 'Код отправлен!', description: 'Проверьте вашу почту' });
         } else {
-          toast({ title: 'Регистрация успешна!', description: 'Теперь можете войти в аккаунт' });
-          setTimeout(() => navigate('/login'), 1500);
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('refresh_token', data.refresh_token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          toast({ title: 'Регистрация успешна!', description: 'Перенаправляем в профиль...' });
+          setTimeout(() => navigate('/profile'), 1000);
         }
       } else {
         toast({ title: 'Ошибка регистрации', description: data.error || 'Попробуйте снова', variant: 'destructive' });
