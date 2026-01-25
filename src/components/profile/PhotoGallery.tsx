@@ -142,7 +142,22 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
           <h3 className="text-xl font-bold mb-4">Галерея фотографий</h3>
           
           {photos.length === 0 && !editMode ? (
-            <p className="text-center text-muted-foreground py-8">Фотографий пока нет</p>
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">Фотографий пока нет</p>
+              <Button
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e) => handleFileSelect(e as any, 0);
+                  input.click();
+                }}
+                className="gap-2 rounded-xl"
+              >
+                <Icon name="Plus" size={20} />
+                Добавить фото
+              </Button>
+            </div>
           ) : photos.length === 0 && editMode ? (
             <div className="flex justify-center py-4">
               <Button
