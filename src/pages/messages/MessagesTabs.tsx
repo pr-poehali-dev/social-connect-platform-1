@@ -27,7 +27,7 @@ const MessagesTabs = ({ tabs, activeTab, chats, onTabChange }: MessagesTabsProps
         >
           <Icon name={tab.icon} size={18} />
           {tab.label}
-          {!['calls', 'contacts'].includes(tab.value) && (
+          {!['calls', 'contacts', 'calendar'].includes(tab.value) && (
             <Badge variant={activeTab === tab.value ? 'secondary' : 'outline'}>
               {chats.filter(c => c.type === tab.value).length}
             </Badge>

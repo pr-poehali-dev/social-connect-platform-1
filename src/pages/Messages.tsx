@@ -8,6 +8,7 @@ import EmptyState from './messages/EmptyState';
 import ChatList from './messages/ChatList';
 import ChatWindow from './messages/ChatWindow';
 import ContactsList from './messages/ContactsList';
+import CalendarView from './messages/CalendarView';
 
 interface Chat {
   id: number;
@@ -35,7 +36,7 @@ interface Message {
 
 const Messages = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'calls' | 'contacts'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'calls' | 'contacts' | 'calendar'>('personal');
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
@@ -43,10 +44,12 @@ const Messages = () => {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [callModal, setCallModal] = useState<{ isOpen: boolean; type: 'audio' | 'video' }>({ isOpen: false, type: 'audio' });
+  const [reminders, setReminders] = useState<any[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     loadUserData();
+    loadReminders();
   }, []);
 
   useEffect(() => {
@@ -141,6 +144,7 @@ const Messages = () => {
     { value: 'deal', label: 'Обсуждение сделок', icon: 'Briefcase' },
     { value: 'calls', label: 'Звонки', icon: 'PhoneCall' },
     { value: 'contacts', label: 'Телефонная книга', icon: 'BookUser' },
+    { value: 'calendar', label: 'Ежедневник', icon: 'Calendar' },
   ];
 
   const filteredChats = chats.filter(chat => chat.type === activeTab);
@@ -190,6 +194,99 @@ const Messages = () => {
     setCallModal({ isOpen: true, type });
   };
 
+  const loadReminders = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const currentDate = new Date();
+      const response = await fetch(
+        `https://functions.poehali.dev/2bc01794-3584-4941-b485-aec60ee947a8?action=list&month=${currentDate.getMonth() + 1}&year=${currentDate.getFullYear()}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setReminders(data.reminders || []);
+      }
+    } catch (error) {
+      console.error('Failed to load reminders:', error);
+    }
+  };
+
+  const handleAddReminder = async (data: { title: string; description?: string; date: string; time?: string }) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/2bc01794-3584-4941-b485-aec60ee947a8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успех', description: 'Напоминание создано' });
+        loadReminders();
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось создать напоминание', variant: 'destructive' });
+    }
+  };
+
+  const handleEditReminder = async (id: number, data: any) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/2bc01794-3584-4941-b485-aec60ee947a8', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id, ...data })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успех', description: 'Напоминание обновлено' });
+        loadReminders();
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось обновить напоминание', variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteReminder = async (id: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/2bc01794-3584-4941-b485-aec60ee947a8?id=${id}`,
+        {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (response.ok) {
+        toast({ title: 'Успех', description: 'Напоминание удалено' });
+        loadReminders();
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось удалить напоминание', variant: 'destructive' });
+    }
+  };
+
+  const handleToggleComplete = async (id: number, completed: boolean) => {
+    await handleEditReminder(id, { completed });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
@@ -201,13 +298,21 @@ const Messages = () => {
               tabs={tabs}
               activeTab={activeTab}
               chats={chats}
-              onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'calls' | 'contacts')}
+              onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'calls' | 'contacts' | 'calendar')}
             />
 
             {activeTab === 'calls' ? (
               <EmptyState type="calls" />
             ) : activeTab === 'contacts' ? (
               <ContactsList userId={currentUserId} toast={toast} />
+            ) : activeTab === 'calendar' ? (
+              <CalendarView
+                reminders={reminders}
+                onAddReminder={handleAddReminder}
+                onEditReminder={handleEditReminder}
+                onDeleteReminder={handleDeleteReminder}
+                onToggleComplete={handleToggleComplete}
+              />
             ) : (
               <div className="grid lg:grid-cols-3 gap-6">
                 <ChatList
