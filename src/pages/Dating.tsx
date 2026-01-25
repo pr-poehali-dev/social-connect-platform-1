@@ -283,7 +283,7 @@ const Dating = () => {
                     <div key={profile.id} className="relative">
                       <Card 
                         className="rounded-[2rem] overflow-hidden border-0 aspect-square relative cursor-pointer transition-transform hover:scale-[1.02]"
-                        onClick={() => navigate(`/dating/${profile.id}`)}
+                        onClick={() => navigate(`/dating/${profile.user_id}`)}
                       >
                         {profile.image ? (
                           <img 
