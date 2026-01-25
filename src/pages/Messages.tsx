@@ -197,19 +197,6 @@ const Messages = () => {
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-6">
-              <h1 className="text-4xl font-bold mb-2">
-                {activeTab === 'calls' && 'Звонки'}
-                {activeTab === 'contacts' && 'Телефонная книга'}
-                {!['calls', 'contacts'].includes(activeTab) && 'Сообщения'}
-              </h1>
-              <p className="text-muted-foreground">
-                {activeTab === 'calls' && 'История ваших звонков'}
-                {activeTab === 'contacts' && 'Ваши контакты'}
-                {!['calls', 'contacts'].includes(activeTab) && 'Все ваши чаты в одном месте'}
-              </p>
-            </div>
-
             <MessagesTabs
               tabs={tabs}
               activeTab={activeTab}
