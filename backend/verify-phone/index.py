@@ -38,13 +38,41 @@ def handler(event: dict, context) -> dict:
     
     # Получаем токен из заголовков
     auth_header = event.get('headers', {}).get('X-Authorization', '')
-    token = auth_header.replace('Bearer ', '') if auth_header else ''
-    
-    if not token:
+    if not auth_header or not auth_header.startswith('Bearer '):
         return {
             'statusCode': 401,
             'headers': cors_headers,
             'body': json.dumps({'error': 'Unauthorized'}),
+            'isBase64Encoded': False
+        }
+    
+    token = auth_header.replace('Bearer ', '')
+    
+    # Декодируем JWT токен
+    try:
+        import jwt as pyjwt
+        jwt_secret = os.environ.get('JWT_SECRET')
+        if not jwt_secret:
+            return {
+                'statusCode': 500,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Server configuration error'}),
+                'isBase64Encoded': False
+            }
+        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+    except pyjwt.ExpiredSignatureError:
+        return {
+            'statusCode': 401,
+            'headers': cors_headers,
+            'body': json.dumps({'error': 'Токен истёк'}),
+            'isBase64Encoded': False
+        }
+    except pyjwt.InvalidTokenError:
+        return {
+            'statusCode': 401,
+            'headers': cors_headers,
+            'body': json.dumps({'error': 'Неверный токен'}),
             'isBase64Encoded': False
         }
     
@@ -57,25 +85,9 @@ def handler(event: dict, context) -> dict:
     # Подключение к БД
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
-    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+    schema = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
     
     try:
-        # Проверяем токен и получаем user_id
-        cur.execute(f"""
-            SELECT user_id FROM {schema}.sessions 
-            WHERE access_token = %s AND expires_at > NOW()
-        """, (token,))
-        session = cur.fetchone()
-        
-        if not session:
-            return {
-                'statusCode': 401,
-                'headers': cors_headers,
-                'body': json.dumps({'error': 'Invalid token'}),
-                'isBase64Encoded': False
-            }
-        
-        user_id = session[0]
         
         if action == 'send':
             # Генерируем 4-значный код
