@@ -128,7 +128,9 @@ const MyAds = () => {
                 <Icon name="Loader2" size={48} className="mx-auto mb-4 animate-spin text-muted-foreground" />
                 <p className="text-muted-foreground">Загрузка...</p>
               </div>
-            ) : userAds.length === 0 ? (
+            ) : (
+              <>
+                {userAds.length === 0 ? (
                   <Card className="rounded-3xl border-2 shadow-xl">
                     <CardContent className="p-12 text-center">
                       <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
@@ -142,11 +144,11 @@ const MyAds = () => {
                   </Card>
                 ) : (
                   <div className="space-y-6">
-                {userAds.filter(ad => 
-                  activeTab === 'active' 
-                    ? (ad.status === 'active' || ad.status === 'paused')
-                    : ad.status === 'stopped'
-                ).map((ad) => {
+                    {userAds.filter(ad => 
+                      activeTab === 'active' 
+                        ? (ad.status === 'active' || ad.status === 'paused')
+                        : ad.status === 'stopped'
+                    ).map((ad) => {
                   const eventLabels: Record<string, string> = {
                     'date': 'Свидание',
                     'cinema': 'Кино',
@@ -239,26 +241,26 @@ const MyAds = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  );
-                })}
-                
-                {userAds.filter(ad => 
-                  activeTab === 'active' 
-                    ? (ad.status === 'active' || ad.status === 'paused')
-                    : ad.status === 'stopped'
-                ).length === 0 && (
-                  <Card className="rounded-3xl border-2 shadow-xl">
-                    <CardContent className="p-12 text-center">
-                      <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-xl font-bold mb-2">
-                        {activeTab === 'active' ? 'Нет активных объявлений' : 'Нет завершенных объявлений'}
-                      </h3>
-                      <p className="text-muted-foreground">
-                        {activeTab === 'active' ? 'Создайте новое объявление' : 'Здесь будут остановленные объявления'}
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                      );
+                    })}
+                    
+                    {userAds.filter(ad => 
+                      activeTab === 'active' 
+                        ? (ad.status === 'active' || ad.status === 'paused')
+                        : ad.status === 'stopped'
+                    ).length === 0 && (
+                      <Card className="rounded-3xl border-2 shadow-xl">
+                        <CardContent className="p-12 text-center">
+                          <Icon name="FileText" size={64} className="mx-auto mb-4 text-muted-foreground" />
+                          <h3 className="text-xl font-bold mb-2">
+                            {activeTab === 'active' ? 'Нет активных объявлений' : 'Нет завершенных объявлений'}
+                          </h3>
+                          <p className="text-muted-foreground">
+                            {activeTab === 'active' ? 'Создайте новое объявление' : 'Здесь будут остановленные объявления'}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 )}
               </>
