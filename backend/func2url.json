@@ -11,7 +11,6 @@
   "auth": "https://functions.poehali.dev/38e915e0-7fce-42fe-81a2-0cf20e689f42",
   "events": "https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8",
   "dating-ads": "https://functions.poehali.dev/e4123cfd-1bed-41c3-afe8-325905b78c2c",
-  "dating": "https://functions.poehali.dev/7f792110-a48c-4a99-baca-5d56979f70f2",
   "services": "https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774",
   "profile": "https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc",
   "ads": "https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056",

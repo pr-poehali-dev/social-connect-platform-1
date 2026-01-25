@@ -101,8 +101,8 @@ def handler(event: dict, context) -> dict:
             where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
             
             favorites_check = f"EXISTS(SELECT 1 FROM {S}dating_favorites df JOIN {S}dating_profiles dp ON df.profile_id = dp.id WHERE df.user_id = {user_id} AND dp.user_id = u.id)" if user_id else "FALSE"
-            friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = u.id AND status = 'pending')" if user_id else "FALSE"
-            is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests WHERE from_user_id = {user_id} AND to_user_id = u.id AND status = 'accepted')" if user_id else "FALSE"
+            friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests dfr JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id WHERE dfr.from_user_id = {user_id} AND dp.user_id = u.id AND dfr.status = 'pending')" if user_id else "FALSE"
+            is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests dfr JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id WHERE dfr.from_user_id = {user_id} AND dp.user_id = u.id AND dfr.status = 'accepted')" if user_id else "FALSE"
             
             cur.execute(f"""
                 SELECT 
@@ -180,16 +180,29 @@ def handler(event: dict, context) -> dict:
             if not to_user_id:
                 return response(400, {'error': 'to_user_id is required'})
             
+            # Находим profile_id по user_id
+            cur.execute(
+                f"""SELECT id FROM {S}dating_profiles WHERE user_id = %s""",
+                (to_user_id,)
+            )
+            profile_result = cur.fetchone()
+            
+            if not profile_result:
+                return response(404, {'error': 'Profile not found'})
+            
+            to_profile_id = profile_result['id']
+            
+            # Вставляем заявку в друзья
             cur.execute(
                 f"""INSERT INTO {S}dating_friend_requests 
-                    (from_user_id, to_user_id, status, created_at)
-                    VALUES (%s, %s, 'pending', %s)
-                    ON CONFLICT (from_user_id, to_user_id) DO NOTHING""",
-                (user_id, to_user_id, datetime.now(timezone.utc))
+                    (from_user_id, to_profile_id, status, created_at)
+                    VALUES (%s, %s, 'pending', CURRENT_TIMESTAMP)
+                    ON CONFLICT DO NOTHING""",
+                (user_id, to_profile_id)
             )
             conn.commit()
             
-            return response(200, {'success': True})
+            return response(200, {'success': True, 'message': 'Friend request sent'})
         
         else:
             return response(400, {'error': 'Invalid request'})

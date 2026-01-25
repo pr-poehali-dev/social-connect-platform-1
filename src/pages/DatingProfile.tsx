@@ -84,9 +84,15 @@ const DatingProfile = () => {
   const loadProfile = async () => {
     setLoading(true);
     
+    const token = localStorage.getItem('access_token');
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?id=${userId}`
+        `https://functions.poehali.dev/463fef6f-0ceb-4ca2-ae5b-ada619f3147f?id=${userId}`,
+        {
+          headers: token ? {
+            'Authorization': `Bearer ${token}`
+          } : {}
+        }
       );
 
       if (response.ok) {
