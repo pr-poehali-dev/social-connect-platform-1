@@ -175,7 +175,7 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
                   onClick={() => onMessagesTabChange?.('group')}
                 >
                   <Icon name="Users" size={16} />
-                  Групповые чаты
+                  Чаты
                   {messageCounts?.group ? <Badge variant={activeMessagesTab === 'group' ? 'secondary' : 'outline'}>{messageCounts.group}</Badge> : null}
                 </Button>
                 <Button
@@ -201,7 +201,7 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
                   onClick={() => onMessagesTabChange?.('contacts')}
                 >
                   <Icon name="BookUser" size={16} />
-                  Телефонная книга
+                  Контакты
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'calendar' ? 'default' : 'outline'}

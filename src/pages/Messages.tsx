@@ -140,10 +140,10 @@ const Messages = () => {
 
   const tabs = [
     { value: 'personal', label: 'Личные сообщения', icon: 'MessageCircle' },
-    { value: 'group', label: 'Групповые чаты', icon: 'Users' },
+    { value: 'group', label: 'Чаты', icon: 'Users' },
     { value: 'deal', label: 'Обсуждение сделок', icon: 'Briefcase' },
     { value: 'calls', label: 'Звонки', icon: 'PhoneCall' },
-    { value: 'contacts', label: 'Телефонная книга', icon: 'BookUser' },
+    { value: 'contacts', label: 'Контакты', icon: 'BookUser' },
     { value: 'calendar', label: 'Ежедневник', icon: 'Calendar' },
   ];
 
