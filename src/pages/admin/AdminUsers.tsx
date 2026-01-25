@@ -2,14 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import UserFilters from './components/UserFilters';
+import UserList from './components/UserList';
+import UserDetailsDialog from './components/UserDetailsDialog';
+import UserActionDialogs from './components/UserActionDialogs';
 
 const ADMIN_API = 'https://functions.poehali.dev/1a9ecaa4-2882-4498-965a-c16eb32920ec';
 
@@ -311,92 +309,28 @@ const AdminUsers = () => {
         <Card className="bg-white/95 backdrop-blur">
           <CardHeader>
             <CardTitle>Пользователи ({total})</CardTitle>
-            <div className="flex gap-4 mt-4">
-              <Input
-                placeholder="Поиск по email, имени..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="max-w-sm"
-              />
-              <Select value={filterVip} onValueChange={setFilterVip}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все</SelectItem>
-                  <SelectItem value="true">Только VIP</SelectItem>
-                  <SelectItem value="false">Не VIP</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filterBlocked} onValueChange={setFilterBlocked}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все</SelectItem>
-                  <SelectItem value="true">Заблокированные</SelectItem>
-                  <SelectItem value="false">Активные</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <UserFilters
+              search={search}
+              setSearch={setSearch}
+              filterVip={filterVip}
+              setFilterVip={setFilterVip}
+              filterBlocked={filterBlocked}
+              setFilterBlocked={setFilterBlocked}
+            />
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="text-center py-8">Загрузка...</div>
-            ) : (
-              <div className="space-y-2">
-                {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{user.email}</span>
-                        {user.is_vip && <Badge className="bg-yellow-500">VIP</Badge>}
-                        {user.is_verified && <Badge className="bg-blue-500">Верифицирован</Badge>}
-                        {user.is_blocked && <Badge variant="destructive">Заблокирован</Badge>}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {user.name || user.nickname || 'Без имени'} • ID: {user.id}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => loadUserDetails(user.id)} title="Просмотр деталей">
-                        <Icon name="Eye" size={16} />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowMessageDialog(true); }} title="Отправить сообщение">
-                        <Icon name="Mail" size={16} />
-                      </Button>
-                      {user.is_verified ? (
-                        <Button size="sm" variant="outline" onClick={() => unverifyUser(user.id)} title="Убрать верификацию">
-                          <Icon name="BadgeCheck" size={16} className="text-blue-500" />
-                        </Button>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => verifyUser(user.id)} title="Верифицировать">
-                          <Icon name="BadgeCheck" size={16} className="text-gray-400" />
-                        </Button>
-                      )}
-                      {user.is_blocked ? (
-                        <Button size="sm" variant="outline" onClick={() => unblockUser(user.id)} title="Разблокировать">
-                          <Icon name="Unlock" size={16} />
-                        </Button>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowBlockDialog(true); }} title="Заблокировать">
-                          <Icon name="Ban" size={16} />
-                        </Button>
-                      )}
-                      {user.is_vip ? (
-                        <Button size="sm" variant="outline" onClick={() => removeVip(user.id)} title="Убрать VIP">
-                          <Icon name="Crown" size={16} className="text-yellow-500" />
-                        </Button>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => { setSelectedUser(user); setShowVipDialog(true); }} title="Установить VIP">
-                          <Icon name="Crown" size={16} />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <UserList
+              users={users}
+              loading={loading}
+              onLoadDetails={loadUserDetails}
+              onSendMessage={(user) => { setSelectedUser(user); setShowMessageDialog(true); }}
+              onVerify={verifyUser}
+              onUnverify={unverifyUser}
+              onBlock={(user) => { setSelectedUser(user); setShowBlockDialog(true); }}
+              onUnblock={unblockUser}
+              onSetVip={(user) => { setSelectedUser(user); setShowVipDialog(true); }}
+              onRemoveVip={removeVip}
+            />
 
             <div className="flex justify-center gap-2 mt-6">
               <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
@@ -411,126 +345,30 @@ const AdminUsers = () => {
         </Card>
       </main>
 
-      <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Детали пользователя</DialogTitle>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
-              <div>
-                <strong>Email:</strong> {selectedUser.email}
-              </div>
-              <div>
-                <strong>Имя:</strong> {selectedUser.name || 'Не указано'}
-              </div>
-              <div>
-                <strong>Статус:</strong>{' '}
-                {selectedUser.is_vip && <Badge className="bg-yellow-500 mr-2">VIP</Badge>}
-                {selectedUser.is_verified && <Badge className="bg-blue-500 mr-2">Верифицирован</Badge>}
-                {selectedUser.is_blocked && <Badge variant="destructive">Заблокирован</Badge>}
-              </div>
-              {selectedUser.block_reason && (
-                <div>
-                  <strong>Причина блокировки:</strong> {selectedUser.block_reason}
-                </div>
-              )}
-              <div>
-                <strong>История входов:</strong>
-                <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
-                  {selectedUser.login_history?.map((entry, idx) => (
-                    <div key={idx} className="text-sm p-2 bg-gray-50 rounded">
-                      <div><strong>IP:</strong> {entry.ip}</div>
-                      <div><strong>Время:</strong> {new Date(entry.login_at).toLocaleString('ru-RU')}</div>
-                      <div className="text-xs text-gray-500 truncate">{entry.user_agent}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <UserDetailsDialog
+        open={showDetails}
+        onOpenChange={setShowDetails}
+        user={selectedUser}
+      />
 
-      <Dialog open={showBlockDialog} onOpenChange={setShowBlockDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Заблокировать пользователя</DialogTitle>
-            <DialogDescription>Укажите причину блокировки</DialogDescription>
-          </DialogHeader>
-          <div>
-            <Label>Причина</Label>
-            <Textarea
-              value={blockReason}
-              onChange={(e) => setBlockReason(e.target.value)}
-              placeholder="Нарушение правил..."
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowBlockDialog(false)}>
-              Отмена
-            </Button>
-            <Button variant="destructive" onClick={blockUser}>
-              Заблокировать
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showVipDialog} onOpenChange={setShowVipDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Установить VIP статус</DialogTitle>
-            <DialogDescription>Выберите срок действия VIP</DialogDescription>
-          </DialogHeader>
-          <div>
-            <Label>Количество дней</Label>
-            <Input
-              type="number"
-              value={vipDays}
-              onChange={(e) => setVipDays(e.target.value)}
-              min="1"
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowVipDialog(false)}>
-              Отмена
-            </Button>
-            <Button onClick={setVip}>
-              Установить VIP
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Отправить сообщение пользователю</DialogTitle>
-            <DialogDescription>
-              {selectedUser && `Отправить сообщение пользователю ${selectedUser.email}`}
-            </DialogDescription>
-          </DialogHeader>
-          <div>
-            <Label>Текст сообщения</Label>
-            <Textarea
-              value={messageText}
-              onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Введите текст сообщения..."
-              rows={5}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowMessageDialog(false); setMessageText(''); }}>
-              Отмена
-            </Button>
-            <Button onClick={sendMessage} disabled={!messageText.trim()}>
-              <Icon name="Send" size={16} className="mr-2" />
-              Отправить
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <UserActionDialogs
+        showBlockDialog={showBlockDialog}
+        setShowBlockDialog={setShowBlockDialog}
+        showVipDialog={showVipDialog}
+        setShowVipDialog={setShowVipDialog}
+        showMessageDialog={showMessageDialog}
+        setShowMessageDialog={setShowMessageDialog}
+        selectedUser={selectedUser}
+        blockReason={blockReason}
+        setBlockReason={setBlockReason}
+        vipDays={vipDays}
+        setVipDays={setVipDays}
+        messageText={messageText}
+        setMessageText={setMessageText}
+        onBlock={blockUser}
+        onSetVip={setVip}
+        onSendMessage={sendMessage}
+      />
     </div>
   );
 };
