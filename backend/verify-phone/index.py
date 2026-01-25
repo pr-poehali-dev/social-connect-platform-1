@@ -9,14 +9,21 @@ def handler(event: dict, context) -> dict:
     """API для подтверждения номера телефона через SMS.ru"""
     method = event.get('httpMethod', 'GET')
     
+    # Получаем origin из заголовков для CORS
+    origin = event.get('headers', {}).get('origin', 'https://loveis.city')
+    
+    cors_headers = {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Type': 'application/json'
+    }
+    
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
-            },
+            'headers': cors_headers,
             'body': '',
             'isBase64Encoded': False
         }
@@ -24,7 +31,7 @@ def handler(event: dict, context) -> dict:
     if method != 'POST':
         return {
             'statusCode': 405,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Method not allowed'}),
             'isBase64Encoded': False
         }
@@ -36,7 +43,7 @@ def handler(event: dict, context) -> dict:
     if not token:
         return {
             'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': cors_headers,
             'body': json.dumps({'error': 'Unauthorized'}),
             'isBase64Encoded': False
         }
@@ -63,7 +70,7 @@ def handler(event: dict, context) -> dict:
         if not session:
             return {
                 'statusCode': 401,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Invalid token'}),
                 'isBase64Encoded': False
             }
@@ -95,14 +102,14 @@ def handler(event: dict, context) -> dict:
             if sms_result.get('status') == 'OK':
                 return {
                     'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'success': True, 'message': 'Код отправлен на телефон'}),
                     'isBase64Encoded': False
                 }
             else:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Не удалось отправить SMS'}),
                     'isBase64Encoded': False
                 }
@@ -118,7 +125,7 @@ def handler(event: dict, context) -> dict:
             if not verification:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Код не найден'}),
                     'isBase64Encoded': False
                 }
@@ -128,7 +135,7 @@ def handler(event: dict, context) -> dict:
             if datetime.now() > expires_at:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Код истёк'}),
                     'isBase64Encoded': False
                 }
@@ -136,7 +143,7 @@ def handler(event: dict, context) -> dict:
             if saved_code != code:
                 return {
                     'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'headers': cors_headers,
                     'body': json.dumps({'error': 'Неверный код'}),
                     'isBase64Encoded': False
                 }
@@ -150,7 +157,7 @@ def handler(event: dict, context) -> dict:
             
             # Обновляем телефон в профиле и отмечаем как подтверждённый
             cur.execute(f"""
-                UPDATE {schema}.profiles
+                UPDATE {schema}.dating_profiles
                 SET phone = %s, phone_verified = true
                 WHERE user_id = %s
             """, (phone, user_id))
@@ -158,7 +165,7 @@ def handler(event: dict, context) -> dict:
             
             return {
                 'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({'success': True, 'message': 'Телефон подтверждён'}),
                 'isBase64Encoded': False
             }
@@ -166,7 +173,7 @@ def handler(event: dict, context) -> dict:
         else:
             return {
                 'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'headers': cors_headers,
                 'body': json.dumps({'error': 'Invalid action'}),
                 'isBase64Encoded': False
             }
