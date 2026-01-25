@@ -48,7 +48,7 @@ const Navigation = () => {
 
   const mainNavItems = [
     { path: '/dating', label: 'Знакомства', icon: 'Heart' },
-    { path: '/ads', label: 'Объявления', icon: 'MessageSquare' },
+    { path: '/ads', label: 'LIVE', icon: 'Radio', pulse: true },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
   ];
@@ -87,7 +87,7 @@ const Navigation = () => {
                 <Link key={item.path} to={item.path}>
                   <Button
                     variant={location.pathname === item.path ? 'default' : 'ghost'}
-                    className="gap-1.5 px-3 text-sm"
+                    className={`gap-1.5 px-3 text-sm ${item.pulse ? 'animate-pulse' : ''}`}
                   >
                     <Icon name={item.icon} size={16} />
                     {item.label}
@@ -155,7 +155,7 @@ const Navigation = () => {
             <Link key={item.path} to={item.path} className="flex-1">
               <Button
                 variant={location.pathname === item.path ? 'default' : 'ghost'}
-                className="w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1"
+                className={`w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1 ${item.pulse ? 'animate-pulse' : ''}`}
                 data-active={location.pathname === item.path}
               >
                 {item.label}

@@ -175,4 +175,18 @@
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
+
+  @keyframes pulse-smooth {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse-smooth 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }
