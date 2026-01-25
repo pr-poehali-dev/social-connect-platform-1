@@ -26,6 +26,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [uploadingPosition, setUploadingPosition] = useState<number | null>(null);
+  const [fullscreenPhoto, setFullscreenPhoto] = useState<number | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, position: number) => {
     const file = event.target.files?.[0];
@@ -147,7 +148,8 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
                     <img
                       src={photo.photo_url}
                       alt={`Фото ${position + 1}`}
-                      className="w-full h-full object-cover rounded-2xl"
+                      className="w-full h-full object-cover rounded-2xl cursor-pointer"
+                      onClick={() => !editMode && setFullscreenPhoto(position)}
                     />
                     {editMode && (
                       <>
@@ -202,6 +204,67 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
           )}
         </CardContent>
       </Card>
+
+      {fullscreenPhoto !== null && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          onClick={() => setFullscreenPhoto(null)}
+        >
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full w-12 h-12"
+            onClick={() => setFullscreenPhoto(null)}
+          >
+            <Icon name="X" size={24} />
+          </Button>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12 disabled:opacity-30"
+            disabled={fullscreenPhoto === 0 || !photos.find(p => p.position < fullscreenPhoto)}
+            onClick={(e) => {
+              e.stopPropagation();
+              const prevPhoto = photos
+                .filter(p => p.position < fullscreenPhoto)
+                .sort((a, b) => b.position - a.position)[0];
+              if (prevPhoto) setFullscreenPhoto(prevPhoto.position);
+            }}
+          >
+            <Icon name="ChevronLeft" size={32} />
+          </Button>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12 disabled:opacity-30"
+            disabled={fullscreenPhoto === 8 || !photos.find(p => p.position > fullscreenPhoto)}
+            onClick={(e) => {
+              e.stopPropagation();
+              const nextPhoto = photos
+                .filter(p => p.position > fullscreenPhoto)
+                .sort((a, b) => a.position - b.position)[0];
+              if (nextPhoto) setFullscreenPhoto(nextPhoto.position);
+            }}
+          >
+            <Icon name="ChevronRight" size={32} />
+          </Button>
+
+          <div className="max-w-7xl max-h-[90vh] w-full px-16">
+            <img
+              src={photos.find(p => p.position === fullscreenPhoto)?.photo_url}
+              alt={`Фото ${fullscreenPhoto + 1}`}
+              className="w-full h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
+            {photos.findIndex(p => p.position === fullscreenPhoto) + 1} / {photos.length}
+          </div>
+        </div>
+      )}
     </>
   );
 };
