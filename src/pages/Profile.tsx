@@ -260,52 +260,85 @@ const Profile = () => {
                       </div>
                     )}
                     {editMode && (
-                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center">
-                        <Button
-                          size="lg"
-                          className="opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-xl gap-2 bg-white text-primary hover:bg-white/90"
-                          onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*';
-                            input.onchange = async (e: any) => {
-                              const file = e.target?.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = async () => {
-                                  const base64String = (reader.result as string).split(',')[1];
-                                  const token = localStorage.getItem('access_token');
-                                  try {
-                                    const response = await fetch('https://functions.poehali.dev/99ffce65-6223-4c0e-93d7-d7d44514ef4b', {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
-                                      },
-                                      body: JSON.stringify({ image: base64String })
-                                    });
-                                    if (response.ok) {
-                                      const data = await response.json();
-                                      setUser({ ...user, avatar_url: data.url });
-                                      setFormData({ ...formData, avatar_url: data.url });
-                                      toast({ title: 'Фото обновлено', description: 'Фото профиля успешно загружено' });
-                                    } else {
+                      <>
+                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center">
+                          <Button
+                            size="lg"
+                            className="opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-xl gap-2 bg-white text-primary hover:bg-white/90"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = async (e: any) => {
+                                const file = e.target?.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = async () => {
+                                    const base64String = (reader.result as string).split(',')[1];
+                                    const token = localStorage.getItem('access_token');
+                                    try {
+                                      const response = await fetch('https://functions.poehali.dev/99ffce65-6223-4c0e-93d7-d7d44514ef4b', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          'Authorization': `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({ image: base64String })
+                                      });
+                                      if (response.ok) {
+                                        const data = await response.json();
+                                        setUser({ ...user, avatar_url: data.url });
+                                        setFormData({ ...formData, avatar_url: data.url });
+                                        toast({ title: 'Фото обновлено', description: 'Фото профиля успешно загружено' });
+                                      } else {
+                                        toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
+                                      }
+                                    } catch (error) {
                                       toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
                                     }
-                                  } catch (error) {
-                                    toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
-                                  }
-                                };
-                                reader.readAsDataURL(file);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              };
+                              input.click();
+                            }}
+                          >
+                            <Icon name="Camera" size={24} />
+                            Загрузить фото
+                          </Button>
+                        </div>
+                        {user.avatar_url && (
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-10 h-10"
+                            onClick={async () => {
+                              const token = localStorage.getItem('access_token');
+                              try {
+                                const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                  },
+                                  body: JSON.stringify({ avatar_url: '' })
+                                });
+                                if (response.ok) {
+                                  setUser({ ...user, avatar_url: '' });
+                                  setFormData({ ...formData, avatar_url: '' });
+                                  toast({ title: 'Фото удалено', description: 'Фото профиля успешно удалено' });
+                                } else {
+                                  toast({ title: 'Ошибка', description: 'Не удалось удалить фото', variant: 'destructive' });
+                                }
+                              } catch (error) {
+                                toast({ title: 'Ошибка', description: 'Не удалось удалить фото', variant: 'destructive' });
                               }
-                            };
-                            input.click();
-                          }}
-                        >
-                          <Icon name="Camera" size={24} />
-                          Загрузить фото
-                        </Button>
-                      </div>
+                            }}
+                          >
+                            <Icon name="X" size={20} />
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
