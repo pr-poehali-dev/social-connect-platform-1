@@ -75,25 +75,20 @@ const Ads = () => {
           <div className="max-w-6xl mx-auto">
 
 
-            <div className="flex items-center gap-4 mb-8">
-              <h2 className="text-xl font-semibold text-muted-foreground whitespace-nowrap">
-                Встречи, свидания
-              </h2>
-              <Tabs value={activeCategory} onValueChange={setActiveCategory} className="flex-1">
-                <TabsList className="w-full justify-center rounded-2xl">
-                  {categories.map((category) => (
-                    <TabsTrigger 
-                      key={category.id} 
-                      value={category.id} 
-                      className="gap-2 rounded-xl text-base px-8 py-3"
-                    >
-                      <Icon name={category.icon} size={18} />
-                      {category.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
+            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
+              <TabsList className="w-full justify-center rounded-2xl">
+                {categories.map((category) => (
+                  <TabsTrigger 
+                    key={category.id} 
+                    value={category.id} 
+                    className="gap-2 rounded-xl text-base px-8 py-3"
+                  >
+                    <Icon name={category.icon} size={18} />
+                    {category.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
 
             {loading ? (
               <div className="text-center py-12">
