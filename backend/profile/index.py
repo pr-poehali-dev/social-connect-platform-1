@@ -102,7 +102,7 @@ def handler(event: dict, context) -> dict:
             # Строковые поля
             string_fields = ['name', 'last_name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
-                           'dating_goal', 'profession']
+                           'dating_goal', 'profession', 'zodiac_sign']
             
             for field in string_fields:
                 if field in data and data[field] is not None:
