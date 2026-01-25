@@ -4,104 +4,67 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
+interface Ad {
+  id: number;
+  user_id: number;
+  action: string;
+  schedule: string;
+  name: string;
+  nickname: string;
+  avatar_url: string;
+  gender: string;
+  city: string;
+  age: number;
+  created_at: string;
+  events: { event_type: string; details: string }[];
+}
 
 const Ads = () => {
-  const [activeCategory, setActiveCategory] = useState('go_together');
+  const [activeCategory, setActiveCategory] = useState('go');
+  const [ads, setAds] = useState<Ad[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const categories = [
-    { id: 'go_together', label: 'СХОЖУ', icon: 'MapPin' },
+    { id: 'go', label: 'СХОЖУ', icon: 'MapPin' },
     { id: 'invite', label: 'ПРИГЛАШУ', icon: 'Sparkles' }
   ];
 
-  const ads = {
-    go_together: [
-      {
-        id: 1,
-        title: 'Алексей, 28 лет',
-        description: 'Схожу в кино на новый блокбастер. Ищу компанию для просмотра.',
-        gender: 'men',
-        age: 28,
-        location: 'Москва',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '2 часа назад'
-      },
-      {
-        id: 2,
-        title: 'Анна, 25 лет',
-        description: 'Планирую сходить на выставку современного искусства. Буду рада компании!',
-        gender: 'women',
-        age: 25,
-        location: 'Санкт-Петербург',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '5 часов назад'
-      },
-      {
-        id: 3,
-        title: 'Дмитрий, 32 года',
-        description: 'Хочу сходить в боулинг и попробовать новый бар. Жду классную компанию.',
-        gender: 'men',
-        age: 32,
-        location: 'Казань',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '1 день назад'
-      },
-      {
-        id: 4,
-        title: 'Мария, 23 года',
-        description: 'Ищу компанию для похода в караоке в эти выходные.',
-        gender: 'women',
-        age: 23,
-        location: 'Москва',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '3 часа назад'
+  useEffect(() => {
+    loadAds();
+  }, [activeCategory]);
+
+  const loadAds = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${activeCategory}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAds(data);
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось загрузить объявления', variant: 'destructive' });
       }
-    ],
-    invite: [
-      {
-        id: 5,
-        title: 'Игорь, 35 лет',
-        description: 'Приглашаю в элитный ресторан White Rabbit. Ужин и шампанское от меня.',
-        gender: 'men',
-        age: 35,
-        location: 'Москва',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '1 час назад'
-      },
-      {
-        id: 6,
-        title: 'Виктория, 27 лет',
-        description: 'Приглашаю на вечеринку в клуб Gipsy. VIP-столик уже забронирован.',
-        gender: 'women',
-        age: 27,
-        location: 'Москва',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '3 часа назад'
-      },
-      {
-        id: 7,
-        title: 'Александр, 40 лет',
-        description: 'Приглашаю на яхту в Сочи на этих выходных. Всё включено.',
-        gender: 'men',
-        age: 40,
-        location: 'Сочи',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '2 часа назад'
-      },
-      {
-        id: 8,
-        title: 'Елена, 30 лет',
-        description: 'Приглашаю в премиум кальянную Smoke Lounge. Приятная атмосфера гарантирована!',
-        gender: 'women',
-        age: 30,
-        location: 'Санкт-Петербург',
-        image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/a754fcf6-b096-4433-867a-cca324715b3c.jpg',
-        date: '4 часа назад'
-      }
-    ]
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const currentAds = ads[activeCategory as keyof typeof ads];
+  const getTimeAgo = (date: string) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diff = Math.floor((now.getTime() - past.getTime()) / 1000);
+    
+    if (diff < 3600) return `${Math.floor(diff / 60)} минут назад`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} часов назад`;
+    return `${Math.floor(diff / 86400)} дней назад`;
+  };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -127,47 +90,69 @@ const Ads = () => {
               </TabsList>
             </Tabs>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentAds.map((ad) => (
-                <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
-                  <div className="relative h-64 overflow-hidden">
-                    <img
-                      src={ad.image}
-                      alt={ad.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <Badge 
-                      variant="secondary" 
-                      className="absolute top-4 right-4 rounded-full bg-white/90 backdrop-blur-sm"
-                    >
-                      <Icon name={ad.gender === 'men' ? 'User' : 'Heart'} size={12} className="mr-1" />
-                      {ad.age} лет
-                    </Badge>
-                  </div>
-                  
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold">{ad.title}</h3>
-                      <p className="text-xs text-muted-foreground whitespace-nowrap">{ad.date}</p>
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Загрузка...</p>
+              </div>
+            ) : ads.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Нет объявлений</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {ads.map((ad) => (
+                  <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
+                    <div className="relative h-64 overflow-hidden">
+                      {ad.avatar_url ? (
+                        <img
+                          src={ad.avatar_url}
+                          alt={ad.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center">
+                          <Icon name="User" size={80} className="text-muted-foreground" />
+                        </div>
+                      )}
+                      <Badge 
+                        variant="secondary" 
+                        className="absolute top-4 right-4 rounded-full bg-white/90 backdrop-blur-sm"
+                      >
+                        <Icon name={ad.gender === 'male' ? 'User' : 'Heart'} size={12} className="mr-1" />
+                        {ad.age} лет
+                      </Badge>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {ad.description}
-                    </p>
-                    
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
-                      <Icon name="MapPin" size={14} />
-                      {ad.location}
-                    </div>
-                    
-                    <Button className="w-full rounded-2xl gap-2">
-                      <Icon name="MessageCircle" size={16} />
-                      Написать
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-xl font-bold">{ad.name}, {ad.age} лет</h3>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap">{getTimeAgo(ad.created_at)}</p>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground mb-4 space-y-2">
+                        {ad.events.map((event, idx) => (
+                          <div key={idx}>
+                            <span className="font-medium">{event.event_type}:</span> {event.details || 'Без деталей'}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {ad.city && (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+                          <Icon name="MapPin" size={14} />
+                          {ad.city}
+                        </div>
+                      )}
+                      
+                      <Button className="w-full rounded-2xl gap-2">
+                        <Icon name="MessageCircle" size={16} />
+                        Написать
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
