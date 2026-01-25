@@ -5,9 +5,11 @@ import Icon from '@/components/ui/icon';
 
 interface PhotoGalleryProps {
   photos: string[];
+  editable?: boolean;
+  onAddPhoto?: () => void;
 }
 
-const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
+const PhotoGallery = ({ photos, editable = false, onAddPhoto }: PhotoGalleryProps) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -85,6 +87,14 @@ const PhotoGallery = ({ photos }: PhotoGalleryProps) => {
               />
             </div>
           ))}
+          {editable && photos.length < 9 && (
+            <button
+              onClick={onAddPhoto}
+              className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary hover:bg-primary/5 transition-all flex items-center justify-center"
+            >
+              <Icon name="Plus" size={32} className="text-muted-foreground/50" />
+            </button>
+          )}
         </div>
       </Card>
 
