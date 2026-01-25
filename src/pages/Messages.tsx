@@ -37,7 +37,7 @@ interface Message {
 
 const Messages = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'calls' | 'contacts'>('personal');
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
@@ -140,7 +140,9 @@ const Messages = () => {
   const tabs = [
     { value: 'personal', label: 'Личные сообщения', icon: 'MessageCircle' },
     { value: 'group', label: 'Групповые чаты', icon: 'Users' },
-    { value: 'deal', label: 'Обсуждение сделок', icon: 'Briefcase' }
+    { value: 'deal', label: 'Обсуждение сделок', icon: 'Briefcase' },
+    { value: 'calls', label: 'Звонки', icon: 'PhoneCall' },
+    { value: 'contacts', label: 'Телефонная книга', icon: 'BookUser' },
   ];
 
   const filteredChats = chats.filter(chat => chat.type === activeTab);
@@ -194,8 +196,16 @@ const Messages = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             <div className="mb-6">
-              <h1 className="text-4xl font-bold mb-2">Сообщения</h1>
-              <p className="text-muted-foreground">Все ваши чаты в одном месте</p>
+              <h1 className="text-4xl font-bold mb-2">
+                {activeTab === 'calls' && 'Звонки'}
+                {activeTab === 'contacts' && 'Телефонная книга'}
+                {!['calls', 'contacts'].includes(activeTab) && 'Сообщения'}
+              </h1>
+              <p className="text-muted-foreground">
+                {activeTab === 'calls' && 'История ваших звонков'}
+                {activeTab === 'contacts' && 'Ваши контакты'}
+                {!['calls', 'contacts'].includes(activeTab) && 'Все ваши чаты в одном месте'}
+              </p>
             </div>
 
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -204,43 +214,66 @@ const Messages = () => {
                   key={tab.value}
                   variant={activeTab === tab.value ? 'default' : 'outline'}
                   className="gap-2 rounded-2xl flex-shrink-0"
-                  onClick={() => setActiveTab(tab.value as 'personal' | 'group' | 'deal')}
+                  onClick={() => setActiveTab(tab.value as 'personal' | 'group' | 'deal' | 'calls' | 'contacts')}
                 >
                   <Icon name={tab.icon} size={18} />
                   {tab.label}
-                  <Badge variant={activeTab === tab.value ? 'secondary' : 'outline'}>
-                    {chats.filter(c => c.type === tab.value).length}
-                  </Badge>
+                  {!['calls', 'contacts'].includes(tab.value) && (
+                    <Badge variant={activeTab === tab.value ? 'secondary' : 'outline'}>
+                      {chats.filter(c => c.type === tab.value).length}
+                    </Badge>
+                  )}
                 </Button>
               ))}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-              <Card className="rounded-3xl border-2 lg:col-span-1">
-                <CardContent className="p-0">
-                  <div className="p-4 border-b">
-                    <div className="relative">
-                      <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        placeholder="Поиск чатов..."
-                        className="pl-10 rounded-xl"
-                      />
-                    </div>
+            {activeTab === 'calls' ? (
+              <Card className="rounded-3xl border-2">
+                <CardContent className="p-6">
+                  <div className="text-center py-12">
+                    <Icon name="PhoneCall" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-xl font-semibold mb-2">История звонков</h3>
+                    <p className="text-muted-foreground">Здесь будет отображаться история ваших звонков</p>
                   </div>
+                </CardContent>
+              </Card>
+            ) : activeTab === 'contacts' ? (
+              <Card className="rounded-3xl border-2">
+                <CardContent className="p-6">
+                  <div className="text-center py-12">
+                    <Icon name="BookUser" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-xl font-semibold mb-2">Телефонная книга</h3>
+                    <p className="text-muted-foreground">Здесь будут отображаться ваши контакты</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="rounded-3xl border-2 lg:col-span-1">
+                  <CardContent className="p-0">
+                    <div className="p-4 border-b">
+                      <div className="relative">
+                        <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          placeholder="Поиск чатов..."
+                          className="pl-10 rounded-xl"
+                        />
+                      </div>
+                    </div>
 
-                  <ScrollArea className="h-[600px]">
-                    {loading ? (
-                      <div className="text-center py-12">
-                        <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
-                        <p className="text-muted-foreground">Загрузка чатов...</p>
-                      </div>
-                    ) : filteredChats.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Icon name="MessageCircle" size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
-                        <p className="text-muted-foreground">Нет чатов</p>
-                        <p className="text-sm text-muted-foreground">Начните общение с другими пользователями</p>
-                      </div>
-                    ) : (
+                    <ScrollArea className="h-[600px]">
+                      {loading ? (
+                        <div className="text-center py-12">
+                          <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
+                          <p className="text-muted-foreground">Загрузка чатов...</p>
+                        </div>
+                      ) : filteredChats.length === 0 ? (
+                        <div className="text-center py-12">
+                          <Icon name="MessageCircle" size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+                          <p className="text-muted-foreground">Нет чатов</p>
+                          <p className="text-sm text-muted-foreground">Начните общение с другими пользователями</p>
+                        </div>
+                      ) : (
                       filteredChats.map((chat) => (
                         <div
                           key={chat.id}
@@ -459,7 +492,8 @@ const Messages = () => {
                   </CardContent>
                 )}
               </Card>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
