@@ -180,12 +180,12 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
               onChange={handleFileSelect}
               className="hidden"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-200 rounded-full flex items-center justify-center">
               <DropdownMenu open={showPhotoMenu} onOpenChange={setShowPhotoMenu}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     size="icon"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-12 h-12 bg-white text-primary hover:bg-white/90"
+                    className="opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-12 h-12 bg-white text-primary hover:bg-white/90"
                   >
                     <Icon name="Camera" size={24} />
                   </Button>
@@ -206,7 +206,7 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
               <Button
                 size="icon"
                 variant="destructive"
-                className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-8 h-8"
+                className="absolute -top-2 -right-2 opacity-80 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-8 h-8"
                 onClick={handleDeleteAvatar}
               >
                 <Icon name="X" size={16} />
