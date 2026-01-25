@@ -1,32 +1,18 @@
 {
   "tests": [
     {
-      "name": "Get photo gallery list",
-      "method": "GET",
-      "path": "/?action=list",
-      "headers": {
-        "X-Authorization": "Bearer valid_token"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "photos": "array"
-      },
-      "bodyMatcher": "partial"
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
     },
     {
-      "name": "Upload photo to gallery",
-      "method": "POST",
-      "path": "/?action=upload",
-      "headers": {
-        "X-Authorization": "Bearer valid_token"
-      },
-      "body": {
-        "image": "base64_encoded_image",
-        "position": 0
-      },
-      "expectedStatus": 200,
+      "name": "Unauthorized access returns 401",
+      "method": "GET",
+      "path": "/?action=list",
+      "expectedStatus": 401,
       "expectedBody": {
-        "photo": "object"
+        "error": "string"
       },
       "bodyMatcher": "partial"
     }

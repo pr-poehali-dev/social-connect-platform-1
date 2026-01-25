@@ -17,7 +17,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
             'isBase64Encoded': False
@@ -35,30 +35,31 @@ def handler(event: dict, context) -> dict:
     token = auth_header.replace('Bearer ', '')
     
     try:
+        import jwt as pyjwt
+        jwt_secret = os.environ.get('JWT_SECRET', '')
+        if not jwt_secret:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Server configuration error'}),
+                'isBase64Encoded': False
+            }
+        
+        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        
+        if not user_id:
+            return {
+                'statusCode': 401,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Invalid token'}),
+                'isBase64Encoded': False
+            }
+        
         dsn = os.environ.get('DATABASE_URL')
         schema = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
         conn = psycopg2.connect(dsn)
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
-        cursor.execute(f"""
-            SELECT u.id, u.email, u.name 
-            FROM {schema}.refresh_tokens rt
-            JOIN {schema}.users u ON rt.user_id = u.id
-            WHERE rt.token = %s AND rt.expires_at > NOW()
-        """, (token,))
-        
-        user_data = cursor.fetchone()
-        if not user_data:
-            cursor.close()
-            conn.close()
-            return {
-                'statusCode': 401,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Неверный токен'}),
-                'isBase64Encoded': False
-            }
-        
-        user_id = user_data['id']
         params = event.get('queryStringParameters', {}) or {}
         action = params.get('action', 'list')
         
