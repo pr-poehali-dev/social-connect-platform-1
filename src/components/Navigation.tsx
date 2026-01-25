@@ -11,12 +11,14 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const authStatus = isAuthenticated();
     setIsAuth(authStatus);
     if (authStatus) {
       loadUnreadCount();
+      loadUserAvatar();
     }
   }, [location]);
 
@@ -43,6 +45,24 @@ const Navigation = () => {
       }
     } catch (error) {
       console.error('Failed to load unread count:', error);
+    }
+  };
+
+  const loadUserAvatar = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/e94df70d-42e0-4d41-8734-1e27734c3afe',
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setAvatarUrl(data.avatar_url);
+      }
+    } catch (error) {
+      console.error('Failed to load avatar:', error);
     }
   };
 
@@ -101,7 +121,15 @@ const Navigation = () => {
                     title={item.label}
                     className="h-9 w-9 relative"
                   >
-                    <Icon name={item.icon} size={16} />
+                    {item.path === '/profile' && avatarUrl ? (
+                      <img 
+                        src={avatarUrl} 
+                        alt="Профиль" 
+                        className="w-full h-full rounded-md object-cover"
+                      />
+                    ) : (
+                      <Icon name={item.icon} size={16} />
+                    )}
                     {item.path === '/messages' && unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                         {unreadCount > 9 ? '9+' : unreadCount}
