@@ -73,11 +73,18 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
             description: 'Ваше фото профиля успешно загружено',
           });
         } else {
-          throw new Error('Upload failed');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Avatar upload error:', response.status, errorData);
+          toast({
+            title: 'Ошибка загрузки',
+            description: errorData.error || 'Не удалось загрузить фото',
+            variant: 'destructive',
+          });
         }
       };
       reader.readAsDataURL(croppedBlob);
     } catch (error) {
+      console.error('Avatar upload error:', error);
       toast({
         title: 'Ошибка загрузки',
         description: 'Не удалось загрузить фото',
