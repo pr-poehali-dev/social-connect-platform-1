@@ -50,7 +50,7 @@ def handler(event: dict, context) -> dict:
     
     if profile_id:
         cursor.execute(
-            "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, status_text, created_at, last_login_at, CASE WHEN last_login_at > NOW() - INTERVAL '5 minutes' THEN true ELSE false END as is_online FROM t_p19021063_social_connect_platf.users WHERE id = %s",
+            "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, created_at, last_login_at, CASE WHEN last_login_at > NOW() - INTERVAL '5 minutes' THEN true ELSE false END as is_online FROM t_p19021063_social_connect_platf.users WHERE id = %s",
             (profile_id,)
         )
         profile = cursor.fetchone()
@@ -96,7 +96,6 @@ def handler(event: dict, context) -> dict:
                     'hasCar': profile['has_car'],
                     'hasHousing': profile['has_housing'],
                     'datingGoal': profile['dating_goal'],
-                    'status_text': profile['status_text'],
                     'isTopAd': False,
                     'lastLoginAt': profile['last_login_at'].isoformat() if profile.get('last_login_at') else None,
                     'isOnline': profile['is_online'],
@@ -124,7 +123,7 @@ def handler(event: dict, context) -> dict:
     dating_goal = params.get('datingGoal', '')
     with_photo = params.get('withPhoto', '')
     
-    query = "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, status_text, created_at, last_login_at, CASE WHEN last_login_at > NOW() - INTERVAL '5 minutes' THEN true ELSE false END as is_online FROM t_p19021063_social_connect_platf.users WHERE nickname IS NOT NULL"
+    query = "SELECT id, name, nickname, gender, age_from as age, city, district, interests, bio, avatar_url, height, body_type, marital_status, children, profession, financial_status, has_car, has_housing, dating_goal, created_at, last_login_at, CASE WHEN last_login_at > NOW() - INTERVAL '5 minutes' THEN true ELSE false END as is_online FROM t_p19021063_social_connect_platf.users WHERE nickname IS NOT NULL"
     
     if with_photo:
         query += " AND avatar_url IS NOT NULL AND avatar_url != ''"
@@ -170,7 +169,6 @@ def handler(event: dict, context) -> dict:
     for profile in profiles:
         profiles_list.append({
             'id': profile['id'],
-            'user_id': profile['id'],
             'name': profile['name'] or profile['nickname'],
             'nickname': profile['nickname'],
             'age': profile['age'],
@@ -188,7 +186,6 @@ def handler(event: dict, context) -> dict:
             'hasCar': profile['has_car'],
             'hasHousing': profile['has_housing'],
             'datingGoal': profile['dating_goal'],
-            'status_text': profile['status_text'],
             'isTopAd': False,
             'lastLoginAt': profile['last_login_at'].isoformat() if profile.get('last_login_at') else None,
             'isOnline': profile['is_online']
