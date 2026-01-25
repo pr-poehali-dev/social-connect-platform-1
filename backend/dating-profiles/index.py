@@ -249,6 +249,28 @@ def handler(event: dict, context) -> dict:
             
             return response(200, {'success': True, 'message': 'Friend request sent'})
         
+        # POST /boost - поднять профиль в выдаче
+        elif method == 'POST' and action == 'boost':
+            if not user_id:
+                return response(401, {'error': 'Unauthorized'})
+            
+            # Обновляем created_at профиля на текущее время (профиль поднимется в выдаче)
+            cur.execute(
+                f"""UPDATE {S}dating_profiles 
+                    SET created_at = CURRENT_TIMESTAMP 
+                    WHERE user_id = %s
+                    RETURNING id""",
+                (user_id,)
+            )
+            result = cur.fetchone()
+            
+            if not result:
+                return response(404, {'error': 'Profile not found'})
+            
+            conn.commit()
+            
+            return response(200, {'success': True, 'message': 'Profile boosted'})
+        
         else:
             return response(400, {'error': 'Invalid request'})
     

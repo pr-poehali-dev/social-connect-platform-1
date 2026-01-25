@@ -230,6 +230,54 @@ const Dating = () => {
     }
   };
 
+  const handleBoostProfile = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт, чтобы поднять профиль',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=boost',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.ok) {
+        toast({
+          title: 'Профиль поднят! 🚀',
+          description: 'Ваш профиль теперь на первом месте в поиске',
+        });
+        loadProfiles();
+      } else {
+        const data = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось поднять профиль',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to boost profile:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось подключиться к серверу',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -276,7 +324,10 @@ const Dating = () => {
                     <div className="text-6xl">🚀</div>
                   </div>
                   <p className="text-center text-sm leading-tight font-thin my-0">Подними свой профиль и тебя будет проще найти в поиске</p>
-                  <button className="w-full bg-foreground text-background font-semibold py-3 px-4 rounded-2xl text-sm">
+                  <button 
+                    onClick={handleBoostProfile}
+                    className="w-full bg-foreground text-background font-semibold py-3 px-4 rounded-2xl text-sm hover:opacity-90 transition-opacity"
+                  >
                     Поднять
                   </button>
                 </Card>
