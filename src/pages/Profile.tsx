@@ -68,6 +68,13 @@ const Profile = () => {
           }
         });
 
+        if (response.status === 401) {
+          authLogout();
+          localStorage.removeItem('user');
+          navigate('/login');
+          return;
+        }
+        
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
