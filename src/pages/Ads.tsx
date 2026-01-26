@@ -5,6 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 interface Ad {
@@ -26,6 +34,9 @@ const Ads = () => {
   const [activeCategory, setActiveCategory] = useState('go');
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
+  const [inviteMessage, setInviteMessage] = useState('');
+  const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
   const categories = [
@@ -62,6 +73,49 @@ const Ads = () => {
     if (diff < 3600) return `${Math.floor(diff / 60)} минут назад`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} часов назад`;
     return `${Math.floor(diff / 86400)} дней назад`;
+  };
+
+  const handleInvite = (ad: Ad) => {
+    setSelectedAd(ad);
+    setInviteMessage('');
+  };
+
+  const sendInvitation = async () => {
+    if (!selectedAd) return;
+    
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({ title: 'Ошибка', description: 'Войдите в систему', variant: 'destructive' });
+      return;
+    }
+
+    setSending(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/b14e8b32-c495-4640-8f97-570d8802deb6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ad_id: selectedAd.id,
+          message: inviteMessage
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успешно', description: 'Приглашение отправлено!' });
+        setSelectedAd(null);
+        setInviteMessage('');
+      } else {
+        const error = await response.json();
+        toast({ title: 'Ошибка', description: error.error || 'Не удалось отправить приглашение', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
+    } finally {
+      setSending(false);
+    }
   };
 
 
@@ -144,7 +198,10 @@ const Ads = () => {
                         </div>
                       )}
                       
-                      <Button className="w-full rounded-2xl gap-2">
+                      <Button 
+                        className="w-full rounded-2xl gap-2"
+                        onClick={() => handleInvite(ad)}
+                      >
                         <Icon name="MessageCircle" size={16} />
                         Пригласить
                       </Button>
@@ -156,6 +213,42 @@ const Ads = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={!!selectedAd} onOpenChange={() => setSelectedAd(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Отправить приглашение</DialogTitle>
+            <DialogDescription>
+              {selectedAd && `${selectedAd.name}, ${selectedAd.age} лет`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Напишите сообщение (необязательно)..."
+              value={inviteMessage}
+              onChange={(e) => setInviteMessage(e.target.value)}
+              rows={4}
+              className="resize-none"
+            />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedAd(null)}
+                className="flex-1"
+              >
+                Отмена
+              </Button>
+              <Button
+                onClick={sendInvitation}
+                disabled={sending}
+                className="flex-1"
+              >
+                {sending ? 'Отправка...' : 'Отправить'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

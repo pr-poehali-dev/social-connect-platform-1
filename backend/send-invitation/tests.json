@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Отправка приглашения без токена",
+      "method": "POST",
+      "headers": {},
+      "body": {
+        "ad_id": 1,
+        "message": "Приглашаю на работу"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Отправка приглашения с невалидным токеном",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer invalid_token"
+      },
+      "body": {
+        "ad_id": 1
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

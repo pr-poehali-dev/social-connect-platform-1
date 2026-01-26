@@ -1,4 +1,5 @@
 {
+  "send-invitation": "https://functions.poehali.dev/b14e8b32-c495-4640-8f97-570d8802deb6",
   "verify-phone": "https://functions.poehali.dev/15c075ad-8ca3-41cb-aa33-d9372154fb7c",
   "reminders": "https://functions.poehali.dev/2bc01794-3584-4941-b485-aec60ee947a8",
   "contacts": "https://functions.poehali.dev/92e6c953-51c7-4322-a4f4-9d2b06c5c58b",
