@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Обновление статуса без токена",
+      "method": "POST",
+      "body": {
+        "invitation_id": 1,
+        "status": "accepted"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Обновление с невалидным токеном",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer invalid_token"
+      },
+      "body": {
+        "invitation_id": 1,
+        "status": "accepted"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

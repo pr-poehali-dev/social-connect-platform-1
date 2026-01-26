@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Получение заявок без токена",
+      "method": "GET",
+      "path": "/?ad_id=1",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение заявок с невалидным токеном",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer invalid_token"
+      },
+      "path": "/?ad_id=1",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
