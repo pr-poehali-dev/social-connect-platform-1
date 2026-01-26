@@ -60,7 +60,16 @@ const Radio = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
   const [currentStation, setCurrentStation] = useState<RadioStation>(stations[0]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('radio_favorites');
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -99,6 +108,20 @@ const Radio = () => {
       }, 100);
     }
   };
+
+  const toggleFavorite = (stationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newFavorites = favorites.includes(stationId)
+      ? favorites.filter(id => id !== stationId)
+      : [...favorites, stationId];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem('radio_favorites', JSON.stringify(newFavorites));
+  };
+
+  const displayedStations = showFavoritesOnly
+    ? stations.filter(s => favorites.includes(s.id))
+    : stations;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -183,26 +206,61 @@ const Radio = () => {
 
             {/* Stations List */}
             <div className="mt-8">
-              <h3 className="text-lg font-bold mb-4 px-2">Выберите станцию</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {stations.map((station) => (
-                  <button
-                    key={station.id}
-                    onClick={() => changeStation(station)}
-                    className={`p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
-                      currentStation.id === station.id
-                        ? 'border-primary bg-primary/5 shadow-lg scale-105'
-                        : 'border-border hover:border-primary/50 hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${station.gradient} flex items-center justify-center mb-2`}>
-                      <Icon name="Radio" size={24} className="text-white" />
-                    </div>
-                    <h4 className="font-bold text-sm mb-1">{station.name}</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-1">{station.description}</p>
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-4 px-2">
+                <h3 className="text-lg font-bold">Выберите станцию</h3>
+                <Button
+                  variant={showFavoritesOnly ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className="rounded-xl gap-2"
+                >
+                  <Icon name="Star" size={16} />
+                  {showFavoritesOnly ? 'Все станции' : 'Избранное'}
+                  {favorites.length > 0 && (
+                    <span className="ml-1 text-xs bg-primary-foreground/20 px-2 py-0.5 rounded-full">
+                      {favorites.length}
+                    </span>
+                  )}
+                </Button>
               </div>
+
+              {displayedStations.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Icon name="Star" size={48} className="mx-auto mb-4 opacity-50" />
+                  <p>Добавьте станции в избранное</p>
+                  <p className="text-sm mt-2">Нажмите на звездочку у любой станции</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {displayedStations.map((station) => (
+                    <button
+                      key={station.id}
+                      onClick={() => changeStation(station)}
+                      className={`p-4 rounded-2xl border-2 transition-all duration-200 text-left relative group ${
+                        currentStation.id === station.id
+                          ? 'border-primary bg-primary/5 shadow-lg scale-105'
+                          : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                      }`}
+                    >
+                      <button
+                        onClick={(e) => toggleFavorite(station.id, e)}
+                        className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Icon
+                          name="Star"
+                          size={16}
+                          className={favorites.includes(station.id) ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}
+                        />
+                      </button>
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${station.gradient} flex items-center justify-center mb-2`}>
+                        <Icon name="Radio" size={24} className="text-white" />
+                      </div>
+                      <h4 className="font-bold text-sm mb-1">{station.name}</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{station.description}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="mt-8 text-center text-sm text-muted-foreground">
