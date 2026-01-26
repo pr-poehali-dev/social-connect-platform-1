@@ -9,8 +9,6 @@ import ChatList from './messages/ChatList';
 import ChatWindow from './messages/ChatWindow';
 import ContactsList from './messages/ContactsList';
 import CalendarView from './messages/CalendarView';
-import { Button } from '@/components/ui/button';
-import Icon from '@/components/ui/icon';
 
 interface Chat {
   id: number;
@@ -321,33 +319,7 @@ const Messages = () => {
               />
             ) : (
               <div className="grid lg:grid-cols-3 gap-6 relative">
-                <div className={`${selectedChat ? 'hidden lg:block' : 'block'} space-y-4`}>
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    <Button 
-                      className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0"
-                      title="Новое сообщение"
-                    >
-                      <Icon name="MessageSquarePlus" size={16} />
-                      <span className="hidden lg:inline">Новое сообщение</span>
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0"
-                      title="Создать группу"
-                    >
-                      <Icon name="Users" size={16} />
-                      <span className="hidden lg:inline">Создать группу</span>
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0"
-                      title="Архив"
-                    >
-                      <Icon name="Archive" size={16} />
-                      <span className="hidden lg:inline">Архив</span>
-                    </Button>
-                  </div>
-                  
+                <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
                   <ChatList
                     chats={filteredChats}
                     loading={loading}
