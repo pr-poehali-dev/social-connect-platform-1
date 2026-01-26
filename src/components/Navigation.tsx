@@ -181,57 +181,63 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
 
           {showMessagesTabs && location.pathname === '/messages' && (
             <div className="border-t border-border py-3 overflow-x-auto">
-              <div className="flex gap-2 px-1">
+              <div className="flex gap-2 px-1 justify-start">
                 <Button
                   variant={activeMessagesTab === 'personal' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  size="icon"
+                  className="rounded-2xl flex-shrink-0 relative"
                   onClick={() => onMessagesTabChange?.('personal')}
+                  title="Личные сообщения"
                 >
-                  <Icon name="MessageCircle" size={16} />
-                  Личные сообщения
-                  {messageCounts?.personal ? <Badge variant={activeMessagesTab === 'personal' ? 'secondary' : 'outline'}>{messageCounts.personal}</Badge> : null}
+                  <Icon name="MessageCircle" size={18} />
+                  {messageCounts?.personal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs">{messageCounts.personal}</Badge> : null}
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'group' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  size="icon"
+                  className="rounded-2xl flex-shrink-0 relative"
                   onClick={() => onMessagesTabChange?.('group')}
+                  title="Чаты"
                 >
-                  <Icon name="Users" size={16} />
-                  Чаты
-                  {messageCounts?.group ? <Badge variant={activeMessagesTab === 'group' ? 'secondary' : 'outline'}>{messageCounts.group}</Badge> : null}
+                  <Icon name="Users" size={18} />
+                  {messageCounts?.group ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs">{messageCounts.group}</Badge> : null}
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'deal' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  size="icon"
+                  className="rounded-2xl flex-shrink-0 relative"
                   onClick={() => onMessagesTabChange?.('deal')}
+                  title="Обсуждение сделок"
                 >
-                  <Icon name="Briefcase" size={16} />
-                  Обсуждение сделок
-                  {messageCounts?.deal ? <Badge variant={activeMessagesTab === 'deal' ? 'secondary' : 'outline'}>{messageCounts.deal}</Badge> : null}
+                  <Icon name="Briefcase" size={18} />
+                  {messageCounts?.deal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs">{messageCounts.deal}</Badge> : null}
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'calls' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  size="icon"
+                  className="rounded-2xl flex-shrink-0"
                   onClick={() => onMessagesTabChange?.('calls')}
+                  title="Звонки"
                 >
-                  <Icon name="PhoneCall" size={16} />
-                  Звонки
+                  <Icon name="PhoneCall" size={18} />
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'contacts' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  size="icon"
+                  className="rounded-2xl flex-shrink-0"
                   onClick={() => onMessagesTabChange?.('contacts')}
+                  title="Контакты"
                 >
-                  <Icon name="BookUser" size={16} />
-                  Контакты
+                  <Icon name="BookUser" size={18} />
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'calendar' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm"
+                  size="icon"
+                  className="rounded-2xl flex-shrink-0"
                   onClick={() => onMessagesTabChange?.('calendar')}
+                  title="Ежедневник"
                 >
-                  <Icon name="Calendar" size={16} />
-                  Ежедневник
+                  <Icon name="Calendar" size={18} />
                 </Button>
               </div>
             </div>
