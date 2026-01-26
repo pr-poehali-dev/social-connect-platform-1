@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { isAuthenticated } from '@/utils/auth';
