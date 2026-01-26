@@ -3,7 +3,7 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
-import { isAuthenticated, logout } from '@/utils/auth';
+import { isAuthenticated } from '@/utils/auth';
 
 interface NavigationProps {
   showMessagesTabs?: boolean;
@@ -47,13 +47,6 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
-      if (response.status === 401) {
-        logout();
-        localStorage.removeItem('user');
-        navigate('/login');
-        return;
-      }
-      
       if (response.ok) {
         const data = await response.json();
         setUnreadCount(data.unread_count || 0);
@@ -72,13 +65,6 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
         'https://functions.poehali.dev/e94df70d-42e0-4d41-8734-1e27734c3afe',
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      
-      if (response.status === 401) {
-        logout();
-        localStorage.removeItem('user');
-        navigate('/login');
-        return;
-      }
       
       if (response.ok) {
         const data = await response.json();

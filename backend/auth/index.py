@@ -189,7 +189,7 @@ def generate_access_token(user_id: int, email: str) -> str:
     payload = {
         'user_id': user_id,
         'email': email,
-        'exp': datetime.utcnow() + timedelta(hours=1)
+        'exp': datetime.utcnow() + timedelta(days=3650)
     }
     jwt_secret = os.environ.get('JWT_SECRET')
     if not jwt_secret:

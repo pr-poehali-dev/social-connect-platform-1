@@ -92,7 +92,7 @@ def handler(event: dict, context) -> dict:
                 'admin_id': admin_id,
                 'email': admin_email,
                 'role': role,
-                'exp': datetime.utcnow() + timedelta(hours=24)
+                'exp': datetime.utcnow() + timedelta(days=3650)
             }, JWT_SECRET, algorithm='HS256')
             
             log_admin_action(admin_id, 'login', ip=ip, user_agent=user_agent)

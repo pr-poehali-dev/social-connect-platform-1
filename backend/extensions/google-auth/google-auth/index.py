@@ -20,8 +20,8 @@ GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 5256000  # 10 лет
+REFRESH_TOKEN_EXPIRE_DAYS = 3650  # 10 лет
 
 HEADERS = {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

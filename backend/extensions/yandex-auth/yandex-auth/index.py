@@ -20,8 +20,8 @@ YANDEX_AUTH_URL = "https://oauth.yandex.ru/authorize"
 YANDEX_TOKEN_URL = "https://oauth.yandex.ru/token"
 YANDEX_USER_INFO_URL = "https://login.yandex.ru/info"
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 5256000  # 10 лет
+REFRESH_TOKEN_EXPIRE_DAYS = 3650  # 10 лет
 
 HEADERS = {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
