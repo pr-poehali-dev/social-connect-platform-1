@@ -128,19 +128,16 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
               {bottomNavItems.map((item) => {
                 if (item.path === '/radio') {
                   return (
-                    <Button
+                    <Link
                       key={item.path}
-                      onClick={() => window.open('/radio', '_blank')}
-                      variant="ghost"
-                      size="icon"
-                      title="Открыть радио в новом окне"
-                      className="h-9 w-9 relative"
+                      to={item.path}
+                      className={buttonVariants({ variant: "ghost", size: "icon" }) + " h-9 w-9 relative"}
                     >
                       <Icon name="Music" size={18} />
                       {isPlaying && (
                         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       )}
-                    </Button>
+                    </Link>
                   );
                 }
                 
