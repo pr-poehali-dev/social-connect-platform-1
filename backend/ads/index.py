@@ -36,7 +36,7 @@ def handler(event: dict, context) -> dict:
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
                         JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
-                        WHERE a.user_id = %s AND a.status = 'active'
+                        WHERE a.user_id = %s
                         ORDER BY a.created_at DESC
                     ''', (user_id,))
                 elif action_filter:
