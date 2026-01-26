@@ -190,7 +190,11 @@ const MyAds = () => {
                         </div>
                         
                         <div className="flex flex-wrap gap-3">
-                          <Button variant="outline" className="gap-2 rounded-xl">
+                          <Button 
+                            variant="outline" 
+                            className="gap-2 rounded-xl"
+                            onClick={() => navigate(`/edit-ad/${ad.id}`)}
+                          >
                             <Icon name="Edit" size={16} />
                             Редактировать
                           </Button>
