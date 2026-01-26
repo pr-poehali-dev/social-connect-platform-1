@@ -193,7 +193,10 @@ const MyAds = () => {
                           <Button 
                             variant="outline" 
                             className="gap-2 rounded-xl"
-                            onClick={() => navigate(`/edit-ad/${ad.id}`)}
+                            onClick={() => {
+                              localStorage.setItem('editingAd', JSON.stringify(ad));
+                              navigate('/create-ad');
+                            }}
                           >
                             <Icon name="Edit" size={16} />
                             Редактировать

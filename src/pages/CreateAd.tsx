@@ -22,10 +22,38 @@ const CreateAd = () => {
   const [userAge, setUserAge] = useState('28');
   const [isLoading, setIsLoading] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [editingAdId, setEditingAdId] = useState<number | null>(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.name) setUserName(user.name);
+    
+    // Проверяем режим редактирования
+    const editingAdData = localStorage.getItem('editingAd');
+    if (editingAdData) {
+      const ad = JSON.parse(editingAdData);
+      setEditingAdId(ad.id);
+      setUserName(ad.name || user.name);
+      setUserAge(ad.age || '28');
+      setAction(ad.action || '');
+      setSchedule(ad.schedule || '');
+      
+      // Восстанавливаем выбранные события
+      if (ad.events && Array.isArray(ad.events)) {
+        const eventIds = ad.events.map((e: any) => e.event_type);
+        setSelectedEvents(eventIds);
+        
+        // Восстанавливаем детали событий
+        const details: { [key: string]: string } = {};
+        ad.events.forEach((e: any) => {
+          if (e.details) details[e.event_type] = e.details;
+        });
+        setEventDetails(details);
+      }
+      
+      // Очищаем данные редактирования
+      localStorage.removeItem('editingAd');
+    }
   }, []);
 
   const events = [
