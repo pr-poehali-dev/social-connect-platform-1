@@ -28,6 +28,14 @@ def handler(event: dict, context) -> dict:
     try:
         if method == 'GET':
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                # Автоматическое удаление объявлений в статусе 'stopped' старше 14 дней
+                cur.execute('''
+                    DELETE FROM t_p19021063_social_connect_platf.ads
+                    WHERE status = 'stopped' 
+                    AND updated_at < NOW() - INTERVAL '14 days'
+                ''')
+                conn.commit()
+                
                 if user_id:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
