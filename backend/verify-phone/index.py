@@ -90,39 +90,40 @@ def handler(event: dict, context) -> dict:
     try:
         
         if action == 'send':
-            # Генерируем 4-значный код
-            verification_code = str(random.randint(1000, 9999))
-            expires_at = datetime.now() + timedelta(minutes=5)
-            
-            # Сохраняем код в БД
-            cur.execute(f"""
-                INSERT INTO {schema}.phone_verifications (user_id, phone, code, expires_at)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (user_id) 
-                DO UPDATE SET phone = EXCLUDED.phone, code = EXCLUDED.code, 
-                             expires_at = EXCLUDED.expires_at, verified = false
-            """, (user_id, phone, verification_code, expires_at))
-            conn.commit()
-            
-            # Отправляем SMS через sms.ru
+            # Используем бесплатную проверку через звонок callcheck
             api_key = os.environ.get('SMS_RU_API_KEY')
-            sms_url = f"https://sms.ru/sms/send?api_id={api_key}&to={phone}&msg=Ваш код подтверждения: {verification_code}&json=1"
+            call_url = f"https://sms.ru/callcheck/add?api_id={api_key}&phone={phone}&json=1"
             
-            response = requests.get(sms_url)
-            sms_result = response.json()
+            response = requests.get(call_url)
+            call_result = response.json()
             
-            if sms_result.get('status') == 'OK':
+            if call_result.get('status') == 'OK':
+                # Получаем код из ответа
+                verification_code = call_result.get('code', '')
+                expires_at = datetime.now() + timedelta(minutes=5)
+                
+                # Сохраняем код в БД
+                cur.execute(f"""
+                    INSERT INTO {schema}.phone_verifications (user_id, phone, code, expires_at)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (user_id) 
+                    DO UPDATE SET phone = EXCLUDED.phone, code = EXCLUDED.code, 
+                                 expires_at = EXCLUDED.expires_at, verified = false
+                """, (user_id, phone, verification_code, expires_at))
+                conn.commit()
+                
                 return {
                     'statusCode': 200,
                     'headers': cors_headers,
-                    'body': json.dumps({'success': True, 'message': 'Код отправлен на телефон'}),
+                    'body': json.dumps({'success': True, 'message': 'Сейчас вам позвонят, запомните последние 4 цифры номера'}),
                     'isBase64Encoded': False
                 }
             else:
+                error_msg = call_result.get('status_text', 'Не удалось отправить код')
                 return {
                     'statusCode': 400,
                     'headers': cors_headers,
-                    'body': json.dumps({'error': 'Не удалось отправить SMS'}),
+                    'body': json.dumps({'error': error_msg}),
                     'isBase64Encoded': False
                 }
         
