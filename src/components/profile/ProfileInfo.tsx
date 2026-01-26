@@ -10,8 +10,11 @@ interface ProfileInfoProps {
 const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps) => {
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-2">
-        {user.name || user.nickname}
+      <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
+        <span>{user.name || user.nickname}</span>
+        {user.phone_verified && (
+          <Icon name="BadgeCheck" size={32} className="text-blue-500" />
+        )}
       </h1>
       {!editMode && user.status_text && (
         <div className="mb-3 text-muted-foreground italic">
