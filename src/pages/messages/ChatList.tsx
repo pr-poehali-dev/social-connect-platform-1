@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -24,9 +26,46 @@ interface ChatListProps {
   loading: boolean;
   selectedChat: number | null;
   onSelectChat: (chatId: number) => void;
+  onDeleteChat?: (chatId: number) => void;
 }
 
-const ChatList = ({ chats, loading, selectedChat, onSelectChat }: ChatListProps) => {
+const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: ChatListProps) => {
+  const [swipedChat, setSwipedChat] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchOffset, setTouchOffset] = useState<number>(0);
+
+  const handleTouchStart = (e: React.TouchEvent, chatId: number) => {
+    setTouchStart(e.touches[0].clientX);
+    setSwipedChat(chatId);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent, chatId: number) => {
+    if (touchStart === null || swipedChat !== chatId) return;
+    
+    const currentTouch = e.touches[0].clientX;
+    const diff = touchStart - currentTouch;
+    
+    if (diff > 0 && diff <= 80) {
+      setTouchOffset(diff);
+    }
+  };
+
+  const handleTouchEnd = (chatId: number) => {
+    if (touchOffset > 40) {
+      setTouchOffset(80);
+    } else {
+      setTouchOffset(0);
+      setSwipedChat(null);
+    }
+    setTouchStart(null);
+  };
+
+  const handleDelete = (chatId: number) => {
+    onDeleteChat?.(chatId);
+    setTouchOffset(0);
+    setSwipedChat(null);
+  };
+
   return (
     <Card className="rounded-3xl border-2 lg:col-span-1">
       <CardContent className="p-0">
@@ -56,53 +95,79 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat }: ChatListProps)
             chats.map((chat) => (
               <div
                 key={chat.id}
-                className={`p-4 border-b cursor-pointer hover:bg-accent/50 transition-colors ${
-                  selectedChat === chat.id ? 'bg-accent' : ''
-                }`}
-                onClick={() => onSelectChat(chat.id)}
+                className="relative overflow-hidden border-b"
               >
-                <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={chat.avatar} alt={chat.name} />
-                      <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    {chat.online && (
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                        {chat.time}
-                      </span>
+                <div
+                  className={`absolute inset-y-0 right-0 w-20 bg-destructive flex items-center justify-center transition-opacity ${
+                    swipedChat === chat.id && touchOffset > 40 ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-destructive/90"
+                    onClick={() => handleDelete(chat.id)}
+                  >
+                    <Icon name="Trash2" size={20} />
+                  </Button>
+                </div>
+
+                <div
+                  className={`p-4 cursor-pointer hover:bg-accent/50 transition-all ${
+                    selectedChat === chat.id ? 'bg-accent' : ''
+                  }`}
+                  style={{
+                    transform: swipedChat === chat.id ? `translateX(-${touchOffset}px)` : 'translateX(0)',
+                    transition: touchStart === null ? 'transform 0.2s ease-out' : 'none',
+                  }}
+                  onClick={() => onSelectChat(chat.id)}
+                  onTouchStart={(e) => handleTouchStart(e, chat.id)}
+                  onTouchMove={(e) => handleTouchMove(e, chat.id)}
+                  onTouchEnd={() => handleTouchEnd(chat.id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative">
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage src={chat.avatar} alt={chat.name} />
+                        <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      {chat.online && (
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      )}
                     </div>
                     
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm text-muted-foreground truncate">
-                        {chat.lastMessage}
-                      </p>
-                      {chat.unread > 0 && (
-                        <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-xs flex-shrink-0">
-                          {chat.unread}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
+                        <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                          {chat.time}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm text-muted-foreground truncate">
+                          {chat.lastMessage}
+                        </p>
+                        {chat.unread > 0 && (
+                          <Badge className="rounded-full h-5 w-5 p-0 flex items-center justify-center text-xs flex-shrink-0">
+                            {chat.unread}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {chat.type === 'group' && chat.participants && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                          <Icon name="Users" size={12} />
+                          {chat.participants} участников
+                        </div>
+                      )}
+
+                      {chat.type === 'deal' && chat.dealStatus && (
+                        <Badge variant="outline" className="mt-1 text-xs">
+                          {chat.dealStatus}
                         </Badge>
                       )}
                     </div>
-
-                    {chat.type === 'group' && chat.participants && (
-                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                        <Icon name="Users" size={12} />
-                        {chat.participants} участников
-                      </div>
-                    )}
-
-                    {chat.type === 'deal' && chat.dealStatus && (
-                      <Badge variant="outline" className="mt-1 text-xs">
-                        {chat.dealStatus}
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>

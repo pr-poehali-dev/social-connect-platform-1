@@ -287,6 +287,33 @@ const Messages = () => {
     await handleEditReminder(id, { completed });
   };
 
+  const handleDeleteChat = async (chatId: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/b4b60a51-ac3b-4b06-956c-f4f867e9e764?conversationId=${chatId}`,
+        {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (response.ok) {
+        toast({ title: 'Успех', description: 'Чат удален' });
+        if (selectedChat === chatId) {
+          setSelectedChat(null);
+        }
+        setChats(chats.filter(c => c.id !== chatId));
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось удалить чат', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Проверьте подключение к интернету', variant: 'destructive' });
+    }
+  };
+
   const messageCounts = {
     personal: chats.filter(c => c.type === 'personal').length,
     group: chats.filter(c => c.type === 'group').length,
@@ -325,6 +352,7 @@ const Messages = () => {
                     loading={loading}
                     selectedChat={selectedChat}
                     onSelectChat={setSelectedChat}
+                    onDeleteChat={handleDeleteChat}
                   />
                 </div>
 
