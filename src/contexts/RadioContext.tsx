@@ -47,19 +47,24 @@ export const RadioProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current.play().catch(err => {
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (err) {
         console.error('Play error:', err);
-      });
+        setIsPlaying(false);
+      }
     }
   };
 
-  const setStation = (station: RadioStation) => {
+  const setStation = async (station: RadioStation) => {
     const wasPlaying = isPlaying;
     
     if (audioRef.current) {
@@ -70,10 +75,14 @@ export const RadioProvider = ({ children }: { children: ReactNode }) => {
     setCurrentStation(station);
     
     if (wasPlaying && audioRef.current) {
-      setTimeout(() => {
-        audioRef.current?.play().catch(err => {
+      setTimeout(async () => {
+        try {
+          await audioRef.current?.play();
+          setIsPlaying(true);
+        } catch (err) {
           console.error('Play error:', err);
-        });
+          setIsPlaying(false);
+        }
       }, 100);
     }
   };
