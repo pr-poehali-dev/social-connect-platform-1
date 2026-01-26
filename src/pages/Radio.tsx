@@ -97,68 +97,61 @@ const Radio = () => {
       
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent mb-8 text-center">
-              Радио Рекорд
-            </h1>
+          <div className="max-w-4xl mx-auto">
+            <Card className="rounded-2xl border-2 shadow-lg overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-6">
+                  {/* Album Art */}
+                  <div className={`w-24 h-24 rounded-xl bg-gradient-to-br ${currentStation?.gradient || 'from-purple-500 via-pink-500 to-red-500'} flex items-center justify-center shadow-lg transition-all duration-500 flex-shrink-0`}>
+                    <Icon name="Radio" size={40} className="text-white" />
+                  </div>
 
-            <Card className="rounded-3xl border-2 shadow-xl overflow-hidden">
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center space-y-8">
-                  {/* Logo / Cover */}
-                  <div className={`w-64 h-64 rounded-3xl bg-gradient-to-br ${currentStation?.gradient || 'from-purple-500 via-pink-500 to-red-500'} flex items-center justify-center shadow-2xl transition-all duration-500`}>
-                    <div className="text-white text-center">
-                      <Icon name="Radio" size={80} />
-                      <p className="text-2xl font-bold mt-4">РЕКОРД</p>
+                  {/* Player Controls */}
+                  <div className="flex-1 flex items-center gap-4">
+                    {/* Play Button */}
+                    <Button
+                      onClick={togglePlay}
+                      size="lg"
+                      className="w-16 h-16 rounded-full flex-shrink-0"
+                    >
+                      <Icon name={isPlaying ? 'Pause' : 'Play'} size={28} />
+                    </Button>
+
+                    {/* Station Info & Volume */}
+                    <div className="flex-1 space-y-3">
+                      <div>
+                        <h2 className="text-xl font-bold">{currentStation?.name || 'Record'}</h2>
+                        <p className="text-sm text-muted-foreground">{currentStation?.description || 'Танцевальная музыка 24/7'}</p>
+                      </div>
+
+                      {/* Volume Control */}
+                      <div className="flex items-center gap-3">
+                        <Icon name="Volume2" size={18} className="text-muted-foreground flex-shrink-0" />
+                        <Slider
+                          value={[volume]}
+                          onValueChange={handleVolumeChange}
+                          max={100}
+                          step={1}
+                          className="flex-1"
+                        />
+                        <span className="text-sm text-muted-foreground w-10 text-right">{volume}%</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Station Info */}
-                  <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-2">{currentStation?.name || 'Record'}</h2>
-                    <p className="text-muted-foreground">{currentStation?.description || 'Танцевальная музыка 24/7'}</p>
-                  </div>
-
-                  {/* Play Button */}
-                  <Button
-                    onClick={togglePlay}
-                    size="lg"
-                    className="w-24 h-24 rounded-full text-2xl shadow-xl"
-                  >
-                    <Icon name={isPlaying ? 'Pause' : 'Play'} size={40} />
-                  </Button>
-
-                  {/* Volume Control */}
-                  <div className="w-full max-w-sm space-y-2">
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span className="flex items-center gap-2">
-                        <Icon name="Volume2" size={18} />
-                        Громкость
-                      </span>
-                      <span>{volume}%</span>
+                    {/* Status */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {isPlaying ? (
+                        <>
+                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <span className="text-sm text-green-600 font-medium">В эфире</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-2 h-2 rounded-full bg-gray-400" />
+                          <span className="text-sm text-muted-foreground">Пауза</span>
+                        </>
+                      )}
                     </div>
-                    <Slider
-                      value={[volume]}
-                      onValueChange={handleVolumeChange}
-                      max={100}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Status */}
-                  <div className="flex items-center gap-2 text-sm">
-                    {isPlaying ? (
-                      <>
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-green-600 font-medium">В эфире</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-2 h-2 rounded-full bg-gray-400" />
-                        <span className="text-muted-foreground">Остановлено</span>
-                      </>
-                    )}
                   </div>
                 </div>
               </CardContent>
