@@ -259,7 +259,7 @@ const CreateAd = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="schedule">График свободного времени *</Label>
+                    <Label htmlFor="schedule">Свободен(а) *</Label>
                     <Textarea
                       id="schedule"
                       placeholder="Укажите ваш свободный график: дни недели, время суток..."
