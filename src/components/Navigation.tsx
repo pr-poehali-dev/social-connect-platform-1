@@ -130,13 +130,13 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
                   return (
                     <Button
                       key={item.path}
-                      onClick={togglePlay}
+                      onClick={() => window.open('/radio', '_blank')}
                       variant="ghost"
                       size="icon"
-                      title={isPlaying ? 'Остановить радио' : 'Включить радио'}
+                      title="Открыть радио в новом окне"
                       className="h-9 w-9 relative"
                     >
-                      <Icon name={isPlaying ? 'Pause' : 'Music'} size={18} />
+                      <Icon name="Music" size={18} />
                       {isPlaying && (
                         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       )}
@@ -288,13 +288,13 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
               return (
                 <Button
                   key={item.path}
-                  onClick={togglePlay}
+                  onClick={() => window.open('/radio', '_blank')}
                   variant="ghost"
                   size="icon"
                   className="h-12 w-full relative"
-                  title={isPlaying ? 'Остановить радио' : 'Включить радио'}
+                  title="Открыть радио в новом окне"
                 >
-                  <Icon name={isPlaying ? 'Pause' : 'Music'} size={24} />
+                  <Icon name="Music" size={24} />
                   {isPlaying && (
                     <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                   )}
