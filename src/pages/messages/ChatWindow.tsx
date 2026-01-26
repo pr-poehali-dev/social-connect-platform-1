@@ -45,6 +45,7 @@ interface ChatWindowProps {
   onSendMessage: () => void;
   onCall: (type: 'audio' | 'video') => void;
   toast: any;
+  onClose?: () => void;
 }
 
 const IMAGE_STICKERS = [
@@ -73,7 +74,8 @@ const ChatWindow = ({
   setMessageText,
   onSendMessage,
   onCall,
-  toast
+  toast,
+  onClose
 }: ChatWindowProps) => {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -110,10 +112,20 @@ const ChatWindow = ({
   }
 
   return (
-    <Card className="rounded-3xl border-2 lg:col-span-2">
-      <CardContent className="p-0 flex flex-col h-[calc(100vh-8rem)]">
+    <Card className="rounded-3xl border-2 lg:col-span-2 h-full">
+      <CardContent className="p-0 flex flex-col h-full">
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full lg:hidden"
+                onClick={onClose}
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
+            )}
             <Avatar className="w-10 h-10">
               <AvatarImage src={currentChat.avatar} alt={currentChat.name} />
               <AvatarFallback>{currentChat.name.charAt(0)}</AvatarFallback>

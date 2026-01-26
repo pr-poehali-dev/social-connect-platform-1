@@ -318,24 +318,48 @@ const Messages = () => {
                 onToggleComplete={handleToggleComplete}
               />
             ) : (
-              <div className="grid lg:grid-cols-3 gap-6">
-                <ChatList
-                  chats={filteredChats}
-                  loading={loading}
-                  selectedChat={selectedChat}
-                  onSelectChat={setSelectedChat}
-                />
+              <div className="grid lg:grid-cols-3 gap-6 relative">
+                <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
+                  <ChatList
+                    chats={filteredChats}
+                    loading={loading}
+                    selectedChat={selectedChat}
+                    onSelectChat={setSelectedChat}
+                  />
+                </div>
 
-                <ChatWindow
-                  currentChat={currentChat}
-                  messages={messages}
-                  currentUserId={currentUserId}
-                  messageText={messageText}
-                  setMessageText={setMessageText}
-                  onSendMessage={handleSendMessage}
-                  onCall={handleCall}
-                  toast={toast}
-                />
+                {selectedChat && (
+                  <div className="fixed inset-0 z-50 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:col-span-2 pt-32 pb-24 lg:pt-0 lg:pb-0">
+                    <div className="h-full container mx-auto px-4 lg:px-0">
+                      <ChatWindow
+                        currentChat={currentChat}
+                        messages={messages}
+                        currentUserId={currentUserId}
+                        messageText={messageText}
+                        setMessageText={setMessageText}
+                        onSendMessage={handleSendMessage}
+                        onCall={handleCall}
+                        toast={toast}
+                        onClose={() => setSelectedChat(null)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {!selectedChat && (
+                  <div className="hidden lg:block lg:col-span-2">
+                    <ChatWindow
+                      currentChat={currentChat}
+                      messages={messages}
+                      currentUserId={currentUserId}
+                      messageText={messageText}
+                      setMessageText={setMessageText}
+                      onSendMessage={handleSendMessage}
+                      onCall={handleCall}
+                      toast={toast}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
