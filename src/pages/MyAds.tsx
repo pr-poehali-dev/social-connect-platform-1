@@ -185,7 +185,7 @@ const MyAds = () => {
                         </div>
                         
                         <div className="mb-6">
-                          <p className="font-semibold mb-1">График:</p>
+                          <p className="font-semibold mb-1">Свободен(а):</p>
                           <p className="text-muted-foreground">{ad.schedule}</p>
                         </div>
                         
