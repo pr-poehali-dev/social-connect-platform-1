@@ -146,7 +146,7 @@ const Ads = () => {
                       
                       <Button className="w-full rounded-2xl gap-2">
                         <Icon name="MessageCircle" size={16} />
-                        Написать
+                        Пригласить
                       </Button>
                     </CardContent>
                   </Card>
