@@ -97,7 +97,7 @@ const Radio = () => {
       
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <Card className="rounded-2xl border-2 shadow-lg overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center gap-6">
@@ -184,7 +184,7 @@ const Radio = () => {
                   <p className="text-sm mt-2">Нажмите на звездочку у любой станции</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                   {displayedStations.map((station) => (
                     <button
                       key={station.id}
