@@ -337,6 +337,14 @@ const Profile = () => {
                   {editMode && (
                     <div className="pt-6 border-t flex flex-col gap-3">
                       <Button 
+                        onClick={() => navigate('/referral')}
+                        variant="outline" 
+                        className="w-full gap-2 rounded-xl h-12"
+                      >
+                        <Icon name="Users" size={20} />
+                        Партнёрская программа
+                      </Button>
+                      <Button 
                         onClick={handleLogout}
                         variant="outline" 
                         className="w-full gap-2 rounded-xl h-12"

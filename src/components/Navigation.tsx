@@ -89,7 +89,6 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
     { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', badge: unreadCount },
     { path: '/notifications', label: 'Уведомления', icon: 'Bell' },
     { path: '/radio', label: 'Радио', icon: 'Music' },
-    { path: '/referral', label: 'Партнёрка', icon: 'Users' },
     { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
     { path: '/profile', label: 'Профиль', icon: 'User' },
   ];
