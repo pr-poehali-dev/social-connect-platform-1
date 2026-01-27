@@ -18,6 +18,7 @@ interface NewEventData {
   price: number;
   maxParticipants: number;
   image?: string;
+  dateTimeText?: string;
 }
 
 interface CreateEventModalProps {
@@ -144,28 +145,20 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="date">Дата *</Label>
-              <Input
-                id="date"
-                type="date"
-                value={newEvent.date}
-                onChange={(e) => onEventChange({ ...newEvent, date: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="time">Время *</Label>
-              <Input
-                id="time"
-                type="time"
-                value={newEvent.time}
-                onChange={(e) => onEventChange({ ...newEvent, time: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="dateTimeText">
+              Дата и время *
+              <span className="text-xs text-muted-foreground block mt-1">
+                Примеры: "27.01.2026 в 21:00", "27.01.2026 - 29.01.2026", "Каждую пятницу с 12:00 до 14:00", "Ежедневно с 12:00-23:00", "Круглосуточно"
+              </span>
+            </Label>
+            <Textarea
+              id="dateTimeText"
+              placeholder="Например: 27.01.2026 в 21:00 или Каждую пятницу с 12:00 до 14:00"
+              value={newEvent.dateTimeText || ''}
+              onChange={(e) => onEventChange({ ...newEvent, dateTimeText: e.target.value })}
+              className="rounded-xl min-h-20"
+            />
           </div>
 
           <div className="space-y-2">
