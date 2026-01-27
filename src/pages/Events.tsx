@@ -227,14 +227,13 @@ const Events = () => {
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <div className="relative flex-1 min-w-0">
-                  <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
-                  <input
-                    type="text"
+                <div className="relative flex-1">
+                  <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
                     placeholder={placeholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-auto px-3 pl-12 py-6 rounded-2xl border border-input bg-background text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pl-12 py-6 rounded-2xl text-left overflow-x-auto"
                   />
                 </div>
                 <Button
