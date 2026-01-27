@@ -341,7 +341,7 @@ const Messages = () => {
         messageCounts={messageCounts}
       />
       
-      <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
+      <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             {activeTab === 'calls' ? (
