@@ -26,9 +26,10 @@ interface CreateEventModalProps {
   newEvent: NewEventData;
   onEventChange: (event: NewEventData) => void;
   onCreate: () => void;
+  isEdit?: boolean;
 }
 
-const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate }: CreateEventModalProps) => {
+const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, isEdit = false }: CreateEventModalProps) => {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +71,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Создать новое мероприятие</DialogTitle>
+          <DialogTitle className="text-2xl">{isEdit ? 'Редактировать мероприятие' : 'Создать новое мероприятие'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -243,7 +244,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate }
               className="flex-1 rounded-xl"
               onClick={onCreate}
             >
-              Создать мероприятие
+              {isEdit ? 'Сохранить изменения' : 'Создать мероприятие'}
             </Button>
           </div>
         </div>

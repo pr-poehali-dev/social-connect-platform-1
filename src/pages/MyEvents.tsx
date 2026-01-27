@@ -12,6 +12,8 @@ const MyEvents = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'my' | 'participating' | 'completed'>('my');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [newEvent, setNewEvent] = useState({
     title: '',
     description: '',
@@ -115,10 +117,25 @@ const MyEvents = () => {
   };
 
   const handleEditEvent = (eventId: number) => {
-    toast({
-      title: 'Редактирование',
-      description: 'Функция в разработке',
-    });
+    const allEvents = [...myEvents, ...myCompletedEvents];
+    const eventToEdit = allEvents.find(e => e.id === eventId);
+    
+    if (eventToEdit) {
+      setNewEvent({
+        title: eventToEdit.title,
+        description: eventToEdit.description,
+        date: eventToEdit.date,
+        time: eventToEdit.time,
+        location: eventToEdit.location,
+        city: eventToEdit.city,
+        category: eventToEdit.category,
+        price: eventToEdit.price,
+        maxParticipants: eventToEdit.maxParticipants,
+        image: eventToEdit.image
+      });
+      setEditingEventId(eventId);
+      setIsEditModalOpen(true);
+    }
   };
 
   const handleDeleteEvent = (eventId: number) => {
@@ -132,6 +149,37 @@ const MyEvents = () => {
     toast({
       title: 'Вы отменили участие',
       description: 'Вы больше не участвуете в этом мероприятии',
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.location || !newEvent.city) {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните все обязательные поля',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Изменения сохранены!',
+      description: `Мероприятие "${newEvent.title}" обновлено`,
+    });
+
+    setIsEditModalOpen(false);
+    setEditingEventId(null);
+    setNewEvent({
+      title: '',
+      description: '',
+      date: '',
+      time: '',
+      location: '',
+      city: '',
+      category: 'entertainment',
+      price: 0,
+      maxParticipants: 10,
+      image: undefined
     });
   };
 
@@ -236,10 +284,48 @@ const MyEvents = () => {
 
       <CreateEventModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setNewEvent({
+            title: '',
+            description: '',
+            date: '',
+            time: '',
+            location: '',
+            city: '',
+            category: 'entertainment',
+            price: 0,
+            maxParticipants: 10,
+            image: undefined
+          });
+        }}
         newEvent={newEvent}
         onEventChange={setNewEvent}
         onCreate={handleCreateEvent}
+      />
+
+      <CreateEventModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingEventId(null);
+          setNewEvent({
+            title: '',
+            description: '',
+            date: '',
+            time: '',
+            location: '',
+            city: '',
+            category: 'entertainment',
+            price: 0,
+            maxParticipants: 10,
+            image: undefined
+          });
+        }}
+        newEvent={newEvent}
+        onEventChange={setNewEvent}
+        onCreate={handleSaveEdit}
+        isEdit={true}
       />
     </div>
   );
