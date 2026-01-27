@@ -21,7 +21,8 @@ const MyEvents = () => {
     city: '',
     category: 'entertainment',
     price: 0,
-    maxParticipants: 10
+    maxParticipants: 10,
+    image: undefined as string | undefined
   });
 
   const myEvents: Event[] = [
@@ -159,7 +160,8 @@ const MyEvents = () => {
       city: '',
       category: 'entertainment',
       price: 0,
-      maxParticipants: 10
+      maxParticipants: 10,
+      image: undefined
     });
   };
 

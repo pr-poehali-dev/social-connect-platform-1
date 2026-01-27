@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Icon from '@/components/ui/icon';
 
 interface NewEventData {
   title: string;
@@ -15,6 +17,7 @@ interface NewEventData {
   category: string;
   price: number;
   maxParticipants: number;
+  image?: string;
 }
 
 interface CreateEventModalProps {
@@ -26,6 +29,43 @@ interface CreateEventModalProps {
 }
 
 const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate }: CreateEventModalProps) => {
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Пожалуйста, выберите изображение');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Размер файла не должен превышать 5 МБ');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        onEventChange({ ...newEvent, image: base64String });
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Ошибка загрузки:', error);
+      alert('Не удалось загрузить изображение');
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    onEventChange({ ...newEvent, image: undefined });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -34,6 +74,53 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate }
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          <div className="space-y-2">
+            <Label>Изображение мероприятия</Label>
+            {newEvent.image ? (
+              <div className="relative rounded-xl overflow-hidden border-2 border-dashed border-gray-300">
+                <img
+                  src={newEvent.image}
+                  alt="Превью"
+                  className="w-full h-48 object-cover"
+                />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 rounded-lg"
+                  onClick={handleRemoveImage}
+                >
+                  <Icon name="X" size={16} />
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor="image-upload"
+                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary transition-colors bg-gray-50"
+              >
+                {isUploading ? (
+                  <div className="text-center">
+                    <Icon name="Loader2" size={32} className="animate-spin mx-auto mb-2 text-primary" />
+                    <p className="text-sm text-muted-foreground">Загрузка...</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Icon name="Upload" size={32} className="mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-1">Нажмите для загрузки</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG до 5 МБ</p>
+                  </div>
+                )}
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+              </label>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="title">Название мероприятия *</Label>
             <Input
