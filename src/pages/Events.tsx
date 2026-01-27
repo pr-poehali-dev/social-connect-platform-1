@@ -233,7 +233,7 @@ const Events = () => {
                     placeholder={placeholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 py-6 rounded-2xl"
+                    className="pl-12 py-6 rounded-2xl text-left overflow-x-auto"
                   />
                 </div>
                 <Button
