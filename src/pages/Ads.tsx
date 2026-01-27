@@ -41,6 +41,9 @@ const Ads = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   const getUserCity = () => {
     const userProfile = localStorage.getItem('userProfile');
@@ -191,8 +194,9 @@ const Ads = () => {
                 <p className="text-muted-foreground">Нет объявлений в этом городе</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad) => (
+              <>
+                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad) => (
                   <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
                     <div className="relative h-64 overflow-hidden">
                       {ad.avatar_url ? (
@@ -245,8 +249,98 @@ const Ads = () => {
                       </Button>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+                  ))}
+                </div>
+                
+                <div className="md:hidden relative">
+                  <div 
+                    className="overflow-hidden"
+                    onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
+                    onTouchMove={(e) => setTouchEnd(e.touches[0].clientX)}
+                    onTouchEnd={() => {
+                      const filteredAds = ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity);
+                      if (touchStart - touchEnd > 75 && currentIndex < filteredAds.length - 1) {
+                        setCurrentIndex(currentIndex + 1);
+                      }
+                      if (touchStart - touchEnd < -75 && currentIndex > 0) {
+                        setCurrentIndex(currentIndex - 1);
+                      }
+                    }}
+                  >
+                    {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad, index) => (
+                      <Card 
+                        key={ad.id} 
+                        className={`group hover:shadow-2xl transition-all duration-300 cursor-pointer rounded-3xl overflow-hidden border-2 ${
+                          index === currentIndex ? 'block' : 'hidden'
+                        }`}
+                      >
+                        <div className="relative h-64 overflow-hidden">
+                          {ad.avatar_url ? (
+                            <img
+                              src={ad.avatar_url}
+                              alt={ad.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center">
+                              <Icon name="User" size={80} className="text-muted-foreground" />
+                            </div>
+                          )}
+                          <Badge 
+                            variant="secondary" 
+                            className="absolute top-4 right-4 rounded-full bg-white/90 backdrop-blur-sm"
+                          >
+                            <Icon name={ad.gender === 'male' ? 'User' : 'Heart'} size={12} className="mr-1" />
+                            {ad.age} лет
+                          </Badge>
+                        </div>
+                        
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className="text-xl font-bold">{ad.name}, {ad.age} лет</h3>
+                            <p className="text-xs text-muted-foreground whitespace-nowrap">{getTimeAgo(ad.created_at)}</p>
+                          </div>
+                          
+                          <div className="text-sm text-muted-foreground mb-4 space-y-2">
+                            {ad.events.map((event, idx) => (
+                              <div key={idx}>
+                                <span className="font-medium">{event.event_type}:</span> {event.details || 'Без деталей'}
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {ad.city && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+                              <Icon name="MapPin" size={14} />
+                              {ad.city}
+                            </div>
+                          )}
+                          
+                          <Button 
+                            className="w-full rounded-2xl gap-2"
+                            onClick={() => handleInvite(ad)}
+                          >
+                            <Icon name="MessageCircle" size={16} />
+                            Пригласить
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  <div className="flex justify-center gap-2 mt-4">
+                    {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
