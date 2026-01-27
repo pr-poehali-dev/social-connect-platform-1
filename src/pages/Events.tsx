@@ -368,6 +368,7 @@ const Events = () => {
                                 setSelectedCity(currentValue === selectedCity ? 'Все города' : currentValue);
                                 setCitySearchOpen(false);
                               }}
+                              className="border-0"
                             >
                               <Check
                                 className={cn(
