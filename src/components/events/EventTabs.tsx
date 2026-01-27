@@ -45,7 +45,7 @@ const EventTabs = ({
         Завершенные ({completedEventsCount})
       </Button>
       <Button
-        className="gap-2 rounded-2xl ml-auto"
+        className="gap-2 rounded-2xl ml-auto hidden lg:flex"
         onClick={onCreateClick}
       >
         <Icon name="Plus" size={18} />

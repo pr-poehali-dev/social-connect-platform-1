@@ -223,7 +223,14 @@ const MyEvents = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <h1 className="font-bold whitespace-nowrap text-3xl">Мои мероприятия</h1>
+              <h1 className="font-bold whitespace-nowrap text-3xl mb-4">Мои мероприятия</h1>
+              <Button
+                className="gap-2 rounded-2xl w-full lg:hidden mb-4"
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                <Icon name="Plus" size={18} />
+                Создать новое мероприятие
+              </Button>
             </div>
 
             <EventTabs
