@@ -91,16 +91,6 @@ const Services = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <div className="mb-6">
-                <p className="text-muted-foreground text-sm md:text-base mb-4">Найдите исполнителя или предложите свою услугу</p>
-                
-                <Button className="gap-2 rounded-2xl w-full sm:w-auto mb-4">
-                  <Icon name="Plus" size={20} />
-                  <span className="hidden sm:inline">Создать услугу</span>
-                  <span className="sm:hidden">Создать</span>
-                </Button>
-              </div>
-              
               <div className="relative mb-6">
                 <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
