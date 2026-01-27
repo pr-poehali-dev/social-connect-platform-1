@@ -53,7 +53,7 @@ const Dating = () => {
     ageTo: '',
     city: '',
     online: false,
-    withPhoto: false,
+    withPhoto: true,
     district: '',
     heightFrom: '',
     heightTo: '',
@@ -119,27 +119,29 @@ const Dating = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const mappedProfiles = (data.profiles || []).map((p: any) => ({
-          id: p.id,
-          user_id: p.user_id,
-          name: p.name,
-          age: p.age,
-          city: p.city,
-          district: p.district,
-          gender: p.gender,
-          image: p.avatar_url || p.user_avatar || p.image,
-          isOnline: p.isOnline || p.is_online,
-          lastSeen: p.lastLoginAt,
-          height: p.height,
-          physique: p.body_type || p.bodyType,
-          about: p.bio,
-          interests: p.interests || [],
-          is_favorite: p.is_favorite,
-          friend_request_sent: p.friend_request_sent,
-          is_friend: p.is_friend,
-          isTopAd: p.is_top_ad || p.isTopAd,
-          status_text: p.status_text
-        }));
+        const mappedProfiles = (data.profiles || [])
+          .map((p: any) => ({
+            id: p.id,
+            user_id: p.user_id,
+            name: p.name,
+            age: p.age,
+            city: p.city,
+            district: p.district,
+            gender: p.gender,
+            image: p.avatar_url || p.user_avatar || p.image,
+            isOnline: p.isOnline || p.is_online,
+            lastSeen: p.lastLoginAt,
+            height: p.height,
+            physique: p.body_type || p.bodyType,
+            about: p.bio,
+            interests: p.interests || [],
+            is_favorite: p.is_favorite,
+            friend_request_sent: p.friend_request_sent,
+            is_friend: p.is_friend,
+            isTopAd: p.is_top_ad || p.isTopAd,
+            status_text: p.status_text
+          }))
+          .filter((p: any) => p.image && p.image.trim() !== '');
         setProfiles(mappedProfiles);
       } else {
         toast({
