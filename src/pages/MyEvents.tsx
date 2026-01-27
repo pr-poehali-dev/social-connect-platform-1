@@ -223,8 +223,7 @@ const MyEvents = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <h1 className="font-bold mb-2 whitespace-nowrap text-3xl">Мои мероприятия</h1>
-              <p className="text-muted-foreground">Управляйте своими мероприятиями и участием</p>
+              <h1 className="font-bold whitespace-nowrap text-3xl">Мои мероприятия</h1>
             </div>
 
             <EventTabs
