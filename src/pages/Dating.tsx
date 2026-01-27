@@ -306,11 +306,11 @@ const Dating = () => {
                       <Icon name="SlidersHorizontal" size={24} />
                     </button>
                   </SheetTrigger>
-                  <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+                  <SheetContent side="bottom" className="h-[90vh] flex flex-col">
                     <SheetHeader>
                       <SheetTitle>Фильтры</SheetTitle>
                     </SheetHeader>
-                    <div className="mt-4">
+                    <div className="flex-1 overflow-y-auto mt-4 pb-4">
                       <DatingFilters
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
