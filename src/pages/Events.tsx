@@ -6,6 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -49,9 +56,24 @@ interface Event {
 const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedCity, setSelectedCity] = useState('all');
   const { toast } = useToast();
   const placeholder = useTypingPlaceholder('Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе');
+  
+  // Умное определение города по умолчанию
+  const getUserCity = () => {
+    const userProfile = localStorage.getItem('userProfile');
+    if (userProfile) {
+      try {
+        const profile = JSON.parse(userProfile);
+        return profile.city || 'all';
+      } catch {
+        return 'all';
+      }
+    }
+    return 'all';
+  };
+  
+  const [selectedCity, setSelectedCity] = useState(getUserCity());
 
   const categories = [
     { value: 'all', label: 'Все', icon: 'Calendar' },
@@ -219,19 +241,24 @@ const Events = () => {
                     className="pl-12 py-6 rounded-2xl"
                   />
                 </div>
-                <div className="flex gap-2 overflow-x-auto">
-                  {cities.map((city) => (
-                    <Button
-                      key={city.value}
-                      variant={selectedCity === city.value ? 'default' : 'outline'}
-                      className="gap-2 rounded-full flex-shrink-0 py-6"
-                      onClick={() => setSelectedCity(city.value)}
-                    >
-                      <Icon name={city.icon} size={16} />
-                      {city.label}
-                    </Button>
-                  ))}
-                </div>
+                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <SelectTrigger className="w-[200px] rounded-2xl py-6">
+                    <div className="flex items-center gap-2">
+                      <Icon name="MapPin" size={16} />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cities.map((city) => (
+                      <SelectItem key={city.value} value={city.value}>
+                        <div className="flex items-center gap-2">
+                          <Icon name="MapPin" size={16} />
+                          {city.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-2">
