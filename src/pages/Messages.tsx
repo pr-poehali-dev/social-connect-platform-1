@@ -203,15 +203,27 @@ const Messages = () => {
       const response = await fetch(
         `https://functions.poehali.dev/2bc01794-3584-4941-b485-aec60ee947a8?action=list&month=${currentDate.getMonth() + 1}&year=${currentDate.getFullYear()}`,
         {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token}` },
+          cache: 'no-cache'
         }
       );
-      if (response.ok) {
-        const data = await response.json();
+      
+      if (!response.ok) return;
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) return;
+      
+      const text = await response.text();
+      if (!text || text.trim().startsWith('<')) return;
+      
+      try {
+        const data = JSON.parse(text);
         setReminders(data.reminders || []);
+      } catch {
+        return;
       }
-    } catch (error) {
-      console.error('Failed to load reminders:', error);
+    } catch {
+      return;
     }
   };
 
