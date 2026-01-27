@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,31 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+
+const TypingAnimation = ({ text }: { text: string }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= text.length) {
+        setDisplayedText(text.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 50);
+    
+    return () => clearInterval(timer);
+  }, [text]);
+  
+  return (
+    <p className="text-muted-foreground">
+      {displayedText}
+      <span className="animate-pulse">|</span>
+    </p>
+  );
+};
 
 interface Event {
   id: number;
@@ -180,7 +205,7 @@ const Events = () => {
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <h1 className="text-4xl font-bold mb-2">Мероприятия</h1>
-              <p className="text-muted-foreground">Присоединяйтесь к интересным событиям в вашем городе</p>
+              <TypingAnimation text="Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе" />
             </div>
 
             <div className="mb-8">
