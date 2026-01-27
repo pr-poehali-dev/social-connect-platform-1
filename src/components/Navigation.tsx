@@ -69,8 +69,11 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
       );
       
       if (response.ok) {
-        const data = await response.json();
-        setAvatarUrl(data.avatar_url);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          setAvatarUrl(data.avatar_url);
+        }
       }
     } catch (error) {
       console.error('Failed to load avatar:', error);
