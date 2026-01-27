@@ -24,7 +24,7 @@ interface Event {
 
 const MyEvents = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'my' | 'participating'>('my');
+  const [activeTab, setActiveTab] = useState<'my' | 'participating' | 'completed'>('my');
 
   const myEvents: Event[] = [
     {
@@ -77,6 +77,39 @@ const MyEvents = () => {
     }
   ];
 
+  const completedEvents: Event[] = [
+    {
+      id: 4,
+      title: 'Бизнес-завтрак',
+      description: 'Встреча предпринимателей для обмена опытом',
+      date: '2026-01-15',
+      time: '09:00',
+      location: 'Отель "Метрополь"',
+      city: 'Москва',
+      category: 'business',
+      price: 2000,
+      participants: 30,
+      maxParticipants: 30,
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      status: 'completed'
+    },
+    {
+      id: 5,
+      title: 'Забег в парке',
+      description: 'Утренняя пробежка на 5 км',
+      date: '2026-01-10',
+      time: '07:00',
+      location: 'Парк Сокольники',
+      city: 'Москва',
+      category: 'sports',
+      price: 0,
+      participants: 45,
+      maxParticipants: 50,
+      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+      status: 'completed'
+    }
+  ];
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -103,7 +136,7 @@ const MyEvents = () => {
     });
   };
 
-  const currentEvents = activeTab === 'my' ? myEvents : participatingEvents;
+  const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : completedEvents;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -135,12 +168,12 @@ const MyEvents = () => {
                 Участвую ({participatingEvents.length})
               </Button>
               <Button
-                variant="outline"
+                variant={activeTab === 'completed' ? 'default' : 'outline'}
                 className="gap-2 rounded-2xl"
-                onClick={() => setActiveTab('my')}
+                onClick={() => setActiveTab('completed')}
               >
                 <Icon name="CheckCircle2" size={18} />
-                Завершенные
+                Завершенные ({completedEvents.length})
               </Button>
               <Button
                 className="gap-2 rounded-2xl ml-auto"
@@ -165,6 +198,11 @@ const MyEvents = () => {
                       {event.status === 'active' && (
                         <div className="absolute top-3 right-3">
                           <Badge className="bg-green-500 rounded-full">Активно</Badge>
+                        </div>
+                      )}
+                      {event.status === 'completed' && (
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-gray-500 rounded-full">Завершено</Badge>
                         </div>
                       )}
                       {event.price === 0 && (
@@ -217,7 +255,7 @@ const MyEvents = () => {
                             <Icon name="Trash2" size={16} />
                           </Button>
                         </div>
-                      ) : (
+                      ) : activeTab === 'participating' ? (
                         <Button 
                           variant="outline"
                           className="w-full rounded-xl gap-2"
@@ -225,6 +263,15 @@ const MyEvents = () => {
                         >
                           <Icon name="X" size={16} />
                           Отменить участие
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="outline"
+                          className="w-full rounded-xl gap-2"
+                          onClick={() => window.location.href = `/events/${event.id}`}
+                        >
+                          <Icon name="Eye" size={16} />
+                          Подробнее
                         </Button>
                       )}
                     </CardContent>
