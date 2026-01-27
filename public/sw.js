@@ -1,4 +1,4 @@
-const CACHE_NAME = 'afisha-v2';
+const CACHE_NAME = 'loveis-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -14,26 +14,23 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        if (response) {
+        if (!response || response.status !== 200) {
           return response;
         }
         
-        return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          
-          return response;
-        }).catch(() => {
-          return caches.match('/');
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((response) => {
+          return response || caches.match('/');
         });
       })
   );
