@@ -159,6 +159,21 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
               onChange={(e) => onEventChange({ ...newEvent, dateTimeText: e.target.value })}
               className="rounded-xl min-h-20"
             />
+            <div className="pt-2">
+              <Label htmlFor="searchDate" className="text-xs text-muted-foreground">
+                Дата для поиска (необязательно)
+              </Label>
+              <Input
+                id="searchDate"
+                type="date"
+                value={newEvent.date}
+                onChange={(e) => onEventChange({ ...newEvent, date: e.target.value })}
+                className="rounded-xl mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Укажите основную дату, чтобы мероприятие находилось при поиске по календарю
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">
