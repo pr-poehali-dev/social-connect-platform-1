@@ -77,33 +77,33 @@ const MyEvents = () => {
     }
   ];
 
-  const completedEvents: Event[] = [
+  const myCompletedEvents: Event[] = [
     {
       id: 4,
-      title: 'Бизнес-завтрак',
-      description: 'Встреча предпринимателей для обмена опытом',
+      title: 'Вечер настольных игр',
+      description: 'Играли в Каркассон и Монополию',
       date: '2026-01-15',
-      time: '09:00',
-      location: 'Отель "Метрополь"',
+      time: '19:00',
+      location: 'Антикафе "Игровая"',
       city: 'Москва',
-      category: 'business',
-      price: 2000,
-      participants: 30,
-      maxParticipants: 30,
+      category: 'entertainment',
+      price: 500,
+      participants: 12,
+      maxParticipants: 15,
       image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
       status: 'completed'
     },
     {
       id: 5,
-      title: 'Забег в парке',
-      description: 'Утренняя пробежка на 5 км',
+      title: 'Лекция по психологии',
+      description: 'Тема: "Эмоциональный интеллект в современном мире"',
       date: '2026-01-10',
-      time: '07:00',
-      location: 'Парк Сокольники',
+      time: '18:30',
+      location: 'Библиотека имени Ленина',
       city: 'Москва',
-      category: 'sports',
+      category: 'education',
       price: 0,
-      participants: 45,
+      participants: 50,
       maxParticipants: 50,
       image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
       status: 'completed'
@@ -136,7 +136,7 @@ const MyEvents = () => {
     });
   };
 
-  const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : completedEvents;
+  const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : myCompletedEvents;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -173,7 +173,7 @@ const MyEvents = () => {
                 onClick={() => setActiveTab('completed')}
               >
                 <Icon name="CheckCircle2" size={18} />
-                Завершенные ({completedEvents.length})
+                Завершенные ({myCompletedEvents.length})
               </Button>
               <Button
                 className="gap-2 rounded-2xl ml-auto"
@@ -265,14 +265,23 @@ const MyEvents = () => {
                           Отменить участие
                         </Button>
                       ) : (
-                        <Button 
-                          variant="outline"
-                          className="w-full rounded-xl gap-2"
-                          onClick={() => window.location.href = `/events/${event.id}`}
-                        >
-                          <Icon name="Eye" size={16} />
-                          Подробнее
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline"
+                            className="flex-1 rounded-xl gap-2"
+                            onClick={() => window.location.href = `/events/${event.id}`}
+                          >
+                            <Icon name="Eye" size={16} />
+                            Смотреть
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            className="rounded-xl"
+                            onClick={() => handleDeleteEvent(event.id)}
+                          >
+                            <Icon name="Trash2" size={16} />
+                          </Button>
+                        </div>
                       )}
                     </CardContent>
                   </Card>
