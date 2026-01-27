@@ -20,6 +20,7 @@ import Applications from "./pages/Applications";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Events from "./pages/Events";
+import SelectCity from "./pages/SelectCity";
 import MyEvents from "./pages/MyEvents";
 import Messages from "./pages/Messages";
 import Friends from "./pages/Friends";
@@ -63,6 +64,7 @@ const App = () => (
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+          <Route path="/select-city" element={<ProtectedRoute><SelectCity /></ProtectedRoute>} />
           <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -54,6 +51,8 @@ const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const placeholder = useTypingPlaceholder('Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе');
   
   // Умное определение города по умолчанию
@@ -72,6 +71,12 @@ const Events = () => {
   
   const [selectedCity, setSelectedCity] = useState(getUserCity());
 
+  useEffect(() => {
+    if (location.state?.selectedCity) {
+      setSelectedCity(location.state.selectedCity);
+    }
+  }, [location.state]);
+
   const categories = [
     { value: 'all', label: 'Все', icon: 'Calendar' },
     { value: 'sports', label: 'Спорт', icon: 'Dumbbell' },
@@ -80,114 +85,6 @@ const Events = () => {
     { value: 'entertainment', label: 'Развлечения', icon: 'PartyPopper' },
     { value: 'business', label: 'Бизнес', icon: 'Briefcase' },
   ];
-
-  const cities = [
-    'Все города',
-    'Москва',
-    'Санкт-Петербург',
-    'Новосибирск',
-    'Екатеринбург',
-    'Казань',
-    'Нижний Новгород',
-    'Челябинск',
-    'Самара',
-    'Омск',
-    'Ростов-на-Дону',
-    'Уфа',
-    'Красноярск',
-    'Воронеж',
-    'Пермь',
-    'Волгоград',
-    'Краснодар',
-    'Саратов',
-    'Тюмень',
-    'Тольятти',
-    'Ижевск',
-    'Барнаул',
-    'Ульяновск',
-    'Иркутск',
-    'Хабаровск',
-    'Ярославль',
-    'Владивосток',
-    'Махачкала',
-    'Томск',
-    'Оренбург',
-    'Кемерово',
-    'Новокузнецк',
-    'Рязань',
-    'Набережные Челны',
-    'Астрахань',
-    'Пенза',
-    'Липецк',
-    'Киров',
-    'Чебоксары',
-    'Калининград',
-    'Тула',
-    'Курск',
-    'Ставрополь',
-    'Сочи',
-    'Улан-Удэ',
-    'Тверь',
-    'Магнитогорск',
-    'Иваново',
-    'Брянск',
-    'Белгород',
-    'Сургут',
-    'Владимир',
-    'Нижний Тагил',
-    'Архангельск',
-    'Чита',
-    'Калуга',
-    'Смоленск',
-    'Волжский',
-    'Курган',
-    'Череповец',
-    'Орёл',
-    'Владикавказ',
-    'Мурманск',
-    'Вологда',
-    'Саранск',
-    'Тамбов',
-    'Стерлитамак',
-    'Грозный',
-    'Кострома',
-    'Петрозаводск',
-    'Нижневартовск',
-    'Йошкар-Ола',
-    'Новороссийск',
-    'Комсомольск-на-Амуре',
-    'Таганрог',
-    'Сыктывкар',
-    'Братск',
-    'Дзержинск',
-    'Нальчик',
-    'Шахты',
-    'Орск',
-    'Ангарск',
-    'Благовещенск',
-    'Великий Новгород',
-    'Псков',
-    'Энгельс',
-    'Бийск',
-    'Прокопьевск',
-    'Рыбинск',
-    'Балаково',
-    'Армавир',
-    'Северодвинск',
-    'Королёв',
-    'Петропавловск-Камчатский',
-    'Мытищи',
-    'Люберцы',
-    'Сызрань',
-    'Каменск-Уральский',
-    'Волгодонск',
-    'Абакан',
-    'Новочеркасск',
-    'Норильск',
-    'Якутск',
-  ];
-  
-  const [citySearchOpen, setCitySearchOpen] = useState(false);
 
   const events: Event[] = [
     {
@@ -339,51 +236,17 @@ const Events = () => {
                     className="pl-12 py-6 rounded-2xl"
                   />
                 </div>
-                <Popover open={citySearchOpen} onOpenChange={setCitySearchOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={citySearchOpen}
-                      className="w-full sm:w-[200px] justify-between rounded-2xl py-6"
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <Icon name="MapPin" size={16} className="flex-shrink-0" />
-                        <span className="truncate">{selectedCity}</span>
-                      </div>
-                      <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50 flex-shrink-0" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[280px] p-0" align="end">
-                    <Command>
-                      <CommandInput placeholder="Поиск города..." />
-                      <CommandList className="max-h-[300px]">
-                        <CommandEmpty>Город не найден</CommandEmpty>
-                        <CommandGroup>
-                          {cities.map((city) => (
-                            <CommandItem
-                              key={city}
-                              value={city}
-                              onSelect={(currentValue) => {
-                                setSelectedCity(currentValue === selectedCity ? 'Все города' : currentValue);
-                                setCitySearchOpen(false);
-                              }}
-                              className="border-0"
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4 flex-shrink-0',
-                                  selectedCity === city ? 'opacity-100' : 'opacity-0'
-                                )}
-                              />
-                              <span className="truncate">{city}</span>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/select-city', { state: { currentCity: selectedCity } })}
+                  className="w-full sm:w-[200px] justify-between rounded-2xl py-6"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Icon name="MapPin" size={16} className="flex-shrink-0" />
+                    <span className="truncate">{selectedCity}</span>
+                  </div>
+                  <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0" />
+                </Button>
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-2">
