@@ -369,8 +369,8 @@ const Messages = () => {
                 </div>
 
                 {selectedChat && (
-                  <div className="fixed inset-0 z-50 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:col-span-2 pt-32 pb-24 lg:pt-0 lg:pb-0">
-                    <div className="h-full container mx-auto px-4 lg:px-0">
+                  <div className="fixed inset-0 z-50 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:col-span-2 pt-16 pb-0 lg:pt-0 lg:pb-0">
+                    <div className="h-full lg:px-0">
                       <ChatWindow
                         currentChat={currentChat}
                         messages={messages}
