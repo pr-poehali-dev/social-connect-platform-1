@@ -222,10 +222,10 @@ const MyEvents = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-8">
+            <div className="mb-4 lg:mb-8">
               <h1 className="font-bold whitespace-nowrap text-3xl mb-4">Мои мероприятия</h1>
               <Button
-                className="gap-2 rounded-2xl w-full lg:hidden mb-4"
+                className="gap-2 rounded-2xl w-full lg:hidden"
                 onClick={() => setIsCreateModalOpen(true)}
               >
                 <Icon name="Plus" size={18} />
