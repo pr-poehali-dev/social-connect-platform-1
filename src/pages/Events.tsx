@@ -49,6 +49,7 @@ interface Event {
 const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCity, setSelectedCity] = useState('all');
   const { toast } = useToast();
   const placeholder = useTypingPlaceholder('Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе');
 
@@ -59,6 +60,13 @@ const Events = () => {
     { value: 'education', label: 'Обучение', icon: 'GraduationCap' },
     { value: 'entertainment', label: 'Развлечения', icon: 'PartyPopper' },
     { value: 'business', label: 'Бизнес', icon: 'Briefcase' },
+  ];
+
+  const cities = [
+    { value: 'all', label: 'Все города', icon: 'MapPin' },
+    { value: 'Москва', label: 'Москва', icon: 'MapPin' },
+    { value: 'Санкт-Петербург', label: 'Санкт-Петербург', icon: 'MapPin' },
+    { value: 'Казань', label: 'Казань', icon: 'MapPin' },
   ];
 
   const events: Event[] = [
@@ -189,7 +197,8 @@ const Events = () => {
                          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.city.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesCity = selectedCity === 'all' || event.city === selectedCity;
+    return matchesSearch && matchesCategory && matchesCity;
   });
 
   return (
@@ -204,14 +213,29 @@ const Events = () => {
             </div>
 
             <div className="mb-8">
-              <div className="relative mb-6">
-                <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder={placeholder}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 py-6 rounded-2xl"
-                />
+              <div className="flex gap-4 mb-6">
+                <div className="relative flex-1">
+                  <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder={placeholder}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-12 py-6 rounded-2xl"
+                  />
+                </div>
+                <div className="flex gap-2 overflow-x-auto">
+                  {cities.map((city) => (
+                    <Button
+                      key={city.value}
+                      variant={selectedCity === city.value ? 'default' : 'outline'}
+                      className="gap-2 rounded-full flex-shrink-0 py-6"
+                      onClick={() => setSelectedCity(city.value)}
+                    >
+                      <Icon name={city.icon} size={16} />
+                      {city.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-2">
