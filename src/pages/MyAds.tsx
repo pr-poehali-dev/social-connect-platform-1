@@ -92,11 +92,11 @@ const MyAds = () => {
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent whitespace-nowrap">
+            <div className="mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 bg-clip-text text-transparent mb-4">
                 Мои объявления
               </h1>
-              <Button className="gap-2 rounded-2xl" onClick={() => navigate('/create-ad')}>
+              <Button className="gap-2 rounded-2xl w-full sm:w-auto" onClick={() => navigate('/create-ad')}>
                 <Icon name="Plus" size={20} />
                 Создать объявление
               </Button>
