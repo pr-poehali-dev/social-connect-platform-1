@@ -92,9 +92,6 @@ const Services = () => {
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <div className="mb-6">
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 bg-clip-text text-transparent">
-                  Услуги пользователей
-                </h1>
                 <p className="text-muted-foreground text-sm md:text-base mb-4">Найдите исполнителя или предложите свою услугу</p>
                 
                 <Button className="gap-2 rounded-2xl w-full sm:w-auto mb-4">
