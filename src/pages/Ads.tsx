@@ -254,7 +254,7 @@ const Ads = () => {
                 
                 <div className="md:hidden relative">
                   <div 
-                    className="overflow-hidden"
+                    className="overflow-hidden relative"
                     onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
                     onTouchMove={(e) => setTouchEnd(e.touches[0].clientX)}
                     onTouchEnd={() => {
@@ -270,9 +270,14 @@ const Ads = () => {
                     {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad, index) => (
                       <Card 
                         key={ad.id} 
-                        className={`group hover:shadow-2xl transition-all duration-300 cursor-pointer rounded-3xl overflow-hidden border-2 ${
-                          index === currentIndex ? 'block' : 'hidden'
+                        className={`group hover:shadow-2xl cursor-pointer rounded-3xl overflow-hidden border-2 absolute inset-0 transition-all duration-500 ease-in-out ${
+                          index === currentIndex 
+                            ? 'opacity-100 translate-x-0 z-10' 
+                            : index < currentIndex 
+                              ? 'opacity-0 -translate-x-full z-0' 
+                              : 'opacity-0 translate-x-full z-0'
                         }`}
+                        style={{ position: index === currentIndex ? 'relative' : 'absolute' }}
                       >
                         <div className="relative h-64 overflow-hidden">
                           {ad.avatar_url ? (
