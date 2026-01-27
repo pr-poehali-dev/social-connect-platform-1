@@ -125,6 +125,10 @@
   h6 {
     font-family: "Montserrat", sans-serif;
   }
+
+  [cmdk-item] {
+    border: none !important;
+  }
 }
 
 @layer utilities {
