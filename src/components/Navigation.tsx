@@ -68,15 +68,20 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          setAvatarUrl(data.avatar_url);
-        }
+      if (!response.ok) return;
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) return;
+      
+      const text = await response.text();
+      if (!text || text.startsWith('<!DOCTYPE') || text.startsWith('<html')) return;
+      
+      const data = JSON.parse(text);
+      if (data.avatar_url) {
+        setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
-      console.error('Failed to load avatar:', error);
+      // Игнорируем ошибки загрузки аватара
     }
   };
 
