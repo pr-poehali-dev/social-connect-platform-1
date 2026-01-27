@@ -75,7 +75,8 @@ const Ads = () => {
   const loadAds = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${activeCategory}`);
+      const cityParam = selectedCity === 'Все города' ? '' : `&city=${encodeURIComponent(selectedCity)}`;
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${activeCategory}${cityParam}`);
       if (response.ok) {
         const data = await response.json();
         setAds(data);
@@ -186,13 +187,13 @@ const Ads = () => {
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Загрузка...</p>
               </div>
-            ) : ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).length === 0 ? (
+            ) : ads.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Нет объявлений</p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad) => (
+                {ads.map((ad) => (
                   <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
                     <div className="relative h-64 overflow-hidden">
                       {ad.avatar_url ? (
