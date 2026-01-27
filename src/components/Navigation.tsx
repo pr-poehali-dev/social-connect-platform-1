@@ -119,7 +119,7 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group">
               <img 
-                src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/214c5eeb-fddf-4e50-86e9-baf072a385d5.png" 
+                src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/2ef01998-8ffd-4aaf-bdf9-80b2f6b99e39.png" 
                 alt="LOVE iS" 
                 className="h-10 transform group-hover:scale-110 transition-transform"
               />
