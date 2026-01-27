@@ -243,18 +243,12 @@ const Events = () => {
                 </div>
                 <Select value={selectedCity} onValueChange={setSelectedCity}>
                   <SelectTrigger className="w-[200px] rounded-2xl py-6">
-                    <div className="flex items-center gap-2">
-                      <Icon name="MapPin" size={16} />
-                      <SelectValue />
-                    </div>
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {cities.map((city) => (
                       <SelectItem key={city.value} value={city.value}>
-                        <div className="flex items-center gap-2">
-                          <Icon name="MapPin" size={16} />
-                          {city.label}
-                        </div>
+                        {city.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
