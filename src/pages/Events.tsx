@@ -6,13 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -85,11 +82,112 @@ const Events = () => {
   ];
 
   const cities = [
-    { value: 'all', label: 'Все города', icon: 'MapPin' },
-    { value: 'Москва', label: 'Москва', icon: 'MapPin' },
-    { value: 'Санкт-Петербург', label: 'Санкт-Петербург', icon: 'MapPin' },
-    { value: 'Казань', label: 'Казань', icon: 'MapPin' },
+    'Все города',
+    'Москва',
+    'Санкт-Петербург',
+    'Новосибирск',
+    'Екатеринбург',
+    'Казань',
+    'Нижний Новгород',
+    'Челябинск',
+    'Самара',
+    'Омск',
+    'Ростов-на-Дону',
+    'Уфа',
+    'Красноярск',
+    'Воронеж',
+    'Пермь',
+    'Волгоград',
+    'Краснодар',
+    'Саратов',
+    'Тюмень',
+    'Тольятти',
+    'Ижевск',
+    'Барнаул',
+    'Ульяновск',
+    'Иркутск',
+    'Хабаровск',
+    'Ярославль',
+    'Владивосток',
+    'Махачкала',
+    'Томск',
+    'Оренбург',
+    'Кемерово',
+    'Новокузнецк',
+    'Рязань',
+    'Набережные Челны',
+    'Астрахань',
+    'Пенза',
+    'Липецк',
+    'Киров',
+    'Чебоксары',
+    'Калининград',
+    'Тула',
+    'Курск',
+    'Ставрополь',
+    'Сочи',
+    'Улан-Удэ',
+    'Тверь',
+    'Магнитогорск',
+    'Иваново',
+    'Брянск',
+    'Белгород',
+    'Сургут',
+    'Владимир',
+    'Нижний Тагил',
+    'Архангельск',
+    'Чита',
+    'Калуга',
+    'Смоленск',
+    'Волжский',
+    'Курган',
+    'Череповец',
+    'Орёл',
+    'Владикавказ',
+    'Мурманск',
+    'Вологда',
+    'Саранск',
+    'Тамбов',
+    'Стерлитамак',
+    'Грозный',
+    'Кострома',
+    'Петрозаводск',
+    'Нижневартовск',
+    'Йошкар-Ола',
+    'Новороссийск',
+    'Комсомольск-на-Амуре',
+    'Таганрог',
+    'Сыктывкар',
+    'Братск',
+    'Дзержинск',
+    'Нальчик',
+    'Шахты',
+    'Орск',
+    'Ангарск',
+    'Благовещенск',
+    'Великий Новгород',
+    'Псков',
+    'Энгельс',
+    'Бийск',
+    'Прокопьевск',
+    'Рыбинск',
+    'Балаково',
+    'Армавир',
+    'Северодвинск',
+    'Королёв',
+    'Петропавловск-Камчатский',
+    'Мытищи',
+    'Люберцы',
+    'Сызрань',
+    'Каменск-Уральский',
+    'Волгодонск',
+    'Абакан',
+    'Новочеркасск',
+    'Норильск',
+    'Якутск',
   ];
+  
+  const [citySearchOpen, setCitySearchOpen] = useState(false);
 
   const events: Event[] = [
     {
@@ -219,7 +317,7 @@ const Events = () => {
                          event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.city.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
-    const matchesCity = selectedCity === 'all' || event.city === selectedCity;
+    const matchesCity = selectedCity === 'Все города' || event.city === selectedCity;
     return matchesSearch && matchesCategory && matchesCity;
   });
 
@@ -241,18 +339,50 @@ const Events = () => {
                     className="pl-12 py-6 rounded-2xl"
                   />
                 </div>
-                <Select value={selectedCity} onValueChange={setSelectedCity}>
-                  <SelectTrigger className="w-[200px] rounded-2xl py-6">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map((city) => (
-                      <SelectItem key={city.value} value={city.value}>
-                        {city.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={citySearchOpen} onOpenChange={setCitySearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={citySearchOpen}
+                      className="w-[200px] justify-between rounded-2xl py-6"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon name="MapPin" size={16} />
+                        {selectedCity}
+                      </div>
+                      <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[200px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Поиск города..." />
+                      <CommandList>
+                        <CommandEmpty>Город не найден</CommandEmpty>
+                        <CommandGroup>
+                          {cities.map((city) => (
+                            <CommandItem
+                              key={city}
+                              value={city}
+                              onSelect={(currentValue) => {
+                                setSelectedCity(currentValue === selectedCity ? 'Все города' : currentValue);
+                                setCitySearchOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  'mr-2 h-4 w-4',
+                                  selectedCity === city ? 'opacity-100' : 'opacity-0'
+                                )}
+                              />
+                              {city}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-2">
