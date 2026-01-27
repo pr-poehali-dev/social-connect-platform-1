@@ -209,10 +209,6 @@ const Events = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold mb-2">Мероприятия</h1>
-            </div>
-
-            <div className="mb-8">
               <div className="flex gap-4 mb-6">
                 <div className="relative flex-1">
                   <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
