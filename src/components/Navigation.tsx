@@ -118,12 +118,11 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                <span className="text-2xl">🚀</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                ConnectHub
-              </span>
+              <img 
+                src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/214c5eeb-fddf-4e50-86e9-baf072a385d5.png" 
+                alt="LOVE iS" 
+                className="h-10 transform group-hover:scale-110 transition-transform"
+              />
             </Link>
 
             <div className="hidden lg:flex items-center gap-1">
