@@ -53,7 +53,7 @@ const Events = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const placeholder = useTypingPlaceholder('Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе');
+  const placeholder = useTypingPlaceholder('Поиск мероприятий');
   
   // Умное определение города по умолчанию
   const getUserCity = () => {
