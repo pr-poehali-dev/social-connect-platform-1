@@ -10,6 +10,7 @@ const SelectCity = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const currentCity = location.state?.currentCity || 'Все города';
+  const returnTo = location.state?.returnTo || '/events';
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState(currentCity);
@@ -141,7 +142,7 @@ const SelectCity = () => {
   };
 
   const handleApply = () => {
-    navigate('/events', { state: { selectedCity } });
+    navigate(returnTo, { state: { selectedCity } });
   };
 
   return (
@@ -152,7 +153,7 @@ const SelectCity = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/events')}
+              onClick={() => navigate(returnTo)}
               className="rounded-full"
             >
               <Icon name="ArrowLeft" size={24} />
