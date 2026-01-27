@@ -343,13 +343,6 @@ const Events = () => {
                 <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
               </Card>
             )}
-
-            <div className="mt-12 text-center">
-              <Button size="lg" className="gap-2 rounded-2xl">
-                <Icon name="Plus" size={20} />
-                Создать мероприятие
-              </Button>
-            </div>
           </div>
         </div>
       </main>
