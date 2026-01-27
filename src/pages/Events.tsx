@@ -62,12 +62,12 @@ const Events = () => {
     if (userProfile) {
       try {
         const profile = JSON.parse(userProfile);
-        return profile.city || 'all';
+        return profile.city || 'Все города';
       } catch {
-        return 'all';
+        return 'Все города';
       }
     }
-    return 'all';
+    return 'Все города';
   };
   
   const [selectedCity, setSelectedCity] = useState(getUserCity());
