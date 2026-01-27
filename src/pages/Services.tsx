@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,26 @@ import Icon from '@/components/ui/icon';
 import { russianCities } from '@/data/cities';
 import { getDistrictsForCity } from '@/data/districts';
 
+const useTypingPlaceholder = (text: string, speed: number = 50) => {
+  const [placeholder, setPlaceholder] = useState('');
+  
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= text.length) {
+        setPlaceholder(text.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, speed);
+    
+    return () => clearInterval(timer);
+  }, [text, speed]);
+  
+  return placeholder;
+};
+
 const Services = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,6 +40,7 @@ const Services = () => {
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [onlineOnly, setOnlineOnly] = useState(false);
+  const placeholder = useTypingPlaceholder('Поиск услуг');
 
   const serviceTypes = [
     { value: 'all', label: 'Все услуги' },
@@ -94,7 +115,7 @@ const Services = () => {
               <div className="relative mb-6">
                 <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Найти услугу..."
+                  placeholder={placeholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 py-6 rounded-2xl"
