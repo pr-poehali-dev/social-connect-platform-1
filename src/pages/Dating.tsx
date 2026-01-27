@@ -7,6 +7,13 @@ import DatingFilters from '@/components/dating/DatingFilters';
 import ProfileCard from '@/components/dating/ProfileCard';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -289,18 +296,48 @@ const Dating = () => {
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Знакомства</h1>
             <div className="flex gap-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                title="Фильтры"
-              >
-                <Icon name="SlidersHorizontal" size={24} />
-              </button>
+              <div className="lg:hidden">
+                <Sheet open={showFilters} onOpenChange={setShowFilters}>
+                  <SheetTrigger asChild>
+                    <button
+                      className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                      title="Фильтры"
+                    >
+                      <Icon name="SlidersHorizontal" size={24} />
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>Фильтры</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-4">
+                      <DatingFilters
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        showFilters={showFilters}
+                        setShowFilters={setShowFilters}
+                        filters={filters}
+                        handleFilterChange={handleFilterChange}
+                        resetFilters={resetFilters}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+              <div className="hidden lg:block">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                  title="Фильтры"
+                >
+                  <Icon name="SlidersHorizontal" size={24} />
+                </button>
+              </div>
             </div>
           </div>
 
           {showFilters && (
-            <div className="mb-6">
+            <div className="mb-6 hidden lg:block">
               <DatingFilters
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
