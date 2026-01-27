@@ -1,4 +1,4 @@
-const CACHE_NAME = 'afisha-v1';
+const CACHE_NAME = 'afisha-v2';
 const urlsToCache = [
   '/',
   '/index.html',

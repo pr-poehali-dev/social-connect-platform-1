@@ -65,7 +65,10 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
     try {
       const response = await fetch(
         'https://functions.poehali.dev/e94df70d-42e0-4d41-8734-1e27734c3afe',
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { 
+          headers: { 'Authorization': `Bearer ${token}` },
+          cache: 'no-cache'
+        }
       );
       
       if (!response.ok) return;
@@ -74,14 +77,18 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
       if (!contentType || !contentType.includes('application/json')) return;
       
       const text = await response.text();
-      if (!text || text.startsWith('<!DOCTYPE') || text.startsWith('<html')) return;
+      if (!text || text.trim().startsWith('<')) return;
       
-      const data = JSON.parse(text);
-      if (data.avatar_url) {
-        setAvatarUrl(data.avatar_url);
+      try {
+        const data = JSON.parse(text);
+        if (data.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      } catch {
+        return;
       }
-    } catch (error) {
-      // Игнорируем ошибки загрузки аватара
+    } catch {
+      return;
     }
   };
 
