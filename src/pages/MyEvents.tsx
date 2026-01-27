@@ -5,6 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Event {
   id: number;
@@ -25,6 +30,18 @@ interface Event {
 const MyEvents = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'my' | 'participating' | 'completed'>('my');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    city: '',
+    category: 'entertainment',
+    price: 0,
+    maxParticipants: 10
+  });
 
   const myEvents: Event[] = [
     {
@@ -136,6 +153,35 @@ const MyEvents = () => {
     });
   };
 
+  const handleCreateEvent = () => {
+    if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.location || !newEvent.city) {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните все обязательные поля',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Мероприятие создано!',
+      description: `"${newEvent.title}" успешно добавлено`,
+    });
+
+    setIsCreateModalOpen(false);
+    setNewEvent({
+      title: '',
+      description: '',
+      date: '',
+      time: '',
+      location: '',
+      city: '',
+      category: 'entertainment',
+      price: 0,
+      maxParticipants: 10
+    });
+  };
+
   const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : myCompletedEvents;
 
   return (
@@ -177,7 +223,7 @@ const MyEvents = () => {
               </Button>
               <Button
                 className="gap-2 rounded-2xl ml-auto"
-                onClick={() => window.location.href = '/create-event'}
+                onClick={() => setIsCreateModalOpen(true)}
               >
                 <Icon name="Plus" size={18} />
                 Создать новое мероприятие
@@ -299,7 +345,7 @@ const MyEvents = () => {
                     : 'Найдите интересные события и присоединяйтесь'}
                 </p>
                 {activeTab === 'my' && (
-                  <Button className="gap-2 rounded-2xl">
+                  <Button className="gap-2 rounded-2xl" onClick={() => setIsCreateModalOpen(true)}>
                     <Icon name="Plus" size={18} />
                     Создать мероприятие
                   </Button>
@@ -309,7 +355,7 @@ const MyEvents = () => {
 
             {activeTab === 'my' && currentEvents.length > 0 && (
               <div className="mt-8 text-center">
-                <Button size="lg" className="gap-2 rounded-2xl">
+                <Button size="lg" className="gap-2 rounded-2xl" onClick={() => setIsCreateModalOpen(true)}>
                   <Icon name="Plus" size={20} />
                   Создать новое мероприятие
                 </Button>
@@ -318,6 +364,142 @@ const MyEvents = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Создать новое мероприятие</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Название мероприятия *</Label>
+              <Input
+                id="title"
+                placeholder="Например: Йога в парке"
+                value={newEvent.title}
+                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Описание</Label>
+              <Textarea
+                id="description"
+                placeholder="Расскажите о мероприятии..."
+                value={newEvent.description}
+                onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                className="rounded-xl min-h-24"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="date">Дата *</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={newEvent.date}
+                  onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="time">Время *</Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={newEvent.time}
+                  onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Место проведения *</Label>
+              <Input
+                id="location"
+                placeholder="Например: Парк Горького"
+                value={newEvent.location}
+                onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">Город *</Label>
+              <Input
+                id="city"
+                placeholder="Например: Москва"
+                value={newEvent.city}
+                onChange={(e) => setNewEvent({ ...newEvent, city: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Категория</Label>
+              <Select value={newEvent.category} onValueChange={(value) => setNewEvent({ ...newEvent, category: value })}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sports">Спорт</SelectItem>
+                  <SelectItem value="culture">Культура</SelectItem>
+                  <SelectItem value="entertainment">Развлечения</SelectItem>
+                  <SelectItem value="business">Бизнес</SelectItem>
+                  <SelectItem value="education">Образование</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Цена (₽)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  min="0"
+                  value={newEvent.price}
+                  onChange={(e) => setNewEvent({ ...newEvent, price: Number(e.target.value) })}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="maxParticipants">Макс. участников</Label>
+                <Input
+                  id="maxParticipants"
+                  type="number"
+                  min="1"
+                  value={newEvent.maxParticipants}
+                  onChange={(e) => setNewEvent({ ...newEvent, maxParticipants: Number(e.target.value) })}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1 rounded-xl"
+                onClick={() => setIsCreateModalOpen(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                className="flex-1 rounded-xl"
+                onClick={handleCreateEvent}
+              >
+                Создать мероприятие
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
