@@ -7,29 +7,24 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
-const TypingAnimation = ({ text }: { text: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
+const useTypingPlaceholder = (text: string, speed: number = 50) => {
+  const [placeholder, setPlaceholder] = useState('');
   
   useEffect(() => {
     let index = 0;
     const timer = setInterval(() => {
       if (index <= text.length) {
-        setDisplayedText(text.slice(0, index));
+        setPlaceholder(text.slice(0, index));
         index++;
       } else {
         clearInterval(timer);
       }
-    }, 50);
+    }, speed);
     
     return () => clearInterval(timer);
-  }, [text]);
+  }, [text, speed]);
   
-  return (
-    <p className="text-muted-foreground">
-      {displayedText}
-      <span className="animate-pulse">|</span>
-    </p>
-  );
+  return placeholder;
 };
 
 interface Event {
@@ -55,6 +50,7 @@ const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
+  const placeholder = useTypingPlaceholder('Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе');
 
   const categories = [
     { value: 'all', label: 'Все', icon: 'Calendar' },
@@ -205,14 +201,13 @@ const Events = () => {
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <h1 className="text-4xl font-bold mb-2">Мероприятия</h1>
-              <TypingAnimation text="Поиск мероприятий. Присоединяйтесь к интересным событиям в вашем городе" />
             </div>
 
             <div className="mb-8">
               <div className="relative mb-6">
                 <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Поиск мероприятий..."
+                  placeholder={placeholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 py-6 rounded-2xl"
