@@ -19,30 +19,30 @@ const EventTabs = ({
   onCreateClick
 }: EventTabsProps) => {
   return (
-    <div className="flex flex-wrap gap-4 mb-8">
+    <div className="flex gap-2 mb-8 overflow-x-auto">
       <Button
         variant={activeTab === 'my' ? 'default' : 'outline'}
-        className="gap-2 rounded-2xl"
+        className="gap-1 rounded-2xl whitespace-nowrap text-xs px-3 py-2 flex-shrink-0"
         onClick={() => onTabChange('my')}
       >
-        <Icon name="Calendar" size={18} />
-        Мои мероприятия ({myEventsCount})
+        <Icon name="Calendar" size={16} />
+        Мои ({myEventsCount})
       </Button>
       <Button
         variant={activeTab === 'participating' ? 'default' : 'outline'}
-        className="gap-2 rounded-2xl"
+        className="gap-1 rounded-2xl whitespace-nowrap text-xs px-3 py-2 flex-shrink-0"
         onClick={() => onTabChange('participating')}
       >
-        <Icon name="UserPlus" size={18} />
+        <Icon name="UserPlus" size={16} />
         Участвую ({participatingEventsCount})
       </Button>
       <Button
         variant={activeTab === 'completed' ? 'default' : 'outline'}
-        className="gap-2 rounded-2xl"
+        className="gap-1 rounded-2xl whitespace-nowrap text-xs px-3 py-2 flex-shrink-0"
         onClick={() => onTabChange('completed')}
       >
-        <Icon name="CheckCircle2" size={18} />
-        Завершенные ({completedEventsCount})
+        <Icon name="CheckCircle2" size={16} />
+        Завершены ({completedEventsCount})
       </Button>
       <Button
         className="gap-2 rounded-2xl ml-auto hidden lg:flex"
