@@ -101,9 +101,19 @@ const Radio = () => {
             <Card className="rounded-2xl border-2 shadow-lg overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center gap-6">
-                  {/* Album Art */}
-                  <div className={`w-24 h-24 rounded-xl bg-gradient-to-br ${currentStation?.gradient || 'from-purple-500 via-pink-500 to-red-500'} flex items-center justify-center shadow-lg transition-all duration-500 flex-shrink-0`}>
-                    <Icon name="Radio" size={40} className="text-white" />
+                  {/* Album Art with Equalizer */}
+                  <div className={`w-24 h-24 rounded-xl bg-gradient-to-br ${currentStation?.gradient || 'from-purple-500 via-pink-500 to-red-500'} flex items-center justify-center shadow-lg transition-all duration-500 flex-shrink-0 relative overflow-hidden`}>
+                    {isPlaying ? (
+                      <div className="flex items-end justify-center gap-1 h-12">
+                        <div className="w-1.5 bg-white rounded-full animate-[equalizer1_0.8s_ease-in-out_infinite]" style={{ height: '40%' }} />
+                        <div className="w-1.5 bg-white rounded-full animate-[equalizer2_0.6s_ease-in-out_infinite]" style={{ height: '60%' }} />
+                        <div className="w-1.5 bg-white rounded-full animate-[equalizer3_0.7s_ease-in-out_infinite]" style={{ height: '50%' }} />
+                        <div className="w-1.5 bg-white rounded-full animate-[equalizer4_0.9s_ease-in-out_infinite]" style={{ height: '70%' }} />
+                        <div className="w-1.5 bg-white rounded-full animate-[equalizer1_0.5s_ease-in-out_infinite]" style={{ height: '45%' }} />
+                      </div>
+                    ) : (
+                      <Icon name="Radio" size={40} className="text-white" />
+                    )}
                   </div>
 
                   {/* Player Controls */}
