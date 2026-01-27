@@ -33,7 +33,6 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: 
   const [swipedChat, setSwipedChat] = useState<number | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchOffset, setTouchOffset] = useState<number>(0);
-  const [activeFilter, setActiveFilter] = useState<'personal' | 'group' | 'deal'>('personal');
 
   const handleTouchStart = (e: React.TouchEvent, chatId: number) => {
     setTouchStart(e.touches[0].clientX);
@@ -67,39 +66,10 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: 
     setSwipedChat(null);
   };
 
-  const filteredChats = chats.filter(chat => chat.type === activeFilter);
-
   return (
     <Card className="rounded-3xl border-2 lg:col-span-1">
       <CardContent className="p-0">
-        <div className="p-4 border-b space-y-3">
-          <div className="flex gap-2">
-            <Button
-              variant={activeFilter === 'personal' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-1 rounded-xl"
-              onClick={() => setActiveFilter('personal')}
-            >
-              Личные
-            </Button>
-            <Button
-              variant={activeFilter === 'group' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-1 rounded-xl"
-              onClick={() => setActiveFilter('group')}
-            >
-              Встречи
-            </Button>
-            <Button
-              variant={activeFilter === 'deal' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-1 rounded-xl"
-              onClick={() => setActiveFilter('deal')}
-            >
-              Сделки
-            </Button>
-          </div>
-          
+        <div className="p-4 border-b">
           <div className="relative">
             <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -115,14 +85,14 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: 
               <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
               <p className="text-muted-foreground">Загрузка чатов...</p>
             </div>
-          ) : filteredChats.length === 0 ? (
+          ) : chats.length === 0 ? (
             <div className="text-center py-12">
               <Icon name="MessageCircle" size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
               <p className="text-muted-foreground">Нет чатов</p>
               <p className="text-sm text-muted-foreground">Начните общение с другими пользователями</p>
             </div>
           ) : (
-            filteredChats.map((chat) => (
+            chats.map((chat) => (
               <div
                 key={chat.id}
                 className="relative overflow-hidden border-b"
