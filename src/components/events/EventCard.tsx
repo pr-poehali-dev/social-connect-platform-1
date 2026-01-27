@@ -17,7 +17,6 @@ export interface Event {
   maxParticipants: number;
   image: string;
   status: 'active' | 'completed' | 'cancelled';
-  dateTimeText?: string;
 }
 
 interface EventCardProps {
@@ -63,7 +62,7 @@ const EventCard = ({ event, activeTab, onEdit, onDelete, onCancelParticipation, 
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-sm">
             <Icon name="Calendar" size={16} className="text-primary" />
-            <span>{event.dateTimeText || `${formatDate(event.date)} в ${event.time}`}</span>
+            <span>{formatDate(event.date)} в {event.time}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Icon name="MapPin" size={16} className="text-primary" />

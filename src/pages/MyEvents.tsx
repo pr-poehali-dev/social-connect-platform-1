@@ -24,8 +24,7 @@ const MyEvents = () => {
     category: 'entertainment',
     price: 0,
     maxParticipants: 10,
-    image: undefined as string | undefined,
-    dateTimeText: ''
+    image: undefined as string | undefined
   });
 
   const myEvents: Event[] = [
@@ -132,8 +131,7 @@ const MyEvents = () => {
         category: eventToEdit.category,
         price: eventToEdit.price,
         maxParticipants: eventToEdit.maxParticipants,
-        image: eventToEdit.image,
-        dateTimeText: eventToEdit.dateTimeText || ''
+        image: eventToEdit.image
       });
       setEditingEventId(eventId);
       setIsEditModalOpen(true);
@@ -298,8 +296,7 @@ const MyEvents = () => {
             category: 'entertainment',
             price: 0,
             maxParticipants: 10,
-            image: undefined,
-            dateTimeText: ''
+            image: undefined
           });
         }}
         newEvent={newEvent}
@@ -322,8 +319,7 @@ const MyEvents = () => {
             category: 'entertainment',
             price: 0,
             maxParticipants: 10,
-            image: undefined,
-            dateTimeText: ''
+            image: undefined
           });
         }}
         newEvent={newEvent}
