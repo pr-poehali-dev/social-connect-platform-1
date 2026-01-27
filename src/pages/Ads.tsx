@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,29 @@ const Ads = () => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [sending, setSending] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getUserCity = () => {
+    const userProfile = localStorage.getItem('userProfile');
+    if (userProfile) {
+      try {
+        const profile = JSON.parse(userProfile);
+        return profile.city || 'Все города';
+      } catch {
+        return 'Все города';
+      }
+    }
+    return 'Все города';
+  };
+
+  const [selectedCity, setSelectedCity] = useState(getUserCity());
+
+  useEffect(() => {
+    if (location.state?.selectedCity) {
+      setSelectedCity(location.state.selectedCity);
+    }
+  }, [location.state]);
 
   const categories = [
     { id: 'go', label: 'СХОЖУ', icon: 'MapPin' },
@@ -46,7 +70,7 @@ const Ads = () => {
 
   useEffect(() => {
     loadAds();
-  }, [activeCategory]);
+  }, [activeCategory, selectedCity]);
 
   const loadAds = async () => {
     setLoading(true);
@@ -129,6 +153,20 @@ const Ads = () => {
           <div className="max-w-6xl mx-auto">
 
 
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/select-city', { state: { currentCity: selectedCity, returnTo: '/ads' } })}
+                className="w-full sm:w-[200px] justify-between rounded-2xl py-6"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Icon name="MapPin" size={16} className="flex-shrink-0" />
+                  <span className="truncate">{selectedCity}</span>
+                </div>
+                <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0" />
+              </Button>
+            </div>
+
             <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
               <TabsList className="w-full justify-center rounded-2xl">
                 {categories.map((category) => (
@@ -148,13 +186,13 @@ const Ads = () => {
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Загрузка...</p>
               </div>
-            ) : ads.length === 0 ? (
+            ) : ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Нет объявлений</p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ads.map((ad) => (
+                {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad) => (
                   <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
                     <div className="relative h-64 overflow-hidden">
                       {ad.avatar_url ? (
