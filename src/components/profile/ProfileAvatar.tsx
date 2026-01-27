@@ -72,10 +72,6 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
 
   return (
     <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200 group">
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-2 bg-green-500 text-white px-3 py-1.5 rounded-full shadow-lg">
-        <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-        <span className="text-xs font-medium">Онлайн</span>
-      </div>
       {user.avatar_url ? (
         <img 
           src={user.avatar_url} 
