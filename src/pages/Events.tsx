@@ -329,7 +329,7 @@ const Events = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <div className="flex gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <div className="relative flex-1">
                   <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -345,19 +345,19 @@ const Events = () => {
                       variant="outline"
                       role="combobox"
                       aria-expanded={citySearchOpen}
-                      className="w-[200px] justify-between rounded-2xl py-6"
+                      className="w-full sm:w-[200px] justify-between rounded-2xl py-6"
                     >
-                      <div className="flex items-center gap-2">
-                        <Icon name="MapPin" size={16} />
-                        {selectedCity}
+                      <div className="flex items-center gap-2 truncate">
+                        <Icon name="MapPin" size={16} className="flex-shrink-0" />
+                        <span className="truncate">{selectedCity}</span>
                       </div>
-                      <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50" />
+                      <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50 flex-shrink-0" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
+                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[280px] p-0" align="end">
                     <Command>
                       <CommandInput placeholder="Поиск города..." />
-                      <CommandList>
+                      <CommandList className="max-h-[300px]">
                         <CommandEmpty>Город не найден</CommandEmpty>
                         <CommandGroup>
                           {cities.map((city) => (
@@ -371,11 +371,11 @@ const Events = () => {
                             >
                               <Check
                                 className={cn(
-                                  'mr-2 h-4 w-4',
+                                  'mr-2 h-4 w-4 flex-shrink-0',
                                   selectedCity === city ? 'opacity-100' : 'opacity-0'
                                 )}
                               />
-                              {city}
+                              <span className="truncate">{city}</span>
                             </CommandItem>
                           ))}
                         </CommandGroup>
