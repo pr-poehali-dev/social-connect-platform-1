@@ -134,8 +134,8 @@ const Radio = () => {
                         <p className="text-sm text-muted-foreground">{currentStation?.description || 'Танцевальная музыка 24/7'}</p>
                       </div>
 
-                      {/* Volume Control */}
-                      <div className="flex items-center gap-3">
+                      {/* Volume Control - Desktop Only */}
+                      <div className="hidden lg:flex items-center gap-3">
                         <Icon name="Volume2" size={18} className="text-muted-foreground flex-shrink-0" />
                         <Slider
                           value={[volume]}
