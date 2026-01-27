@@ -117,7 +117,7 @@ const MyEvents = () => {
               <p className="text-muted-foreground">Управляйте своими мероприятиями и участием</p>
             </div>
 
-            <div className="flex gap-4 mb-8">
+            <div className="flex flex-wrap gap-4 mb-8">
               <Button
                 variant={activeTab === 'my' ? 'default' : 'outline'}
                 className="gap-2 rounded-2xl"
@@ -133,6 +133,21 @@ const MyEvents = () => {
               >
                 <Icon name="UserPlus" size={18} />
                 Участвую ({participatingEvents.length})
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 rounded-2xl"
+                onClick={() => setActiveTab('my')}
+              >
+                <Icon name="CheckCircle2" size={18} />
+                Завершенные
+              </Button>
+              <Button
+                className="gap-2 rounded-2xl ml-auto"
+                onClick={() => window.location.href = '/create-event'}
+              >
+                <Icon name="Plus" size={18} />
+                Создать новое мероприятие
               </Button>
             </div>
 
