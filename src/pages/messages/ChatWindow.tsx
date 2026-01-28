@@ -114,7 +114,7 @@ const ChatWindow = ({
   return (
     <Card className="rounded-3xl border-2 lg:col-span-2 h-full">
       <CardContent className="p-0 flex flex-col h-full">
-        <div className="p-4 pb-6 lg:pb-4 border-b flex items-center justify-between">
+        <div className="p-4 pb-8 lg:pb-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {onClose && (
               <Button
