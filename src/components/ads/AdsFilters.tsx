@@ -133,50 +133,53 @@ const AdsFilters = ({
         {/* Фильтр: Даты мероприятия */}
         <div>
           <label className="text-sm font-medium mb-2 block">Даты мероприятия</label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-between rounded-xl text-left font-normal"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <Icon name="Calendar" size={16} className="flex-shrink-0" />
-                  <span className="truncate">
-                    {dateRange.from ? (
-                      dateRange.to ? (
-                        `${format(dateRange.from, 'd MMM', { locale: ru })} - ${format(dateRange.to, 'd MMM', { locale: ru })}`
+          <div className="relative">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between rounded-xl text-left font-normal pr-10"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Icon name="Calendar" size={16} className="flex-shrink-0" />
+                    <span className="truncate">
+                      {dateRange.from ? (
+                        dateRange.to ? (
+                          `${format(dateRange.from, 'd MMM', { locale: ru })} - ${format(dateRange.to, 'd MMM', { locale: ru })}`
+                        ) : (
+                          `от ${format(dateRange.from, 'd MMM', { locale: ru })}`
+                        )
                       ) : (
-                        `от ${format(dateRange.from, 'd MMM', { locale: ru })}`
-                      )
-                    ) : (
-                      'Любые даты'
-                    )}
-                  </span>
-                </div>
-                {(dateRange.from || dateRange.to) && (
-                  <Icon
-                    name="X"
-                    size={14}
-                    className="ml-2 opacity-50 hover:opacity-100 flex-shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDateRangeChange({});
-                    }}
-                  />
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 rounded-2xl" align="start">
-              <Calendar
-                mode="range"
-                selected={{ from: dateRange.from, to: dateRange.to }}
-                onSelect={(range) => onDateRangeChange(range || {})}
-                numberOfMonths={1}
-                locale={ru}
-                disabled={(date) => date < new Date()}
-              />
-            </PopoverContent>
-          </Popover>
+                        'Любые даты'
+                      )}
+                    </span>
+                  </div>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-2xl" align="start">
+                <Calendar
+                  mode="range"
+                  selected={{ from: dateRange.from, to: dateRange.to }}
+                  onSelect={(range) => onDateRangeChange(range || {})}
+                  numberOfMonths={1}
+                  locale={ru}
+                  disabled={(date) => date < new Date()}
+                />
+              </PopoverContent>
+            </Popover>
+            {(dateRange.from || dateRange.to) && (
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100 transition-opacity z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDateRangeChange({});
+                }}
+              >
+                <Icon name="X" size={14} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Card>
