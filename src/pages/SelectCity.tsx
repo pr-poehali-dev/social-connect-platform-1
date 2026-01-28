@@ -187,7 +187,7 @@ const SelectCity = () => {
                   <div className="mb-6">
                     <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">Популярные города</h2>
                     <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-4">
-                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
                         {filteredPopularCities.map((city) => (
                           <button
                             key={city}
@@ -228,7 +228,7 @@ const SelectCity = () => {
                   <div>
                     {!searchQuery && <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">Все города</h2>}
                     <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-4">
-                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
                         {filteredCities.map((city) => (
                           <button
                             key={city}
