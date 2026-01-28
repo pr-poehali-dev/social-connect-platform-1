@@ -203,7 +203,7 @@ const SelectCity = () => {
                                 name="MapPin"
                                 size={20}
                                 className={cn(
-                                  'flex-shrink-0',
+                                  'flex-shrink-0 lg:hidden',
                                   selectedCity === city ? 'text-primary' : 'text-muted-foreground'
                                 )}
                               />
@@ -246,7 +246,7 @@ const SelectCity = () => {
                                 name="MapPin"
                                 size={20}
                                 className={cn(
-                                  'flex-shrink-0',
+                                  'flex-shrink-0 lg:hidden',
                                   selectedCity === city ? 'text-primary' : 'text-muted-foreground'
                                 )}
                               />
