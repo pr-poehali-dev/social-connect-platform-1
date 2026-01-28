@@ -165,21 +165,6 @@ const Ads = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
 
-            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-6">
-              <TabsList className="w-full justify-center rounded-2xl">
-                {categories.map((category) => (
-                  <TabsTrigger 
-                    key={category.id} 
-                    value={category.id} 
-                    className="gap-2 rounded-xl text-base px-8 py-3"
-                  >
-                    <Icon name={category.icon} size={18} />
-                    {category.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-
             <div className="mb-6 overflow-x-auto">
               <div className="flex gap-2 pb-2">
                 {eventTypes.map((eventType) => (
@@ -195,6 +180,21 @@ const Ads = () => {
                 ))}
               </div>
             </div>
+
+            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-6">
+              <TabsList className="w-full justify-center rounded-2xl">
+                {categories.map((category) => (
+                  <TabsTrigger 
+                    key={category.id} 
+                    value={category.id} 
+                    className="gap-2 rounded-xl text-base px-8 py-3"
+                  >
+                    <Icon name={category.icon} size={18} />
+                    {category.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button
