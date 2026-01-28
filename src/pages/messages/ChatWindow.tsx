@@ -114,24 +114,24 @@ const ChatWindow = ({
   return (
     <Card className="rounded-3xl border-2 lg:col-span-2 h-full">
       <CardContent className="p-0 flex flex-col h-full">
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="p-4 pb-6 lg:pb-4 border-b flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             {onClose && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full lg:hidden"
+                className="rounded-full lg:hidden flex-shrink-0"
                 onClick={onClose}
               >
                 <Icon name="ArrowLeft" size={20} />
               </Button>
             )}
-            <Avatar className="w-10 h-10">
+            <Avatar className="w-10 h-10 flex-shrink-0">
               <AvatarImage src={currentChat.avatar} alt={currentChat.name} />
               <AvatarFallback>{currentChat.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div>
-              <h3 className="font-semibold">{currentChat.name}</h3>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold truncate">{currentChat.name}</h3>
               {currentChat.type === 'personal' && (
                 <p className="text-xs text-muted-foreground">
                   {currentChat.online ? 'В сети' : 'Не в сети'}
