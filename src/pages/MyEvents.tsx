@@ -276,14 +276,7 @@ const MyEvents = () => {
               </Card>
             )}
 
-            {activeTab === 'my' && currentEvents.length > 0 && (
-              <div className="mt-8 text-center">
-                <Button size="lg" className="gap-2 rounded-2xl" onClick={() => setIsCreateModalOpen(true)}>
-                  <Icon name="Plus" size={20} />
-                  Создать новое мероприятие
-                </Button>
-              </div>
-            )}
+
           </div>
         </div>
       </main>
