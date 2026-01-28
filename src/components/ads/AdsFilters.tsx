@@ -36,6 +36,7 @@ const eventTypes = [
   { id: 'dinner', label: 'Ужин', icon: 'UtensilsCrossed' },
   { id: 'concert', label: 'Концерт', icon: 'Music' },
   { id: 'party', label: 'Вечеринка', icon: 'PartyPopper' },
+  { id: 'cinema', label: 'Кино', icon: 'Film' },
   { id: 'tour', label: 'Совместный ТУР', icon: 'Plane' }
 ];
 

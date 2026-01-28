@@ -29,6 +29,7 @@ const eventTypeLabels: { [key: string]: string } = {
   'dinner': 'Ужин',
   'concert': 'Концерт',
   'party': 'Вечеринка',
+  'cinema': 'Кино',
   'tour': 'Совместный ТУР'
 };
 
