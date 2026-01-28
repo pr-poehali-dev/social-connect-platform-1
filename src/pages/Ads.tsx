@@ -21,6 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 interface Ad {
   id: number;
@@ -41,6 +49,7 @@ const Ads = () => {
   const [activeCategory, setActiveCategory] = useState('go');
   const [activeEventType, setActiveEventType] = useState('all');
   const [selectedGender, setSelectedGender] = useState('all');
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
@@ -130,6 +139,19 @@ const Ads = () => {
     );
   };
 
+  const parseSchedule = (schedule: string): Date | null => {
+    try {
+      // Попытка распарсить различные форматы дат
+      const date = new Date(schedule);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   const getFilteredAds = () => {
     let filtered = ads;
     
@@ -145,6 +167,23 @@ const Ads = () => {
     
     // Фильтр по типу мероприятия
     filtered = filterAdsByEventType(filtered);
+    
+    // Фильтр по датам мероприятия
+    if (dateRange.from || dateRange.to) {
+      filtered = filtered.filter(ad => {
+        const eventDate = parseSchedule(ad.schedule);
+        if (!eventDate) return false;
+        
+        if (dateRange.from && dateRange.to) {
+          return eventDate >= dateRange.from && eventDate <= dateRange.to;
+        } else if (dateRange.from) {
+          return eventDate >= dateRange.from;
+        } else if (dateRange.to) {
+          return eventDate <= dateRange.to;
+        }
+        return true;
+      });
+    }
     
     return filtered;
   };
@@ -208,7 +247,7 @@ const Ads = () => {
 
             {/* Фильтры */}
             <Card className="mb-6 p-4 rounded-2xl">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 
                 {/* Фильтр: Город */}
                 <div>
@@ -283,6 +322,55 @@ const Ads = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Фильтр: Даты мероприятия */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Даты мероприятия</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between rounded-xl text-left font-normal"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <Icon name="Calendar" size={16} className="flex-shrink-0" />
+                          <span className="truncate">
+                            {dateRange.from ? (
+                              dateRange.to ? (
+                                `${format(dateRange.from, 'd MMM', { locale: ru })} - ${format(dateRange.to, 'd MMM', { locale: ru })}`
+                              ) : (
+                                `от ${format(dateRange.from, 'd MMM', { locale: ru })}`
+                              )
+                            ) : (
+                              'Любые даты'
+                            )}
+                          </span>
+                        </div>
+                        {(dateRange.from || dateRange.to) && (
+                          <Icon
+                            name="X"
+                            size={14}
+                            className="ml-2 opacity-50 hover:opacity-100 flex-shrink-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDateRange({});
+                            }}
+                          />
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-2xl" align="start">
+                      <Calendar
+                        mode="range"
+                        selected={{ from: dateRange.from, to: dateRange.to }}
+                        onSelect={(range) => setDateRange(range || {})}
+                        numberOfMonths={1}
+                        locale={ru}
+                        disabled={(date) => date < new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </Card>
