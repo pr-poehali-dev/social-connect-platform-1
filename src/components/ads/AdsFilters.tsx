@@ -95,15 +95,21 @@ const AdsFilters = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="go">
-                <div className="flex items-center gap-2">
-                  <Icon name="MapPin" size={16} />
-                  Схожу
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-2">
+                    <Icon name="MapPin" size={16} />
+                    <span className="font-medium">Схожу</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground ml-6">ищу кто пригласит</span>
                 </div>
               </SelectItem>
               <SelectItem value="invite">
-                <div className="flex items-center gap-2">
-                  <Icon name="Sparkles" size={16} />
-                  Приглашу
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Sparkles" size={16} />
+                    <span className="font-medium">Приглашу</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground ml-6">ищу кто пойдёт</span>
                 </div>
               </SelectItem>
             </SelectContent>
