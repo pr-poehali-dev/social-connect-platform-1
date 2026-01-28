@@ -165,20 +165,19 @@ const Ads = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
 
-            <div className="mb-6 overflow-x-auto">
-              <div className="flex gap-2 pb-2">
-                {eventTypes.map((eventType) => (
-                  <Button
-                    key={eventType.id}
-                    variant={activeEventType === eventType.id ? 'default' : 'outline'}
-                    onClick={() => setActiveEventType(eventType.id)}
-                    className="gap-2 rounded-2xl flex-shrink-0"
-                  >
-                    <Icon name={eventType.icon} size={16} />
-                    {eventType.label}
-                  </Button>
-                ))}
-              </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/select-city', { state: { currentCity: selectedCity, returnTo: '/ads' } })}
+                className="w-full sm:w-[200px] justify-between rounded-2xl py-6"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Icon name="MapPin" size={16} className="flex-shrink-0" />
+                  <span className="truncate">{selectedCity}</span>
+                </div>
+                <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0" />
+              </Button>
             </div>
 
             <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-6">
@@ -196,18 +195,20 @@ const Ads = () => {
               </TabsList>
             </Tabs>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/select-city', { state: { currentCity: selectedCity, returnTo: '/ads' } })}
-                className="w-full sm:w-[200px] justify-between rounded-2xl py-6"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <Icon name="MapPin" size={16} className="flex-shrink-0" />
-                  <span className="truncate">{selectedCity}</span>
-                </div>
-                <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0" />
-              </Button>
+            <div className="mb-8 overflow-x-auto">
+              <div className="flex gap-2 pb-2">
+                {eventTypes.map((eventType) => (
+                  <Button
+                    key={eventType.id}
+                    variant={activeEventType === eventType.id ? 'default' : 'outline'}
+                    onClick={() => setActiveEventType(eventType.id)}
+                    className="gap-2 rounded-2xl flex-shrink-0"
+                  >
+                    <Icon name={eventType.icon} size={16} />
+                    {eventType.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {loading ? (
