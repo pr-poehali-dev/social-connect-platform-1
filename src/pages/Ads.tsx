@@ -211,6 +211,7 @@ const Ads = () => {
               activeEventType={activeEventType}
               dateRange={dateRange}
               onCityClick={() => navigate('/select-city', { state: { currentCity: selectedCity, returnTo: '/ads' } })}
+              onCityChange={setSelectedCity}
               onGenderChange={setSelectedGender}
               onCategoryChange={setActiveCategory}
               onEventTypeChange={setActiveEventType}

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import {
   Select,
@@ -14,8 +16,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AdsFiltersProps {
   selectedCity: string;
@@ -24,6 +36,7 @@ interface AdsFiltersProps {
   activeEventType: string;
   dateRange: { from?: Date; to?: Date };
   onCityClick: () => void;
+  onCityChange?: (city: string) => void;
   onGenderChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onEventTypeChange: (value: string) => void;
@@ -40,6 +53,27 @@ const eventTypes = [
   { id: 'tour', label: 'Совместный ТУР', icon: 'Plane' }
 ];
 
+const cities = [
+  'Все города',
+  'Москва',
+  'Санкт-Петербург',
+  'Новосибирск',
+  'Екатеринбург',
+  'Казань',
+  'Нижний Новгород',
+  'Челябинск',
+  'Самара',
+  'Омск',
+  'Ростов-на-Дону',
+  'Уфа',
+  'Красноярск',
+  'Воронеж',
+  'Пермь',
+  'Волгоград',
+  'Краснодар',
+  'Сочи',
+];
+
 const AdsFilters = ({
   selectedCity,
   selectedGender,
@@ -47,11 +81,13 @@ const AdsFilters = ({
   activeEventType,
   dateRange,
   onCityClick,
+  onCityChange,
   onGenderChange,
   onCategoryChange,
   onEventTypeChange,
   onDateRangeChange,
 }: AdsFiltersProps) => {
+  const [cityOpen, setCityOpen] = useState(false);
   return (
     <Card className="mb-6 p-4 rounded-2xl">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -59,10 +95,11 @@ const AdsFilters = ({
         {/* Фильтр: Город */}
         <div>
           <label className="text-sm font-medium mb-2 block">Город</label>
+          {/* Мобильная версия - переход на страницу */}
           <Button
             variant="outline"
             onClick={onCityClick}
-            className="w-full justify-between rounded-xl"
+            className="w-full justify-between rounded-xl lg:hidden"
           >
             <div className="flex items-center gap-2 truncate">
               <Icon name="MapPin" size={16} className="flex-shrink-0" />
@@ -70,6 +107,51 @@ const AdsFilters = ({
             </div>
             <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0" />
           </Button>
+          {/* Десктопная версия - выпадающий список */}
+          <Popover open={cityOpen} onOpenChange={setCityOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={cityOpen}
+                className="w-full justify-between rounded-xl hidden lg:flex"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Icon name="MapPin" size={16} className="flex-shrink-0" />
+                  <span className="truncate">{selectedCity}</span>
+                </div>
+                <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50 flex-shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0 rounded-xl" align="start">
+              <Command>
+                <CommandInput placeholder="Поиск города..." />
+                <CommandList>
+                  <CommandEmpty>Город не найден</CommandEmpty>
+                  <CommandGroup>
+                    {cities.map((city) => (
+                      <CommandItem
+                        key={city}
+                        value={city}
+                        onSelect={() => {
+                          onCityChange?.(city);
+                          setCityOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            selectedCity === city ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                        {city}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Фильтр: Пол */}
