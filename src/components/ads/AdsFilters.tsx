@@ -65,10 +65,10 @@ const AdsFilters = ({
             className="w-full justify-between rounded-xl"
           >
             <div className="flex items-center gap-2 truncate">
-              <Icon name="MapPin" size={16} className="flex-shrink-0" />
+              <Icon name="MapPin" size={16} className="flex-shrink-0 lg:hidden" />
               <span className="truncate">{selectedCity}</span>
             </div>
-            <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0" />
+            <Icon name="ChevronRight" size={16} className="ml-2 opacity-50 flex-shrink-0 lg:hidden" />
           </Button>
         </div>
 
