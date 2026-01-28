@@ -82,7 +82,7 @@ const AdsFilters = ({
             <SelectContent>
               <SelectItem value="all">Все</SelectItem>
               <SelectItem value="male">Мужчины</SelectItem>
-              <SelectItem value="female">Женщины</SelectItem>
+              <SelectItem value="female">Девушки</SelectItem>
             </SelectContent>
           </Select>
         </div>
