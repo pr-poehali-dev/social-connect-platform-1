@@ -85,6 +85,10 @@ const Ads = () => {
     loadAds();
   }, [activeCategory]);
 
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [activeEventType, selectedCity]);
+
   const loadAds = async () => {
     setLoading(true);
     try {
@@ -110,6 +114,31 @@ const Ads = () => {
     if (diff < 3600) return `${Math.floor(diff / 60)} минут назад`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} часов назад`;
     return `${Math.floor(diff / 86400)} дней назад`;
+  };
+
+  const eventTypeMapping: { [key: string]: string } = {
+    'date': 'Свидание',
+    'dinner': 'Ужин',
+    'concert': 'Концерт',
+    'party': 'Вечеринка',
+    'tour': 'Совместный ТУР'
+  };
+
+  const filterAdsByEventType = (ads: Ad[]) => {
+    if (activeEventType === 'all') {
+      return ads;
+    }
+    
+    const eventTypeLabel = eventTypeMapping[activeEventType];
+    return ads.filter(ad => 
+      ad.events.some(event => event.event_type === eventTypeLabel)
+    );
+  };
+
+  const getFilteredAds = () => {
+    let filtered = ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity);
+    filtered = filterAdsByEventType(filtered);
+    return filtered;
   };
 
   const handleInvite = (ad: Ad) => {
@@ -215,14 +244,14 @@ const Ads = () => {
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Загрузка...</p>
               </div>
-            ) : ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).length === 0 ? (
+            ) : getFilteredAds().length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">Нет объявлений в этом городе</p>
+                <p className="text-muted-foreground">Нет объявлений по выбранным фильтрам</p>
               </div>
             ) : (
               <>
                 <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad) => (
+                  {getFilteredAds().map((ad) => (
                   <Card key={ad.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl overflow-hidden border-2">
                     <div className="relative h-64 overflow-hidden">
                       {ad.avatar_url ? (
@@ -284,7 +313,7 @@ const Ads = () => {
                     onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
                     onTouchMove={(e) => setTouchEnd(e.touches[0].clientX)}
                     onTouchEnd={() => {
-                      const filteredAds = ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity);
+                      const filteredAds = getFilteredAds();
                       if (touchStart - touchEnd > 75 && currentIndex < filteredAds.length - 1) {
                         setCurrentIndex(currentIndex + 1);
                       }
@@ -293,7 +322,7 @@ const Ads = () => {
                       }
                     }}
                   >
-                    {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((ad, index) => (
+                    {getFilteredAds().map((ad, index) => (
                       <Card 
                         key={ad.id} 
                         className={`group hover:shadow-2xl cursor-pointer rounded-3xl overflow-hidden border-2 absolute inset-0 transition-all duration-500 ease-in-out ${
@@ -360,7 +389,7 @@ const Ads = () => {
                   </div>
                   
                   <div className="flex justify-center gap-2 mt-4">
-                    {ads.filter(ad => selectedCity === 'Все города' || ad.city === selectedCity).map((_, index) => (
+                    {getFilteredAds().map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentIndex(index)}
