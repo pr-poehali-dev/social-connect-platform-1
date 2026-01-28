@@ -24,7 +24,7 @@ const Profile = () => {
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
-    name: '',
+    first_name: '',
     last_name: '',
     nickname: '',
     bio: '',
@@ -72,7 +72,7 @@ const Profile = () => {
           const userData = await response.json();
           setUser(userData);
           setFormData({
-            name: userData.name || '',
+            first_name: userData.first_name || '',
             last_name: userData.last_name || '',
             nickname: userData.nickname || '',
             bio: userData.bio || '',
@@ -170,7 +170,7 @@ const Profile = () => {
 
   const handleCancel = () => {
     setFormData({
-      name: user.name,
+      first_name: user.first_name,
       last_name: user.last_name,
       nickname: user.nickname,
       bio: user.bio,
