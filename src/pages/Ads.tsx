@@ -64,7 +64,8 @@ const Ads = () => {
   const loadAds = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${activeCategory}`);
+      const oppositeAction = activeCategory === 'go' ? 'invite' : 'go';
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${oppositeAction}`);
       if (response.ok) {
         const data = await response.json();
         setAds(data);
