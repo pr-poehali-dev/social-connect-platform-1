@@ -164,8 +164,8 @@ const SelectCity = () => {
       </div>
 
       <main className="pb-24">
-        <div className="container mx-auto px-4 py-6">
-          <div className="max-w-2xl mx-auto">
+        <div className="container mx-auto px-4 lg:px-8 py-6">
+          <div className="max-w-2xl lg:max-w-none mx-auto">
             <div className="relative mb-6">
               <Icon
                 name="Search"
