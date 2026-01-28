@@ -33,6 +33,7 @@ interface Ad {
 
 const Ads = () => {
   const [activeCategory, setActiveCategory] = useState('go');
+  const [activeEventType, setActiveEventType] = useState('all');
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
@@ -69,6 +70,15 @@ const Ads = () => {
   const categories = [
     { id: 'go', label: 'СХОЖУ', icon: 'MapPin' },
     { id: 'invite', label: 'ПРИГЛАШУ', icon: 'Sparkles' }
+  ];
+
+  const eventTypes = [
+    { id: 'all', label: 'Все', icon: 'Grid3x3' },
+    { id: 'date', label: 'Свидание', icon: 'Heart' },
+    { id: 'dinner', label: 'Ужин', icon: 'UtensilsCrossed' },
+    { id: 'concert', label: 'Концерт', icon: 'Music' },
+    { id: 'party', label: 'Вечеринка', icon: 'PartyPopper' },
+    { id: 'tour', label: 'Совместный ТУР', icon: 'Plane' }
   ];
 
   useEffect(() => {
@@ -170,7 +180,7 @@ const Ads = () => {
               </Button>
             </div>
 
-            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-8">
+            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-6">
               <TabsList className="w-full justify-center rounded-2xl">
                 {categories.map((category) => (
                   <TabsTrigger 
@@ -184,6 +194,22 @@ const Ads = () => {
                 ))}
               </TabsList>
             </Tabs>
+
+            <div className="mb-8 overflow-x-auto">
+              <div className="flex gap-2 pb-2">
+                {eventTypes.map((eventType) => (
+                  <Button
+                    key={eventType.id}
+                    variant={activeEventType === eventType.id ? 'default' : 'outline'}
+                    onClick={() => setActiveEventType(eventType.id)}
+                    className="gap-2 rounded-2xl flex-shrink-0"
+                  >
+                    <Icon name={eventType.icon} size={16} />
+                    {eventType.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
             {loading ? (
               <div className="text-center py-12">
