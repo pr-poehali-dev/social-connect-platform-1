@@ -193,7 +193,7 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
           </div>
 
           {showMessagesTabs && location.pathname === '/messages' && (
-            <div className="border-t border-border py-3 overflow-x-auto">
+            <div className="border-t border-border py-2 overflow-x-auto">
               <div className="flex gap-2 px-1 justify-start">
                 <Button
                   variant={activeMessagesTab === 'personal' ? 'default' : 'outline'}
