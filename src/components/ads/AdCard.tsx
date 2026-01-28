@@ -24,6 +24,14 @@ interface AdCardProps {
   getTimeAgo: (date: string) => string;
 }
 
+const eventTypeLabels: { [key: string]: string } = {
+  'date': 'Свидание',
+  'dinner': 'Ужин',
+  'concert': 'Концерт',
+  'party': 'Вечеринка',
+  'tour': 'Совместный ТУР'
+};
+
 const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
   return (
     <Card className="p-4 rounded-2xl hover:shadow-lg transition-shadow">
@@ -67,7 +75,7 @@ const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
             {ad.events.map((event, idx) => (
               <div key={idx} className="text-sm">
                 <Badge variant="outline" className="rounded-lg mr-2">
-                  {event.event_type}
+                  {eventTypeLabels[event.event_type] || event.event_type}
                 </Badge>
                 <span className="text-muted-foreground">{event.details || 'Без деталей'}</span>
               </div>
