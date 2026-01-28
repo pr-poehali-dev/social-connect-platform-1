@@ -186,38 +186,36 @@ const SelectCity = () => {
                 {!searchQuery && filteredPopularCities.length > 0 && (
                   <div className="mb-6">
                     <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">Популярные города</h2>
-                    <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-                      <div className="divide-y divide-gray-100">
+                    <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
                         {filteredPopularCities.map((city) => (
                           <button
                             key={city}
                             onClick={() => handleCitySelect(city)}
                             className={cn(
-                              'w-full flex items-center gap-3 px-6 py-4 text-left transition-colors',
+                              'flex items-center gap-2 px-4 py-2.5 text-left transition-colors rounded-xl',
                               'hover:bg-purple-50 active:bg-purple-100',
                               selectedCity === city && 'bg-purple-50'
                             )}
                           >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <Icon
-                                name="MapPin"
-                                size={20}
-                                className={cn(
-                                  'flex-shrink-0 lg:hidden',
-                                  selectedCity === city ? 'text-primary' : 'text-muted-foreground'
-                                )}
-                              />
-                              <span
-                                className={cn(
-                                  'truncate text-base',
-                                  selectedCity === city && 'font-semibold text-primary'
-                                )}
-                              >
-                                {city}
-                              </span>
-                            </div>
+                            <Icon
+                              name="MapPin"
+                              size={18}
+                              className={cn(
+                                'flex-shrink-0 lg:hidden',
+                                selectedCity === city ? 'text-primary' : 'text-muted-foreground'
+                              )}
+                            />
+                            <span
+                              className={cn(
+                                'truncate text-sm',
+                                selectedCity === city && 'font-semibold text-primary'
+                              )}
+                            >
+                              {city}
+                            </span>
                             {selectedCity === city && (
-                              <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                              <Check className="h-4 w-4 text-primary flex-shrink-0 ml-auto" />
                             )}
                           </button>
                         ))}
@@ -229,38 +227,36 @@ const SelectCity = () => {
                 {filteredCities.length > 0 && (
                   <div>
                     {!searchQuery && <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">Все города</h2>}
-                    <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-                      <div className="divide-y divide-gray-100">
+                    <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
                         {filteredCities.map((city) => (
                           <button
                             key={city}
                             onClick={() => handleCitySelect(city)}
                             className={cn(
-                              'w-full flex items-center gap-3 px-6 py-4 text-left transition-colors',
+                              'flex items-center gap-2 px-4 py-2.5 text-left transition-colors rounded-xl',
                               'hover:bg-purple-50 active:bg-purple-100',
                               selectedCity === city && 'bg-purple-50'
                             )}
                           >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <Icon
-                                name="MapPin"
-                                size={20}
-                                className={cn(
-                                  'flex-shrink-0 lg:hidden',
-                                  selectedCity === city ? 'text-primary' : 'text-muted-foreground'
-                                )}
-                              />
-                              <span
-                                className={cn(
-                                  'truncate text-base',
-                                  selectedCity === city && 'font-semibold text-primary'
-                                )}
-                              >
-                                {city}
-                              </span>
-                            </div>
+                            <Icon
+                              name="MapPin"
+                              size={18}
+                              className={cn(
+                                'flex-shrink-0 lg:hidden',
+                                selectedCity === city ? 'text-primary' : 'text-muted-foreground'
+                              )}
+                            />
+                            <span
+                              className={cn(
+                                'truncate text-sm',
+                                selectedCity === city && 'font-semibold text-primary'
+                              )}
+                            >
+                              {city}
+                            </span>
                             {selectedCity === city && (
-                              <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                              <Check className="h-4 w-4 text-primary flex-shrink-0 ml-auto" />
                             )}
                           </button>
                         ))}
