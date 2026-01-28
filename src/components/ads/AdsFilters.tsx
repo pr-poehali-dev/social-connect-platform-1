@@ -54,7 +54,7 @@ const AdsFilters = ({
 }: AdsFiltersProps) => {
   return (
     <Card className="mb-6 p-4 rounded-2xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         
         {/* Фильтр: Город */}
         <div>
@@ -88,7 +88,7 @@ const AdsFilters = ({
         </div>
 
         {/* Фильтр: Намерение */}
-        <div>
+        <div className="col-span-2 md:col-span-1">
           <label className="text-sm font-medium mb-2 block">Намерение</label>
           <Select value={activeCategory} onValueChange={onCategoryChange}>
             <SelectTrigger className="rounded-xl">
