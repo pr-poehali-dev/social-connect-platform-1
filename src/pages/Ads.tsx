@@ -202,11 +202,6 @@ const Ads = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold mb-2">Объявления</h1>
-              <p className="text-muted-foreground">Найдите компанию для мероприятий</p>
-            </div>
-
             <AdsFilters
               selectedCity={selectedCity}
               selectedGender={selectedGender}
