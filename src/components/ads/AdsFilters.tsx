@@ -93,7 +93,7 @@ const AdsFilters = ({
             <label className="text-sm font-medium">Намерение</label>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="lg:hidden text-muted-foreground hover:text-foreground transition-colors">
+                <button className="text-muted-foreground hover:text-foreground transition-colors">
                   <Icon name="CircleHelp" size={16} />
                 </button>
               </PopoverTrigger>
