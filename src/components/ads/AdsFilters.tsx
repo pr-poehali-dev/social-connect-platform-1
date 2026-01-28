@@ -89,24 +89,33 @@ const AdsFilters = ({
 
         {/* Фильтр: Намерение */}
         <div>
-          <label className="text-sm font-medium mb-2 block">Намерение</label>
+          <div className="flex items-center gap-2 mb-2">
+            <label className="text-sm font-medium">Намерение</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="lg:hidden text-muted-foreground hover:text-foreground transition-colors">
+                  <Icon name="CircleHelp" size={16} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3 rounded-xl" align="start">
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="font-semibold">Схожу</span> — ищу тех, кто приглашает на мероприятие
+                  </div>
+                  <div>
+                    <span className="font-semibold">Приглашу</span> — ищу тех, кто готов пойти со мной
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
           <Select value={activeCategory} onValueChange={onCategoryChange}>
             <SelectTrigger className="rounded-xl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="go">
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">Схожу</span>
-                  <span className="text-xs text-muted-foreground">ищу кто пригласит</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="invite">
-                <div className="flex flex-col items-start">
-                  <span className="font-medium">Приглашу</span>
-                  <span className="text-xs text-muted-foreground">ищу кто пойдёт</span>
-                </div>
-              </SelectItem>
+              <SelectItem value="go">Схожу</SelectItem>
+              <SelectItem value="invite">Приглашу</SelectItem>
             </SelectContent>
           </Select>
         </div>
