@@ -8,6 +8,12 @@ const ProfileViewMode = ({ user }: ProfileViewModeProps) => {
   return (
     <div className="space-y-4 p-6 bg-muted/50 rounded-2xl">
       <div className="grid md:grid-cols-2 gap-6">
+        {user.first_name && (
+          <div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Имя</p>
+            <p className="text-base">{user.first_name}</p>
+          </div>
+        )}
         {user.last_name && (
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Фамилия</p>
