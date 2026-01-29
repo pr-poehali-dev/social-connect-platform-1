@@ -138,16 +138,6 @@ const Messages = () => {
     }
   };
 
-  const tabs = [
-    { value: 'live', label: 'LIVE', icon: 'Radio' },
-    { value: 'personal', label: 'Личные сообщения', icon: 'MessageCircle' },
-    { value: 'group', label: 'Чаты', icon: 'Users' },
-    { value: 'deal', label: 'Обсуждение сделок', icon: 'Briefcase' },
-    { value: 'calls', label: 'Звонки', icon: 'PhoneCall' },
-    { value: 'contacts', label: 'Контакты', icon: 'BookUser' },
-    { value: 'calendar', label: 'Ежедневник', icon: 'Calendar' },
-  ];
-
   const filteredChats = chats.filter(chat => chat.type === activeTab);
   const currentChat = chats.find(chat => chat.id === selectedChat);
 
