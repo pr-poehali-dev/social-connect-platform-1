@@ -370,12 +370,11 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
             <Input
               id="maxParticipants"
               type="number"
-                min="1"
-                value={newEvent.maxParticipants}
-                onChange={(e) => onEventChange({ ...newEvent, maxParticipants: Number(e.target.value) })}
-                className="rounded-xl"
-              />
-            </div>
+              min="1"
+              value={newEvent.maxParticipants}
+              onChange={(e) => onEventChange({ ...newEvent, maxParticipants: Number(e.target.value) })}
+              className="rounded-xl"
+            />
           </div>
 
           <div className="flex gap-3 pt-4">
