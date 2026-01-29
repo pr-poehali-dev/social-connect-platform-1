@@ -53,6 +53,7 @@ const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [joinedEvents, setJoinedEvents] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,11 +141,50 @@ const Events = () => {
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
-  const handleJoinEvent = (eventId: number) => {
-    toast({
-      title: 'Вы записались на мероприятие',
-      description: 'Подробности отправлены на email',
-    });
+  const handleJoinEvent = async (eventId: number) => {
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (!user) {
+      toast({
+        title: 'Войдите в аккаунт',
+        description: 'Для записи на мероприятие необходимо авторизоваться',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'join',
+          event_id: eventId,
+          user_id: user.id
+        })
+      });
+
+      if (response.ok) {
+        setJoinedEvents(prev => new Set(prev).add(eventId));
+        setEvents(prev => prev.map(e => 
+          e.id === eventId ? { ...e, participants: e.participants + 1 } : e
+        ));
+        toast({
+          title: 'Вы записались на мероприятие',
+          description: 'Подробности отправлены на email',
+        });
+      }
+    } catch (error) {
+      console.error('Error joining event:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось записаться на мероприятие',
+        variant: 'destructive'
+      });
+    }
   };
 
   const filteredEvents = events.filter(event => {
@@ -274,23 +314,23 @@ const Events = () => {
 
                     {event.price === 0 ? (
                       <Button 
-                        className="w-full rounded-xl gap-2"
+                        className={`w-full rounded-xl gap-2 ${joinedEvents.has(event.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
                         onClick={() => handleJoinEvent(event.id)}
                         disabled={event.participants >= event.maxParticipants}
                       >
                         <Icon name="Check" size={18} />
-                        {event.participants >= event.maxParticipants ? 'Мест нет' : 'Пойду'}
+                        {joinedEvents.has(event.id) ? 'Вы идёте' : event.participants >= event.maxParticipants ? 'Мест нет' : 'Пойду'}
                       </Button>
                     ) : (
                       <div className="flex gap-2">
                         <Button 
-                          variant="outline"
-                          className="flex-1 rounded-xl gap-2"
+                          variant={joinedEvents.has(event.id) ? "default" : "outline"}
+                          className={`flex-1 rounded-xl gap-2 ${joinedEvents.has(event.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
                           onClick={() => handleJoinEvent(event.id)}
                           disabled={event.participants >= event.maxParticipants}
                         >
                           <Icon name="Check" size={18} />
-                          Пойду
+                          {joinedEvents.has(event.id) ? 'Вы идёте' : 'Пойду'}
                         </Button>
                         <Button 
                           className="flex-1 rounded-xl gap-2"
