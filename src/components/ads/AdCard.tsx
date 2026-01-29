@@ -57,15 +57,9 @@ const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1.5">
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <h3 className="text-base sm:text-lg font-bold">
-                  {ad.name}, {ad.age}
-                </h3>
-                <Badge variant="secondary" className="rounded-full text-xs">
-                  <Icon name={ad.gender === 'male' ? 'User' : 'Heart'} size={10} className="mr-0.5" />
-                  {ad.gender === 'male' ? 'М' : 'Ж'}
-                </Badge>
-              </div>
+              <h3 className="text-base sm:text-lg font-bold">
+                {ad.name}, {ad.age}
+              </h3>
             </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
               {getTimeAgo(ad.created_at)}
