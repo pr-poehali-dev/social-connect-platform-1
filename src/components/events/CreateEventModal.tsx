@@ -134,55 +134,53 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
 
         <div className="space-y-6 py-4">
           <div className="space-y-2">
-            <Label>Главное фото (обложка мероприятия)</Label>
-            {newEvent.image ? (
-              <div className="relative rounded-xl overflow-hidden border-2 border-dashed border-gray-300">
-                <img
-                  src={newEvent.image}
-                  alt="Превью"
-                  className="w-full h-48 object-cover"
-                />
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2 rounded-lg"
-                  onClick={handleRemoveImage}
+            <Label>Фотографии мероприятия (до 10 шт)</Label>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {newEvent.image ? (
+                <div className="relative w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border-2 border-primary">
+                  <img
+                    src={newEvent.image}
+                    alt="Обложка"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded">
+                    Обложка
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                    onClick={handleRemoveImage}
+                  >
+                    <Icon name="X" size={14} />
+                  </Button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="image-upload"
+                  className="w-32 h-32 flex-shrink-0 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-gray-50 flex flex-col items-center justify-center"
                 >
-                  <Icon name="X" size={16} />
-                </Button>
-              </div>
-            ) : (
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary transition-colors bg-gray-50"
-              >
-                {isUploading ? (
-                  <div className="text-center">
-                    <Icon name="Loader2" size={32} className="animate-spin mx-auto mb-2 text-primary" />
-                    <p className="text-sm text-muted-foreground">Загрузка...</p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Icon name="Upload" size={32} className="mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mb-1">Нажмите для загрузки</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG до 5 МБ</p>
-                  </div>
-                )}
-                <Input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'main')}
-                  className="hidden"
-                  disabled={isUploading}
-                />
-              </label>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Дополнительные фото (до 9 штук)</Label>
-            <div className="grid grid-cols-3 gap-3">
+                  {isUploading && cropperType === 'main' ? (
+                    <Icon name="Loader2" size={24} className="animate-spin text-primary" />
+                  ) : (
+                    <>
+                      <Icon name="Image" size={24} className="text-muted-foreground mb-1" />
+                      <span className="text-xs text-muted-foreground text-center px-2">Обложка</span>
+                    </>
+                  )}
+                  <Input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'main')}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                </label>
+              )}
+              
+              <div className="h-32 w-px bg-gray-200 flex-shrink-0" />
+              
               {images.map((img, index) => (
                 <div
                   key={index}
@@ -190,12 +188,12 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
                   onDragStart={() => handleDragStart(index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDragEnd={handleDragEnd}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-move ${
+                  className={`relative w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-move ${
                     draggedIndex === index ? 'border-primary opacity-50 scale-95' : 'border-gray-200'
                   }`}
                 >
                   <img src={img} alt={`Фото ${index + 1}`} className="w-full h-full object-cover" />
-                  <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                  <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
                     {index + 1}
                   </div>
                   <Button
@@ -212,7 +210,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
               {images.length < 9 && (
                 <label
                   htmlFor="gallery-upload"
-                  className="aspect-square border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-gray-50 flex items-center justify-center"
+                  className="w-32 h-32 flex-shrink-0 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-gray-50 flex items-center justify-center"
                 >
                   {isUploading && cropperType === 'gallery' ? (
                     <Icon name="Loader2" size={24} className="animate-spin text-primary" />
@@ -230,9 +228,6 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
                 </label>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {images.length}/9 фото загружено. Всего можно загрузить до 10 фото (1 главное + 9 дополнительных)
-            </p>
           </div>
 
           <div className="space-y-2">
