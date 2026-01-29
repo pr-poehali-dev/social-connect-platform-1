@@ -160,6 +160,78 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
           </div>
         )}
         <div className="p-4 border-b space-y-3">
+          <div className="hidden lg:flex gap-1 mb-3">
+            <Button
+              variant={activeTab === 'personal' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl gap-1 text-xs px-2 h-8"
+              onClick={() => onTabChange('personal')}
+            >
+              <Icon name="MessageCircle" size={14} />
+              Личные
+              {chats.filter(c => c.type === 'personal').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                  {chats.filter(c => c.type === 'personal').reduce((sum, c) => sum + (c.unread || 0), 0)}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant={activeTab === 'group' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl gap-1 text-xs px-2 h-8"
+              onClick={() => onTabChange('group')}
+            >
+              <Icon name="Radio" size={14} />
+              Встречи
+              {chats.filter(c => c.type === 'group').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                  {chats.filter(c => c.type === 'group').reduce((sum, c) => sum + (c.unread || 0), 0)}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant={activeTab === 'deal' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl gap-1 text-xs px-2 h-8"
+              onClick={() => onTabChange('deal')}
+            >
+              <Icon name="Briefcase" size={14} />
+              Сделки
+              {chats.filter(c => c.type === 'deal').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
+                  {chats.filter(c => c.type === 'deal').reduce((sum, c) => sum + (c.unread || 0), 0)}
+                </Badge>
+              )}
+            </Button>
+          </div>
+          
+          <div className="flex gap-2 lg:hidden">
+            <Button
+              variant={activeFilter === 'personal' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl text-xs"
+              onClick={() => setActiveFilter('personal')}
+            >
+              Личные
+            </Button>
+            <Button
+              variant={activeFilter === 'group' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl text-xs"
+              onClick={() => setActiveFilter('group')}
+            >
+              Встречи
+            </Button>
+            <Button
+              variant={activeFilter === 'deal' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl text-xs"
+              onClick={() => setActiveFilter('deal')}
+            >
+              Сделки
+            </Button>
+          </div>
+          
           <div className="relative">
             <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
