@@ -196,6 +196,17 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
             <div className="border-t border-border py-2 overflow-x-auto">
               <div className="flex gap-2 px-1 justify-start">
                 <Button
+                  variant={activeMessagesTab === 'personal' ? 'default' : 'outline'}
+                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
+                  onClick={() => onMessagesTabChange?.('personal')}
+                  title="Личные"
+                >
+                  <Icon name="MessageCircle" size={16} />
+                  <span className="hidden lg:inline">Личные</span>
+                  {messageCounts?.personal ? <Badge variant={activeMessagesTab === 'personal' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.personal}</Badge> : null}
+                  {messageCounts?.personal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.personal}</Badge> : null}
+                </Button>
+                <Button
                   variant={activeMessagesTab === 'live' ? 'default' : 'outline'}
                   className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
                   onClick={() => onMessagesTabChange?.('live')}
@@ -205,17 +216,6 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
                   <span className="hidden lg:inline">LIVE</span>
                   {messageCounts?.live ? <Badge variant={activeMessagesTab === 'live' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.live}</Badge> : null}
                   {messageCounts?.live ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.live}</Badge> : null}
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'personal' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
-                  onClick={() => onMessagesTabChange?.('personal')}
-                  title="Личные сообщения"
-                >
-                  <Icon name="MessageCircle" size={16} />
-                  <span className="hidden lg:inline">Личные сообщения</span>
-                  {messageCounts?.personal ? <Badge variant={activeMessagesTab === 'personal' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.personal}</Badge> : null}
-                  {messageCounts?.personal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.personal}</Badge> : null}
                 </Button>
                 <Button
                   variant={activeMessagesTab === 'group' ? 'default' : 'outline'}
