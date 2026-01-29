@@ -323,14 +323,40 @@ const Events = () => {
                       </div>
                     </div>
 
-                    <Button 
-                      className="w-full rounded-xl gap-2"
-                      onClick={() => handleJoinEvent(event.id)}
-                      disabled={event.participants >= event.maxParticipants}
-                    >
-                      <Icon name="UserPlus" size={18} />
-                      {event.participants >= event.maxParticipants ? 'Мест нет' : 'Записаться'}
-                    </Button>
+                    {event.price === 0 ? (
+                      <Button 
+                        className="w-full rounded-xl gap-2"
+                        onClick={() => handleJoinEvent(event.id)}
+                        disabled={event.participants >= event.maxParticipants}
+                      >
+                        <Icon name="Check" size={18} />
+                        {event.participants >= event.maxParticipants ? 'Мест нет' : 'Пойду'}
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          className="flex-1 rounded-xl gap-2"
+                          onClick={() => handleJoinEvent(event.id)}
+                          disabled={event.participants >= event.maxParticipants}
+                        >
+                          <Icon name="Check" size={18} />
+                          Пойду
+                        </Button>
+                        <Button 
+                          className="flex-1 rounded-xl gap-2"
+                          onClick={() => {
+                            toast({
+                              title: "Переход к оплате",
+                              description: "Функция оплаты будет доступна позже"
+                            });
+                          }}
+                        >
+                          <Icon name="ShoppingCart" size={18} />
+                          Купить
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
