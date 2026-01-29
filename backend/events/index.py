@@ -26,6 +26,25 @@ def handler(event: dict, context) -> dict:
         if method == 'GET':
             query_params = event.get('queryStringParameters', {}) or {}
             event_id = query_params.get('id')
+            user_id = query_params.get('user_id')
+            action = query_params.get('action')
+            
+            if action == 'user_joined':
+                if not user_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'user_id required'})
+                    }
+                
+                cursor.execute('SELECT event_id FROM event_participants WHERE user_id = %s', (user_id,))
+                rows = cursor.fetchall()
+                event_ids = [row['event_id'] for row in rows]
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'event_ids': event_ids})
+                }
             
             if event_id:
                 cursor.execute('SELECT * FROM events WHERE id = %s', (event_id,))

@@ -53,10 +53,7 @@ const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [joinedEvents, setJoinedEvents] = useState<Set<number>>(() => {
-    const saved = localStorage.getItem('joinedEvents');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  const [joinedEvents, setJoinedEvents] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,6 +88,15 @@ const Events = () => {
         const url = new URL('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
         const response = await fetch(url);
         const data = await response.json();
+        
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        
+        if (user) {
+          const joinedResponse = await fetch(`https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=user_joined&user_id=${user.id}`);
+          const joinedData = await joinedResponse.json();
+          setJoinedEvents(new Set(joinedData.event_ids || []));
+        }
         
         const formattedEvents = data.map((evt: any) => ({
           id: evt.id,
@@ -171,11 +177,7 @@ const Events = () => {
       });
 
       if (response.ok) {
-        setJoinedEvents(prev => {
-          const newSet = new Set(prev).add(eventId);
-          localStorage.setItem('joinedEvents', JSON.stringify([...newSet]));
-          return newSet;
-        });
+        setJoinedEvents(prev => new Set(prev).add(eventId));
         setEvents(prev => prev.map(e => 
           e.id === eventId ? { ...e, participants: e.participants + 1 } : e
         ));
