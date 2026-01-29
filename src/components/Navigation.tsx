@@ -232,10 +232,10 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
                   variant={activeMessagesTab === 'deal' ? 'default' : 'outline'}
                   className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
                   onClick={() => onMessagesTabChange?.('deal')}
-                  title="Обсуждение сделок"
+                  title="Сделки"
                 >
                   <Icon name="Briefcase" size={16} />
-                  <span className="hidden lg:inline">Обсуждение сделок</span>
+                  <span className="hidden lg:inline">Сделки</span>
                   {messageCounts?.deal ? <Badge variant={activeMessagesTab === 'deal' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.deal}</Badge> : null}
                   {messageCounts?.deal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.deal}</Badge> : null}
                 </Button>
