@@ -36,14 +36,31 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchOffset, setTouchOffset] = useState<number>(0);
   const [activeFilter, setActiveFilter] = useState<'personal' | 'group' | 'deal'>('personal');
+  const [selectionMode, setSelectionMode] = useState<boolean>(false);
+  const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent, chatId: number, chatType: 'personal' | 'group' | 'deal') => {
+    if (selectionMode) return;
     if (chatType !== 'personal' || window.innerWidth >= 1024) return;
     setTouchStart(e.touches[0].clientX);
     setSwipedChat(chatId);
+    
+    const timer = setTimeout(() => {
+      setSelectionMode(true);
+      setSelectedChats(new Set([chatId]));
+      setTouchStart(null);
+      setSwipedChat(null);
+      setTouchOffset(0);
+    }, 500);
+    setLongPressTimer(timer);
   };
 
   const handleTouchMove = (e: React.TouchEvent, chatId: number) => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
     if (touchStart === null || swipedChat !== chatId || window.innerWidth >= 1024) return;
     
     const currentTouch = e.touches[0].clientX;
@@ -55,6 +72,10 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
   };
 
   const handleTouchEnd = (chatId: number, chatType: 'personal' | 'group' | 'deal') => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
     if (chatType !== 'personal' || window.innerWidth >= 1024) return;
     
     if (touchOffset > 100) {
@@ -74,6 +95,35 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
     setSwipedChat(null);
   };
 
+  const handleChatClick = (chatId: number) => {
+    if (selectionMode) {
+      setSelectedChats(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(chatId)) {
+          newSet.delete(chatId);
+        } else {
+          newSet.add(chatId);
+        }
+        return newSet;
+      });
+    } else {
+      onSelectChat(chatId);
+    }
+  };
+
+  const handleCancelSelection = () => {
+    setSelectionMode(false);
+    setSelectedChats(new Set());
+  };
+
+  const handleDeleteSelected = () => {
+    selectedChats.forEach(chatId => {
+      onDeleteChat?.(chatId);
+    });
+    setSelectionMode(false);
+    setSelectedChats(new Set());
+  };
+
   const displayChats = window.innerWidth < 1024 
     ? chats.filter(chat => chat.type === activeFilter)
     : chats.filter(chat => chat.type === activeTab);
@@ -81,6 +131,34 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
   return (
     <Card className="rounded-3xl border-2 lg:col-span-1">
       <CardContent className="p-0">
+        {selectionMode && (
+          <div className="p-3 border-b bg-primary/5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCancelSelection}
+                className="h-8 gap-1"
+              >
+                <Icon name="X" size={16} />
+                Отмена
+              </Button>
+              <span className="text-sm font-medium">
+                Выбрано: {selectedChats.size}
+              </span>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteSelected}
+              disabled={selectedChats.size === 0}
+              className="h-8 gap-1"
+            >
+              <Icon name="Trash2" size={16} />
+              Удалить
+            </Button>
+          </div>
+        )}
         <div className="p-4 border-b space-y-3">
           <div className="hidden lg:flex gap-1 mb-3">
             <Button
@@ -198,18 +276,37 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
 
                 <div
                   className={`p-4 cursor-pointer hover:bg-accent/50 transition-all ${
-                    selectedChat === chat.id ? 'bg-accent' : ''
+                    selectionMode
+                      ? selectedChats.has(chat.id)
+                        ? 'bg-primary/10'
+                        : ''
+                      : selectedChat === chat.id
+                      ? 'bg-accent'
+                      : ''
                   }`}
                   style={{
-                    transform: swipedChat === chat.id ? `translateX(-${touchOffset}px)` : 'translateX(0)',
+                    transform: swipedChat === chat.id && !selectionMode ? `translateX(-${touchOffset}px)` : 'translateX(0)',
                     transition: touchStart === null ? 'transform 0.2s ease-out' : 'none',
                   }}
-                  onClick={() => onSelectChat(chat.id)}
+                  onClick={() => handleChatClick(chat.id)}
                   onTouchStart={(e) => handleTouchStart(e, chat.id, chat.type)}
                   onTouchMove={(e) => handleTouchMove(e, chat.id)}
                   onTouchEnd={() => handleTouchEnd(chat.id, chat.type)}
                 >
                   <div className="flex items-start gap-3">
+                    {selectionMode && (
+                      <div className="flex-shrink-0 pt-1">
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                          selectedChats.has(chat.id)
+                            ? 'bg-primary border-primary'
+                            : 'border-gray-300'
+                        }`}>
+                          {selectedChats.has(chat.id) && (
+                            <Icon name="Check" size={14} className="text-white" />
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <div className="relative">
                       <Avatar className="w-12 h-12">
                         <AvatarImage src={chat.avatar} alt={chat.name} />
