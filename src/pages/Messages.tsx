@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
 import { VkCallModal } from '@/components/VkCallModal';
-import MessagesTabs from './messages/MessagesTabs';
 import EmptyState from './messages/EmptyState';
 import ChatList from './messages/ChatList';
 import ChatWindow from './messages/ChatWindow';
@@ -323,12 +322,6 @@ const Messages = () => {
     deal: chats.filter(c => c.type === 'deal').length,
   };
 
-  const tabs = [
-    { value: 'personal', label: 'Личные', icon: 'MessageCircle' },
-    { value: 'live', label: 'Встречи', icon: 'Radio' },
-    { value: 'deal', label: 'Сделки', icon: 'Briefcase' },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
@@ -336,14 +329,6 @@ const Messages = () => {
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="lg:hidden mb-6">
-              <MessagesTabs
-                tabs={tabs}
-                activeTab={activeTab}
-                chats={chats}
-                onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'live')}
-              />
-            </div>
             <div className="grid lg:grid-cols-3 gap-6 relative">
                 <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
                   <ChatList
