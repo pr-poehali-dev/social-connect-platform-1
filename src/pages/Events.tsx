@@ -174,7 +174,6 @@ const Events = () => {
         ));
         toast({
           title: 'Вы записались на мероприятие',
-          description: 'Подробности отправлены на email',
         });
       }
     } catch (error) {
