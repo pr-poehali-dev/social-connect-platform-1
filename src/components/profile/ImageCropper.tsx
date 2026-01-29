@@ -61,21 +61,24 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = 320;
-    canvas.height = 320;
+    const outputSize = Math.min(crop.size, 2048);
+    canvas.width = outputSize;
+    canvas.height = outputSize;
 
     const img = imageRef.current;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(
       img,
       crop.x, crop.y, crop.size, crop.size,
-      0, 0, 320, 320
+      0, 0, outputSize, outputSize
     );
 
     canvas.toBlob((blob) => {
       if (blob) {
         onCropComplete(blob);
       }
-    }, 'image/jpeg', 0.9);
+    }, 'image/jpeg', 0.95);
   };
 
   const scale = containerRef.current 
@@ -131,7 +134,7 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
 
           <div className="text-center text-sm text-muted-foreground">
             <Icon name="Move" size={16} className="inline mr-2" />
-            Перетащите рамку, чтобы выбрать область 320×320 px
+            Перетащите рамку, чтобы выбрать область (до 2048×2048 px)
           </div>
         </div>
 
