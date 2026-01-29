@@ -336,20 +336,24 @@ const Messages = () => {
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <MessagesTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              chats={chats}
-              onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'live')}
-            />
+            <div className="lg:hidden mb-6">
+              <MessagesTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                chats={chats}
+                onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'live')}
+              />
+            </div>
             <div className="grid lg:grid-cols-3 gap-6 relative">
                 <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
                   <ChatList
-                    chats={filteredChats}
+                    chats={chats}
                     loading={loading}
                     selectedChat={selectedChat}
                     onSelectChat={setSelectedChat}
                     onDeleteChat={handleDeleteChat}
+                    activeTab={activeTab as 'personal' | 'group' | 'deal'}
+                    onTabChange={(tab) => setActiveTab(tab)}
                   />
                 </div>
 

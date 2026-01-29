@@ -27,9 +27,11 @@ interface ChatListProps {
   selectedChat: number | null;
   onSelectChat: (chatId: number) => void;
   onDeleteChat?: (chatId: number) => void;
+  activeTab: 'personal' | 'group' | 'deal';
+  onTabChange: (tab: 'personal' | 'group' | 'deal') => void;
 }
 
-const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: ChatListProps) => {
+const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, activeTab, onTabChange }: ChatListProps) => {
   const [swipedChat, setSwipedChat] = useState<number | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchOffset, setTouchOffset] = useState<number>(0);
@@ -67,12 +69,59 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: 
     setSwipedChat(null);
   };
 
-  const filteredChats = chats.filter(chat => chat.type === activeFilter);
+  const displayChats = window.innerWidth < 1024 
+    ? chats.filter(chat => chat.type === activeFilter)
+    : chats.filter(chat => chat.type === activeTab);
 
   return (
     <Card className="rounded-3xl border-2 lg:col-span-1">
       <CardContent className="p-0">
         <div className="p-4 border-b space-y-3">
+          <div className="hidden lg:flex gap-2 mb-3">
+            <Button
+              variant={activeTab === 'personal' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl gap-2"
+              onClick={() => onTabChange('personal')}
+            >
+              <Icon name="MessageCircle" size={16} />
+              Личные
+              {chats.filter(c => c.type === 'personal').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
+                <Badge variant="destructive" className="ml-1">
+                  {chats.filter(c => c.type === 'personal').reduce((sum, c) => sum + (c.unread || 0), 0)}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant={activeTab === 'group' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl gap-2"
+              onClick={() => onTabChange('group')}
+            >
+              <Icon name="Radio" size={16} />
+              Встречи
+              {chats.filter(c => c.type === 'group').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
+                <Badge variant="destructive" className="ml-1">
+                  {chats.filter(c => c.type === 'group').reduce((sum, c) => sum + (c.unread || 0), 0)}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant={activeTab === 'deal' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-1 rounded-xl gap-2"
+              onClick={() => onTabChange('deal')}
+            >
+              <Icon name="Briefcase" size={16} />
+              Сделки
+              {chats.filter(c => c.type === 'deal').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
+                <Badge variant="destructive" className="ml-1">
+                  {chats.filter(c => c.type === 'deal').reduce((sum, c) => sum + (c.unread || 0), 0)}
+                </Badge>
+              )}
+            </Button>
+          </div>
+          
           <div className="flex gap-2 lg:hidden">
             <Button
               variant={activeFilter === 'personal' ? 'default' : 'outline'}
@@ -115,14 +164,14 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat }: 
               <Icon name="Loader2" size={48} className="mx-auto mb-4 text-muted-foreground animate-spin" />
               <p className="text-muted-foreground">Загрузка чатов...</p>
             </div>
-          ) : (window.innerWidth < 1024 ? filteredChats : chats).length === 0 ? (
+          ) : displayChats.length === 0 ? (
             <div className="text-center py-12">
               <Icon name="MessageCircle" size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
               <p className="text-muted-foreground">Нет чатов</p>
               <p className="text-sm text-muted-foreground">Начните общение с другими пользователями</p>
             </div>
           ) : (
-            (window.innerWidth < 1024 ? filteredChats : chats).map((chat) => (
+            displayChats.map((chat) => (
               <div
                 key={chat.id}
                 className="relative overflow-hidden border-b"
