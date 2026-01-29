@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import ImageCropper from './ImageCropper';
 
 interface ProfileAvatarProps {
   user: any;
@@ -10,42 +12,56 @@ interface ProfileAvatarProps {
 
 const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) => {
   const { toast } = useToast();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   const handleUploadAvatar = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = async (e: any) => {
+    input.onchange = (e: any) => {
       const file = e.target?.files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          const base64String = (reader.result as string).split(',')[1];
-          const token = localStorage.getItem('access_token');
-          try {
-            const response = await fetch('https://functions.poehali.dev/99ffce65-6223-4c0e-93d7-d7d44514ef4b', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ image: base64String })
-            });
-            if (response.ok) {
-              const data = await response.json();
-              onAvatarUpdate(data.url);
-              toast({ title: 'Фото обновлено', description: 'Фото профиля успешно загружено' });
-            } else {
-              toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
-            }
-          } catch (error) {
-            toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
-          }
-        };
-        reader.readAsDataURL(file);
+        if (!file.type.startsWith('image/')) {
+          toast({ title: 'Ошибка', description: 'Выберите файл изображения', variant: 'destructive' });
+          return;
+        }
+        setSelectedFile(file);
+        setShowCropper(true);
       }
     };
     input.click();
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setShowCropper(false);
+    setSelectedFile(null);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = (reader.result as string).split(',')[1];
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('https://functions.poehali.dev/99ffce65-6223-4c0e-93d7-d7d44514ef4b', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ image: base64String })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          onAvatarUpdate(data.url);
+          toast({ title: 'Фото обновлено', description: 'Фото профиля успешно загружено' });
+        } else {
+          toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
+        }
+      };
+      reader.readAsDataURL(croppedBlob);
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
+    }
   };
 
   const handleDeleteAvatar = async () => {
@@ -71,6 +87,17 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
   };
 
   return (
+    <>
+      {showCropper && selectedFile && (
+        <ImageCropper
+          imageFile={selectedFile}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setShowCropper(false);
+            setSelectedFile(null);
+          }}
+        />
+      )}
     <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200 group">
       {user.avatar_url ? (
         <img 
@@ -108,6 +135,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
         </>
       )}
     </div>
+    </>
   );
 };
 

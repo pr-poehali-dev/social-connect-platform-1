@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import ImageCropper from '@/components/profile/ImageCropper';
 
 const CreateAd = () => {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ const CreateAd = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
   const [editingAdId, setEditingAdId] = useState<number | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -81,23 +84,33 @@ const CreateAd = () => {
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const maxPhotos = 6;
-    const remainingSlots = maxPhotos - photos.length;
-    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    if (photos.length >= 6) {
+      toast({ title: 'Максимум 6 фото', variant: 'destructive' });
+      return;
+    }
 
-    filesToProcess.forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const base64 = event.target?.result as string;
-          setPhotos((prev) => [...prev, base64]);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Выберите изображение', variant: 'destructive' });
+      return;
+    }
+
+    setSelectedFile(file);
+    setShowCropper(true);
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setShowCropper(false);
+    setSelectedFile(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setPhotos((prev) => [...prev, base64]);
+    };
+    reader.readAsDataURL(croppedBlob);
   };
 
   const removePhoto = (index: number) => {
@@ -161,6 +174,17 @@ const CreateAd = () => {
   };
 
   return (
+    <>
+      {showCropper && selectedFile && (
+        <ImageCropper
+          imageFile={selectedFile}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setShowCropper(false);
+            setSelectedFile(null);
+          }}
+        />
+      )}
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
       
@@ -330,6 +354,7 @@ const CreateAd = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
+import ImageCropper from '@/components/profile/ImageCropper';
 
 interface NewEventData {
   title: string;
@@ -31,8 +32,10 @@ interface CreateEventModalProps {
 
 const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, isEdit = false }: CreateEventModalProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -41,11 +44,13 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Размер файла не должен превышать 5 МБ');
-      return;
-    }
+    setSelectedFile(file);
+    setShowCropper(true);
+  };
 
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setShowCropper(false);
+    setSelectedFile(null);
     setIsUploading(true);
 
     try {
@@ -55,7 +60,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
         onEventChange({ ...newEvent, image: base64String });
         setIsUploading(false);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(croppedBlob);
     } catch (error) {
       console.error('Ошибка загрузки:', error);
       alert('Не удалось загрузить изображение');
@@ -68,6 +73,17 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
   };
 
   return (
+    <>
+      {showCropper && selectedFile && (
+        <ImageCropper
+          imageFile={selectedFile}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setShowCropper(false);
+            setSelectedFile(null);
+          }}
+        />
+      )}
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -250,6 +266,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
