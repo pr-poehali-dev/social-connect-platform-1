@@ -51,6 +51,8 @@ interface Event {
 const Events = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,6 +80,50 @@ const Events = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const url = new URL('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const formattedEvents = data.map((evt: any) => ({
+          id: evt.id,
+          title: evt.title,
+          description: evt.description || '',
+          date: evt.event_date,
+          time: evt.event_time,
+          location: evt.location,
+          city: evt.city,
+          author: {
+            name: evt.author_name || 'Организатор',
+            avatar: evt.author_avatar || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+          },
+          category: evt.category || 'entertainment',
+          price: Number(evt.price) || 0,
+          participants: evt.participants || 0,
+          maxParticipants: evt.max_participants || 10,
+          image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+          paymentUrl: evt.payment_url
+        }));
+        
+        setEvents(formattedEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        toast({
+          title: 'Ошибка загрузки',
+          description: 'Не удалось загрузить мероприятия',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchEvents();
+  }, [toast]);
+
   const categories = [
     { value: 'all', label: 'Все', icon: 'Calendar' },
     { value: 'sports', label: 'Спорт', icon: 'Dumbbell' },
@@ -87,116 +133,7 @@ const Events = () => {
     { value: 'business', label: 'Бизнес', icon: 'Briefcase' },
   ];
 
-  const events: Event[] = [
-    {
-      id: 1,
-      title: 'Йога в парке',
-      description: 'Утренняя йога для начинающих на свежем воздухе. Принесите коврик и хорошее настроение!',
-      date: '2026-01-20',
-      time: '08:00',
-      location: 'Парк Горького',
-      city: 'Москва',
-      author: {
-        name: 'Анна Петрова',
-        avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-      },
-      category: 'sports',
-      price: 0,
-      participants: 12,
-      maxParticipants: 20,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    },
-    {
-      id: 2,
-      title: 'Мастер-класс по живописи',
-      description: 'Научитесь рисовать акварелью под руководством профессионального художника.',
-      date: '2026-01-22',
-      time: '18:00',
-      location: 'Арт-студия "Краски"',
-      city: 'Москва',
-      author: {
-        name: 'Дмитрий Иванов',
-        avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-      },
-      category: 'culture',
-      price: 1500,
-      participants: 8,
-      maxParticipants: 15,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    },
-    {
-      id: 3,
-      title: 'Встреча программистов',
-      description: 'Networking для IT-специалистов. Обсудим новые технологии и поделимся опытом.',
-      date: '2026-01-25',
-      time: '19:00',
-      location: 'Коворкинг "Старт"',
-      city: 'Санкт-Петербург',
-      author: {
-        name: 'Сергей Смирнов',
-        avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-      },
-      category: 'business',
-      price: 0,
-      participants: 25,
-      maxParticipants: 50,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    },
-    {
-      id: 4,
-      title: 'Концерт рок-группы',
-      description: 'Выступление местной рок-группы "Звезды" в баре. Отличная атмосфера гарантирована!',
-      date: '2026-01-27',
-      time: '21:00',
-      location: 'Бар "Звезда"',
-      city: 'Казань',
-      author: {
-        name: 'Мария Сидорова',
-        avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-      },
-      category: 'entertainment',
-      price: 500,
-      participants: 45,
-      maxParticipants: 100,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    },
-    {
-      id: 5,
-      title: 'Курс английского языка',
-      description: 'Интенсивный курс разговорного английского для начинающих. 8 занятий.',
-      date: '2026-02-01',
-      time: '10:00',
-      location: 'Школа языков "Speak"',
-      city: 'Москва',
-      author: {
-        name: 'Елена Кузнецова',
-        avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-      },
-      category: 'education',
-      price: 8000,
-      participants: 6,
-      maxParticipants: 10,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    },
-    {
-      id: 6,
-      title: 'Футбольный матч',
-      description: 'Любительский футбольный матч. Ищем игроков в команду!',
-      date: '2026-01-23',
-      time: '15:00',
-      location: 'Стадион "Динамо"',
-      city: 'Москва',
-      author: {
-        name: 'Алексей Волков',
-        avatar: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-      },
-      category: 'sports',
-      price: 0,
-      participants: 18,
-      maxParticipants: 22,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    }
-  ];
+
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -218,6 +155,17 @@ const Events = () => {
     const matchesCity = selectedCity === 'Все города' || event.city === selectedCity;
     return matchesSearch && matchesCategory && matchesCity;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Загрузка мероприятий...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">

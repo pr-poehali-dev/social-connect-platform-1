@@ -14,6 +14,10 @@ const MyEvents = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
+  const [myEvents, setMyEvents] = useState<Event[]>([]);
+  const [participatingEvents, setParticipatingEvents] = useState<Event[]>([]);
+  const [completedEvents, setCompletedEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newEvent, setNewEvent] = useState({
     title: '',
     description: '',
@@ -29,89 +33,52 @@ const MyEvents = () => {
     image: undefined as string | undefined
   });
 
-  const myEvents: Event[] = [
-    {
-      id: 1,
-      title: 'Йога в парке',
-      description: 'Утренняя йога для начинающих на свежем воздухе',
-      date: '2026-01-20',
-      time: '08:00',
-      location: 'Парк Горького',
-      city: 'Москва',
-      category: 'sports',
-      price: 0,
-      participants: 12,
-      maxParticipants: 20,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      status: 'active'
-    },
-    {
-      id: 2,
-      title: 'Мастер-класс по живописи',
-      description: 'Научитесь рисовать акварелью под руководством профессионального художника',
-      date: '2026-01-22',
-      time: '18:00',
-      location: 'Арт-студия "Краски"',
-      city: 'Москва',
-      category: 'culture',
-      price: 1500,
-      participants: 8,
-      maxParticipants: 15,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      status: 'active'
-    }
-  ];
-
-  const participatingEvents: Event[] = [
-    {
-      id: 3,
-      title: 'Встреча программистов',
-      description: 'Networking для IT-специалистов',
-      date: '2026-01-25',
-      time: '19:00',
-      location: 'Коворкинг "Старт"',
-      city: 'Санкт-Петербург',
-      category: 'business',
-      price: 0,
-      participants: 25,
-      maxParticipants: 50,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      status: 'active'
-    }
-  ];
-
-  const myCompletedEvents: Event[] = [
-    {
-      id: 4,
-      title: 'Вечер настольных игр',
-      description: 'Играли в Каркассон и Монополию',
-      date: '2026-01-15',
-      time: '19:00',
-      location: 'Антикафе "Игровая"',
-      city: 'Москва',
-      category: 'entertainment',
-      price: 500,
-      participants: 12,
-      maxParticipants: 15,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      status: 'completed'
-    },
-    {
-      id: 5,
-      title: 'Лекция по психологии',
-      description: 'Тема: "Эмоциональный интеллект в современном мире"',
-      date: '2026-01-10',
-      time: '18:30',
-      location: 'Библиотека имени Ленина',
-      city: 'Москва',
-      category: 'education',
-      price: 0,
-      participants: 50,
-      maxParticipants: 50,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      status: 'completed'
-    }
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
+        const data = await response.json();
+        
+        const userProfile = localStorage.getItem('userProfile');
+        const userId = userProfile ? JSON.parse(userProfile).id : null;
+        
+        const formattedEvents = data.map((evt: any) => ({
+          id: evt.id,
+          title: evt.title,
+          description: evt.description || '',
+          date: evt.event_date,
+          time: evt.event_time,
+          location: evt.location,
+          city: evt.city,
+          category: evt.category || 'entertainment',
+          price: Number(evt.price) || 0,
+          participants: evt.participants || 0,
+          maxParticipants: evt.max_participants || 10,
+          image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+          status: evt.is_active ? 'active' : 'completed'
+        }));
+        
+        const my = formattedEvents.filter((e: any) => e.status === 'active');
+        const completed = formattedEvents.filter((e: any) => e.status === 'completed');
+        
+        setMyEvents(my);
+        setParticipatingEvents([]);
+        setCompletedEvents(completed);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        toast({
+          title: 'Ошибка загрузки',
+          description: 'Не удалось загрузить мероприятия',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchEvents();
+  }, [toast]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -119,7 +86,7 @@ const MyEvents = () => {
   };
 
   const handleEditEvent = (eventId: number) => {
-    const allEvents = [...myEvents, ...myCompletedEvents];
+    const allEvents = [...myEvents, ...completedEvents];
     const eventToEdit = allEvents.find(e => e.id === eventId);
     
     if (eventToEdit) {
@@ -215,7 +182,18 @@ const MyEvents = () => {
     });
   };
 
-  const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : myCompletedEvents;
+  const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : completedEvents;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Загрузка мероприятий...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -239,7 +217,7 @@ const MyEvents = () => {
               activeTab={activeTab}
               myEventsCount={myEvents.length}
               participatingEventsCount={participatingEvents.length}
-              completedEventsCount={myCompletedEvents.length}
+              completedEventsCount={completedEvents.length}
               onTabChange={setActiveTab}
               onCreateClick={() => setIsCreateModalOpen(true)}
             />
