@@ -37,24 +37,29 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
   const [touchOffset, setTouchOffset] = useState<number>(0);
   const [activeFilter, setActiveFilter] = useState<'personal' | 'group' | 'deal'>('personal');
 
-  const handleTouchStart = (e: React.TouchEvent, chatId: number) => {
+  const handleTouchStart = (e: React.TouchEvent, chatId: number, chatType: 'personal' | 'group' | 'deal') => {
+    if (chatType !== 'personal' || window.innerWidth >= 1024) return;
     setTouchStart(e.touches[0].clientX);
     setSwipedChat(chatId);
   };
 
   const handleTouchMove = (e: React.TouchEvent, chatId: number) => {
-    if (touchStart === null || swipedChat !== chatId) return;
+    if (touchStart === null || swipedChat !== chatId || window.innerWidth >= 1024) return;
     
     const currentTouch = e.touches[0].clientX;
     const diff = touchStart - currentTouch;
     
-    if (diff > 0 && diff <= 80) {
+    if (diff > 0 && diff <= 120) {
       setTouchOffset(diff);
     }
   };
 
-  const handleTouchEnd = (chatId: number) => {
-    if (touchOffset > 40) {
+  const handleTouchEnd = (chatId: number, chatType: 'personal' | 'group' | 'deal') => {
+    if (chatType !== 'personal' || window.innerWidth >= 1024) return;
+    
+    if (touchOffset > 100) {
+      handleDelete(chatId);
+    } else if (touchOffset > 40) {
       setTouchOffset(80);
     } else {
       setTouchOffset(0);
@@ -200,9 +205,9 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
                     transition: touchStart === null ? 'transform 0.2s ease-out' : 'none',
                   }}
                   onClick={() => onSelectChat(chat.id)}
-                  onTouchStart={(e) => handleTouchStart(e, chat.id)}
+                  onTouchStart={(e) => handleTouchStart(e, chat.id, chat.type)}
                   onTouchMove={(e) => handleTouchMove(e, chat.id)}
-                  onTouchEnd={() => handleTouchEnd(chat.id)}
+                  onTouchEnd={() => handleTouchEnd(chat.id, chat.type)}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative">
