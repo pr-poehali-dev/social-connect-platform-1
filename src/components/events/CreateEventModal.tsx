@@ -339,24 +339,37 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="price">Цена (₽)</Label>
+            <Input
+              id="price"
+              type="number"
+              min="0"
+              value={newEvent.price}
+              onChange={(e) => onEventChange({ ...newEvent, price: Number(e.target.value) })}
+              className="rounded-xl"
+            />
+          </div>
+
+          {newEvent.price > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="price">Цена (₽)</Label>
+              <Label htmlFor="paymentUrl">Ссылка на оплату *</Label>
               <Input
-                id="price"
-                type="number"
-                min="0"
-                value={newEvent.price}
-                onChange={(e) => onEventChange({ ...newEvent, price: Number(e.target.value) })}
+                id="paymentUrl"
+                type="url"
+                placeholder="https://..."
+                value={newEvent.paymentUrl || ''}
+                onChange={(e) => onEventChange({ ...newEvent, paymentUrl: e.target.value })}
                 className="rounded-xl"
               />
             </div>
+          )}
 
-            <div className="space-y-2">
-              <Label htmlFor="maxParticipants">Макс. участников</Label>
-              <Input
-                id="maxParticipants"
-                type="number"
+          <div className="space-y-2">
+            <Label htmlFor="maxParticipants">Макс. участников</Label>
+            <Input
+              id="maxParticipants"
+              type="number"
                 min="1"
                 value={newEvent.maxParticipants}
                 onChange={(e) => onEventChange({ ...newEvent, maxParticipants: Number(e.target.value) })}

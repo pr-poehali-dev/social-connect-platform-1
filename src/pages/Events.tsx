@@ -45,6 +45,7 @@ interface Event {
   participants: number;
   maxParticipants: number;
   image: string;
+  paymentUrl?: string;
 }
 
 const Events = () => {
@@ -346,10 +347,14 @@ const Events = () => {
                         <Button 
                           className="flex-1 rounded-xl gap-2"
                           onClick={() => {
-                            toast({
-                              title: "Переход к оплате",
-                              description: "Функция оплаты будет доступна позже"
-                            });
+                            if (event.paymentUrl) {
+                              window.open(event.paymentUrl, '_blank');
+                            } else {
+                              toast({
+                                title: "Ссылка недоступна",
+                                description: "Организатор не добавил ссылку на оплату"
+                              });
+                            }
                           }}
                         >
                           <Icon name="ShoppingCart" size={18} />

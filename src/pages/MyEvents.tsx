@@ -25,6 +25,7 @@ const MyEvents = () => {
     category: 'entertainment',
     price: 0,
     maxParticipants: 10,
+    paymentUrl: '',
     image: undefined as string | undefined
   });
 
