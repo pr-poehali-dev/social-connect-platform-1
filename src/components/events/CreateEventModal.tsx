@@ -286,17 +286,6 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Место проведения *</Label>
-            <Input
-              id="location"
-              placeholder="Например: Парк Горького"
-              value={newEvent.location}
-              onChange={(e) => onEventChange({ ...newEvent, location: e.target.value })}
-              className="rounded-xl"
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="city">Город *</Label>
             <Select value={newEvent.city} onValueChange={(value) => onEventChange({ ...newEvent, city: value })}>
               <SelectTrigger className="rounded-xl">
@@ -310,6 +299,28 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Адрес</Label>
+            <Input
+              id="address"
+              placeholder="Например: ул. Ленина, 10"
+              value={newEvent.address || ''}
+              onChange={(e) => onEventChange({ ...newEvent, address: e.target.value })}
+              className="rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location">Место проведения *</Label>
+            <Input
+              id="location"
+              placeholder="Например: Парк Горького"
+              value={newEvent.location}
+              onChange={(e) => onEventChange({ ...newEvent, location: e.target.value })}
+              className="rounded-xl"
+            />
           </div>
 
           <div className="space-y-2">
