@@ -12,7 +12,7 @@ import CalendarView from './messages/CalendarView';
 
 interface Chat {
   id: number;
-  type: 'personal' | 'group' | 'deal';
+  type: 'personal' | 'group' | 'deal' | 'live';
   name: string;
   avatar: string;
   lastMessage: string;
@@ -36,7 +36,7 @@ interface Message {
 
 const Messages = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'calls' | 'contacts' | 'calendar'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'live' | 'calls' | 'contacts' | 'calendar'>('live');
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
@@ -139,6 +139,7 @@ const Messages = () => {
   };
 
   const tabs = [
+    { value: 'live', label: 'LIVE', icon: 'Radio' },
     { value: 'personal', label: 'Личные сообщения', icon: 'MessageCircle' },
     { value: 'group', label: 'Чаты', icon: 'Users' },
     { value: 'deal', label: 'Обсуждение сделок', icon: 'Briefcase' },
