@@ -15,6 +15,8 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +56,7 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
     setIsDragging(false);
   };
 
-  const handleCrop = async () => {
+  const generatePreview = () => {
     if (!imageRef.current || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
@@ -74,7 +76,15 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
       0, 0, outputSize, outputSize
     );
 
-    canvas.toBlob((blob) => {
+    const preview = canvas.toDataURL('image/jpeg', 0.95);
+    setPreviewUrl(preview);
+    setShowPreview(true);
+  };
+
+  const handleConfirm = () => {
+    if (!canvasRef.current) return;
+    
+    canvasRef.current.toBlob((blob) => {
       if (blob) {
         onCropComplete(blob);
       }
@@ -86,6 +96,7 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
     : 1;
 
   return (
+    <>
     <Dialog open onOpenChange={onCancel}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -144,13 +155,48 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
           <Button variant="outline" onClick={onCancel}>
             Отмена
           </Button>
-          <Button onClick={handleCrop}>
-            <Icon name="Check" size={18} className="mr-2" />
-            Обрезать и сохранить
+          <Button onClick={generatePreview}>
+            <Icon name="Eye" size={18} className="mr-2" />
+            Предпросмотр
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {showPreview && previewUrl && (
+      <Dialog open={showPreview} onOpenChange={() => setShowPreview(false)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Предпросмотр фото</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+              <img 
+                src={previewUrl} 
+                alt="Предпросмотр" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <div className="text-center text-sm text-muted-foreground">
+              Так будет выглядеть ваше фото после загрузки
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreview(false)}>
+              Изменить
+            </Button>
+            <Button onClick={handleConfirm}>
+              <Icon name="Check" size={18} className="mr-2" />
+              Загрузить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   );
 };
 
