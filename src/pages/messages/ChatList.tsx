@@ -77,17 +77,17 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
     <Card className="rounded-3xl border-2 lg:col-span-1">
       <CardContent className="p-0">
         <div className="p-4 border-b space-y-3">
-          <div className="hidden lg:flex gap-2 mb-3">
+          <div className="hidden lg:flex gap-1 mb-3">
             <Button
               variant={activeTab === 'personal' ? 'default' : 'outline'}
               size="sm"
-              className="flex-1 rounded-xl gap-2"
+              className="flex-1 rounded-xl gap-1 text-xs px-2 h-8"
               onClick={() => onTabChange('personal')}
             >
-              <Icon name="MessageCircle" size={16} />
+              <Icon name="MessageCircle" size={14} />
               Личные
               {chats.filter(c => c.type === 'personal').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
-                <Badge variant="destructive" className="ml-1">
+                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
                   {chats.filter(c => c.type === 'personal').reduce((sum, c) => sum + (c.unread || 0), 0)}
                 </Badge>
               )}
@@ -95,13 +95,13 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
             <Button
               variant={activeTab === 'group' ? 'default' : 'outline'}
               size="sm"
-              className="flex-1 rounded-xl gap-2"
+              className="flex-1 rounded-xl gap-1 text-xs px-2 h-8"
               onClick={() => onTabChange('group')}
             >
-              <Icon name="Radio" size={16} />
+              <Icon name="Radio" size={14} />
               Встречи
               {chats.filter(c => c.type === 'group').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
-                <Badge variant="destructive" className="ml-1">
+                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
                   {chats.filter(c => c.type === 'group').reduce((sum, c) => sum + (c.unread || 0), 0)}
                 </Badge>
               )}
@@ -109,13 +109,13 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
             <Button
               variant={activeTab === 'deal' ? 'default' : 'outline'}
               size="sm"
-              className="flex-1 rounded-xl gap-2"
+              className="flex-1 rounded-xl gap-1 text-xs px-2 h-8"
               onClick={() => onTabChange('deal')}
             >
-              <Icon name="Briefcase" size={16} />
+              <Icon name="Briefcase" size={14} />
               Сделки
               {chats.filter(c => c.type === 'deal').reduce((sum, c) => sum + (c.unread || 0), 0) > 0 && (
-                <Badge variant="destructive" className="ml-1">
+                <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs flex items-center justify-center">
                   {chats.filter(c => c.type === 'deal').reduce((sum, c) => sum + (c.unread || 0), 0)}
                 </Badge>
               )}
