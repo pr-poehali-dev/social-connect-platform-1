@@ -277,8 +277,9 @@ const MyEvents = () => {
     }
 
     try {
-      const userProfile = localStorage.getItem('userProfile');
-      const user = userProfile ? JSON.parse(userProfile) : null;
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const authorName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : 'Организатор';
 
       const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8', {
         method: 'POST',
@@ -294,8 +295,8 @@ const MyEvents = () => {
           location: newEvent.location,
           city: newEvent.city,
           address: newEvent.address,
-          author_name: user?.name || 'Организатор',
-          author_avatar: user?.avatar || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+          author_name: authorName,
+          author_avatar: user?.avatar_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
           category: newEvent.category,
           price: newEvent.price,
           max_participants: newEvent.maxParticipants,
