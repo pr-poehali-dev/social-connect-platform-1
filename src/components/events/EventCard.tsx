@@ -11,11 +11,13 @@ export interface Event {
   time: string;
   location: string;
   city: string;
+  address?: string;
   category: string;
   price: number;
   participants: number;
   maxParticipants: number;
   image: string;
+  paymentUrl?: string;
   status: 'active' | 'completed' | 'cancelled';
 }
 

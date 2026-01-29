@@ -97,9 +97,11 @@ const MyEvents = () => {
         time: eventToEdit.time,
         location: eventToEdit.location,
         city: eventToEdit.city,
+        address: eventToEdit.address || '',
         category: eventToEdit.category,
         price: eventToEdit.price,
         maxParticipants: eventToEdit.maxParticipants,
+        paymentUrl: eventToEdit.paymentUrl || '',
         image: eventToEdit.image
       });
       setEditingEventId(eventId);
@@ -107,11 +109,46 @@ const MyEvents = () => {
     }
   };
 
-  const handleDeleteEvent = (eventId: number) => {
-    toast({
-      title: 'Мероприятие удалено',
-      description: 'Ваше мероприятие было удалено',
-    });
+  const handleDeleteEvent = async (eventId: number) => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?id=${eventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          is_active: false,
+          title: myEvents.find(e => e.id === eventId)?.title || '',
+          description: myEvents.find(e => e.id === eventId)?.description || '',
+          event_date: myEvents.find(e => e.id === eventId)?.date || '',
+          event_time: myEvents.find(e => e.id === eventId)?.time || '',
+          location: myEvents.find(e => e.id === eventId)?.location || '',
+          city: myEvents.find(e => e.id === eventId)?.city || '',
+          address: myEvents.find(e => e.id === eventId)?.address || '',
+          category: myEvents.find(e => e.id === eventId)?.category || 'entertainment',
+          price: myEvents.find(e => e.id === eventId)?.price || 0,
+          max_participants: myEvents.find(e => e.id === eventId)?.maxParticipants || 10,
+          image_url: myEvents.find(e => e.id === eventId)?.image || '',
+          payment_url: myEvents.find(e => e.id === eventId)?.paymentUrl || ''
+        })
+      });
+
+      if (response.ok) {
+        setMyEvents(prev => prev.filter(e => e.id !== eventId));
+        setCompletedEvents(prev => [...prev, { ...myEvents.find(e => e.id === eventId)!, status: 'completed' }]);
+        toast({
+          title: 'Мероприятие удалено',
+          description: 'Ваше мероприятие было удалено',
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить мероприятие',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleCancelParticipation = (eventId: number) => {
@@ -121,7 +158,7 @@ const MyEvents = () => {
     });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.location || !newEvent.city) {
       toast({
         title: 'Ошибка',
@@ -131,10 +168,76 @@ const MyEvents = () => {
       return;
     }
 
-    toast({
-      title: 'Изменения сохранены!',
-      description: `Мероприятие "${newEvent.title}" обновлено`,
-    });
+    if (newEvent.price > 0 && !newEvent.paymentUrl) {
+      toast({
+        title: 'Ошибка',
+        description: 'Добавьте ссылку на оплату для платного мероприятия',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?id=${editingEventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newEvent.title,
+          description: newEvent.description,
+          event_date: newEvent.date,
+          event_time: newEvent.time,
+          location: newEvent.location,
+          city: newEvent.city,
+          address: newEvent.address,
+          category: newEvent.category,
+          price: newEvent.price,
+          max_participants: newEvent.maxParticipants,
+          image_url: newEvent.image || '',
+          payment_url: newEvent.paymentUrl,
+          is_active: true
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Изменения сохранены!',
+          description: `Мероприятие "${newEvent.title}" обновлено`,
+        });
+
+        const fetchResponse = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
+        const data = await fetchResponse.json();
+        const formattedEvents = data.map((evt: any) => ({
+          id: evt.id,
+          title: evt.title,
+          description: evt.description || '',
+          date: evt.event_date,
+          time: evt.event_time,
+          location: evt.location,
+          city: evt.city,
+          address: evt.address || '',
+          category: evt.category || 'entertainment',
+          price: Number(evt.price) || 0,
+          participants: evt.participants || 0,
+          maxParticipants: evt.max_participants || 10,
+          image: evt.image_url || '',
+          paymentUrl: evt.payment_url || '',
+          status: evt.is_active ? 'active' : 'completed'
+        }));
+        
+        setMyEvents(formattedEvents.filter((e: any) => e.status === 'active'));
+        setCompletedEvents(formattedEvents.filter((e: any) => e.status === 'completed'));
+      }
+    } catch (error) {
+      console.error('Error updating event:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить мероприятие',
+        variant: 'destructive'
+      });
+      return;
+    }
 
     setIsEditModalOpen(false);
     setEditingEventId(null);
@@ -145,9 +248,11 @@ const MyEvents = () => {
       time: '',
       location: '',
       city: '',
+      address: '',
       category: 'entertainment',
       price: 0,
       maxParticipants: 10,
+      paymentUrl: '',
       image: undefined
     });
   };
