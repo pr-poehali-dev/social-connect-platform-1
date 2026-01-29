@@ -173,7 +173,13 @@ const AdsFilters = ({
                   onSelect={(range) => onDateRangeChange(range || {})}
                   numberOfMonths={1}
                   locale={ru}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const checkDate = new Date(date);
+                    checkDate.setHours(0, 0, 0, 0);
+                    return checkDate < today;
+                  }}
                 />
               </PopoverContent>
             </Popover>
