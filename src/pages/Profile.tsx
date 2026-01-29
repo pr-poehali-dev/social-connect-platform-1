@@ -15,11 +15,25 @@ import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileActions from '@/components/profile/ProfileActions';
 import ProfileContact from '@/components/profile/ProfileContact';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [editMode, setEditMode] = useState(false);
   const [photos, setPhotos] = useState<any[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const saved = localStorage.getItem('notificationSoundEnabled');
+    return saved !== 'false';
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -241,6 +255,15 @@ const Profile = () => {
     setFormData({ ...formData, avatar_url: avatarUrl });
   };
 
+  const handleSoundToggle = (enabled: boolean) => {
+    setSoundEnabled(enabled);
+    localStorage.setItem('notificationSoundEnabled', enabled.toString());
+    toast({
+      title: enabled ? 'Звук уведомлений включён' : 'Звук уведомлений выключен',
+      description: enabled ? 'Вы будете слышать звук при новых сообщениях' : 'Звуковые уведомления отключены',
+    });
+  };
+
   const availableInterests = [
     'Спорт', 'Путешествия', 'Кино', 'Музыка', 'Книги', 'Кулинария',
     'Искусство', 'Фотография', 'Танцы', 'Йога', 'Природа', 'Животные',
@@ -273,10 +296,16 @@ const Profile = () => {
                   />
                   
                   {!editMode ? (
-                    <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12 mt-4">
-                      <Icon name="Settings" size={20} />
-                      Редактировать
-                    </Button>
+                    <div className="flex flex-col gap-2 mt-4">
+                      <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12">
+                        <Icon name="Edit" size={20} />
+                        Редактировать
+                      </Button>
+                      <Button onClick={() => setSettingsOpen(true)} variant="outline" className="w-full gap-2 rounded-xl h-12">
+                        <Icon name="Settings" size={20} />
+                        Настройки
+                      </Button>
+                    </div>
                   ) : (
                     <div className="flex gap-2 mt-4">
                       <Button onClick={handleSaveProfile} className="flex-1 gap-2 rounded-xl h-12">
@@ -368,6 +397,38 @@ const Profile = () => {
           </Card>
         </div>
       </main>
+
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Settings" size={24} />
+              Настройки
+            </DialogTitle>
+            <DialogDescription>
+              Управляйте уведомлениями и звуками приложения
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="sound-notifications" className="text-base font-medium">
+                  Звук уведомлений
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Проигрывать звук при получении новых сообщений
+                </p>
+              </div>
+              <Switch
+                id="sound-notifications"
+                checked={soundEnabled}
+                onCheckedChange={handleSoundToggle}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

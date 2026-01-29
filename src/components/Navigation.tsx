@@ -41,6 +41,9 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
   }, [isAuth]);
 
   const playNotificationSound = () => {
+    const soundEnabled = localStorage.getItem('notificationSoundEnabled');
+    if (soundEnabled === 'false') return;
+    
     const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBzWN0fHQfTEGKH3L7+GXRQ0TW7Dn76xZGAk+m9vw0IUyBCh+zO3glEQMElmy5+mrXBcJPprZ79CFMQQnfszt4JREDxJYr+fiq1sYCTya2O/PhTEFKHzL7d+URAwSWK/n4q1cGAk8mNfuz4UyBSh8y+3flEQMElit5+KtXBcIPJjW79CIOwUpfMrt3pRDCRFWrefhrVwXCDuX1u7PiTwGKXvK7N6UQwkRVqzn4axbFwg7l9XuzooABSh6yevdlUUNElat5uKsWxYIPJfV7s6LBQUpecnq3JVFDRJVreXiqVsVCTyZ1ezNjAcHKXfI6duURg0SUqzl4alaBwk9nNjszY0JByh1xufZlUgPEk+p5N6nWQcJPaHd7syQCwcncsXk15ZLERJMpuPcpFgGCkCm4+vKkw4IJnC+4NSWTRUSTKXh25pWBQpFrN/qx5YSCSVtu9vSllAXE0ml39uYVQULSLHe6cWYFgkjaq3Y0JdUGRNHo93akFQEDEy12+e/mxwKImdpvM+aUx4UUKjc2X9LAA5Vudnks6AdCh1iZrLMnVMiFFWs29l8RwAPWsPZpKiUJQocYGOuyo9SIxZXr9rXdkIBEGG/2J+olyoMG15clMiKTiYYWrLZ1HM7Ahltw9iZqJ0vDxpaWJDFhlEpGly02M9qMwMddMjXka+hMxIXV1eOwYNOKx1fudjLYywFIXvO14O1ozkTFVBSjL1/SywgZsXWxl0kBSJ/09Z8t6I+FRJLTYi7eUoyI2vL1bxYJQYkgtPVdbykQRYPS0mEuHVINSZu0dSyUyUHJYTU1G+8p0UXD0hGfbVxRDgocNbTqEslCCWI1NNpvKlJGA1FQ3axbkI7K3Pa0p9IJQknidPSYryrTRoMQkBxrmw/PQAAAABJRUZDbmQA');
     audio.volume = 0.3;
     audio.play().catch(() => {});
