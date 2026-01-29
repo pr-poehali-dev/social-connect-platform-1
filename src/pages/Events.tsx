@@ -163,6 +163,8 @@ const Events = () => {
       return;
     }
 
+    const isJoined = joinedEvents.has(eventId);
+
     try {
       const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8', {
         method: 'POST',
@@ -170,26 +172,40 @@ const Events = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'join',
+          action: isJoined ? 'leave' : 'join',
           event_id: eventId,
           user_id: user.id
         })
       });
 
       if (response.ok) {
-        setJoinedEvents(prev => new Set(prev).add(eventId));
-        setEvents(prev => prev.map(e => 
-          e.id === eventId ? { ...e, participants: e.participants + 1 } : e
-        ));
-        toast({
-          title: 'Вы записались на мероприятие',
-        });
+        if (isJoined) {
+          setJoinedEvents(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(eventId);
+            return newSet;
+          });
+          setEvents(prev => prev.map(e => 
+            e.id === eventId ? { ...e, participants: Math.max(0, e.participants - 1) } : e
+          ));
+          toast({
+            title: 'Вы отменили участие',
+          });
+        } else {
+          setJoinedEvents(prev => new Set(prev).add(eventId));
+          setEvents(prev => prev.map(e => 
+            e.id === eventId ? { ...e, participants: e.participants + 1 } : e
+          ));
+          toast({
+            title: 'Вы записались на мероприятие',
+          });
+        }
       }
     } catch (error) {
       console.error('Error joining event:', error);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось записаться на мероприятие',
+        description: 'Не удалось обновить участие',
         variant: 'destructive'
       });
     }

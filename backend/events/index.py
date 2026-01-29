@@ -106,6 +106,28 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'status': 'joined'})
                 }
             
+            if action == 'leave':
+                event_id = body.get('event_id')
+                user_id = body.get('user_id')
+                
+                cursor.execute('''
+                    DELETE FROM event_participants 
+                    WHERE event_id = %s AND user_id = %s
+                ''', (event_id, user_id))
+                
+                cursor.execute('''
+                    UPDATE events SET participants = GREATEST(0, participants - 1)
+                    WHERE id = %s
+                ''', (event_id,))
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'status': 'left'})
+                }
+            
             cursor.execute('''
                 INSERT INTO events 
                 (user_id, title, description, event_date, event_time, location, city, address,
