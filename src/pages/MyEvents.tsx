@@ -152,7 +152,7 @@ const MyEvents = () => {
     });
   };
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.location || !newEvent.city) {
       toast({
         title: 'Ошибка',
@@ -162,24 +162,99 @@ const MyEvents = () => {
       return;
     }
 
-    toast({
-      title: 'Мероприятие создано!',
-      description: `"${newEvent.title}" успешно добавлено`,
-    });
+    if (newEvent.price > 0 && !newEvent.paymentUrl) {
+      toast({
+        title: 'Ошибка',
+        description: 'Добавьте ссылку на оплату для платного мероприятия',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-    setIsCreateModalOpen(false);
-    setNewEvent({
-      title: '',
-      description: '',
-      date: '',
-      time: '',
-      location: '',
-      city: '',
-      category: 'entertainment',
-      price: 0,
-      maxParticipants: 10,
-      image: undefined
-    });
+    try {
+      const userProfile = localStorage.getItem('userProfile');
+      const user = userProfile ? JSON.parse(userProfile) : null;
+
+      const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user?.id || 1,
+          title: newEvent.title,
+          description: newEvent.description,
+          event_date: newEvent.date,
+          event_time: newEvent.time,
+          location: newEvent.location,
+          city: newEvent.city,
+          address: newEvent.address,
+          author_name: user?.name || 'Организатор',
+          author_avatar: user?.avatar || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+          category: newEvent.category,
+          price: newEvent.price,
+          max_participants: newEvent.maxParticipants,
+          image_url: newEvent.image || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+          payment_url: newEvent.paymentUrl
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Мероприятие создано!',
+          description: `"${newEvent.title}" успешно добавлено`,
+        });
+
+        setIsCreateModalOpen(false);
+        setNewEvent({
+          title: '',
+          description: '',
+          date: '',
+          time: '',
+          location: '',
+          city: '',
+          address: '',
+          category: 'entertainment',
+          price: 0,
+          maxParticipants: 10,
+          paymentUrl: '',
+          image: undefined
+        });
+
+        const fetchResponse = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
+        const data = await fetchResponse.json();
+        const formattedEvents = data.map((evt: any) => ({
+          id: evt.id,
+          title: evt.title,
+          description: evt.description || '',
+          date: evt.event_date,
+          time: evt.event_time,
+          location: evt.location,
+          city: evt.city,
+          category: evt.category || 'entertainment',
+          price: Number(evt.price) || 0,
+          participants: evt.participants || 0,
+          maxParticipants: evt.max_participants || 10,
+          image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+          status: evt.is_active ? 'active' : 'completed'
+        }));
+        
+        const my = formattedEvents.filter((e: any) => e.status === 'active');
+        const completed = formattedEvents.filter((e: any) => e.status === 'completed');
+        
+        setMyEvents(my);
+        setCompletedEvents(completed);
+      } else {
+        throw new Error('Failed to create event');
+      }
+    } catch (error) {
+      console.error('Error creating event:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать мероприятие',
+        variant: 'destructive'
+      });
+    }
   };
 
   const currentEvents = activeTab === 'my' ? myEvents : activeTab === 'participating' ? participatingEvents : completedEvents;
