@@ -36,7 +36,7 @@ interface Message {
 
 const Messages = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'live' | 'calls' | 'contacts' | 'calendar'>('live');
+  const [activeTab, setActiveTab] = useState<'personal' | 'group' | 'deal' | 'live'>('personal');
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [messageText, setMessageText] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
@@ -333,32 +333,26 @@ const Messages = () => {
     deal: chats.filter(c => c.type === 'deal').length,
   };
 
+  const tabs = [
+    { value: 'personal', label: 'Личные', icon: 'MessageCircle' },
+    { value: 'live', label: 'Встречи', icon: 'Radio' },
+    { value: 'deal', label: 'Сделки', icon: 'Briefcase' },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      <Navigation 
-        showMessagesTabs={true}
-        activeMessagesTab={activeTab}
-        onMessagesTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'calls' | 'contacts' | 'calendar')}
-        messageCounts={messageCounts}
-      />
+      <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            {activeTab === 'calls' ? (
-              <EmptyState type="calls" />
-            ) : activeTab === 'contacts' ? (
-              <ContactsList userId={currentUserId} toast={toast} />
-            ) : activeTab === 'calendar' ? (
-              <CalendarView
-                reminders={reminders}
-                onAddReminder={handleAddReminder}
-                onEditReminder={handleEditReminder}
-                onDeleteReminder={handleDeleteReminder}
-                onToggleComplete={handleToggleComplete}
-              />
-            ) : (
-              <div className="grid lg:grid-cols-3 gap-6 relative">
+            <MessagesTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              chats={chats}
+              onTabChange={(tab) => setActiveTab(tab as 'personal' | 'group' | 'deal' | 'live')}
+            />
+            <div className="grid lg:grid-cols-3 gap-6 relative">
                 <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
                   <ChatList
                     chats={filteredChats}
@@ -402,7 +396,6 @@ const Messages = () => {
                   </div>
                 )}
               </div>
-            )}
           </div>
         </div>
       </main>

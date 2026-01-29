@@ -6,14 +6,7 @@ import { useState, useEffect } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 import { useRadio } from '@/contexts/RadioContext';
 
-interface NavigationProps {
-  showMessagesTabs?: boolean;
-  activeMessagesTab?: string;
-  onMessagesTabChange?: (tab: string) => void;
-  messageCounts?: { personal: number; group: number; deal: number };
-}
-
-const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, messageCounts }: NavigationProps = {}) => {
+const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -209,83 +202,7 @@ const Navigation = ({ showMessagesTabs, activeMessagesTab, onMessagesTabChange, 
             </Button>
           </div>
 
-          {showMessagesTabs && location.pathname === '/messages' && (
-            <div className="border-t border-border py-2 overflow-x-auto">
-              <div className="flex gap-2 px-1 justify-start">
-                <Button
-                  variant={activeMessagesTab === 'personal' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
-                  onClick={() => onMessagesTabChange?.('personal')}
-                  title="Личные"
-                >
-                  <Icon name="MessageCircle" size={16} />
-                  <span className="hidden lg:inline">Личные</span>
-                  {messageCounts?.personal ? <Badge variant={activeMessagesTab === 'personal' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.personal}</Badge> : null}
-                  {messageCounts?.personal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.personal}</Badge> : null}
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'live' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
-                  onClick={() => onMessagesTabChange?.('live')}
-                  title="LIVE"
-                >
-                  <Icon name="Radio" size={16} />
-                  <span className="hidden lg:inline">LIVE</span>
-                  {messageCounts?.live ? <Badge variant={activeMessagesTab === 'live' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.live}</Badge> : null}
-                  {messageCounts?.live ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.live}</Badge> : null}
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'group' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
-                  onClick={() => onMessagesTabChange?.('group')}
-                  title="Чаты"
-                >
-                  <Icon name="Users" size={16} />
-                  <span className="hidden lg:inline">Чаты</span>
-                  {messageCounts?.group ? <Badge variant={activeMessagesTab === 'group' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.group}</Badge> : null}
-                  {messageCounts?.group ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.group}</Badge> : null}
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'deal' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0 relative"
-                  onClick={() => onMessagesTabChange?.('deal')}
-                  title="Сделки"
-                >
-                  <Icon name="Briefcase" size={16} />
-                  <span className="hidden lg:inline">Сделки</span>
-                  {messageCounts?.deal ? <Badge variant={activeMessagesTab === 'deal' ? 'secondary' : 'outline'} className="hidden lg:inline-flex">{messageCounts.deal}</Badge> : null}
-                  {messageCounts?.deal ? <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs lg:hidden">{messageCounts.deal}</Badge> : null}
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'calls' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0"
-                  onClick={() => onMessagesTabChange?.('calls')}
-                  title="Звонки"
-                >
-                  <Icon name="PhoneCall" size={16} />
-                  <span className="hidden lg:inline">Звонки</span>
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'contacts' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0"
-                  onClick={() => onMessagesTabChange?.('contacts')}
-                  title="Контакты"
-                >
-                  <Icon name="BookUser" size={16} />
-                  <span className="hidden lg:inline">Контакты</span>
-                </Button>
-                <Button
-                  variant={activeMessagesTab === 'calendar' ? 'default' : 'outline'}
-                  className="gap-2 rounded-2xl flex-shrink-0 text-sm lg:size-auto size-10 lg:px-4 px-0"
-                  onClick={() => onMessagesTabChange?.('calendar')}
-                  title="Ежедневник"
-                >
-                  <Icon name="Calendar" size={16} />
-                  <span className="hidden lg:inline">Ежедневник</span>
-                </Button>
-              </div>
-            </div>
-          )}
+
 
           {isOpen && (
             <div className="lg:hidden pb-4 animate-fade-in">
