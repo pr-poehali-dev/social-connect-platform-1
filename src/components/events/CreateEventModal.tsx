@@ -19,6 +19,7 @@ interface NewEventData {
   price: number;
   maxParticipants: number;
   image?: string;
+  images?: string[];
 }
 
 interface CreateEventModalProps {
@@ -34,8 +35,10 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCropper, setShowCropper] = useState(false);
+  const [cropperType, setCropperType] = useState<'main' | 'gallery'>('main');
+  const images = newEvent.images || [];
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'gallery' = 'main') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -44,6 +47,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
       return;
     }
 
+    setCropperType(type);
     setSelectedFile(file);
     setShowCropper(true);
   };
@@ -57,7 +61,18 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        onEventChange({ ...newEvent, image: base64String });
+        
+        if (cropperType === 'main') {
+          onEventChange({ ...newEvent, image: base64String });
+        } else {
+          const currentImages = newEvent.images || [];
+          if (currentImages.length < 9) {
+            onEventChange({ ...newEvent, images: [...currentImages, base64String] });
+          } else {
+            alert('Можно загрузить максимум 9 дополнительных фото');
+          }
+        }
+        
         setIsUploading(false);
       };
       reader.readAsDataURL(croppedBlob);
@@ -70,6 +85,11 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
 
   const handleRemoveImage = () => {
     onEventChange({ ...newEvent, image: undefined });
+  };
+
+  const handleRemoveGalleryImage = (index: number) => {
+    const currentImages = newEvent.images || [];
+    onEventChange({ ...newEvent, images: currentImages.filter((_, i) => i !== index) });
   };
 
   return (
@@ -92,7 +112,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
 
         <div className="space-y-6 py-4">
           <div className="space-y-2">
-            <Label>Изображение мероприятия</Label>
+            <Label>Главное фото (обложка мероприятия)</Label>
             {newEvent.image ? (
               <div className="relative rounded-xl overflow-hidden border-2 border-dashed border-gray-300">
                 <img
@@ -130,12 +150,55 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
                   id="image-upload"
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
+                  onChange={(e) => handleImageUpload(e, 'main')}
                   className="hidden"
                   disabled={isUploading}
                 />
               </label>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Дополнительные фото (до 9 штук)</Label>
+            <div className="grid grid-cols-3 gap-3">
+              {images.map((img, index) => (
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                  <img src={img} alt={`Фото ${index + 1}`} className="w-full h-full object-cover" />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                    onClick={() => handleRemoveGalleryImage(index)}
+                  >
+                    <Icon name="X" size={14} />
+                  </Button>
+                </div>
+              ))}
+              
+              {images.length < 9 && (
+                <label
+                  htmlFor="gallery-upload"
+                  className="aspect-square border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition-colors bg-gray-50 flex items-center justify-center"
+                >
+                  {isUploading && cropperType === 'gallery' ? (
+                    <Icon name="Loader2" size={24} className="animate-spin text-primary" />
+                  ) : (
+                    <Icon name="Plus" size={32} className="text-muted-foreground" />
+                  )}
+                  <Input
+                    id="gallery-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'gallery')}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                </label>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {images.length}/9 фото загружено. Всего можно загрузить до 10 фото (1 главное + 9 дополнительных)
+            </p>
           </div>
 
           <div className="space-y-2">
