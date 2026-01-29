@@ -1,4 +1,5 @@
 {
+  "send-application": "https://functions.poehali.dev/e92df60f-beeb-4c37-9515-8ad54d3ef4b5",
   "get-applications": "https://functions.poehali.dev/91952046-1c2f-403b-a4a2-82416f982e8c",
   "update-application": "https://functions.poehali.dev/60ab18f2-4446-4005-a356-00089ae33d8e",
   "send-invitation": "https://functions.poehali.dev/b14e8b32-c495-4640-8f97-570d8802deb6",

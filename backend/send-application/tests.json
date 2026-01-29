@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Send application successfully",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "ad_id": 1,
+        "sender_id": 2,
+        "message": "Привет! Хочу принять участие в твоем объявлении."
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "conversation_id": "number",
+        "message_id": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing required fields",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "message": "Test message"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

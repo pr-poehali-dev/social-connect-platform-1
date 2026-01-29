@@ -168,24 +168,48 @@ const Ads = () => {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch('https://functions.poehali.dev/6b2f5e52-63ea-4c72-bc0c-e5ff6ccf7ffc', {
+      // Получаем текущего пользователя
+      const profileResponse = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!profileResponse.ok) {
+        toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });
+        setSending(false);
+        return;
+      }
+      
+      const userData = await profileResponse.json();
+
+      // Отправляем заявку
+      const response = await fetch('https://functions.poehali.dev/e92df60f-beeb-4c37-9515-8ad54d3ef4b5', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          recipient_id: selectedAd?.user_id,
+          ad_id: selectedAd?.id,
+          sender_id: userData.id,
           message: inviteMessage
         })
       });
 
       if (response.ok) {
-        toast({ title: 'Успех!', description: 'Приглашение отправлено' });
+        const data = await response.json();
+        toast({ 
+          title: 'Успех!', 
+          description: 'Заявка отправлена. Перейдите в сообщения для продолжения диалога.',
+          action: {
+            label: 'Открыть чат',
+            onClick: () => navigate('/messages', { state: { openChatId: data.conversation_id } })
+          }
+        });
         setSelectedAd(null);
         setInviteMessage('');
       } else {
-        toast({ title: 'Ошибка', description: 'Не удалось отправить приглашение', variant: 'destructive' });
+        const error = await response.json();
+        toast({ title: 'Ошибка', description: error.error || 'Не удалось отправить заявку', variant: 'destructive' });
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
