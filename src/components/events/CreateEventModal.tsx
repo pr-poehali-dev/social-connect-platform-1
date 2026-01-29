@@ -39,6 +39,15 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const images = newEvent.images || [];
 
+  const cities = [
+    'Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань',
+    'Нижний Новгород', 'Челябинск', 'Самара', 'Омск', 'Ростов-на-Дону',
+    'Уфа', 'Красноярск', 'Воронеж', 'Пермь', 'Волгоград',
+    'Краснодар', 'Саратов', 'Тюмень', 'Тольятти', 'Ижевск',
+    'Барнаул', 'Ульяновск', 'Иркутск', 'Хабаровск', 'Ярославль',
+    'Владивосток', 'Махачкала', 'Томск', 'Оренбург', 'Кемерово'
+  ];
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'gallery' = 'main') => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -289,13 +298,18 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
 
           <div className="space-y-2">
             <Label htmlFor="city">Город *</Label>
-            <Input
-              id="city"
-              placeholder="Например: Москва"
-              value={newEvent.city}
-              onChange={(e) => onEventChange({ ...newEvent, city: e.target.value })}
-              className="rounded-xl"
-            />
+            <Select value={newEvent.city} onValueChange={(value) => onEventChange({ ...newEvent, city: value })}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue placeholder="Выберите город" />
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                {cities.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
