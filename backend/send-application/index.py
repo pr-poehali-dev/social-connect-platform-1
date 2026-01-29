@@ -51,7 +51,7 @@ def handler(event: dict, context) -> dict:
     try:
         # Получаем информацию об объявлении и его владельце
         cur.execute('''
-            SELECT user_id FROM dating_ads WHERE id = %s
+            SELECT user_id FROM t_p19021063_social_connect_platf.dating_ads WHERE id = %s
         ''', (ad_id,))
         
         result = cur.fetchone()
