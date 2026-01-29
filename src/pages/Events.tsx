@@ -312,7 +312,7 @@ const Events = () => {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+                    <div className="flex items-center gap-3 pb-4 border-b mb-4">
                       <img
                         src={event.author.avatar}
                         alt={event.author.name}
