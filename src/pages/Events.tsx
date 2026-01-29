@@ -37,6 +37,7 @@ interface Event {
   location: string;
   city: string;
   author: {
+    id: number;
     name: string;
     avatar: string;
   };
@@ -107,6 +108,7 @@ const Events = () => {
           location: evt.location,
           city: evt.city,
           author: {
+            id: evt.user_id || 0,
             name: evt.author_name || 'Организатор',
             avatar: evt.author_avatar || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
           },
@@ -324,7 +326,10 @@ const Events = () => {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 pb-4 border-b mb-4">
+                    <div 
+                      className="flex items-center gap-3 pb-4 border-b mb-4 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
+                      onClick={() => navigate(`/profile/${event.author.id}`)}
+                    >
                       <img
                         src={event.author.avatar}
                         alt={event.author.name}
