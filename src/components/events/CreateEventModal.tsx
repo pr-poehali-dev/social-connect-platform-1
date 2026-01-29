@@ -36,6 +36,7 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [cropperType, setCropperType] = useState<'main' | 'gallery'>('main');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const images = newEvent.images || [];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'gallery' = 'main') => {
@@ -90,6 +91,27 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
   const handleRemoveGalleryImage = (index: number) => {
     const currentImages = newEvent.images || [];
     onEventChange({ ...newEvent, images: currentImages.filter((_, i) => i !== index) });
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const currentImages = [...images];
+    const draggedItem = currentImages[draggedIndex];
+    currentImages.splice(draggedIndex, 1);
+    currentImages.splice(index, 0, draggedItem);
+
+    onEventChange({ ...newEvent, images: currentImages });
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
   };
 
   return (
@@ -162,8 +184,20 @@ const CreateEventModal = ({ isOpen, onClose, newEvent, onEventChange, onCreate, 
             <Label>Дополнительные фото (до 9 штук)</Label>
             <div className="grid grid-cols-3 gap-3">
               {images.map((img, index) => (
-                <div key={index} className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                <div
+                  key={index}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-move ${
+                    draggedIndex === index ? 'border-primary opacity-50 scale-95' : 'border-gray-200'
+                  }`}
+                >
                   <img src={img} alt={`Фото ${index + 1}`} className="w-full h-full object-cover" />
+                  <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                    {index + 1}
+                  </div>
                   <Button
                     variant="destructive"
                     size="icon"
