@@ -53,7 +53,10 @@ const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [joinedEvents, setJoinedEvents] = useState<Set<number>>(new Set());
+  const [joinedEvents, setJoinedEvents] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem('joinedEvents');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -168,7 +171,11 @@ const Events = () => {
       });
 
       if (response.ok) {
-        setJoinedEvents(prev => new Set(prev).add(eventId));
+        setJoinedEvents(prev => {
+          const newSet = new Set(prev).add(eventId);
+          localStorage.setItem('joinedEvents', JSON.stringify([...newSet]));
+          return newSet;
+        });
         setEvents(prev => prev.map(e => 
           e.id === eventId ? { ...e, participants: e.participants + 1 } : e
         ));
