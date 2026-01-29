@@ -66,7 +66,6 @@ const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
                   {ad.gender === 'male' ? 'М' : 'Ж'}
                 </Badge>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">@{ad.nickname}</p>
             </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
               {getTimeAgo(ad.created_at)}
