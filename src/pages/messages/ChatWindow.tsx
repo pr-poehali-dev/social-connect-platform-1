@@ -11,6 +11,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Chat {
   id: number;
@@ -81,6 +88,28 @@ const ChatWindow = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showStickers, setShowStickers] = useState(false);
   const [stickerTab, setStickerTab] = useState<'image' | 'emoji'>('image');
+
+  const handleClearChat = () => {
+    toast({
+      title: 'Чат очищен',
+      description: 'Все сообщения удалены',
+    });
+  };
+
+  const handleDeleteDialog = () => {
+    toast({
+      title: 'Диалог удалён',
+      description: 'Диалог удалён из списка',
+    });
+  };
+
+  const handleBlockUser = () => {
+    toast({
+      title: 'Пользователь заблокирован',
+      description: 'Вы больше не будете получать сообщения от этого пользователя',
+      variant: 'destructive'
+    });
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -193,9 +222,30 @@ const ChatWindow = ({
                 </Button>
               </>
             )}
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Icon name="MoreVertical" size={20} />
-            </Button>
+            {currentChat.type === 'personal' && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Icon name="MoreVertical" size={20} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleClearChat}>
+                    <Icon name="Trash2" size={16} className="mr-2" />
+                    Очистить чат
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeleteDialog}>
+                    <Icon name="X" size={16} className="mr-2" />
+                    Удалить диалог
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleBlockUser} className="text-red-600">
+                    <Icon name="Ban" size={16} className="mr-2" />
+                    Заблокировать
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
