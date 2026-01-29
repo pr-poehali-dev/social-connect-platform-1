@@ -21,6 +21,7 @@ const MyEvents = () => {
     time: '',
     location: '',
     city: '',
+    address: '',
     category: 'entertainment',
     price: 0,
     maxParticipants: 10,

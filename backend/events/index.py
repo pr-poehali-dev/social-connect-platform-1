@@ -89,14 +89,14 @@ def handler(event: dict, context) -> dict:
             
             cursor.execute('''
                 INSERT INTO events 
-                (user_id, title, description, event_date, event_time, location, city,
+                (user_id, title, description, event_date, event_time, location, city, address,
                  author_name, author_avatar, category, price, max_participants, image_url)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             ''', (
                 body.get('user_id'), body.get('title'), body.get('description'),
                 body.get('event_date'), body.get('event_time'), body.get('location'),
-                body.get('city'), body.get('author_name'), body.get('author_avatar'),
+                body.get('city'), body.get('address'), body.get('author_name'), body.get('author_avatar'),
                 body.get('category'), body.get('price', 0), body.get('max_participants'),
                 body.get('image_url')
             ))
@@ -125,14 +125,14 @@ def handler(event: dict, context) -> dict:
             cursor.execute('''
                 UPDATE events SET
                     title = %s, description = %s, event_date = %s, event_time = %s,
-                    location = %s, city = %s, category = %s, price = %s,
+                    location = %s, city = %s, address = %s, category = %s, price = %s,
                     max_participants = %s, image_url = %s, is_active = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             ''', (
                 body.get('title'), body.get('description'), body.get('event_date'),
                 body.get('event_time'), body.get('location'), body.get('city'),
-                body.get('category'), body.get('price'), body.get('max_participants'),
+                body.get('address'), body.get('category'), body.get('price'), body.get('max_participants'),
                 body.get('image_url'), body.get('is_active', True), event_id
             ))
             
