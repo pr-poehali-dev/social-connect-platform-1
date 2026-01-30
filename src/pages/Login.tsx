@@ -132,19 +132,21 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <VkLoginButton 
-                    onClick={vkAuth.login} 
-                    isLoading={vkAuth.isLoading}
-                    buttonText="VK"
-                    className="rounded-xl w-full"
-                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <VkLoginButton 
+                      onClick={vkAuth.login} 
+                      isLoading={vkAuth.isLoading}
+                      buttonText="VK"
+                      className="rounded-xl"
+                    />
 
-                  <YandexLoginButton 
-                    onClick={yandexAuth.login} 
-                    isLoading={yandexAuth.isLoading}
-                    buttonText="Яндекс ID"
-                    className="rounded-xl w-full"
-                  />
+                    <YandexLoginButton 
+                      onClick={yandexAuth.login} 
+                      isLoading={yandexAuth.isLoading}
+                      buttonText="Яндекс"
+                      className="rounded-xl"
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-4 text-center">
