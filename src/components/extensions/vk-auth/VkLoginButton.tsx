@@ -87,12 +87,9 @@ export function VkLoginButton({
       className={`bg-[#0077FF] hover:bg-[#0066DD] text-white ${className}`}
     >
       {isLoading ? (
-        <>
-          <Spinner className="!w-5 !h-5 mr-2 flex-shrink-0" />
-          Загрузка...
-        </>
+        <Spinner className="!w-5 !h-5 flex-shrink-0" />
       ) : (
-        buttonText
+        <VkIcon className="!w-6 !h-7 flex-shrink-0" />
       )}
     </Button>
   );
