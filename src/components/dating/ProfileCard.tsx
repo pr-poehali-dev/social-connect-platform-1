@@ -26,6 +26,10 @@ interface Profile {
   hasHousing?: string;
   datingGoal?: string;
   distance?: number;
+  isOnline?: boolean;
+  lastSeen?: string;
+  isVerified?: boolean;
+  status_text?: string;
 }
 
 interface ProfileCardProps {
@@ -67,6 +71,22 @@ const ProfileCard = ({
     if (isFriend) return 'UserCheck';
     if (isFriendRequestSent) return 'Clock';
     return 'UserPlus';
+  };
+
+  const formatLastSeen = (lastSeen: string) => {
+    const now = new Date();
+    const lastLogin = new Date(lastSeen);
+    const diffMs = now.getTime() - lastLogin.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'только что';
+    if (diffMins < 60) return `${diffMins} мин назад`;
+    if (diffHours < 24) return `${diffHours} ч назад`;
+    if (diffDays === 1) return 'вчера';
+    if (diffDays < 7) return `${diffDays} дн назад`;
+    return lastLogin.toLocaleDateString('ru-RU');
   };
 
   const handleFlip = () => {
@@ -151,6 +171,20 @@ const ProfileCard = ({
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+            <div className="absolute top-4 right-4 flex gap-2">
+              {profile.isVerified && (
+                <Badge className="bg-blue-500/90 text-white rounded-full px-3 py-1 flex items-center gap-1">
+                  <Icon name="BadgeCheck" size={14} />
+                  Verified
+                </Badge>
+              )}
+              {profile.isOnline && (
+                <Badge className="bg-green-500/90 text-white rounded-full px-3 py-1 flex items-center gap-1">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  Online
+                </Badge>
+              )}
+            </div>
             <div className="absolute bottom-4 left-4 text-white">
               <h3 className="text-2xl font-bold mb-1 flex items-center gap-2">
                 {profile.name}{profile.age ? `, ${profile.age}` : ''}
@@ -163,6 +197,12 @@ const ProfileCard = ({
                   <p className="flex items-center gap-1 text-sm">
                     <Icon name="MapPin" size={14} />
                     {profile.city}
+                  </p>
+                )}
+                {!profile.isOnline && profile.lastSeen && (
+                  <p className="flex items-center gap-1 text-sm opacity-80">
+                    <Icon name="Clock" size={14} />
+                    {formatLastSeen(profile.lastSeen)}
                   </p>
                 )}
                 {profile.distance !== undefined && (

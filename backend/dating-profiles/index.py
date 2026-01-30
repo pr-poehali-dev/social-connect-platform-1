@@ -79,6 +79,16 @@ def handler(event: dict, context) -> dict:
             age_from = query_params.get('ageFrom', '')
             age_to = query_params.get('ageTo', '')
             city = query_params.get('city', '')
+            district = query_params.get('district', '')
+            height_from = query_params.get('heightFrom', '')
+            height_to = query_params.get('heightTo', '')
+            body_type = query_params.get('bodyType', '')
+            marital_status = query_params.get('maritalStatus', '')
+            has_children = query_params.get('hasChildren', '')
+            financial_status = query_params.get('financialStatus', '')
+            has_car = query_params.get('hasCar', '')
+            has_housing = query_params.get('hasHousing', '')
+            dating_goal = query_params.get('datingGoal', '')
             online = query_params.get('online', '') == 'true'
             with_photo = query_params.get('withPhoto', '') == 'true'
             
@@ -88,15 +98,37 @@ def handler(event: dict, context) -> dict:
                 where_conditions.append(f"u.id != {user_id}")
             
             if gender:
-                where_conditions.append(f"dp.gender = '{gender}'")
+                where_conditions.append(f"u.gender = '{gender}'")
             if age_from:
-                where_conditions.append(f"COALESCE(u.age_from, 25) >= {age_from}")
+                where_conditions.append(f"EXTRACT(YEAR FROM AGE(u.birth_date)) >= {age_from}")
             if age_to:
-                where_conditions.append(f"COALESCE(u.age_from, 25) <= {age_to}")
+                where_conditions.append(f"EXTRACT(YEAR FROM AGE(u.birth_date)) <= {age_to}")
             if city:
                 where_conditions.append(f"LOWER(u.city) LIKE LOWER('%{city}%')")
+            if district:
+                where_conditions.append(f"LOWER(u.district) LIKE LOWER('%{district}%')")
+            if height_from:
+                where_conditions.append(f"u.height >= {height_from}")
+            if height_to:
+                where_conditions.append(f"u.height <= {height_to}")
+            if body_type:
+                where_conditions.append(f"u.body_type = '{body_type}'")
+            if marital_status:
+                where_conditions.append(f"u.marital_status = '{marital_status}'")
+            if has_children:
+                where_conditions.append(f"u.children = '{has_children}'")
+            if financial_status:
+                where_conditions.append(f"u.financial_status = '{financial_status}'")
+            if has_car:
+                where_conditions.append(f"u.has_car = '{has_car}'")
+            if has_housing:
+                where_conditions.append(f"u.has_housing = '{has_housing}'")
+            if dating_goal:
+                where_conditions.append(f"u.dating_goal = '{dating_goal}'")
             if with_photo:
                 where_conditions.append("u.avatar_url IS NOT NULL AND u.avatar_url != ''")
+            if online:
+                where_conditions.append("u.last_login_at > NOW() - INTERVAL '15 minutes'")
             
             where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
             
@@ -106,18 +138,29 @@ def handler(event: dict, context) -> dict:
             
             cur.execute(f"""
                 SELECT 
-                    dp.id, dp.user_id, dp.name, 
-                    dp.age,
+                    dp.id, dp.user_id,
+                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name, dp.name) as name,
+                    EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
                     u.birth_date,
-                    dp.city, dp.district,
-                    dp.interests, dp.bio, 
+                    COALESCE(u.city, dp.city) as city,
+                    COALESCE(u.district, dp.district) as district,
+                    COALESCE(u.interests, dp.interests) as interests,
+                    COALESCE(u.bio, dp.bio) as bio,
                     COALESCE(
                         (SELECT photo_url FROM {S}user_photos WHERE user_id = dp.user_id ORDER BY position LIMIT 1),
-                        dp.avatar_url, 
-                        u.avatar_url
+                        u.avatar_url,
+                        dp.avatar_url
                     ) as avatar_url,
-                    dp.height, dp.body_type, dp.gender,
-                    FALSE as is_online,
+                    u.height,
+                    u.body_type,
+                    u.gender,
+                    u.is_verified,
+                    u.last_login_at,
+                    u.status_text,
+                    CASE 
+                        WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                        ELSE FALSE
+                    END as is_online,
                     COALESCE(dp.is_top_ad, u.is_vip, FALSE) as is_top_ad,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
