@@ -295,7 +295,7 @@ const Messages = () => {
 
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/b4b60a51-ac3b-4b06-956c-f4f867e9e764?conversationId=${chatId}`,
+        `https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?conversationId=${chatId}`,
         {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` }
@@ -307,7 +307,7 @@ const Messages = () => {
         if (selectedChat === chatId) {
           setSelectedChat(null);
         }
-        setChats(chats.filter(c => c.id !== chatId));
+        loadConversations();
       } else {
         toast({ title: 'Ошибка', description: 'Не удалось удалить чат', variant: 'destructive' });
       }

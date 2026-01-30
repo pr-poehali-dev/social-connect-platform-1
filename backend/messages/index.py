@@ -13,7 +13,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
@@ -318,6 +318,51 @@ def handler(event: dict, context) -> dict:
                 'id': new_message['id'],
                 'createdAt': new_message['created_at'].isoformat()
             }),
+            'isBase64Encoded': False
+        }
+    
+    if method == 'DELETE':
+        conversation_id = params.get('conversationId')
+        
+        if not conversation_id:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Missing conversationId'}),
+                'isBase64Encoded': False
+            }
+        
+        cursor.execute(f'''
+            DELETE FROM {schema}.conversation_participants 
+            WHERE conversation_id = %s AND user_id = %s
+        ''', (conversation_id, user_id))
+        
+        cursor.execute(f'''
+            SELECT COUNT(*) as count FROM {schema}.conversation_participants 
+            WHERE conversation_id = %s
+        ''', (conversation_id,))
+        
+        remaining = cursor.fetchone()
+        
+        if remaining['count'] == 0:
+            cursor.execute(f'''
+                DELETE FROM {schema}.messages WHERE conversation_id = %s
+            ''', (conversation_id,))
+            
+            cursor.execute(f'''
+                DELETE FROM {schema}.conversations WHERE id = %s
+            ''', (conversation_id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'status': 'deleted'}),
             'isBase64Encoded': False
         }
     
