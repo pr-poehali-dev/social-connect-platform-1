@@ -41,8 +41,16 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
   }, [imageFile]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
     setIsDragging(true);
     setDragStart({ x: e.clientX - crop.x, y: e.clientY - crop.y });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({ x: touch.clientX - crop.x, y: touch.clientY - crop.y });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -52,7 +60,19 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
     setCrop({ ...crop, x: newX, y: newY });
   };
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    const newX = Math.max(0, Math.min(touch.clientX - dragStart.x, imageSize.width - crop.size));
+    const newY = Math.max(0, Math.min(touch.clientY - dragStart.y, imageSize.height - crop.size));
+    setCrop({ ...crop, x: newX, y: newY });
+  };
+
   const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
   };
 
@@ -106,7 +126,7 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
         <div className="space-y-4">
           <div 
             ref={containerRef}
-            className="relative overflow-hidden bg-muted rounded-lg mx-auto"
+            className="relative overflow-hidden bg-muted rounded-lg mx-auto touch-none"
             style={{ 
               width: imageSize.width * scale,
               height: imageSize.height * scale,
@@ -116,6 +136,8 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             {imageSrc && (
               <>
@@ -127,7 +149,7 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
                   style={{ opacity: 0.5 }}
                 />
                 <div
-                  className="absolute border-4 border-primary cursor-move"
+                  className="absolute border-4 border-primary cursor-move touch-none"
                   style={{
                     left: crop.x * scale,
                     top: crop.y * scale,
@@ -138,6 +160,7 @@ const ImageCropper = ({ imageFile, onCropComplete, onCancel }: ImageCropperProps
                     backgroundPosition: `-${crop.x * scale}px -${crop.y * scale}px`
                   }}
                   onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
                 />
               </>
             )}
