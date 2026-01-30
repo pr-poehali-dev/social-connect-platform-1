@@ -14,6 +14,7 @@ interface Ad {
   gender: string;
   city: string;
   age: number;
+  birth_date?: string;
   created_at: string;
   events: { event_type: string; details: string }[];
 }
@@ -34,6 +35,14 @@ const eventTypeLabels: { [key: string]: string } = {
 };
 
 const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
+  const isBirthday = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    return today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate();
+  };
+
+  const showBirthdayIcon = ad.birth_date && isBirthday(ad.birth_date);
+
   return (
     <Card className="p-3 sm:p-4 rounded-2xl hover:shadow-lg transition-shadow">
       <div className="flex gap-3">
@@ -57,8 +66,11 @@ const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1.5">
             <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-bold">
+              <h3 className="text-base sm:text-lg font-bold flex items-center gap-1.5">
                 {ad.name}, {ad.age}
+                {showBirthdayIcon && (
+                  <Icon name="Cake" size={16} className="text-yellow-500 animate-pulse" />
+                )}
               </h3>
             </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">

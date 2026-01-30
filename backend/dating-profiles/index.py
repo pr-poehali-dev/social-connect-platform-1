@@ -108,6 +108,7 @@ def handler(event: dict, context) -> dict:
                 SELECT 
                     dp.id, dp.user_id, dp.name, 
                     dp.age,
+                    u.birth_date,
                     dp.city, dp.district,
                     dp.interests, dp.bio, 
                     COALESCE(

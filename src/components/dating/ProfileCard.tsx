@@ -10,6 +10,7 @@ interface Profile {
   id: number;
   name: string;
   age: number;
+  birth_date?: string;
   city: string;
   interests: string[];
   bio: string;
@@ -47,6 +48,14 @@ const ProfileCard = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isFlipped, setIsFlipped] = useState(false);
+
+  const isBirthday = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    return today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate();
+  };
+
+  const showBirthdayIcon = profile.birth_date && isBirthday(profile.birth_date);
 
   const getFriendButtonText = () => {
     if (isFriend) return 'Уже в друзьях';
@@ -143,7 +152,12 @@ const ProfileCard = ({
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
             <div className="absolute bottom-4 left-4 text-white">
-              <h3 className="text-2xl font-bold mb-1">{profile.name}{profile.age ? `, ${profile.age}` : ''}</h3>
+              <h3 className="text-2xl font-bold mb-1 flex items-center gap-2">
+                {profile.name}{profile.age ? `, ${profile.age}` : ''}
+                {showBirthdayIcon && (
+                  <Icon name="Cake" size={20} className="text-yellow-300 animate-pulse" />
+                )}
+              </h3>
               <div className="space-y-1">
                 {profile.city && (
                   <p className="flex items-center gap-1 text-sm">

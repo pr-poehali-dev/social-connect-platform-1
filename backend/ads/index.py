@@ -40,7 +40,7 @@ def handler(event: dict, context) -> dict:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                a.created_at, a.updated_at, a.photos,
-                               u.name, u.nickname, u.avatar_url, u.gender, u.city,
+                               u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
                         JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
@@ -51,7 +51,7 @@ def handler(event: dict, context) -> dict:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                a.created_at, a.updated_at, a.photos,
-                               u.name, u.nickname, u.avatar_url, u.gender, u.city,
+                               u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
                         JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
@@ -62,7 +62,7 @@ def handler(event: dict, context) -> dict:
                     cur.execute('''
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                a.created_at, a.updated_at, a.photos,
-                               u.name, u.nickname, u.avatar_url, u.gender, u.city,
+                               u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
                                EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
                         JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id

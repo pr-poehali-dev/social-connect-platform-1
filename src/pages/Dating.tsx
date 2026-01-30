@@ -132,6 +132,7 @@ const Dating = () => {
             user_id: p.user_id,
             name: p.name,
             age: p.age,
+            birth_date: p.birth_date,
             city: p.city,
             district: p.district,
             gender: p.gender,
