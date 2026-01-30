@@ -219,7 +219,8 @@ const Events = () => {
                          event.city.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
     const matchesCity = selectedCity === 'Все города' || event.city === selectedCity;
-    return matchesSearch && matchesCategory && matchesCity;
+    const isNotTestEvent = event.title !== 'Test Event';
+    return matchesSearch && matchesCategory && matchesCity && isNotTestEvent;
   });
 
   if (loading) {
