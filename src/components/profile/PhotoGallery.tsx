@@ -150,11 +150,14 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
                   input.onchange = (e) => handleFileSelect(e as any, 0);
                   input.click();
                 }}
-                className="gap-2 rounded-xl"
-                size="sm"
+                className="gap-2 rounded-xl lg:px-4"
+                size="icon"
               >
-                <Icon name="Plus" size={18} />
-                Добавить фото
+                <Icon name="Plus" size={28} className="lg:hidden" />
+                <span className="hidden lg:flex lg:items-center lg:gap-2">
+                  <Icon name="Plus" size={18} />
+                  Добавить фото
+                </span>
               </Button>
             )}
           </div>
