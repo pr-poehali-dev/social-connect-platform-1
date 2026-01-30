@@ -128,11 +128,12 @@ const Navigation = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group">
-              <img 
-                src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/2ef01998-8ffd-4aaf-bdf9-80b2f6b99e39.png" 
-                alt="LOVE iS" 
-                className="h-10 transform group-hover:scale-110 transition-transform"
-              />
+              <svg width="160" height="38" viewBox="0 0 160 38" fill="none" className="h-10 transform group-hover:scale-110 transition-transform">
+                <text x="0" y="28" fontFamily="Georgia, serif" fontSize="26" fontWeight="bold" fill="#D32F2F">LOVE</text>
+                <text x="75" y="28" fontFamily="Georgia, serif" fontSize="26" fontWeight="normal" fill="#333">IS</text>
+                <path d="M115 18 C115 18, 120 12, 125 15 C130 18, 125 22, 125 22 C125 22, 120 26, 115 22 C110 18, 115 18, 115 18" 
+                      fill="#D32F2F"/>
+              </svg>
             </Link>
 
             <div className="hidden lg:flex items-center gap-1">
