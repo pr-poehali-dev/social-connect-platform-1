@@ -128,29 +128,11 @@ const Navigation = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group">
-              <svg width="165" height="36" viewBox="0 0 165 36" fill="none" className="h-10 transform group-hover:scale-110 transition-transform">
-                <text x="12" y="35" 
-                      fontFamily="'Playfair Display', Georgia" 
-                      fontSize="22" 
-                      fontWeight="700" 
-                      fill="#FF4081">
-                  LOVE
-                </text>
-                
-                <text x="87" y="35" 
-                      fontFamily="'Playfair Display', Georgia" 
-                      fontSize="22" 
-                      fontWeight="400" 
-                      fill="#333">
-                  IS
-                </text>
-                
-                <path d="M132 24
-                         C132 19, 142 19, 142 24
-                         C142 29, 132 34, 132 34
-                         C132 34, 122 29, 122 24
-                         C122 19, 132 19, 132 24Z"
-                      fill="#FF4081"/>
+              <svg width="150" height="36" viewBox="0 0 150 36" fill="none" className="h-10 transform group-hover:scale-110 transition-transform">
+                <text x="5" y="26" fontFamily="Georgia" fontSize="24" fontWeight="bold" fill="#E91E63">LOVE</text>
+                <text x="78" y="26" fontFamily="Georgia" fontSize="24" fontWeight="normal" fill="#555">IS</text>
+                <path d="M113 16 C113 16, 121 8, 127 12 C133 16, 127 22, 127 22 C127 22, 121 28, 113 22 C105 16, 113 16, 113 16" 
+                      fill="#E91E63"/>
               </svg>
             </Link>
 
