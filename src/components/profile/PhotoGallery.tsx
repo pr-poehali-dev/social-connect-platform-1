@@ -139,10 +139,9 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
       )}
       <Card className="rounded-3xl border-2">
         <CardContent className="p-6">
-          <h3 className="text-xl font-bold mb-4">Галерея фотографий</h3>
-          
-          {photos.length === 0 ? (
-            <div className="text-center py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold">Галерея фотографий</h3>
+            {photos.length === 0 && (
               <Button
                 onClick={() => {
                   const input = document.createElement('input');
@@ -157,6 +156,12 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
                 <Icon name="Plus" size={18} />
                 Добавить фото
               </Button>
+            )}
+          </div>
+          
+          {photos.length === 0 ? (
+            <div className="text-center py-2">
+              <p className="text-sm text-muted-foreground">Добавьте свои фотографии</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-4">
