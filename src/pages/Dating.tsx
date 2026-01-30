@@ -415,12 +415,6 @@ const Dating = () => {
                                 <Icon name="BadgeCheck" size={18} className="text-gray-400 flex-shrink-0" />
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5 text-white/80 text-xs">
-                              <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                              <span>
-                                {profile.isOnline ? 'Онлайн' : `Был(а) в сети ${formatLastSeen(profile.lastSeen)}`}
-                              </span>
-                            </div>
                             {profile.status_text && (
                               <div className="text-white/90 text-xs italic truncate">
                                 {profile.status_text}
