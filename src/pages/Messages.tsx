@@ -21,6 +21,7 @@ interface Chat {
   participants?: number;
   dealStatus?: string;
   vkId?: string;
+  userId?: number;
 }
 
 interface Message {
@@ -316,6 +317,63 @@ const Messages = () => {
     }
   };
 
+  const handleClearChat = async (chatId: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ action: 'clear', conversationId: chatId })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успех', description: 'Чат очищен' });
+        loadMessages();
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось очистить чат', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Проверьте подключение к интернету', variant: 'destructive' });
+    }
+  };
+
+  const handleBlockUser = async (userId: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ action: 'block', userId })
+      });
+
+      if (response.ok) {
+        toast({ 
+          title: 'Пользователь заблокирован', 
+          description: 'Вы больше не будете получать сообщения от этого пользователя',
+          variant: 'destructive' 
+        });
+        if (selectedChat) {
+          setSelectedChat(null);
+        }
+        loadConversations();
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось заблокировать пользователя', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Проверьте подключение к интернету', variant: 'destructive' });
+    }
+  };
+
   const messageCounts = {
     personal: chats.filter(c => c.type === 'personal').length,
     group: chats.filter(c => c.type === 'group').length,
@@ -355,6 +413,9 @@ const Messages = () => {
                         onCall={handleCall}
                         toast={toast}
                         onClose={() => setSelectedChat(null)}
+                        onClearChat={handleClearChat}
+                        onDeleteChat={handleDeleteChat}
+                        onBlockUser={handleBlockUser}
                       />
                     </div>
                   </div>
@@ -371,6 +432,9 @@ const Messages = () => {
                       onSendMessage={handleSendMessage}
                       onCall={handleCall}
                       toast={toast}
+                      onClearChat={handleClearChat}
+                      onDeleteChat={handleDeleteChat}
+                      onBlockUser={handleBlockUser}
                     />
                   </div>
                 )}

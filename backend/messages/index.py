@@ -13,7 +13,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
@@ -99,6 +99,10 @@ def handler(event: dict, context) -> dict:
                     WHERE m.conversation_id = c.id AND m.is_read = FALSE AND m.sender_id != %s) as unread_count,
                    (SELECT COUNT(*) FROM {schema}.conversation_participants 
                     WHERE conversation_id = c.id) as participants_count,
+                   (SELECT u.id FROM {schema}.users u
+                    JOIN {schema}.conversation_participants cp2 ON u.id = cp2.user_id
+                    WHERE cp2.conversation_id = c.id AND cp2.user_id != %s
+                    LIMIT 1) as other_user_id,
                    (SELECT u.vk_id FROM {schema}.users u
                     JOIN {schema}.conversation_participants cp2 ON u.id = cp2.user_id
                     WHERE cp2.conversation_id = c.id AND cp2.user_id != %s
@@ -121,7 +125,7 @@ def handler(event: dict, context) -> dict:
         
         query += " ORDER BY last_message_time DESC NULLS LAST"
         
-        cursor.execute(query, (user_id, user_id, user_id, user_id, user_id))
+        cursor.execute(query, (user_id, user_id, user_id, user_id, user_id, user_id))
         conversations = cursor.fetchall()
         
         result = []
@@ -140,7 +144,8 @@ def handler(event: dict, context) -> dict:
                 'unread': conv['unread_count'] or 0,
                 'participants': conv['participants_count'],
                 'dealStatus': conv['deal_status'],
-                'vkId': conv['other_user_vk_id']
+                'vkId': conv['other_user_vk_id'],
+                'userId': conv.get('other_user_id')
             })
         
         cursor.close()
@@ -320,6 +325,91 @@ def handler(event: dict, context) -> dict:
             }),
             'isBase64Encoded': False
         }
+    
+    if method == 'PUT':
+        data = json.loads(event.get('body', '{}'))
+        action_type = data.get('action')
+        
+        if action_type == 'block':
+            blocked_user_id = data.get('userId')
+            if not blocked_user_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing userId'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f'''
+                INSERT INTO {schema}.user_blocks (blocker_user_id, blocked_user_id)
+                VALUES (%s, %s)
+                ON CONFLICT (blocker_user_id, blocked_user_id) DO NOTHING
+            ''', (user_id, blocked_user_id))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'status': 'blocked'}),
+                'isBase64Encoded': False
+            }
+        
+        elif action_type == 'unblock':
+            blocked_user_id = data.get('userId')
+            if not blocked_user_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing userId'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f'''
+                DELETE FROM {schema}.user_blocks 
+                WHERE blocker_user_id = %s AND blocked_user_id = %s
+            ''', (user_id, blocked_user_id))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'status': 'unblocked'}),
+                'isBase64Encoded': False
+            }
+        
+        elif action_type == 'clear':
+            conversation_id = data.get('conversationId')
+            if not conversation_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing conversationId'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f'''
+                DELETE FROM {schema}.messages WHERE conversation_id = %s
+            ''', (conversation_id,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'status': 'cleared'}),
+                'isBase64Encoded': False
+            }
     
     if method == 'DELETE':
         conversation_id = params.get('conversationId')

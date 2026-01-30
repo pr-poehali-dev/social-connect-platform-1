@@ -19,6 +19,7 @@ interface Chat {
   participants?: number;
   dealStatus?: string;
   vkId?: string;
+  userId?: number;
 }
 
 interface ChatListProps {

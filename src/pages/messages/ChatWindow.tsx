@@ -31,6 +31,7 @@ interface Chat {
   participants?: number;
   dealStatus?: string;
   vkId?: string;
+  userId?: number;
 }
 
 interface Message {
@@ -53,6 +54,9 @@ interface ChatWindowProps {
   onCall: (type: 'audio' | 'video') => void;
   toast: any;
   onClose?: () => void;
+  onClearChat?: (chatId: number) => void;
+  onDeleteChat?: (chatId: number) => void;
+  onBlockUser?: (userId: number) => void;
 }
 
 const IMAGE_STICKERS = [
@@ -82,7 +86,10 @@ const ChatWindow = ({
   onSendMessage,
   onCall,
   toast,
-  onClose
+  onClose,
+  onClearChat,
+  onDeleteChat,
+  onBlockUser
 }: ChatWindowProps) => {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -90,25 +97,21 @@ const ChatWindow = ({
   const [stickerTab, setStickerTab] = useState<'image' | 'emoji'>('image');
 
   const handleClearChat = () => {
-    toast({
-      title: 'Чат очищен',
-      description: 'Все сообщения удалены',
-    });
+    if (currentChat && onClearChat) {
+      onClearChat(currentChat.id);
+    }
   };
 
   const handleDeleteDialog = () => {
-    toast({
-      title: 'Диалог удалён',
-      description: 'Диалог удалён из списка',
-    });
+    if (currentChat && onDeleteChat) {
+      onDeleteChat(currentChat.id);
+    }
   };
 
   const handleBlockUser = () => {
-    toast({
-      title: 'Пользователь заблокирован',
-      description: 'Вы больше не будете получать сообщения от этого пользователя',
-      variant: 'destructive'
-    });
+    if (currentChat && onBlockUser && currentChat.userId) {
+      onBlockUser(currentChat.userId);
+    }
   };
 
   useEffect(() => {
