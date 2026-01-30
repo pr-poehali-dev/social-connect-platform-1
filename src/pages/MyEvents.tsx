@@ -56,11 +56,12 @@ const MyEvents = () => {
           participants: evt.participants || 0,
           maxParticipants: evt.max_participants || 10,
           image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-          status: evt.is_active ? 'active' : 'completed'
+          status: evt.is_active ? 'active' : 'completed',
+          userId: evt.user_id
         }));
         
-        const my = formattedEvents.filter((e: any) => e.status === 'active');
-        const completed = formattedEvents.filter((e: any) => e.status === 'completed');
+        const my = formattedEvents.filter((e: any) => e.userId === userId && e.status === 'active');
+        const completed = formattedEvents.filter((e: any) => e.userId === userId && e.status === 'completed');
         
         setMyEvents(my);
         setParticipatingEvents([]);
@@ -208,6 +209,10 @@ const MyEvents = () => {
 
         const fetchResponse = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
         const data = await fetchResponse.json();
+        
+        const userProfile = localStorage.getItem('userProfile');
+        const userId = userProfile ? JSON.parse(userProfile).id : null;
+        
         const formattedEvents = data.map((evt: any) => ({
           id: evt.id,
           title: evt.title,
@@ -223,11 +228,12 @@ const MyEvents = () => {
           maxParticipants: evt.max_participants || 10,
           image: evt.image_url || '',
           paymentUrl: evt.payment_url || '',
-          status: evt.is_active ? 'active' : 'completed'
+          status: evt.is_active ? 'active' : 'completed',
+          userId: evt.user_id
         }));
         
-        setMyEvents(formattedEvents.filter((e: any) => e.status === 'active'));
-        setCompletedEvents(formattedEvents.filter((e: any) => e.status === 'completed'));
+        setMyEvents(formattedEvents.filter((e: any) => e.userId === userId && e.status === 'active'));
+        setCompletedEvents(formattedEvents.filter((e: any) => e.userId === userId && e.status === 'completed'));
       }
     } catch (error) {
       console.error('Error updating event:', error);
@@ -342,11 +348,12 @@ const MyEvents = () => {
           participants: evt.participants || 0,
           maxParticipants: evt.max_participants || 10,
           image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-          status: evt.is_active ? 'active' : 'completed'
+          status: evt.is_active ? 'active' : 'completed',
+          userId: evt.user_id
         }));
         
-        const my = formattedEvents.filter((e: any) => e.status === 'active');
-        const completed = formattedEvents.filter((e: any) => e.status === 'completed');
+        const my = formattedEvents.filter((e: any) => e.userId === userId && e.status === 'active');
+        const completed = formattedEvents.filter((e: any) => e.userId === userId && e.status === 'completed');
         
         setMyEvents(my);
         setCompletedEvents(completed);
