@@ -71,10 +71,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center"
-        style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/bc6cb8c2-dbf2-4f5d-99e7-e41867b4355d.jpg)' }}
-      />
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/0b808ff7-ad9e-4059-be8d-f3f668f1ca48.mp4" type="video/mp4" />
+      </video>
       <div className="absolute inset-0 bg-black/20" />
       <main className="relative z-10 min-h-screen flex items-center justify-center py-12">
         <div className="container mx-auto px-4">
