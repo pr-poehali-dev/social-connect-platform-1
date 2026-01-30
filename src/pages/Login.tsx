@@ -70,11 +70,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      <main className="pt-12 pb-12">
+    <div className="min-h-screen relative overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/video/background.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-black/30" />
+      <main className="relative z-10 pt-12 pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
-            <Card className="rounded-3xl border-2 shadow-2xl">
+            <Card className="rounded-3xl border-2 shadow-2xl bg-white/95 backdrop-blur-sm">
               <CardHeader className="text-center space-y-4">
                 <img 
                   src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/214c5eeb-fddf-4e50-86e9-baf072a385d5.png" 
@@ -160,6 +170,7 @@ const Login = () => {
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
 };
