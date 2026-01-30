@@ -86,12 +86,12 @@ const Login = () => {
           <div className="max-w-md mx-auto">
             <Card className="rounded-3xl border-0 shadow-none bg-transparent">
               <CardHeader className="text-center space-y-2 pb-4">
-                <CardTitle className="text-2xl">Вход в аккаунт</CardTitle>
+                <CardTitle className="text-2xl text-white">Вход в аккаунт</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-white">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -104,7 +104,7 @@ const Login = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="password">Пароль</Label>
+                    <Label htmlFor="password" className="text-white">Пароль</Label>
                     <Input
                       id="password"
                       type="password"
@@ -131,7 +131,7 @@ const Login = () => {
                       <Separator />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-muted-foreground">
+                      <span className="bg-black/30 px-2 text-white">
                         Или войти через
                       </span>
                     </div>
@@ -155,7 +155,7 @@ const Login = () => {
                 </div>
 
                 <div className="mt-4 text-center">
-                  <Link to="/register" className="text-sm text-primary hover:underline block">
+                  <Link to="/register" className="text-sm text-white hover:underline block">
                     Нет аккаунта? Зарегистрируйтесь
                   </Link>
                 </div>
