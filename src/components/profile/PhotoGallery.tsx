@@ -143,7 +143,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
           
           {photos.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">Фотографий пока нет</p>
+              <p className="text-muted-foreground mb-4"></p>
               <Button
                 onClick={() => {
                   const input = document.createElement('input');
