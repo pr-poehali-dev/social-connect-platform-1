@@ -11,7 +11,7 @@ const MyEventsHeader = ({ onCreateClick }: MyEventsHeaderProps) => {
       <h1 className="text-3xl font-bold mb-4">Мои мероприятия</h1>
       <Button 
         onClick={onCreateClick}
-        className="gap-2 rounded-xl w-full"
+        className="gap-2 rounded-xl w-full md:hidden"
         size="lg"
       >
         <Icon name="Plus" size={20} />
