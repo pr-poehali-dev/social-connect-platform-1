@@ -69,7 +69,7 @@ def handler(event: dict, context) -> dict:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 query = f'''
                     SELECT id, email, first_name, last_name, nickname, bio, avatar_url,
-                           gender, age_from, age_to, city, district, height,
+                           gender, birth_date, city, district, height,
                            body_type, marital_status, children, financial_status,
                            has_car, has_housing, dating_goal, interests, profession,
                            zodiac_sign, status_text, phone, telegram, instagram,
@@ -103,7 +103,7 @@ def handler(event: dict, context) -> dict:
             # Строковые поля
             string_fields = ['first_name', 'last_name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
-                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram']
+                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram', 'birth_date']
             
             for field in string_fields:
                 if field in data and data[field] is not None:
@@ -111,7 +111,7 @@ def handler(event: dict, context) -> dict:
                     updates.append(f"{field} = '{value}'")
             
             # Числовые поля (integer)
-            int_fields = ['age_from', 'age_to', 'height']
+            int_fields = ['height']
             for field in int_fields:
                 if field in data:
                     # Пропускаем пустые строки

@@ -186,16 +186,14 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="age">Возраст</Label>
+          <Label htmlFor="birth_date">Дата рождения</Label>
           <Input
-            id="age"
-            type="number"
-            value={formData.age_from}
-            onChange={(e) => setFormData({ ...formData, age_from: e.target.value })}
-            placeholder="25"
+            id="birth_date"
+            type="date"
+            value={formData.birth_date}
+            onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
             className="rounded-xl"
-            min="18"
-            max="100"
+            max={new Date().toISOString().split('T')[0]}
           />
         </div>
 

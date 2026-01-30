@@ -1,10 +1,31 @@
 import { Badge } from '@/components/ui/badge';
+import Icon from '@/components/ui/icon';
 
 interface ProfileViewModeProps {
   user: any;
 }
 
+const calculateAge = (birthDate: string) => {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+const isBirthday = (birthDate: string) => {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  return today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate();
+};
+
 const ProfileViewMode = ({ user }: ProfileViewModeProps) => {
+  const age = user.birth_date ? calculateAge(user.birth_date) : null;
+  const showBirthdayIcon = user.birth_date && isBirthday(user.birth_date);
+
   return (
     <div className="space-y-4 p-6 bg-muted/50 rounded-2xl">
       <div className="grid md:grid-cols-2 gap-6">
@@ -18,10 +39,18 @@ const ProfileViewMode = ({ user }: ProfileViewModeProps) => {
             <p className="text-base">{user.gender === 'male' ? 'Мужской' : 'Женский'}</p>
           </div>
         )}
-        {(user.age_from || user.age_to) && (
+        {age !== null && (
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Возраст партнёра</p>
-            <p className="text-base">{user.age_from} - {user.age_to} лет</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Возраст</p>
+            <p className="text-base flex items-center gap-2">
+              {age} {age % 10 === 1 && age !== 11 ? 'год' : age % 10 >= 2 && age % 10 <= 4 && (age < 10 || age > 20) ? 'года' : 'лет'}
+              {showBirthdayIcon && (
+                <span className="inline-flex items-center gap-1 text-primary animate-pulse">
+                  <Icon name="Cake" size={18} />
+                  <span className="text-sm font-medium">День рождения!</span>
+                </span>
+              )}
+            </p>
           </div>
         )}
         {user.zodiac_sign && (
