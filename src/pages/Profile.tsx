@@ -160,13 +160,22 @@ const Profile = () => {
 
     const token = localStorage.getItem('access_token');
     try {
+      const preparedData = {
+        ...formData,
+        age_from: formData.age_from ? parseInt(formData.age_from as any) : null,
+        age_to: formData.age_to ? parseInt(formData.age_to as any) : null,
+        height: formData.height ? parseInt(formData.height as any) : null,
+        has_car: formData.has_car === 'true' || formData.has_car === true,
+        has_housing: formData.has_housing === 'true' || formData.has_housing === true,
+      };
+
       const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(preparedData)
       });
 
       if (response.ok) {

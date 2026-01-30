@@ -131,7 +131,11 @@ def handler(event: dict, context) -> dict:
                     if data[field] == '' or data[field] is None:
                         updates.append(f"{field} = NULL")
                     else:
-                        val = 'TRUE' if data[field] else 'FALSE'
+                        # Обработка строк "true"/"false" и булевых значений
+                        if isinstance(data[field], str):
+                            val = 'TRUE' if data[field].lower() == 'true' else 'FALSE'
+                        else:
+                            val = 'TRUE' if data[field] else 'FALSE'
                         updates.append(f"{field} = {val}")
             
             # Массив интересов
