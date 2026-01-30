@@ -355,9 +355,11 @@ const Profile = () => {
                     </div>
                   )}
 
-                  <div className="pt-6 border-t">
-                    <ProfileStats stats={stats} />
-                  </div>
+                  {!editMode && (
+                    <div className="pt-6 border-t">
+                      <ProfileStats stats={stats} />
+                    </div>
+                  )}
 
                   {!editMode && (
                     <div className="pt-6 border-t">
