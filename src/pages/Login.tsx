@@ -80,12 +80,12 @@ const Login = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <Card className="rounded-3xl border-2 shadow-2xl bg-white/95 backdrop-blur-sm">
-              <CardHeader className="text-center space-y-4">
-                <CardTitle className="text-3xl">Вход в аккаунт</CardTitle>
+              <CardHeader className="text-center space-y-2 pb-4">
+                <CardTitle className="text-2xl">Вход в аккаунт</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
@@ -98,7 +98,7 @@ const Login = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <Label htmlFor="password">Пароль</Label>
                     <Input
                       id="password"
@@ -113,14 +113,14 @@ const Login = () => {
 
                   <Button
                     type="submit"
-                    className="w-full rounded-xl text-base py-6"
+                    className="w-full rounded-xl"
                     disabled={loading}
                   >
                     {loading ? 'Вход...' : 'Войти'}
                   </Button>
                 </form>
 
-                <div className="mt-6 space-y-4">
+                <div className="mt-4 space-y-3">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <Separator />
@@ -147,7 +147,7 @@ const Login = () => {
                   />
                 </div>
 
-                <div className="mt-6 text-center space-y-3">
+                <div className="mt-4 text-center">
                   <Link to="/register" className="text-sm text-primary hover:underline block">
                     Нет аккаунта? Зарегистрируйтесь
                   </Link>
