@@ -86,18 +86,18 @@ const BasicInfoFields = ({ formData, setFormData }: BasicInfoFieldsProps) => {
               <SelectValue placeholder="Выберите знак" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="aries">♈ Овен</SelectItem>
-              <SelectItem value="taurus">♉ Телец</SelectItem>
-              <SelectItem value="gemini">♊ Близнецы</SelectItem>
-              <SelectItem value="cancer">♋ Рак</SelectItem>
-              <SelectItem value="leo">♌ Лев</SelectItem>
-              <SelectItem value="virgo">♍ Дева</SelectItem>
-              <SelectItem value="libra">♎ Весы</SelectItem>
-              <SelectItem value="scorpio">♏ Скорпион</SelectItem>
-              <SelectItem value="sagittarius">♐ Стрелец</SelectItem>
-              <SelectItem value="capricorn">♑ Козерог</SelectItem>
-              <SelectItem value="aquarius">♒ Водолей</SelectItem>
-              <SelectItem value="pisces">♓ Рыбы</SelectItem>
+              <SelectItem value="aries">Овен</SelectItem>
+              <SelectItem value="taurus">Телец</SelectItem>
+              <SelectItem value="gemini">Близнецы</SelectItem>
+              <SelectItem value="cancer">Рак</SelectItem>
+              <SelectItem value="leo">Лев</SelectItem>
+              <SelectItem value="virgo">Дева</SelectItem>
+              <SelectItem value="libra">Весы</SelectItem>
+              <SelectItem value="scorpio">Скорпион</SelectItem>
+              <SelectItem value="sagittarius">Стрелец</SelectItem>
+              <SelectItem value="capricorn">Козерог</SelectItem>
+              <SelectItem value="aquarius">Водолей</SelectItem>
+              <SelectItem value="pisces">Рыбы</SelectItem>
             </SelectContent>
           </Select>
         </div>

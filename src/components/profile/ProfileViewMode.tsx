@@ -57,18 +57,18 @@ const ProfileViewMode = ({ user }: ProfileViewModeProps) => {
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Знак зодиака</p>
             <p className="text-base">
-              {user.zodiac_sign === 'aries' && '♈ Овен'}
-              {user.zodiac_sign === 'taurus' && '♉ Телец'}
-              {user.zodiac_sign === 'gemini' && '♊ Близнецы'}
-              {user.zodiac_sign === 'cancer' && '♋ Рак'}
-              {user.zodiac_sign === 'leo' && '♌ Лев'}
-              {user.zodiac_sign === 'virgo' && '♍ Дева'}
-              {user.zodiac_sign === 'libra' && '♎ Весы'}
-              {user.zodiac_sign === 'scorpio' && '♏ Скорпион'}
-              {user.zodiac_sign === 'sagittarius' && '♐ Стрелец'}
-              {user.zodiac_sign === 'capricorn' && '♑ Козерог'}
-              {user.zodiac_sign === 'aquarius' && '♒ Водолей'}
-              {user.zodiac_sign === 'pisces' && '♓ Рыбы'}
+              {user.zodiac_sign === 'aries' && 'Овен'}
+              {user.zodiac_sign === 'taurus' && 'Телец'}
+              {user.zodiac_sign === 'gemini' && 'Близнецы'}
+              {user.zodiac_sign === 'cancer' && 'Рак'}
+              {user.zodiac_sign === 'leo' && 'Лев'}
+              {user.zodiac_sign === 'virgo' && 'Дева'}
+              {user.zodiac_sign === 'libra' && 'Весы'}
+              {user.zodiac_sign === 'scorpio' && 'Скорпион'}
+              {user.zodiac_sign === 'sagittarius' && 'Стрелец'}
+              {user.zodiac_sign === 'capricorn' && 'Козерог'}
+              {user.zodiac_sign === 'aquarius' && 'Водолей'}
+              {user.zodiac_sign === 'pisces' && 'Рыбы'}
             </p>
           </div>
         )}
