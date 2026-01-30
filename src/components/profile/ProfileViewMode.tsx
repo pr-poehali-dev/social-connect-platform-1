@@ -99,9 +99,14 @@ const ProfileViewMode = ({ user }: ProfileViewModeProps) => {
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Семейное положение</p>
             <p className="text-base">
-              {user.marital_status === 'single' && 'Не женат/не замужем'}
+              {user.marital_status === 'married' && (user.gender === 'male' ? 'Женат' : user.gender === 'female' ? 'Замужем' : 'Женат/Замужем')}
+              {user.marital_status === 'single' && (user.gender === 'male' ? 'Не женат' : user.gender === 'female' ? 'Не замужем' : 'Не женат/не замужем')}
+              {user.marital_status === 'bachelor' && (user.gender === 'male' ? 'Холост' : user.gender === 'female' ? 'Холостая' : 'Холост/Холостая')}
+              {user.marital_status === 'in_relationship' && (user.gender === 'male' ? 'Есть подруга' : user.gender === 'female' ? 'Есть парень' : 'Есть подруга/парень')}
               {user.marital_status === 'divorced' && 'В разводе'}
-              {user.marital_status === 'widowed' && 'Вдовец/вдова'}
+              {user.marital_status === 'actively_searching' && 'В активном поиске'}
+              {user.marital_status === 'complicated' && 'Всё сложно'}
+              {user.marital_status === 'widowed' && (user.gender === 'male' ? 'Вдовец' : user.gender === 'female' ? 'Вдова' : 'Вдовец/Вдова')}
             </p>
           </div>
         )}
