@@ -7,18 +7,15 @@ interface MyEventsHeaderProps {
 
 const MyEventsHeader = ({ onCreateClick }: MyEventsHeaderProps) => {
   return (
-    <div className="flex items-center justify-between mb-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Мои мероприятия</h1>
-        <p className="text-muted-foreground">Управляйте своими мероприятиями</p>
-      </div>
+    <div className="mb-8">
+      <h1 className="text-3xl font-bold mb-4">Мои мероприятия</h1>
       <Button 
         onClick={onCreateClick}
         className="gap-2 rounded-xl"
         size="lg"
       >
         <Icon name="Plus" size={20} />
-        Создать
+        Создать мероприятие
       </Button>
     </div>
   );
