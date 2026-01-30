@@ -84,7 +84,7 @@ const Login = () => {
       <main className="relative z-10 min-h-screen flex items-center justify-center py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
-            <Card className="rounded-3xl border-2 shadow-2xl bg-white/95 backdrop-blur-sm">
+            <Card className="rounded-3xl border-2 border-white/30 shadow-2xl bg-white/20 backdrop-blur-md">
               <CardHeader className="text-center space-y-2 pb-4">
                 <CardTitle className="text-2xl">Вход в аккаунт</CardTitle>
               </CardHeader>
