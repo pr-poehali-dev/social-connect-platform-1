@@ -142,8 +142,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
           <h3 className="text-xl font-bold mb-4">Галерея фотографий</h3>
           
           {photos.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4"></p>
+            <div className="text-center py-4">
               <Button
                 onClick={() => {
                   const input = document.createElement('input');
@@ -153,8 +152,9 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
                   input.click();
                 }}
                 className="gap-2 rounded-xl"
+                size="sm"
               >
-                <Icon name="Plus" size={20} />
+                <Icon name="Plus" size={18} />
                 Добавить фото
               </Button>
             </div>
