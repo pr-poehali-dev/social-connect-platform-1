@@ -76,7 +76,7 @@ const Login = () => {
         style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/bc6cb8c2-dbf2-4f5d-99e7-e41867b4355d.jpg)' }}
       />
       <div className="absolute inset-0 bg-black/20" />
-      <main className="relative z-10 pt-12 pb-12">
+      <main className="relative z-10 min-h-screen flex items-center justify-center py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <Card className="rounded-3xl border-2 shadow-2xl bg-white/95 backdrop-blur-sm">
