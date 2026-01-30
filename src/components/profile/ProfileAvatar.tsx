@@ -68,7 +68,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
     const token = localStorage.getItem('access_token');
     try {
       const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
