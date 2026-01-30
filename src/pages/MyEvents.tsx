@@ -63,8 +63,31 @@ const MyEvents = () => {
         const my = formattedEvents.filter((e: any) => e.userId === userId && e.status === 'active');
         const completed = formattedEvents.filter((e: any) => e.userId === userId && e.status === 'completed');
         
+        let participating: Event[] = [];
+        if (userId) {
+          const participatingResponse = await fetch(`https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=participating&user_id=${userId}`);
+          const participatingData = await participatingResponse.json();
+          participating = participatingData.map((evt: any) => ({
+            id: evt.id,
+            title: evt.title,
+            description: evt.description || '',
+            date: evt.event_date,
+            time: evt.event_time,
+            location: evt.location,
+            city: evt.city,
+            address: evt.address || '',
+            category: evt.category || 'entertainment',
+            price: Number(evt.price) || 0,
+            participants: evt.participants || 0,
+            maxParticipants: evt.max_participants || 10,
+            image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
+            paymentUrl: evt.payment_url || '',
+            status: evt.is_active ? 'active' : 'completed'
+          }));
+        }
+        
         setMyEvents(my);
-        setParticipatingEvents([]);
+        setParticipatingEvents(participating);
         setCompletedEvents(completed);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -152,11 +175,47 @@ const MyEvents = () => {
     }
   };
 
-  const handleCancelParticipation = (eventId: number) => {
-    toast({
-      title: 'Вы отменили участие',
-      description: 'Вы больше не участвуете в этом мероприятии',
-    });
+  const handleCancelParticipation = async (eventId: number) => {
+    const userProfile = localStorage.getItem('userProfile');
+    const userId = userProfile ? JSON.parse(userProfile).id : null;
+
+    if (!userId) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось определить пользователя',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'leave',
+          event_id: eventId,
+          user_id: userId
+        })
+      });
+
+      if (response.ok) {
+        setParticipatingEvents(prev => prev.filter(e => e.id !== eventId));
+        toast({
+          title: 'Вы отменили участие',
+          description: 'Вы больше не участвуете в этом мероприятии',
+        });
+      }
+    } catch (error) {
+      console.error('Error canceling participation:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отменить участие',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleSaveEdit = async () => {

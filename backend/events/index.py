@@ -46,6 +46,27 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'event_ids': event_ids})
                 }
             
+            if action == 'participating':
+                if not user_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'user_id required'})
+                    }
+                
+                cursor.execute('''
+                    SELECT e.* FROM events e
+                    INNER JOIN event_participants ep ON e.id = ep.event_id
+                    WHERE ep.user_id = %s AND e.user_id != %s
+                    ORDER BY e.event_date ASC, e.event_time ASC
+                ''', (user_id, user_id))
+                events = cursor.fetchall()
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps([dict(e) for e in events], default=str)
+                }
+            
             if event_id:
                 cursor.execute('SELECT * FROM events WHERE id = %s', (event_id,))
                 evt = cursor.fetchone()
