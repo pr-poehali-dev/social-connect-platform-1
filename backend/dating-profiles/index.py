@@ -146,11 +146,7 @@ def handler(event: dict, context) -> dict:
                     COALESCE(u.district, dp.district) as district,
                     COALESCE(u.interests, dp.interests) as interests,
                     COALESCE(u.bio, dp.bio) as bio,
-                    COALESCE(
-                        (SELECT photo_url FROM {S}user_photos WHERE user_id = dp.user_id ORDER BY position LIMIT 1),
-                        u.avatar_url,
-                        dp.avatar_url
-                    ) as avatar_url,
+                    COALESCE(u.avatar_url, dp.avatar_url) as avatar_url,
                     u.height,
                     u.body_type,
                     u.gender,
