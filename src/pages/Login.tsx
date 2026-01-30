@@ -82,9 +82,6 @@ const Login = () => {
             <Card className="rounded-3xl border-2 shadow-2xl bg-white/95 backdrop-blur-sm">
               <CardHeader className="text-center space-y-4">
                 <CardTitle className="text-3xl">Вход в аккаунт</CardTitle>
-                <CardDescription className="text-base">
-                  Добро пожаловать обратно!
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
