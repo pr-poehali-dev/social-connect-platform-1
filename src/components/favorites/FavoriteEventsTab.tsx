@@ -149,10 +149,10 @@ const FavoriteEventsTab = ({
                   <Button 
                     className={`w-full rounded-xl gap-2 ${joinedEvents.has(event.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
                     onClick={() => onJoinEvent(event.id)}
-                    disabled={event.participants >= event.maxParticipants}
+                    disabled={currentParticipants >= maxParticipants}
                   >
                     <Icon name="Check" size={18} />
-                    {joinedEvents.has(event.id) ? 'Вы идёте' : event.participants >= event.maxParticipants ? 'Мест нет' : 'Пойду'}
+                    {joinedEvents.has(event.id) ? 'Вы идёте' : currentParticipants >= maxParticipants ? 'Мест нет' : 'Пойду'}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
@@ -160,7 +160,7 @@ const FavoriteEventsTab = ({
                       variant={joinedEvents.has(event.id) ? "default" : "outline"}
                       className={`flex-1 rounded-xl gap-2 ${joinedEvents.has(event.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
                       onClick={() => onJoinEvent(event.id)}
-                      disabled={event.participants >= event.maxParticipants}
+                      disabled={currentParticipants >= maxParticipants}
                     >
                       <Icon name="Check" size={18} />
                       {joinedEvents.has(event.id) ? 'Вы идёте' : 'Пойду'}
