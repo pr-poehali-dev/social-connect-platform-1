@@ -52,33 +52,33 @@ const PersonalCharacteristicsFields = ({ formData, setFormData }: PersonalCharac
               {formData.gender === 'male' ? (
                 <>
                   <SelectItem value="married">Женат</SelectItem>
-                  <SelectItem value="single">Не женат</SelectItem>
-                  <SelectItem value="bachelor">Холост</SelectItem>
+                  <SelectItem value="not_married">Не женат</SelectItem>
+                  <SelectItem value="single">Холост</SelectItem>
                   <SelectItem value="in_relationship">Есть подруга</SelectItem>
                   <SelectItem value="divorced">В разводе</SelectItem>
-                  <SelectItem value="actively_searching">В активном поиске</SelectItem>
+                  <SelectItem value="searching">В активном поиске</SelectItem>
                   <SelectItem value="complicated">Всё сложно</SelectItem>
                   <SelectItem value="widowed">Вдовец</SelectItem>
                 </>
               ) : formData.gender === 'female' ? (
                 <>
                   <SelectItem value="married">Замужем</SelectItem>
-                  <SelectItem value="single">Не замужем</SelectItem>
-                  <SelectItem value="bachelor">Холостая</SelectItem>
+                  <SelectItem value="not_married">Не замужем</SelectItem>
+                  <SelectItem value="single">Холостая</SelectItem>
                   <SelectItem value="in_relationship">Есть парень</SelectItem>
                   <SelectItem value="divorced">В разводе</SelectItem>
-                  <SelectItem value="actively_searching">В активном поиске</SelectItem>
+                  <SelectItem value="searching">В активном поиске</SelectItem>
                   <SelectItem value="complicated">Всё сложно</SelectItem>
                   <SelectItem value="widowed">Вдова</SelectItem>
                 </>
               ) : (
                 <>
                   <SelectItem value="married">Женат/Замужем</SelectItem>
-                  <SelectItem value="single">Не женат/Не замужем</SelectItem>
-                  <SelectItem value="bachelor">Холост/Холостая</SelectItem>
+                  <SelectItem value="not_married">Не женат/Не замужем</SelectItem>
+                  <SelectItem value="single">Холост/Холостая</SelectItem>
                   <SelectItem value="in_relationship">Есть подруга/парень</SelectItem>
                   <SelectItem value="divorced">В разводе</SelectItem>
-                  <SelectItem value="actively_searching">В активном поиске</SelectItem>
+                  <SelectItem value="searching">В активном поиске</SelectItem>
                   <SelectItem value="complicated">Всё сложно</SelectItem>
                   <SelectItem value="widowed">Вдовец/Вдова</SelectItem>
                 </>
