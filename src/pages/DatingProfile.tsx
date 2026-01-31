@@ -100,11 +100,23 @@ const DatingProfile = () => {
         const userProfile = data;
         
         if (userProfile) {
+          // Рассчитываем возраст из birth_date если age не пришёл с бэкенда
+          let age = userProfile.age;
+          if (!age && userProfile.birth_date) {
+            const birthDate = new Date(userProfile.birth_date);
+            const today = new Date();
+            age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+          }
+
           setProfile({
             id: userProfile.id,
             user_id: userProfile.user_id,
             name: userProfile.name,
-            age: userProfile.age,
+            age: age,
             city: userProfile.city,
             district: userProfile.district,
             gender: userProfile.gender,
