@@ -76,7 +76,7 @@ const FavoriteProfilesTab = ({ favoriteProfiles, onRemoveFromFavorites, onNaviga
                   <Button 
                     variant="outline" 
                     className="flex-1 rounded-xl gap-2"
-                    onClick={() => onNavigate(`/${profile.nickname}`)}
+                    onClick={() => onNavigate(`/dating/${profile.id}`)}
                   >
                     <Icon name="Eye" size={18} />
                     Профиль
