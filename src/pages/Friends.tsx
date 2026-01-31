@@ -17,52 +17,6 @@ const Friends = () => {
   const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<any[]>([]);
 
-  const mockFriends = [
-    {
-      id: 1,
-      nickname: 'anna_moscow',
-      name: 'Анна',
-      age: 28,
-      city: 'Москва',
-      avatar: null,
-      online: true,
-      mutual_friends: 5
-    },
-    {
-      id: 2,
-      nickname: 'dmitry_spb',
-      name: 'Дмитрий',
-      age: 32,
-      city: 'Санкт-Петербург',
-      avatar: null,
-      online: false,
-      mutual_friends: 3
-    }
-  ]);
-
-  const mockRequests = [
-    {
-      id: 3,
-      nickname: 'elena_kazan',
-      name: 'Елена',
-      age: 26,
-      city: 'Казань',
-      avatar: null,
-      mutual_friends: 2,
-      sent_at: '2 часа назад'
-    },
-    {
-      id: 4,
-      nickname: 'alex_nsk',
-      name: 'Александр',
-      age: 30,
-      city: 'Новосибирск',
-      avatar: null,
-      mutual_friends: 0,
-      sent_at: '5 часов назад'
-    }
-  ]);
-
   useEffect(() => {
     loadData();
   }, []);
