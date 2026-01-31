@@ -80,18 +80,13 @@ const AdCard = ({ ad, onInvite, onToggleFavorite, getTimeAgo }: AdCardProps) => 
 
         {/* Контент */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1.5">
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-bold flex items-center gap-1.5">
-                {ad.name}, {ad.age}
-                {showBirthdayIcon && (
-                  <Icon name="Cake" size={16} className="text-yellow-500 animate-pulse" />
-                )}
-              </h3>
-            </div>
-            <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
-              {getTimeAgo(ad.created_at)}
-            </span>
+          <div className="mb-1.5">
+            <h3 className="text-base sm:text-lg font-bold flex items-center gap-1.5">
+              {ad.name}, {ad.age}
+              {showBirthdayIcon && (
+                <Icon name="Cake" size={16} className="text-yellow-500 animate-pulse" />
+              )}
+            </h3>
           </div>
 
           {/* События */}
@@ -112,14 +107,19 @@ const AdCard = ({ ad, onInvite, onToggleFavorite, getTimeAgo }: AdCardProps) => 
               <Icon name="MapPin" size={12} className="sm:w-3.5 sm:h-3.5 flex-shrink-0" />
               <span className="truncate">{ad.city}</span>
             </div>
-            <Button
-              size="sm"
-              className="rounded-xl gap-1.5 text-xs sm:text-sm h-8 px-3"
-              onClick={() => onInvite(ad)}
-            >
-              <Icon name="MessageCircle" size={14} />
-              Написать
-            </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {getTimeAgo(ad.created_at)}
+              </span>
+              <Button
+                size="sm"
+                className="rounded-xl gap-1.5 text-xs sm:text-sm h-8 px-3"
+                onClick={() => onInvite(ad)}
+              >
+                <Icon name="MessageCircle" size={14} />
+                Написать
+              </Button>
+            </div>
           </div>
         </div>
       </div>
