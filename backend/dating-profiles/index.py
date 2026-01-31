@@ -63,7 +63,7 @@ def handler(event: dict, context) -> dict:
     action = query_params.get('action', '')
     
     # Действия требующие авторизации
-    if action in ['favorite', 'unfavorite', 'friend-request', 'cancel-friend-request', 'friend-requests', 'friends', 'accept-friend-request', 'reject-friend-request'] and not user_id:
+    if action in ['favorite', 'unfavorite', 'friend-request', 'cancel-friend-request', 'friend-requests', 'friends', 'accept-friend-request', 'reject-friend-request', 'remove-friend'] and not user_id:
         return response(401, {'error': 'Unauthorized'})
 
     S = get_schema()
@@ -524,6 +524,40 @@ def handler(event: dict, context) -> dict:
             
             conn.commit()
             return response(200, {'success': True, 'message': 'Friend request rejected'})
+        
+        # POST /remove-friend - удалить из друзей
+        elif method == 'POST' and action == 'remove-friend':
+            if not user_id:
+                return response(401, {'error': 'Unauthorized'})
+            
+            body_str = event.get('body', '{}')
+            try:
+                data = json.loads(body_str)
+            except json.JSONDecodeError:
+                return response(400, {'error': 'Invalid JSON'})
+            
+            friend_user_id = data.get('friend_user_id')
+            if not friend_user_id:
+                return response(400, {'error': 'friend_user_id is required'})
+            
+            # Удаляем дружбу в обе стороны
+            cur.execute(f"""
+                DELETE FROM {S}dating_friend_requests 
+                WHERE status = 'accepted' AND (
+                    (from_user_id = %s AND to_profile_id IN (SELECT id FROM {S}dating_profiles WHERE user_id = %s))
+                    OR
+                    (from_user_id = %s AND to_profile_id IN (SELECT id FROM {S}dating_profiles WHERE user_id = %s))
+                )
+                RETURNING id
+            """, (user_id, friend_user_id, friend_user_id, user_id))
+            
+            result = cur.fetchone()
+            
+            if not result:
+                return response(404, {'error': 'Friendship not found'})
+            
+            conn.commit()
+            return response(200, {'success': True, 'message': 'Friend removed'})
         
         else:
             return response(400, {'error': 'Invalid request'})

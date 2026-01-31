@@ -153,8 +153,30 @@ const Friends = () => {
     }
   };
 
-  const handleRemoveFriend = (id: number) => {
-    console.log('Remove friend:', id);
+  const handleRemoveFriend = async (friendUserId: number) => {
+    const token = localStorage.getItem('access_token');
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=remove-friend',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ friend_user_id: friendUserId })
+        }
+      );
+
+      if (response.ok) {
+        toast({ title: 'Друг удалён' });
+        loadData();
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось удалить друга', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось удалить друга', variant: 'destructive' });
+    }
   };
 
   const formatTime = (dateStr: string) => {
@@ -264,6 +286,14 @@ const Friends = () => {
                               onClick={() => navigate(`/messages`)}
                             >
                               <Icon name="MessageCircle" size={18} />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="rounded-xl text-destructive hover:bg-destructive hover:text-white"
+                              onClick={() => handleRemoveFriend(friend.user_id)}
+                            >
+                              <Icon name="UserMinus" size={18} />
                             </Button>
                           </div>
                         </div>
