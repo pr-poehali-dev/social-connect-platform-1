@@ -17,6 +17,7 @@ const Favorites = () => {
   const [favoriteAds, setFavoriteAds] = useState<any[]>([]);
   const [favoriteServices, setFavoriteServices] = useState<any[]>([]);
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
+  const [joinedEvents, setJoinedEvents] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     loadAllFavorites();
@@ -115,6 +116,68 @@ const Favorites = () => {
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось удалить из избранного', variant: 'destructive' });
+    }
+  };
+
+  const handleJoinEvent = async (eventId: number) => {
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+
+    if (!user) {
+      toast({
+        title: 'Войдите в аккаунт',
+        description: 'Для записи на мероприятие необходимо авторизоваться',
+        variant: 'destructive'
+      });
+      navigate('/login');
+      return;
+    }
+
+    const isJoined = joinedEvents.has(eventId);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: isJoined ? 'leave' : 'join',
+          event_id: eventId,
+          user_id: user.id
+        })
+      });
+
+      if (response.ok) {
+        if (isJoined) {
+          setJoinedEvents(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(eventId);
+            return newSet;
+          });
+          setFavoriteEvents(prev => prev.map(e => 
+            e.id === eventId ? { ...e, participants: Math.max(0, e.participants - 1) } : e
+          ));
+          toast({
+            title: 'Вы отменили участие',
+          });
+        } else {
+          setJoinedEvents(prev => new Set(prev).add(eventId));
+          setFavoriteEvents(prev => prev.map(e => 
+            e.id === eventId ? { ...e, participants: e.participants + 1 } : e
+          ));
+          toast({
+            title: 'Вы записались на мероприятие',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error joining event:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить участие',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -449,17 +512,38 @@ const Favorites = () => {
                           </div>
 
                           {event.price === 0 ? (
-                            <Button className="w-full rounded-xl gap-2">
+                            <Button 
+                              className={`w-full rounded-xl gap-2 ${joinedEvents.has(event.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                              onClick={() => handleJoinEvent(event.id)}
+                              disabled={event.participants >= event.maxParticipants}
+                            >
                               <Icon name="Check" size={18} />
-                              Пойду
+                              {joinedEvents.has(event.id) ? 'Вы идёте' : event.participants >= event.maxParticipants ? 'Мест нет' : 'Пойду'}
                             </Button>
                           ) : (
                             <div className="flex gap-2">
-                              <Button variant="outline" className="flex-1 rounded-xl gap-2">
+                              <Button 
+                                variant={joinedEvents.has(event.id) ? "default" : "outline"}
+                                className={`flex-1 rounded-xl gap-2 ${joinedEvents.has(event.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                                onClick={() => handleJoinEvent(event.id)}
+                                disabled={event.participants >= event.maxParticipants}
+                              >
                                 <Icon name="Check" size={18} />
-                                Пойду
+                                {joinedEvents.has(event.id) ? 'Вы идёте' : 'Пойду'}
                               </Button>
-                              <Button className="flex-1 rounded-xl gap-2">
+                              <Button 
+                                className="flex-1 rounded-xl gap-2"
+                                onClick={() => {
+                                  if (event.paymentUrl) {
+                                    window.open(event.paymentUrl, '_blank');
+                                  } else {
+                                    toast({
+                                      title: "Ссылка недоступна",
+                                      description: "Организатор не добавил ссылку на оплату"
+                                    });
+                                  }
+                                }}
+                              >
                                 <Icon name="CreditCard" size={18} />
                                 Купить
                               </Button>
