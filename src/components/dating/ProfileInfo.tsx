@@ -60,21 +60,39 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           {profile.bodyType && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="User" size={18} />
-              <span>Телосложение: {profile.bodyType}</span>
+              <span>Телосложение: {{
+                'slim': 'Стройное',
+                'athletic': 'Спортивное',
+                'average': 'Среднее',
+                'muscular': 'Мускулистое',
+                'curvy': 'Пышное',
+                'overweight': 'Полное'
+              }[profile.bodyType] || profile.bodyType}</span>
             </div>
           )}
 
           {profile.marital_status && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="Heart" size={18} />
-              <span>Семейное положение: {profile.marital_status}</span>
+              <span>Семейное положение: {{
+                'single': 'Не женат/не замужем',
+                'married': 'Женат/замужем',
+                'divorced': 'В разводе',
+                'widowed': 'Вдовец/вдова',
+                'in_relationship': 'В отношениях'
+              }[profile.marital_status] || profile.marital_status}</span>
             </div>
           )}
 
           {profile.children && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="Baby" size={18} />
-              <span>Дети: {profile.children}</span>
+              <span>Дети: {{
+                'no': 'Нет',
+                'yes': 'Есть',
+                'want': 'Хочу в будущем',
+                'not_want': 'Не хочу'
+              }[profile.children] || profile.children}</span>
             </div>
           )}
 
@@ -88,7 +106,13 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           {profile.financial_status && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="Wallet" size={18} />
-              <span>Финансовое положение: {profile.financial_status}</span>
+              <span>Финансовое положение: {{
+                'low': 'Низкое',
+                'below_average': 'Ниже среднего',
+                'average': 'Среднее',
+                'above_average': 'Выше среднего',
+                'high': 'Высокое'
+              }[profile.financial_status] || profile.financial_status}</span>
             </div>
           )}
 
@@ -109,7 +133,13 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           {profile.dating_goal && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="Target" size={18} />
-              <span>Цель знакомства: {profile.dating_goal}</span>
+              <span>Цель знакомства: {{
+                'friendship': 'Дружба',
+                'dating': 'Свидания',
+                'serious_relationship': 'Серьёзные отношения',
+                'marriage': 'Брак',
+                'casual': 'Неформальное общение'
+              }[profile.dating_goal] || profile.dating_goal}</span>
             </div>
           )}
         </div>
