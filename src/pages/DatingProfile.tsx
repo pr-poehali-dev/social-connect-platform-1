@@ -98,6 +98,7 @@ const DatingProfile = () => {
       if (response.ok) {
         const data = await response.json();
         const userProfile = data;
+        console.log('Данные профиля с бэкенда:', userProfile);
         
         if (userProfile) {
           // Рассчитываем возраст из birth_date если age не пришёл с бэкенда
@@ -111,6 +112,7 @@ const DatingProfile = () => {
               age--;
             }
           }
+          console.log('Рассчитанный возраст:', age);
 
           setProfile({
             id: userProfile.id,
@@ -344,7 +346,9 @@ const DatingProfile = () => {
                   ) : (
                     <Icon name="BadgeCheck" size={20} className="text-gray-400 md:w-6 md:h-6" />
                   )}
-                  <span className="text-xl md:text-2xl text-muted-foreground">{profile.age}</span>
+                  {profile.age && (
+                    <span className="text-xl md:text-2xl text-muted-foreground">{profile.age}</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
                   <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
