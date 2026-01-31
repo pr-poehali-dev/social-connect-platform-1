@@ -237,12 +237,7 @@ const Favorites = () => {
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold mb-2">Избранное</h1>
-              <p className="text-muted-foreground">
-                Сохранённые анкеты, объявления, услуги и мероприятия
-              </p>
-            </div>
+
 
             <Tabs defaultValue="profiles" className="space-y-6">
               <TabsList className="grid w-full grid-cols-4">
