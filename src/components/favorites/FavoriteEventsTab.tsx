@@ -122,7 +122,7 @@ const FavoriteEventsTab = ({
                     {event.price > 0 && (
                       <div className="flex items-center gap-2 text-sm">
                         <Icon name="Wallet" size={16} className="text-primary" />
-                        <span className="font-semibold">{event.price.toFixed(2)} ₽</span>
+                        <span className="font-semibold">{typeof event.price === 'number' ? event.price.toFixed(2) : event.price} ₽</span>
                       </div>
                     )}
                   </div>
