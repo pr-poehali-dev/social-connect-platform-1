@@ -41,6 +41,7 @@ const Friends = () => {
       
       if (friendsRes.ok) {
         const friendsData = await friendsRes.json();
+        console.log('Friends API response:', friendsData);
         setFriends(friendsData.friends || []);
       }
 
@@ -54,6 +55,7 @@ const Friends = () => {
       
       if (incomingRes.ok) {
         const incomingData = await incomingRes.json();
+        console.log('Incoming requests API response:', incomingData);
         setIncomingRequests(incomingData.requests || []);
       }
 
@@ -67,6 +69,7 @@ const Friends = () => {
       
       if (outgoingRes.ok) {
         const outgoingData = await outgoingRes.json();
+        console.log('Outgoing requests API response:', outgoingData);
         setOutgoingRequests(outgoingData.requests || []);
       }
     } catch (error) {
