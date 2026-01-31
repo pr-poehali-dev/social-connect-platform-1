@@ -34,6 +34,10 @@ const Profile = () => {
     const saved = localStorage.getItem('notificationSoundEnabled');
     return saved !== 'false';
   });
+  const [datingVisible, setDatingVisible] = useState(() => {
+    const saved = localStorage.getItem('datingProfileVisible');
+    return saved !== 'false';
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -266,6 +270,15 @@ const Profile = () => {
     });
   };
 
+  const handleDatingVisibilityToggle = (enabled: boolean) => {
+    setDatingVisible(enabled);
+    localStorage.setItem('datingProfileVisible', enabled.toString());
+    toast({
+      title: enabled ? 'Анкета включена' : 'Анкета скрыта',
+      description: enabled ? 'Ваш профиль участвует в выдаче Знакомств' : 'Ваш профиль скрыт из выдачи Знакомств',
+    });
+  };
+
   const availableInterests = [
     'Спорт', 'Путешествия', 'Кино', 'Музыка', 'Книги', 'Кулинария',
     'Искусство', 'Фотография', 'Танцы', 'Йога', 'Природа', 'Животные',
@@ -440,6 +453,22 @@ const Profile = () => {
                 id="sound-notifications"
                 checked={soundEnabled}
                 onCheckedChange={handleSoundToggle}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="dating-visibility" className="text-base font-medium">
+                  Анкета в Знакомствах
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Показывать мой профиль в разделе Знакомства
+                </p>
+              </div>
+              <Switch
+                id="dating-visibility"
+                checked={datingVisible}
+                onCheckedChange={handleDatingVisibilityToggle}
               />
             </div>
           </div>
