@@ -36,12 +36,7 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
             </div>
           )}
 
-          {profile.gender && (
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <Icon name="Users" size={18} />
-              <span>{profile.gender === 'male' ? 'Мужчина' : profile.gender === 'female' ? 'Женщина' : 'Не указан'}</span>
-            </div>
-          )}
+
 
           {profile.height && (
             <div className="flex items-center gap-3 text-muted-foreground">
