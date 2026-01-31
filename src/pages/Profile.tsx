@@ -336,7 +336,12 @@ const Profile = () => {
                     setFormData={setFormData}
                   />
 
-                  <ProfileActions />
+                  <ProfileActions 
+                    user={user}
+                    onRequestVerification={() => {
+                      navigate('/verification-request');
+                    }}
+                  />
 
                   {editMode ? (
                     <div className="pt-6 border-t">

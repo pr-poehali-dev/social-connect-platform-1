@@ -323,6 +323,20 @@ const AdminDashboard = () => {
               </CardHeader>
             </Card>
           </Link>
+
+          <Link to="/admin/verification">
+            <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="BadgeCheck" size={24} />
+                  Верификация пользователей
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Обработка заявок на верификацию
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
         </div>
       </main>
     </div>

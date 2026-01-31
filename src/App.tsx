@@ -40,6 +40,8 @@ import AdminLogs from "./pages/admin/AdminLogs";
 import Notifications from "./pages/Notifications";
 import CallHistory from "./pages/CallHistory";
 import Radio from "./pages/Radio";
+import VerificationRequest from "./pages/VerificationRequest";
+import AdminVerification from "./pages/AdminVerification";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +87,8 @@ const App = () => (
           <Route path="/admin/sections" element={<AdminSections />} />
           <Route path="/admin/filters" element={<AdminFilters />} />
           <Route path="/admin/logs" element={<AdminLogs />} />
+          <Route path="/admin/verification" element={<AdminVerification />} />
+          <Route path="/verification-request" element={<ProtectedRoute><VerificationRequest /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
