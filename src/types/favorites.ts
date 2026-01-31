@@ -43,19 +43,29 @@ export interface FavoriteEvent {
   id: number;
   title: string;
   description: string;
-  date: string;
-  time: string;
-  location: string;
+  date?: string;
+  time?: string;
+  location?: string;
   city: string;
   category: string;
   price: number;
-  participants: number;
-  maxParticipants: number;
-  image: string;
+  participants?: number;
+  maxParticipants?: number;
+  image?: string;
   paymentUrl?: string;
   author?: {
     id: number;
     name: string;
     avatar: string;
   };
+  event_date?: string;
+  event_time?: string;
+  event_location?: string;
+  image_url?: string;
+  max_participants?: number;
+  current_participants?: number;
+  user_id?: number;
+  author_id?: number;
+  author_name?: string;
+  author_avatar?: string;
 }

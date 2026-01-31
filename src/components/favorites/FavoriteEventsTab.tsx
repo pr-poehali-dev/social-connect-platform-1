@@ -19,6 +19,15 @@ interface FavoriteEventsTabProps {
   onToast: (config: ToastConfig) => void;
 }
 
+const categoryLabels: { [key: string]: string } = {
+  'entertainment': 'Развлечения',
+  'sport': 'Спорт',
+  'education': 'Обучение',
+  'culture': 'Культура',
+  'networking': 'Нетворкинг',
+  'other': 'Другое'
+};
+
 const FavoriteEventsTab = ({ 
   favoriteEvents, 
   joinedEvents, 
@@ -47,74 +56,94 @@ const FavoriteEventsTab = ({
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favoriteEvents.map((event) => (
-            <Card key={event.id} className="rounded-3xl border-2 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute top-3 left-3">
-                  <Badge className="bg-white/90 text-primary rounded-full">
-                    {event.category}
-                  </Badge>
-                </div>
-                <div className="absolute top-3 right-3 flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="rounded-full h-8 w-8"
-                    onClick={() => onRemoveFromFavorites('event', event.id)}
-                  >
-                    <Icon name="Star" size={16} className="fill-yellow-400 text-yellow-400" />
-                  </Button>
-                  {event.price === 0 && (
-                    <Badge className="bg-green-500 rounded-full">Бесплатно</Badge>
-                  )}
-                </div>
-              </div>
+          {favoriteEvents.map((event) => {
+            const eventDate = event.date || event.event_date || 'Дата не указана';
+            const eventTime = event.time || event.event_time || '';
+            const eventLocation = event.location || event.event_location || 'Место не указано';
+            const eventImage = event.image || event.image_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30';
+            const maxParticipants = event.maxParticipants || event.max_participants || 0;
+            const currentParticipants = event.participants || event.current_participants || 0;
+            const authorName = event.author?.name || event.author_name || 'Организатор';
+            const authorAvatar = event.author?.avatar || event.author_avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + authorName;
+            const authorId = event.author?.id || event.user_id || event.author_id;
 
-              <CardContent className="p-5">
-                <h3 className="text-xl font-bold mb-2 line-clamp-1">{event.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{event.description}</p>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name="Calendar" size={16} className="text-primary" />
-                    <span>{event.date} в {event.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name="MapPin" size={16} className="text-primary" />
-                    <span className="line-clamp-1">{event.location}, {event.city}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Icon name="Users" size={16} className="text-primary" />
-                    <span>{event.participants} / {event.maxParticipants} участников</span>
-                  </div>
-                  {event.price > 0 && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="Wallet" size={16} className="text-primary" />
-                      <span className="font-semibold">{event.price} ₽</span>
-                    </div>
-                  )}
-                </div>
-
-                <div 
-                  className="flex items-center gap-3 pb-4 border-b mb-4 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
-                  onClick={() => onNavigate(`/profile/${event.author?.id}`)}
-                >
+            return (
+              <Card key={event.id} className="rounded-3xl border-2 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="relative h-48 overflow-hidden">
                   <img
-                    src={event.author?.avatar}
-                    alt={event.author?.name}
-                    className="w-10 h-10 rounded-full object-cover"
+                    src={eventImage}
+                    alt={event.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30';
+                    }}
                   />
-                  <div>
-                    <p className="text-sm font-medium">{event.author?.name}</p>
-                    <p className="text-xs text-muted-foreground">Организатор</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-white/90 text-primary rounded-full">
+                      {categoryLabels[event.category] || event.category}
+                    </Badge>
+                  </div>
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="rounded-full h-8 w-8"
+                      onClick={() => onRemoveFromFavorites('event', event.id)}
+                    >
+                      <Icon name="Star" size={16} className="fill-yellow-400 text-yellow-400" />
+                    </Button>
+                    {event.price === 0 && (
+                      <Badge className="bg-green-500 rounded-full">Бесплатно</Badge>
+                    )}
                   </div>
                 </div>
+
+                <CardContent className="p-5">
+                  <h3 className="text-xl font-bold mb-2 line-clamp-1">{event.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{event.description}</p>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Icon name="Calendar" size={16} className="text-primary" />
+                      <span>
+                        {eventDate}
+                        {eventTime && ` в ${eventTime}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Icon name="MapPin" size={16} className="text-primary" />
+                      <span className="line-clamp-1">{eventLocation}, {event.city}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Icon name="Users" size={16} className="text-primary" />
+                      <span>{currentParticipants} / {maxParticipants} участников</span>
+                    </div>
+                    {event.price > 0 && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Icon name="Wallet" size={16} className="text-primary" />
+                        <span className="font-semibold">{event.price.toFixed(2)} ₽</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div 
+                    className="flex items-center gap-3 pb-4 border-b mb-4 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
+                    onClick={() => authorId && onNavigate(`/dating/${authorId}`)}
+                  >
+                    <img
+                      src={authorAvatar}
+                      alt={authorName}
+                      className="w-10 h-10 rounded-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + authorName;
+                      }}
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{authorName}</p>
+                      <p className="text-xs text-muted-foreground">Организатор</p>
+                    </div>
+                  </div>
 
                 {event.price === 0 ? (
                   <Button 
