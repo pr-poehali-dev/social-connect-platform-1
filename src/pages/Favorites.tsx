@@ -47,24 +47,36 @@ const Favorites = () => {
         })
       ]);
 
+      console.log('Profiles response status:', profilesRes.status);
       if (profilesRes.ok) {
         const data = await profilesRes.json();
         setFavoriteProfiles(data.profiles || []);
+      } else {
+        console.error('Profiles error:', await profilesRes.text());
       }
 
+      console.log('Ads response status:', adsRes.status);
       if (adsRes.ok) {
         const data = await adsRes.json();
         setFavoriteAds(data.ads || []);
+      } else {
+        console.error('Ads error:', await adsRes.text());
       }
 
+      console.log('Services response status:', servicesRes.status);
       if (servicesRes.ok) {
         const data = await servicesRes.json();
         setFavoriteServices(data.services || []);
+      } else {
+        console.error('Services error:', await servicesRes.text());
       }
 
+      console.log('Events response status:', eventsRes.status);
       if (eventsRes.ok) {
         const data = await eventsRes.json();
         setFavoriteEvents(data.events || []);
+      } else {
+        console.error('Events error:', await eventsRes.text());
       }
     } catch (error) {
       console.error('Failed to load favorites:', error);
