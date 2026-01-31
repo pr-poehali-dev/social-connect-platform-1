@@ -23,8 +23,8 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': ''
         }
@@ -52,10 +52,22 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'error': 'Unauthorized'})
                     }
                 
+                user_id_from_token = payload.get('user_id')
+                
+                cursor.execute('''
+                    SELECT e.*
+                    FROM t_p19021063_social_connect_platf.events_favorites ef
+                    JOIN events e ON ef.event_id = e.id
+                    WHERE ef.user_id = %s
+                    ORDER BY ef.created_at DESC
+                ''', (user_id_from_token,))
+                
+                events = cursor.fetchall()
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'events': []}, default=str)
+                    'body': json.dumps({'events': [dict(e) for e in events]}, default=str)
                 }
             
             if action == 'user_joined':
@@ -123,15 +135,72 @@ def handler(event: dict, context) -> dict:
             cursor.execute(query, params)
             events = cursor.fetchall()
             
+            # Check if user is authenticated and add is_favorite field
+            auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+            token = auth_header.replace('Bearer ', '') if auth_header else ''
+            payload = verify_token(token)
+            user_id_from_token = payload.get('user_id') if payload else None
+            
+            events_list = [dict(e) for e in events]
+            
+            if user_id_from_token:
+                for evt in events_list:
+                    cursor.execute('''
+                        SELECT EXISTS(
+                            SELECT 1 FROM t_p19021063_social_connect_platf.events_favorites
+                            WHERE user_id = %s AND event_id = %s
+                        )
+                    ''', (user_id_from_token, evt['id']))
+                    evt['is_favorite'] = cursor.fetchone()['exists']
+            else:
+                for evt in events_list:
+                    evt['is_favorite'] = False
+            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps([dict(e) for e in events], default=str)
+                'body': json.dumps(events_list, default=str)
             }
         
         elif method == 'POST':
             body = json.loads(event.get('body', '{}'))
-            action = body.get('action')
+            query_params = event.get('queryStringParameters', {}) or {}
+            action = body.get('action') or query_params.get('action')
+            
+            if action == 'favorite':
+                auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                token = auth_header.replace('Bearer ', '') if auth_header else ''
+                payload = verify_token(token)
+                
+                if not payload:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                user_id_from_token = payload.get('user_id')
+                event_id = body.get('event_id')
+                
+                if not event_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'event_id is required'})
+                    }
+                
+                cursor.execute('''
+                    INSERT INTO t_p19021063_social_connect_platf.events_favorites (user_id, event_id, created_at)
+                    VALUES (%s, %s, CURRENT_TIMESTAMP)
+                    ON CONFLICT (user_id, event_id) DO NOTHING
+                ''', (user_id_from_token, event_id))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'status': 'added'})
+                }
             
             if action == 'join':
                 event_id = body.get('event_id')
@@ -234,6 +303,45 @@ def handler(event: dict, context) -> dict:
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'status': 'updated'})
             }
+        
+        elif method == 'DELETE':
+            query_params = event.get('queryStringParameters', {}) or {}
+            action = query_params.get('action')
+            
+            if action == 'favorite':
+                auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                token = auth_header.replace('Bearer ', '') if auth_header else ''
+                payload = verify_token(token)
+                
+                if not payload:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                user_id_from_token = payload.get('user_id')
+                body = json.loads(event.get('body', '{}'))
+                event_id = body.get('event_id')
+                
+                if not event_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'event_id is required'})
+                    }
+                
+                cursor.execute('''
+                    DELETE FROM t_p19021063_social_connect_platf.events_favorites
+                    WHERE user_id = %s AND event_id = %s
+                ''', (user_id_from_token, event_id))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'status': 'removed'})
+                }
         
         return {
             'statusCode': 405,

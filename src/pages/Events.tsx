@@ -47,6 +47,7 @@ interface Event {
   maxParticipants: number;
   image: string;
   paymentUrl?: string;
+  is_favorite?: boolean;
 }
 
 const Events = () => {
@@ -86,8 +87,14 @@ const Events = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem('access_token');
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const url = new URL('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8');
-        const response = await fetch(url);
+        const response = await fetch(url, { headers });
         const data = await response.json();
         
         const userStr = localStorage.getItem('user');
@@ -117,7 +124,8 @@ const Events = () => {
           participants: evt.participants || 0,
           maxParticipants: evt.max_participants || 10,
           image: evt.image_url || 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-          paymentUrl: evt.payment_url
+          paymentUrl: evt.payment_url,
+          is_favorite: evt.is_favorite || false
         }));
         
         setEvents(formattedEvents);
@@ -150,6 +158,62 @@ const Events = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  const handleToggleFavorite = async (eventId: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+
+    try {
+      const action = 'favorite';
+      const method = event.is_favorite ? 'DELETE' : 'POST';
+      
+      const response = await fetch(
+        `https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=${action}`,
+        {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ event_id: eventId })
+        }
+      );
+
+      if (response.ok) {
+        setEvents(events.map(e => 
+          e.id === eventId ? { ...e, is_favorite: !e.is_favorite } : e
+        ));
+        toast({
+          title: event.is_favorite ? 'Удалено из избранного' : 'Добавлено в избранное',
+          description: event.is_favorite ? '' : 'Мероприятие сохранено в разделе Избранное'
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось обновить избранное',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить избранное',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleJoinEvent = async (eventId: number) => {
@@ -295,11 +359,26 @@ const Events = () => {
                         {categories.find(c => c.value === event.category)?.label}
                       </Badge>
                     </div>
-                    {event.price === 0 && (
-                      <div className="absolute top-3 right-3">
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="rounded-full h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavorite(event.id);
+                        }}
+                      >
+                        <Icon 
+                          name="Star" 
+                          size={16} 
+                          className={event.is_favorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"} 
+                        />
+                      </Button>
+                      {event.price === 0 && (
                         <Badge className="bg-green-500 rounded-full">Бесплатно</Badge>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   <CardContent className="p-5">
