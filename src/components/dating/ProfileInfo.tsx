@@ -74,13 +74,20 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           {profile.marital_status && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="Heart" size={18} />
-              <span>Семейное положение: {{
-                'single': 'Не женат/не замужем',
-                'married': 'Женат/замужем',
-                'divorced': 'В разводе',
-                'widowed': 'Вдовец/вдова',
-                'in_relationship': 'В отношениях'
-              }[profile.marital_status] || profile.marital_status}</span>
+              <span>Семейное положение: {(() => {
+                const isMale = profile.gender === 'male';
+                const translations: Record<string, { male: string; female: string }> = {
+                  'married': { male: 'Женат', female: 'Замужем' },
+                  'not_married': { male: 'Не женат', female: 'Не замужем' },
+                  'single': { male: 'Холост', female: 'Холостая' },
+                  'in_relationship': { male: 'Есть подруга', female: 'Есть парень' },
+                  'divorced': { male: 'В разводе', female: 'В разводе' },
+                  'searching': { male: 'В активном поиске', female: 'В активном поиске' },
+                  'complicated': { male: 'Всё сложно', female: 'Всё сложно' },
+                  'widowed': { male: 'Вдовец', female: 'Вдова' }
+                };
+                return translations[profile.marital_status]?.[isMale ? 'male' : 'female'] || profile.marital_status;
+              })()}</span>
             </div>
           )}
 
