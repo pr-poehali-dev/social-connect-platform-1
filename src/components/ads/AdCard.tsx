@@ -17,11 +17,13 @@ interface Ad {
   birth_date?: string;
   created_at: string;
   events: { event_type: string; details: string }[];
+  is_favorite?: boolean;
 }
 
 interface AdCardProps {
   ad: Ad;
   onInvite: (ad: Ad) => void;
+  onToggleFavorite?: (adId: number) => void;
   getTimeAgo: (date: string) => string;
 }
 
@@ -34,7 +36,7 @@ const eventTypeLabels: { [key: string]: string } = {
   'tour': 'Совместный ТУР'
 };
 
-const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
+const AdCard = ({ ad, onInvite, onToggleFavorite, getTimeAgo }: AdCardProps) => {
   const isBirthday = (birthDate: string) => {
     const today = new Date();
     const birth = new Date(birthDate);
@@ -44,7 +46,21 @@ const AdCard = ({ ad, onInvite, getTimeAgo }: AdCardProps) => {
   const showBirthdayIcon = ad.birth_date && isBirthday(ad.birth_date);
 
   return (
-    <Card className="p-3 sm:p-4 rounded-2xl hover:shadow-lg transition-shadow">
+    <Card className="p-3 sm:p-4 rounded-2xl hover:shadow-lg transition-shadow relative">
+      {onToggleFavorite && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 h-8 w-8 rounded-full z-10"
+          onClick={() => onToggleFavorite(ad.id)}
+        >
+          <Icon 
+            name="Star" 
+            size={18} 
+            className={ad.is_favorite ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:fill-yellow-100"} 
+          />
+        </Button>
+      )}
       <div className="flex gap-3">
         
         {/* Аватар */}

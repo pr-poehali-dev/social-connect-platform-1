@@ -24,7 +24,7 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization',
                 'Access-Control-Max-Age': '86400'
             },
             'body': ''
@@ -62,10 +62,34 @@ def handler(event: dict, context) -> dict:
                             'body': json.dumps({'error': 'Unauthorized'})
                         }
                     
+                    user_id_from_token = payload.get('user_id')
+                    
+                    cur.execute('''
+                        SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
+                               a.created_at, a.updated_at, a.photos,
+                               u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
+                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
+                        FROM t_p19021063_social_connect_platf.ads_favorites af
+                        JOIN t_p19021063_social_connect_platf.ads a ON af.ad_id = a.id
+                        JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
+                        WHERE af.user_id = %s
+                        ORDER BY af.created_at DESC
+                    ''', (user_id_from_token,))
+                    
+                    ads = cur.fetchall()
+                    
+                    for ad in ads:
+                        cur.execute('''
+                            SELECT event_type, details 
+                            FROM t_p19021063_social_connect_platf.ad_events 
+                            WHERE ad_id = %s
+                        ''', (ad['id'],))
+                        ad['events'] = cur.fetchall()
+                    
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'ads': []}, default=str)
+                        'body': json.dumps({'ads': [dict(ad) for ad in ads]}, default=str)
                     }
                 
                 if user_id:
@@ -80,27 +104,67 @@ def handler(event: dict, context) -> dict:
                         ORDER BY a.created_at DESC
                     ''', (user_id,))
                 elif action_filter:
-                    cur.execute('''
-                        SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
-                               a.created_at, a.updated_at, a.photos,
-                               u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
-                        FROM t_p19021063_social_connect_platf.ads a
-                        JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
-                        WHERE a.action = %s AND a.status = 'active'
-                        ORDER BY a.created_at DESC
-                    ''', (action_filter,))
+                    # Check if user is authenticated
+                    auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                    token = auth_header.replace('Bearer ', '') if auth_header else ''
+                    payload = verify_token(token)
+                    user_id_from_token = payload.get('user_id') if payload else None
+                    
+                    if user_id_from_token:
+                        cur.execute('''
+                            SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
+                                   a.created_at, a.updated_at, a.photos,
+                                   u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   EXISTS(SELECT 1 FROM t_p19021063_social_connect_platf.ads_favorites af WHERE af.user_id = %s AND af.ad_id = a.id) as is_favorite
+                            FROM t_p19021063_social_connect_platf.ads a
+                            JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
+                            WHERE a.action = %s AND a.status = 'active'
+                            ORDER BY a.created_at DESC
+                        ''', (user_id_from_token, action_filter))
+                    else:
+                        cur.execute('''
+                            SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
+                                   a.created_at, a.updated_at, a.photos,
+                                   u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   FALSE as is_favorite
+                            FROM t_p19021063_social_connect_platf.ads a
+                            JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
+                            WHERE a.action = %s AND a.status = 'active'
+                            ORDER BY a.created_at DESC
+                        ''', (action_filter,))
                 else:
-                    cur.execute('''
-                        SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
-                               a.created_at, a.updated_at, a.photos,
-                               u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
-                        FROM t_p19021063_social_connect_platf.ads a
-                        JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
-                        WHERE a.status = 'active'
-                        ORDER BY a.created_at DESC
-                    ''')
+                    # Check if user is authenticated
+                    auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                    token = auth_header.replace('Bearer ', '') if auth_header else ''
+                    payload = verify_token(token)
+                    user_id_from_token = payload.get('user_id') if payload else None
+                    
+                    if user_id_from_token:
+                        cur.execute('''
+                            SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
+                                   a.created_at, a.updated_at, a.photos,
+                                   u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   EXISTS(SELECT 1 FROM t_p19021063_social_connect_platf.ads_favorites af WHERE af.user_id = %s AND af.ad_id = a.id) as is_favorite
+                            FROM t_p19021063_social_connect_platf.ads a
+                            JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
+                            WHERE a.status = 'active'
+                            ORDER BY a.created_at DESC
+                        ''', (user_id_from_token,))
+                    else:
+                        cur.execute('''
+                            SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
+                                   a.created_at, a.updated_at, a.photos,
+                                   u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   FALSE as is_favorite
+                            FROM t_p19021063_social_connect_platf.ads a
+                            JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
+                            WHERE a.status = 'active'
+                            ORDER BY a.created_at DESC
+                        ''')
                 ads = cur.fetchall()
                 
                 for ad in ads:
@@ -118,6 +182,47 @@ def handler(event: dict, context) -> dict:
                 }
         
         elif method == 'POST':
+            action_param = query_params.get('action')
+            
+            # Add to favorites
+            if action_param == 'favorite':
+                auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                token = auth_header.replace('Bearer ', '') if auth_header else ''
+                payload = verify_token(token)
+                
+                if not payload:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                user_id_from_token = payload.get('user_id')
+                data = json.loads(event.get('body', '{}'))
+                ad_id = data.get('ad_id')
+                
+                if not ad_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'ad_id is required'})
+                    }
+                
+                with conn.cursor() as cur:
+                    cur.execute('''
+                        INSERT INTO t_p19021063_social_connect_platf.ads_favorites (user_id, ad_id, created_at)
+                        VALUES (%s, %s, CURRENT_TIMESTAMP)
+                        ON CONFLICT (user_id, ad_id) DO NOTHING
+                    ''', (user_id_from_token, ad_id))
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'status': 'added'})
+                    }
+            
+            # Create new ad
             if not user_id:
                 return {
                     'statusCode': 400,
@@ -192,6 +297,45 @@ def handler(event: dict, context) -> dict:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'status': 'updated'})
                 }
+        
+        elif method == 'DELETE':
+            action_param = query_params.get('action')
+            
+            if action_param == 'favorite':
+                auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                token = auth_header.replace('Bearer ', '') if auth_header else ''
+                payload = verify_token(token)
+                
+                if not payload:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                user_id_from_token = payload.get('user_id')
+                data = json.loads(event.get('body', '{}'))
+                ad_id = data.get('ad_id')
+                
+                if not ad_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'ad_id is required'})
+                    }
+                
+                with conn.cursor() as cur:
+                    cur.execute('''
+                        DELETE FROM t_p19021063_social_connect_platf.ads_favorites
+                        WHERE user_id = %s AND ad_id = %s
+                    ''', (user_id_from_token, ad_id))
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'status': 'removed'})
+                    }
         
         else:
             return {

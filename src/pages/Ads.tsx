@@ -20,6 +20,7 @@ interface Ad {
   age: number;
   created_at: string;
   events: { event_type: string; details: string }[];
+  is_favorite?: boolean;
 }
 
 const Ads = () => {
@@ -65,7 +66,13 @@ const Ads = () => {
     setLoading(true);
     try {
       const oppositeAction = activeCategory === 'go' ? 'invite' : 'go';
-      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${oppositeAction}`);
+      const token = localStorage.getItem('access_token');
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${oppositeAction}`, { headers });
       if (response.ok) {
         const data = await response.json();
         setAds(data);
@@ -76,6 +83,62 @@ const Ads = () => {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleFavorite = async (adId: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
+    const ad = ads.find(a => a.id === adId);
+    if (!ad) return;
+
+    try {
+      const action = ad.is_favorite ? 'favorite' : 'favorite';
+      const method = ad.is_favorite ? 'DELETE' : 'POST';
+      
+      const response = await fetch(
+        `https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=${action}`,
+        {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ ad_id: adId })
+        }
+      );
+
+      if (response.ok) {
+        setAds(ads.map(a => 
+          a.id === adId ? { ...a, is_favorite: !a.is_favorite } : a
+        ));
+        toast({
+          title: ad.is_favorite ? 'Удалено из избранного' : 'Добавлено в избранное',
+          description: ad.is_favorite ? '' : 'Объявление сохранено в разделе Избранное'
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось обновить избранное',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить избранное',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -261,6 +324,7 @@ const Ads = () => {
                     key={ad.id}
                     ad={ad}
                     onInvite={handleInvite}
+                    onToggleFavorite={handleToggleFavorite}
                     getTimeAgo={getTimeAgo}
                   />
                 ))}
