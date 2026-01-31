@@ -142,7 +142,7 @@ const AdsFilters = ({
 
         {/* Фильтр: Даты мероприятия */}
         <div>
-          <label className="text-sm font-medium mb-2 block">Даты мероприятия</label>
+          <label className="text-sm font-medium mb-2 block">Даты</label>
           <div className="relative">
             <Popover>
               <PopoverTrigger asChild>
