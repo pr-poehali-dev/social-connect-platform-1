@@ -8,15 +8,16 @@ import FavoriteProfilesTab from '@/components/favorites/FavoriteProfilesTab';
 import FavoriteAdsTab from '@/components/favorites/FavoriteAdsTab';
 import FavoriteServicesTab from '@/components/favorites/FavoriteServicesTab';
 import FavoriteEventsTab from '@/components/favorites/FavoriteEventsTab';
+import { FavoriteProfile, FavoriteAd, FavoriteService, FavoriteEvent } from '@/types/favorites';
 
 const Favorites = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [favoriteProfiles, setFavoriteProfiles] = useState<any[]>([]);
-  const [favoriteAds, setFavoriteAds] = useState<any[]>([]);
-  const [favoriteServices, setFavoriteServices] = useState<any[]>([]);
-  const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
+  const [favoriteProfiles, setFavoriteProfiles] = useState<FavoriteProfile[]>([]);
+  const [favoriteAds, setFavoriteAds] = useState<FavoriteAd[]>([]);
+  const [favoriteServices, setFavoriteServices] = useState<FavoriteService[]>([]);
+  const [favoriteEvents, setFavoriteEvents] = useState<FavoriteEvent[]>([]);
   const [joinedEvents, setJoinedEvents] = useState<Set<number>>(new Set());
 
   useEffect(() => {

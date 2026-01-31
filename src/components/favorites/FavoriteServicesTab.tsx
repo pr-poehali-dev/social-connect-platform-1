@@ -2,9 +2,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
+import { FavoriteService } from '@/types/favorites';
 
 interface FavoriteServicesTabProps {
-  favoriteServices: any[];
+  favoriteServices: FavoriteService[];
   onRemoveFromFavorites: (type: string, id: number) => void;
   onNavigate: (path: string) => void;
 }

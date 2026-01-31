@@ -2,9 +2,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { FavoriteAd } from '@/types/favorites';
 
 interface FavoriteAdsTabProps {
-  favoriteAds: any[];
+  favoriteAds: FavoriteAd[];
   onRemoveFromFavorites: (type: string, id: number) => void;
   onNavigate: (path: string) => void;
 }

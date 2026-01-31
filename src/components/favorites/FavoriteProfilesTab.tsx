@@ -2,9 +2,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { FavoriteProfile } from '@/types/favorites';
 
 interface FavoriteProfilesTabProps {
-  favoriteProfiles: any[];
+  favoriteProfiles: FavoriteProfile[];
   onRemoveFromFavorites: (type: string, id: number) => void;
   onNavigate: (path: string) => void;
 }

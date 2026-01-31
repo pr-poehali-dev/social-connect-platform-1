@@ -2,14 +2,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { FavoriteEvent } from '@/types/favorites';
+
+interface ToastConfig {
+  title: string;
+  description?: string;
+  variant?: 'default' | 'destructive';
+}
 
 interface FavoriteEventsTabProps {
-  favoriteEvents: any[];
+  favoriteEvents: FavoriteEvent[];
   joinedEvents: Set<number>;
   onRemoveFromFavorites: (type: string, id: number) => void;
   onJoinEvent: (eventId: number) => void;
   onNavigate: (path: string) => void;
-  onToast: (config: any) => void;
+  onToast: (config: ToastConfig) => void;
 }
 
 const FavoriteEventsTab = ({ 
