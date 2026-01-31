@@ -19,15 +19,26 @@ const MyAds = () => {
   }, []);
 
   const loadAds = async () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = user.id;
-
-    if (!userId) {
-      setIsLoading(false);
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      navigate('/login');
       return;
     }
 
     try {
+      const userResponse = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!userResponse.ok) {
+        navigate('/login');
+        return;
+      }
+      
+      const userData = await userResponse.json();
+      const userId = userData.id;
+
       const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?user_id=${userId}`);
       if (response.ok) {
         const data = await response.json();
@@ -41,10 +52,26 @@ const MyAds = () => {
   };
 
   const updateAdStatus = async (adId: number, newStatus: string) => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = user.id;
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      navigate('/login');
+      return;
+    }
 
     try {
+      const userResponse = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!userResponse.ok) {
+        navigate('/login');
+        return;
+      }
+      
+      const userData = await userResponse.json();
+      const userId = userData.id;
+
       const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?user_id=${userId}`, {
         method: 'PUT',
         headers: {
