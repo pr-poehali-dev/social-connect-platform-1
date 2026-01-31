@@ -29,36 +29,77 @@ const Favorites = () => {
       return;
     }
 
-    setLoading(true);
-    setFavoriteProfiles([]);
-    setFavoriteAds([]);
-    setFavoriteServices([]);
-    setFavoriteEvents([]);
-    setLoading(false);
+    const userDataStr = localStorage.getItem('user_data');
+    const userData = userDataStr ? JSON.parse(userDataStr) : null;
+    const userId = userData?.id;
+
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const [profilesRes, adsRes, servicesRes, eventsRes] = await Promise.all([
+        fetch('https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorites&user_id=${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorites&user_id=${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorites&user_id=${userId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      if (profilesRes.ok) {
+        const data = await profilesRes.json();
+        setFavoriteProfiles(data.profiles || []);
+      }
+
+      if (adsRes.ok) {
+        const data = await adsRes.json();
+        setFavoriteAds(data.ads || []);
+      }
+
+      if (servicesRes.ok) {
+        const data = await servicesRes.json();
+        setFavoriteServices(data.services || []);
+      }
+
+      if (eventsRes.ok) {
+        const data = await eventsRes.json();
+        setFavoriteEvents(data.events || []);
+      }
+    } catch (error) {
+      console.error('Failed to load favorites:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveFromFavorites = async (type: string, id: number) => {
     const token = localStorage.getItem('access_token');
-    let endpoint = '';
-    
-    if (type === 'profile') endpoint = 'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2';
-    else if (type === 'ad') endpoint = 'https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056';
-    else if (type === 'service') endpoint = 'https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774';
-    else if (type === 'event') endpoint = 'https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8';
 
     try {
-      const response = await fetch(`${endpoint}?action=toggle-favorite`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ [`${type}_id`]: id })
-      });
+      if (type === 'profile') {
+        const response = await fetch('https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=unfavorite', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ profile_id: id })
+        });
 
-      if (response.ok) {
-        toast({ title: 'Удалено из избранного' });
-        loadAllFavorites();
+        if (response.ok) {
+          toast({ title: 'Удалено из избранного' });
+          loadAllFavorites();
+        }
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось удалить из избранного', variant: 'destructive' });
@@ -152,10 +193,10 @@ const Favorites = () => {
                         </div>
                         
                         <CardContent className="p-6">
-                          <p className="text-muted-foreground mb-4">{profile.bio}</p>
+                          <p className="text-muted-foreground mb-4">{profile.bio || 'Нет описания'}</p>
                           
                           <div className="flex flex-wrap gap-2 mb-6">
-                            {profile.interests.map((interest, index) => (
+                            {(profile.interests || []).map((interest, index) => (
                               <Badge key={index} variant="secondary" className="rounded-full">
                                 {interest}
                               </Badge>

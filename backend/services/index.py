@@ -25,7 +25,23 @@ def handler(event: dict, context) -> dict:
     try:
         if method == 'GET':
             query_params = event.get('queryStringParameters', {}) or {}
+            action = query_params.get('action')
             service_id = query_params.get('id')
+            
+            if action == 'favorites':
+                user_id = query_params.get('user_id')
+                if not user_id:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'services': []}, default=str)
+                }
             
             if service_id:
                 cursor.execute('SELECT * FROM services WHERE id = %s', (service_id,))

@@ -19,8 +19,10 @@ def handler(event: dict, context) -> dict:
             'body': ''
         }
     
-    user_id = event.get('queryStringParameters', {}).get('user_id')
-    action_filter = event.get('queryStringParameters', {}).get('action')
+    query_params = event.get('queryStringParameters') or {}
+    user_id = query_params.get('user_id')
+    action_param = query_params.get('action')
+    action_filter = query_params.get('action') if action_param != 'favorites' else None
     
     dsn = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(dsn)
@@ -35,6 +37,21 @@ def handler(event: dict, context) -> dict:
                     AND updated_at < NOW() - INTERVAL '14 days'
                 ''')
                 conn.commit()
+                
+                # GET favorites
+                if action_param == 'favorites':
+                    if not user_id:
+                        return {
+                            'statusCode': 401,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Unauthorized'})
+                        }
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'ads': []}, default=str)
+                    }
                 
                 if user_id:
                     cur.execute('''

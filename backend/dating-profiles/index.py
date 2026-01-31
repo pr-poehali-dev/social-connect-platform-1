@@ -63,7 +63,7 @@ def handler(event: dict, context) -> dict:
     action = query_params.get('action', '')
     
     # Действия требующие авторизации
-    if action in ['favorite', 'unfavorite', 'friend-request', 'cancel-friend-request', 'friend-requests', 'friends', 'accept-friend-request', 'reject-friend-request', 'remove-friend'] and not user_id:
+    if action in ['favorite', 'unfavorite', 'favorites', 'friend-request', 'cancel-friend-request', 'friend-requests', 'friends', 'accept-friend-request', 'reject-friend-request', 'remove-friend'] and not user_id:
         return response(401, {'error': 'Unauthorized'})
 
     S = get_schema()
@@ -167,6 +167,42 @@ def handler(event: dict, context) -> dict:
                 ORDER BY dp.is_top_ad DESC NULLS LAST, dp.created_at DESC
                 LIMIT 50
             """)
+            
+            profiles = [dict(row) for row in cur.fetchall()]
+            
+            return response(200, {'profiles': profiles})
+        
+        # GET /favorites - получить список избранных профилей
+        elif method == 'GET' and action == 'favorites':
+            cur.execute(f"""
+                SELECT 
+                    dp.id, dp.user_id,
+                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name, dp.name) as name,
+                    EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                    u.birth_date,
+                    COALESCE(u.city, dp.city) as city,
+                    COALESCE(u.district, dp.district) as district,
+                    COALESCE(u.interests, dp.interests) as interests,
+                    COALESCE(u.bio, dp.bio) as bio,
+                    COALESCE(u.avatar_url, dp.avatar_url) as image,
+                    u.height,
+                    u.body_type,
+                    u.gender,
+                    u.is_verified,
+                    u.last_login_at,
+                    u.status_text,
+                    CASE 
+                        WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                        ELSE FALSE
+                    END as is_online,
+                    u.nickname,
+                    TRUE as is_favorite
+                FROM {S}dating_favorites df
+                JOIN {S}dating_profiles dp ON df.profile_id = dp.id
+                JOIN {S}users u ON dp.user_id = u.id
+                WHERE df.user_id = %s
+                ORDER BY df.created_at DESC
+            """, (user_id,))
             
             profiles = [dict(row) for row in cur.fetchall()]
             

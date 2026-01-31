@@ -29,6 +29,20 @@ def handler(event: dict, context) -> dict:
             user_id = query_params.get('user_id')
             action = query_params.get('action')
             
+            if action == 'favorites':
+                if not user_id:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'events': []}, default=str)
+                }
+            
             if action == 'user_joined':
                 if not user_id:
                     return {
