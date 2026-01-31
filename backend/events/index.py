@@ -2,6 +2,17 @@ import json
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import jwt as pyjwt
+
+def verify_token(token: str) -> dict | None:
+    if not token:
+        return None
+    try:
+        jwt_secret = os.environ.get('JWT_SECRET', '')
+        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
+        return payload
+    except Exception:
+        return None
 
 def handler(event: dict, context) -> dict:
     '''API для управления мероприятиями'''
@@ -30,7 +41,11 @@ def handler(event: dict, context) -> dict:
             action = query_params.get('action')
             
             if action == 'favorites':
-                if not user_id:
+                auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                token = auth_header.replace('Bearer ', '') if auth_header else ''
+                payload = verify_token(token)
+                
+                if not payload:
                     return {
                         'statusCode': 401,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

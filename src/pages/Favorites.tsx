@@ -29,15 +29,6 @@ const Favorites = () => {
       return;
     }
 
-    const userDataStr = localStorage.getItem('user_data');
-    const userData = userDataStr ? JSON.parse(userDataStr) : null;
-    const userId = userData?.id;
-
-    if (!userId) {
-      navigate('/login');
-      return;
-    }
-
     try {
       setLoading(true);
       
@@ -45,13 +36,13 @@ const Favorites = () => {
         fetch('https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=favorites', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorites&user_id=${userId}`, {
+        fetch('https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorites', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorites&user_id=${userId}`, {
+        fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorites', {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorites&user_id=${userId}`, {
+        fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorites', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
