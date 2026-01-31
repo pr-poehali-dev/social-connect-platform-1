@@ -29,60 +29,69 @@ const Favorites = () => {
       return;
     }
 
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      
-      const [profilesRes, adsRes, servicesRes, eventsRes] = await Promise.all([
-        fetch('https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=favorites', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorites', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorites', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorites', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
-
+      const profilesRes = await fetch('https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=favorites', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       console.log('Profiles response status:', profilesRes.status);
       if (profilesRes.ok) {
         const data = await profilesRes.json();
         setFavoriteProfiles(data.profiles || []);
       } else {
-        console.error('Profiles error:', await profilesRes.text());
+        console.error('Profiles error:', profilesRes.status, await profilesRes.text());
       }
+    } catch (error) {
+      console.error('Profiles fetch error:', error);
+    }
 
+    try {
+      const adsRes = await fetch('https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorites', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       console.log('Ads response status:', adsRes.status);
       if (adsRes.ok) {
         const data = await adsRes.json();
         setFavoriteAds(data.ads || []);
       } else {
-        console.error('Ads error:', await adsRes.text());
+        console.error('Ads error:', adsRes.status, await adsRes.text());
       }
+    } catch (error) {
+      console.error('Ads fetch error:', error);
+    }
 
+    try {
+      const servicesRes = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorites', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       console.log('Services response status:', servicesRes.status);
       if (servicesRes.ok) {
         const data = await servicesRes.json();
         setFavoriteServices(data.services || []);
       } else {
-        console.error('Services error:', await servicesRes.text());
+        console.error('Services error:', servicesRes.status, await servicesRes.text());
       }
+    } catch (error) {
+      console.error('Services fetch error:', error);
+    }
 
+    try {
+      const eventsRes = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorites', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       console.log('Events response status:', eventsRes.status);
       if (eventsRes.ok) {
         const data = await eventsRes.json();
         setFavoriteEvents(data.events || []);
       } else {
-        console.error('Events error:', await eventsRes.text());
+        console.error('Events error:', eventsRes.status, await eventsRes.text());
       }
     } catch (error) {
-      console.error('Failed to load favorites:', error);
-    } finally {
-      setLoading(false);
+      console.error('Events fetch error:', error);
     }
+
+    setLoading(false);
   };
 
   const handleRemoveFromFavorites = async (type: string, id: number) => {
