@@ -20,6 +20,7 @@ import CreateAd from "./pages/CreateAd";
 import Applications from "./pages/Applications";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
+import MyServices from "./pages/MyServices";
 import Events from "./pages/Events";
 import SelectCity from "./pages/SelectCity";
 import MyEvents from "./pages/MyEvents";
@@ -66,6 +67,7 @@ const App = () => (
           <Route path="/create-ad" element={<ProtectedRoute><CreateAd /></ProtectedRoute>} />
           <Route path="/applications/:adId" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+          <Route path="/my-services" element={<ProtectedRoute><MyServices /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
           <Route path="/select-city" element={<ProtectedRoute><SelectCity /></ProtectedRoute>} />

@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "Get user services",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-Authorization": "Bearer test_token"
+      },
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "type"
+    },
+    {
+      "name": "Create service",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Authorization": "Bearer test_token"
+      },
+      "body": {
+        "name": "Тестовая услуга",
+        "service_type": "Консультация",
+        "description": "Описание",
+        "price": "1000 руб",
+        "is_online": true
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "id": "number",
+        "status": "created"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -41,7 +41,7 @@ const ProfileActions = ({ user, onRequestVerification }: ProfileActionsProps) =>
         <span className="text-sm font-medium">Объявления</span>
       </Button>
       <Button 
-        onClick={() => navigate('/services')}
+        onClick={() => navigate('/my-services')}
         variant="outline"
         className="h-20 flex-col gap-2 rounded-2xl"
       >
