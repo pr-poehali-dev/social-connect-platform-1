@@ -188,24 +188,21 @@ const Favorites = () => {
                           >
                             <Icon name="Star" size={20} className="fill-yellow-400 text-yellow-400" />
                           </Button>
-                          <div className="absolute bottom-4 left-4 text-white">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-2xl font-bold">{profile.name}, {profile.age}</h3>
-                              {profile.is_verified ? (
-                                <Icon name="BadgeCheck" size={20} className="text-blue-500" />
-                              ) : (
-                                <Icon name="BadgeCheck" size={20} className="text-gray-400" />
+                        </div>
+                        
+                        <CardContent className="p-6">
+                          <div className="mb-4">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-xl font-bold">{profile.name}, {profile.age}</h3>
+                              {profile.is_verified && (
+                                <Icon name="BadgeCheck" size={18} className="text-blue-500" />
                               )}
                             </div>
-                            <p className="flex items-center gap-1 text-sm">
+                            <p className="flex items-center gap-1 text-sm text-muted-foreground">
                               <Icon name="MapPin" size={14} />
                               {profile.city}
                             </p>
                           </div>
-                        </div>
-                        
-                        <CardContent className="p-6">
-                          <p className="text-muted-foreground mb-4">{profile.bio || 'Нет описания'}</p>
                           
                           <div className="flex flex-wrap gap-2 mb-6">
                             {(profile.interests || []).map((interest, index) => (
