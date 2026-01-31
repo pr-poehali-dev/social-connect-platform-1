@@ -63,7 +63,7 @@ def handler(event: dict, context) -> dict:
     action = query_params.get('action', '')
     
     # Действия требующие авторизации
-    if action in ['favorite', 'unfavorite', 'friend-request'] and not user_id:
+    if action in ['favorite', 'unfavorite', 'friend-request', 'cancel-friend-request'] and not user_id:
         return response(401, {'error': 'Unauthorized'})
 
     S = get_schema()
@@ -304,6 +304,40 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             
             return response(200, {'success': True, 'message': 'Friend request sent'})
+        
+        # POST /cancel-friend-request - отменить заявку в друзья
+        elif method == 'POST' and action == 'cancel-friend-request':
+            body_str = event.get('body', '{}')
+            try:
+                data = json.loads(body_str)
+            except json.JSONDecodeError:
+                return response(400, {'error': 'Invalid JSON'})
+            
+            to_user_id = data.get('to_user_id')
+            if not to_user_id:
+                return response(400, {'error': 'to_user_id is required'})
+            
+            # Находим profile_id по user_id
+            cur.execute(
+                f"""SELECT id FROM {S}dating_profiles WHERE user_id = %s""",
+                (to_user_id,)
+            )
+            profile_result = cur.fetchone()
+            
+            if not profile_result:
+                return response(404, {'error': 'Profile not found'})
+            
+            to_profile_id = profile_result['id']
+            
+            # Удаляем заявку в друзья
+            cur.execute(
+                f"""DELETE FROM {S}dating_friend_requests 
+                    WHERE from_user_id = %s AND to_profile_id = %s AND status = 'pending'""",
+                (user_id, to_profile_id)
+            )
+            conn.commit()
+            
+            return response(200, {'success': True, 'message': 'Friend request cancelled'})
         
         # POST /boost - поднять профиль в выдаче
         elif method == 'POST' and action == 'boost':

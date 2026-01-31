@@ -172,21 +172,43 @@ const DatingProfile = () => {
   const handleAddFriend = async () => {
     if (!profile) return;
     
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+
     try {
+      const action = requestSent ? 'cancel-friend-request' : 'friend-request';
       const response = await fetch(
-        'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=friend-request',
+        `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=${action}`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ to_user_id: profile.user_id })
         }
       );
 
       if (response.ok) {
-        setRequestSent(true);
+        setRequestSent(!requestSent);
         toast({
-          title: 'Заявка отправлена',
-          description: 'Ожидайте подтверждения'
+          title: requestSent ? 'Заявка отменена' : 'Заявка отправлена',
+          description: requestSent ? '' : 'Ожидайте подтверждения'
+        });
+      } else {
+        const data = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось обработать запрос',
+          variant: 'destructive',
         });
       }
     } catch (error) {

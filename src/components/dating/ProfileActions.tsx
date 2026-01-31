@@ -51,9 +51,9 @@ const ProfileActions = ({
         </Button>
       ) : requestSent ? (
         <Button 
+          onClick={onAddFriend}
           variant="outline"
-          disabled
-          className="w-full rounded-xl h-12 text-base"
+          className="w-full rounded-xl h-12 text-base font-semibold"
         >
           <Icon name="Clock" size={20} className="mr-2" />
           Заявка отправлена
