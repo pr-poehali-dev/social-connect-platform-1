@@ -345,7 +345,7 @@ const DatingProfile = () => {
 
             <ProfileInfo profile={profile} />
 
-            <PhotoGallery photos={photos} />
+            <PhotoGallery photos={profile.image && !photos.includes(profile.image) ? [profile.image, ...photos] : photos} />
           </div>
         </div>
       </div>

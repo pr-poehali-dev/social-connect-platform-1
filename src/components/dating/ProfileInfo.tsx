@@ -57,10 +57,59 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
             </div>
           )}
 
-          {profile.physique && (
+          {profile.bodyType && (
             <div className="flex items-center gap-3 text-muted-foreground">
               <Icon name="User" size={18} />
-              <span>Телосложение: {profile.physique}</span>
+              <span>Телосложение: {profile.bodyType}</span>
+            </div>
+          )}
+
+          {profile.marital_status && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Heart" size={18} />
+              <span>Семейное положение: {profile.marital_status}</span>
+            </div>
+          )}
+
+          {profile.children && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Baby" size={18} />
+              <span>Дети: {profile.children}</span>
+            </div>
+          )}
+
+          {profile.profession && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Briefcase" size={18} />
+              <span>Профессия: {profile.profession}</span>
+            </div>
+          )}
+
+          {profile.financial_status && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Wallet" size={18} />
+              <span>Финансовое положение: {profile.financial_status}</span>
+            </div>
+          )}
+
+          {profile.has_car !== null && profile.has_car !== undefined && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Car" size={18} />
+              <span>Автомобиль: {profile.has_car ? 'Есть' : 'Нет'}</span>
+            </div>
+          )}
+
+          {profile.has_housing !== null && profile.has_housing !== undefined && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Home" size={18} />
+              <span>Жилье: {profile.has_housing ? 'Есть' : 'Нет'}</span>
+            </div>
+          )}
+
+          {profile.dating_goal && (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Icon name="Target" size={18} />
+              <span>Цель знакомства: {profile.dating_goal}</span>
             </div>
           )}
         </div>
@@ -93,6 +142,41 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
                 {interest}
               </span>
             ))}
+          </div>
+        </Card>
+      )}
+
+      {(profile.phone || profile.telegram || profile.instagram) && (
+        <Card className="p-6 rounded-2xl">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Icon name="Phone" size={20} />
+            Контакты
+          </h2>
+          <div className="space-y-3">
+            {profile.phone && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Icon name="Phone" size={18} />
+                <a href={`tel:${profile.phone}`} className="hover:text-primary">
+                  {profile.phone}
+                </a>
+              </div>
+            )}
+            {profile.telegram && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Icon name="Send" size={18} />
+                <a href={`https://t.me/${profile.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                  @{profile.telegram.replace('@', '')}
+                </a>
+              </div>
+            )}
+            {profile.instagram && (
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Icon name="Instagram" size={18} />
+                <a href={`https://instagram.com/${profile.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                  @{profile.instagram.replace('@', '')}
+                </a>
+              </div>
+            )}
           </div>
         </Card>
       )}

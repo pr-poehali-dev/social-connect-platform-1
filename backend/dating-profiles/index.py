@@ -226,18 +226,34 @@ def handler(event: dict, context) -> dict:
             
             cur.execute(f"""
                 SELECT 
-                    dp.id, dp.user_id, dp.name, 
-                    dp.age, dp.city, dp.district,
-                    dp.interests, dp.bio, 
-                    COALESCE(
-                        (SELECT photo_url FROM {S}user_photos WHERE user_id = dp.user_id ORDER BY position LIMIT 1),
-                        dp.avatar_url, 
-                        u.avatar_url
-                    ) as image,
-                    dp.height, dp.body_type as bodyType, dp.gender,
-                    FALSE as isOnline,
+                    dp.id, dp.user_id,
+                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name, dp.name) as name,
+                    EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                    COALESCE(u.city, dp.city) as city,
+                    COALESCE(u.district, dp.district) as district,
+                    COALESCE(u.interests, dp.interests) as interests,
+                    COALESCE(u.bio, dp.bio) as bio,
+                    u.avatar_url as image,
+                    COALESCE(u.height, dp.height) as height,
+                    COALESCE(u.body_type, dp.body_type) as bodyType,
+                    COALESCE(u.gender, dp.gender) as gender,
+                    CASE 
+                        WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                        ELSE FALSE
+                    END as isOnline,
                     u.last_login_at as lastLoginAt,
                     u.status_text,
+                    u.is_verified,
+                    u.phone,
+                    u.telegram,
+                    u.instagram,
+                    u.marital_status,
+                    u.children,
+                    u.financial_status,
+                    u.has_car,
+                    u.has_housing,
+                    u.dating_goal,
+                    u.profession,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
