@@ -11,12 +11,19 @@ export interface FavoriteProfile {
 
 export interface FavoriteAd {
   id: number;
-  title: string;
-  category: string;
-  price: string;
-  location: string;
-  date: string;
-  image: string;
+  user_id: number;
+  action: string;
+  schedule: string;
+  name: string;
+  nickname: string;
+  avatar_url: string;
+  gender: string;
+  city: string;
+  age: number;
+  birth_date?: string;
+  created_at: string;
+  events: { event_type: string; details: string }[];
+  is_favorite?: boolean;
 }
 
 export interface FavoriteService {

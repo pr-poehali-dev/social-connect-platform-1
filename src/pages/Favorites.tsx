@@ -182,6 +182,54 @@ const Favorites = () => {
     }
   };
 
+  const handleInviteAd = async (ad: any) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт',
+        variant: 'destructive'
+      });
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        'https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=create-conversation',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            type: 'personal',
+            participantId: ad.user_id
+          })
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        navigate('/messages', { state: { openChatId: data.conversationId } });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось создать чат',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось подключиться к серверу',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
@@ -229,6 +277,7 @@ const Favorites = () => {
                   favoriteAds={favoriteAds}
                   onRemoveFromFavorites={handleRemoveFromFavorites}
                   onNavigate={navigate}
+                  onInvite={handleInviteAd}
                 />
               </TabsContent>
 
