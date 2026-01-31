@@ -185,7 +185,8 @@ const FavoriteEventsTab = ({
                 )}
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </>
