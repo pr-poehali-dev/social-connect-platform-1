@@ -139,8 +139,8 @@ const Favorites = () => {
                   Анкеты ({favoriteProfiles.length})
                 </TabsTrigger>
                 <TabsTrigger value="ads" className="gap-2">
-                  <Icon name="MessageSquare" size={18} />
-                  Объявления ({favoriteAds.length})
+                  <Icon name="Radio" size={18} />
+                  LIVE ({favoriteAds.length})
                 </TabsTrigger>
                 <TabsTrigger value="services" className="gap-2">
                   <Icon name="Briefcase" size={18} />
