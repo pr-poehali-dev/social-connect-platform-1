@@ -63,7 +63,7 @@ def handler(event: dict, context) -> dict:
     action = query_params.get('action', '')
     
     # Действия требующие авторизации
-    if action in ['favorite', 'unfavorite', 'friend-request', 'cancel-friend-request'] and not user_id:
+    if action in ['favorite', 'unfavorite', 'friend-request', 'cancel-friend-request', 'friend-requests', 'friends', 'accept-friend-request', 'reject-friend-request'] and not user_id:
         return response(401, {'error': 'Unauthorized'})
 
     S = get_schema()
@@ -360,6 +360,170 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             
             return response(200, {'success': True, 'message': 'Profile boosted'})
+        
+        # GET /friend-requests - получить заявки в друзья (входящие и исходящие)
+        elif method == 'GET' and action == 'friend-requests':
+            if not user_id:
+                return response(401, {'error': 'Unauthorized'})
+            
+            request_type = query_params.get('type', 'incoming')  # incoming или outgoing
+            
+            if request_type == 'incoming':
+                # Входящие заявки
+                cur.execute(f"""
+                    SELECT 
+                        dfr.id as request_id,
+                        dfr.created_at,
+                        dfr.status,
+                        u.id as user_id,
+                        COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name) as name,
+                        u.nickname,
+                        EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                        u.city,
+                        u.avatar_url,
+                        u.gender,
+                        CASE 
+                            WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                            ELSE FALSE
+                        END as is_online
+                    FROM {S}dating_friend_requests dfr
+                    JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id
+                    JOIN {S}users u ON dfr.from_user_id = u.id
+                    WHERE dp.user_id = %s AND dfr.status = 'pending'
+                    ORDER BY dfr.created_at DESC
+                """, (user_id,))
+            else:
+                # Исходящие заявки
+                cur.execute(f"""
+                    SELECT 
+                        dfr.id as request_id,
+                        dfr.created_at,
+                        dfr.status,
+                        u.id as user_id,
+                        COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name) as name,
+                        u.nickname,
+                        EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                        u.city,
+                        u.avatar_url,
+                        u.gender,
+                        CASE 
+                            WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                            ELSE FALSE
+                        END as is_online
+                    FROM {S}dating_friend_requests dfr
+                    JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id
+                    JOIN {S}users u ON dp.user_id = u.id
+                    WHERE dfr.from_user_id = %s AND dfr.status = 'pending'
+                    ORDER BY dfr.created_at DESC
+                """, (user_id,))
+            
+            requests_list = [dict(row) for row in cur.fetchall()]
+            return response(200, {'requests': requests_list})
+        
+        # GET /friends - получить список друзей
+        elif method == 'GET' and action == 'friends':
+            if not user_id:
+                return response(401, {'error': 'Unauthorized'})
+            
+            cur.execute(f"""
+                SELECT 
+                    u.id as user_id,
+                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name) as name,
+                    u.nickname,
+                    EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                    u.city,
+                    u.avatar_url,
+                    u.gender,
+                    CASE 
+                        WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                        ELSE FALSE
+                    END as is_online
+                FROM {S}dating_friend_requests dfr
+                JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id
+                JOIN {S}users u ON dp.user_id = u.id
+                WHERE dfr.from_user_id = %s AND dfr.status = 'accepted'
+                UNION
+                SELECT 
+                    u.id as user_id,
+                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name) as name,
+                    u.nickname,
+                    EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                    u.city,
+                    u.avatar_url,
+                    u.gender,
+                    CASE 
+                        WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                        ELSE FALSE
+                    END as is_online
+                FROM {S}dating_friend_requests dfr
+                JOIN {S}dating_profiles dp_from ON dfr.to_profile_id = dp_from.id
+                JOIN {S}users u ON dfr.from_user_id = u.id
+                JOIN {S}dating_profiles dp_to ON dp_to.user_id = u.id
+                WHERE dp_from.user_id = %s AND dfr.status = 'accepted'
+                ORDER BY is_online DESC, name ASC
+            """, (user_id, user_id))
+            
+            friends_list = [dict(row) for row in cur.fetchall()]
+            return response(200, {'friends': friends_list})
+        
+        # POST /accept-friend-request - принять заявку в друзья
+        elif method == 'POST' and action == 'accept-friend-request':
+            if not user_id:
+                return response(401, {'error': 'Unauthorized'})
+            
+            body_str = event.get('body', '{}')
+            try:
+                data = json.loads(body_str)
+            except json.JSONDecodeError:
+                return response(400, {'error': 'Invalid JSON'})
+            
+            request_id = data.get('request_id')
+            if not request_id:
+                return response(400, {'error': 'request_id is required'})
+            
+            cur.execute(
+                f"""UPDATE {S}dating_friend_requests 
+                    SET status = 'accepted'
+                    WHERE id = %s AND to_profile_id IN (SELECT id FROM {S}dating_profiles WHERE user_id = %s)
+                    RETURNING id""",
+                (request_id, user_id)
+            )
+            result = cur.fetchone()
+            
+            if not result:
+                return response(404, {'error': 'Request not found'})
+            
+            conn.commit()
+            return response(200, {'success': True, 'message': 'Friend request accepted'})
+        
+        # POST /reject-friend-request - отклонить заявку в друзья
+        elif method == 'POST' and action == 'reject-friend-request':
+            if not user_id:
+                return response(401, {'error': 'Unauthorized'})
+            
+            body_str = event.get('body', '{}')
+            try:
+                data = json.loads(body_str)
+            except json.JSONDecodeError:
+                return response(400, {'error': 'Invalid JSON'})
+            
+            request_id = data.get('request_id')
+            if not request_id:
+                return response(400, {'error': 'request_id is required'})
+            
+            cur.execute(
+                f"""DELETE FROM {S}dating_friend_requests 
+                    WHERE id = %s AND to_profile_id IN (SELECT id FROM {S}dating_profiles WHERE user_id = %s)
+                    RETURNING id""",
+                (request_id, user_id)
+            )
+            result = cur.fetchone()
+            
+            if not result:
+                return response(404, {'error': 'Request not found'})
+            
+            conn.commit()
+            return response(200, {'success': True, 'message': 'Friend request rejected'})
         
         else:
             return response(400, {'error': 'Invalid request'})
