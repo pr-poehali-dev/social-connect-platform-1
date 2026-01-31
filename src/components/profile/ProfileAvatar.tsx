@@ -106,8 +106,15 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <Icon name="User" size={80} className="text-muted-foreground" />
+        <div className="w-full h-full flex flex-col items-center justify-center p-6">
+          <Icon name="User" size={80} className="text-muted-foreground mb-4" />
+          {!editMode && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+              <p className="text-sm text-yellow-800">
+                Без фото профиль не участвует в выдаче Знакомств
+              </p>
+            </div>
+          )}
         </div>
       )}
       {editMode && (
