@@ -94,6 +94,9 @@ def handler(event: dict, context) -> dict:
             
             where_conditions = []
             
+            # Показывать только профили с включенной видимостью
+            where_conditions.append("u.dating_visible = TRUE")
+            
             if user_id:
                 where_conditions.append(f"u.id != {user_id}")
             

@@ -73,6 +73,7 @@ def handler(event: dict, context) -> dict:
                            body_type, marital_status, children, financial_status,
                            has_car, has_housing, dating_goal, interests, profession,
                            zodiac_sign, status_text, phone, telegram, instagram,
+                           dating_visible,
                            created_at, updated_at
                     FROM t_p19021063_social_connect_platf.users
                     WHERE id = {user_id}
@@ -125,7 +126,7 @@ def handler(event: dict, context) -> dict:
                             updates.append(f"{field} = NULL")
             
             # Булевы поля
-            bool_fields = ['has_car', 'has_housing']
+            bool_fields = ['has_car', 'has_housing', 'dating_visible']
             for field in bool_fields:
                 if field in data:
                     if data[field] == '' or data[field] is None:

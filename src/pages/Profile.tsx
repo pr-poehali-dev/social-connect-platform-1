@@ -88,6 +88,7 @@ const Profile = () => {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+          setDatingVisible(userData.dating_visible !== false);
           setFormData({
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
@@ -165,6 +166,7 @@ const Profile = () => {
       const preparedData = {
         ...formData,
         height: formData.height ? parseInt(formData.height as any) : null,
+        dating_visible: datingVisible
       };
 
       const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
@@ -177,7 +179,7 @@ const Profile = () => {
       });
 
       if (response.ok) {
-        setUser({ ...user, ...formData });
+        setUser({ ...user, ...formData, dating_visible: datingVisible });
         setEditMode(false);
         toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
       } else {
