@@ -224,13 +224,27 @@ const DatingProfile = () => {
   const handleToggleFavorite = async () => {
     if (!profile) return;
     
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт',
+        variant: 'destructive',
+      });
+      navigate('/login');
+      return;
+    }
+    
     try {
       const action = isFavorite ? 'unfavorite' : 'favorite';
       const response = await fetch(
         `https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=${action}`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({ profile_id: profile.id })
         }
       );
@@ -238,7 +252,14 @@ const DatingProfile = () => {
       if (response.ok) {
         setIsFavorite(!isFavorite);
         toast({
-          title: isFavorite ? 'Удалено из избранного' : 'Добавлено в избранное'
+          title: isFavorite ? 'Удалено из избранного' : 'Добавлено в избранное',
+          description: isFavorite ? '' : 'Профиль сохранён в разделе Избранное'
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось обновить избранное',
+          variant: 'destructive',
         });
       }
     } catch (error) {
