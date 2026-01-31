@@ -43,7 +43,11 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
           className="absolute top-4 right-4 bg-black/30 hover:bg-black/50 text-white rounded-full"
           onClick={onToggleFavorite}
         >
-          <Icon name={isFavorite ? "Heart" : "Heart"} size={24} className={isFavorite ? "fill-red-500 text-red-500" : ""} />
+          <Icon 
+            name="Heart" 
+            size={24} 
+            className={isFavorite ? "fill-red-500 text-red-500" : "hover:fill-white/20"} 
+          />
         </Button>
       )}
     </div>
