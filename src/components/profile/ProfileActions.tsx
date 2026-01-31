@@ -1,13 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface ProfileActionsProps {
   user?: any;
   onRequestVerification?: () => void;
+  datingVisible?: boolean;
+  onDatingVisibleChange?: (value: boolean) => void;
 }
 
-const ProfileActions = ({ user, onRequestVerification }: ProfileActionsProps) => {
+const ProfileActions = ({ user, onRequestVerification, datingVisible, onDatingVisibleChange }: ProfileActionsProps) => {
   const navigate = useNavigate();
 
   return (
@@ -22,6 +26,22 @@ const ProfileActions = ({ user, onRequestVerification }: ProfileActionsProps) =>
           Запросить верификацию
         </Button>
       )}
+      
+      <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Icon name="Heart" size={20} className="text-pink-500" />
+            <Label htmlFor="dating-visible" className="text-sm font-medium cursor-pointer">
+              Анкета в Знакомствах
+            </Label>
+          </div>
+          <Switch
+            id="dating-visible"
+            checked={datingVisible}
+            onCheckedChange={onDatingVisibleChange}
+          />
+        </div>
+      </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       <Button 
