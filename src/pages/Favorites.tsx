@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,63 +7,103 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Favorites = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [favoriteProfiles, setFavoriteProfiles] = useState<any[]>([]);
+  const [favoriteAds, setFavoriteAds] = useState<any[]>([]);
+  const [favoriteServices, setFavoriteServices] = useState<any[]>([]);
+  const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
 
-  const [favoriteProfiles] = useState([
-    {
-      id: 1,
-      name: 'Анна',
-      age: 25,
-      city: 'Москва',
-      interests: ['Путешествия', 'Фотография', 'Йога'],
-      bio: 'Люблю приключения и новые знакомства',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg',
-      nickname: 'anna_moscow'
+  useEffect(() => {
+    loadAllFavorites();
+  }, []);
+
+  const loadAllFavorites = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login');
+      return;
     }
-  ]);
 
-  const [favoriteAds] = useState([
-    {
-      id: 1,
-      title: 'Продам iPhone 15 Pro',
-      category: 'Куплю/продам',
-      price: '85 000 ₽',
-      location: 'Москва',
-      date: '2 часа назад',
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
+    try {
+      setLoading(true);
+      
+      const [profilesRes, adsRes, servicesRes, eventsRes] = await Promise.all([
+        fetch('https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      if (profilesRes.ok) {
+        const data = await profilesRes.json();
+        setFavoriteProfiles(data.profiles || []);
+      }
+
+      if (adsRes.ok) {
+        const data = await adsRes.json();
+        setFavoriteAds(data.ads || []);
+      }
+
+      if (servicesRes.ok) {
+        const data = await servicesRes.json();
+        setFavoriteServices(data.services || []);
+      }
+
+      if (eventsRes.ok) {
+        const data = await eventsRes.json();
+        setFavoriteEvents(data.events || []);
+      }
+    } catch (error) {
+      console.error('Failed to load favorites:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить избранное',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
-  const [favoriteServices] = useState([
-    {
-      id: 1,
-      nickname: 'web_master',
-      name: 'Дмитрий',
-      age: 28,
-      city: 'Санкт-Петербург',
-      service: 'Веб-разработка',
-      rating: 4.8,
-      reviews: 24,
-      price: 'от 50 000 ₽',
-      avatar: null
+  const handleRemoveFromFavorites = async (type: string, id: number) => {
+    const token = localStorage.getItem('access_token');
+    let endpoint = '';
+    
+    if (type === 'profile') endpoint = 'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2';
+    else if (type === 'ad') endpoint = 'https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056';
+    else if (type === 'service') endpoint = 'https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774';
+    else if (type === 'event') endpoint = 'https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8';
+
+    try {
+      const response = await fetch(`${endpoint}?action=toggle-favorite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ [`${type}_id`]: id })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Удалено из избранного' });
+        loadAllFavorites();
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось удалить из избранного', variant: 'destructive' });
     }
-  ]);
-
-  const [favoriteEvents] = useState([
-    {
-      id: 1,
-      title: 'Йога в парке',
-      date: '20 января, 10:00',
-      location: 'Парк Горького, Москва',
-      participants: 15,
-      image: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/cc85b025-6024-45ac-9ff4-b21ce3691608.jpg'
-    }
-  ]);
-
-  const handleRemoveFromFavorites = (type: string, id: number) => {
-    console.log(`Remove ${type} #${id} from favorites`);
   };
 
   return (
