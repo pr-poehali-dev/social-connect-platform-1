@@ -228,9 +228,9 @@ const Dating = () => {
       toast({
         title: 'Ошибка',
         description: 'Не удалось отправить заявку',
-          variant: 'destructive',
-        });
-      }
+        variant: 'destructive',
+      });
+    }
     } finally {
       setActionLoading(prev => ({ ...prev, [`friend_${profileId}`]: false }));
     }
