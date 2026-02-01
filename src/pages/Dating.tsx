@@ -386,7 +386,7 @@ const Dating = () => {
                 {profiles
                   .filter(profile => profile.id !== currentUserId)
                   .map((profile) => (
-                    <div key={profile.id} className="relative">
+                    <div key={profile.id} className="space-y-2">
                       <Card 
                         className="rounded-[2rem] overflow-hidden border-0 aspect-square relative cursor-pointer transition-transform hover:scale-[1.02]"
                         onClick={() => navigate(`/dating/${profile.user_id}`)}
@@ -402,26 +402,24 @@ const Dating = () => {
                             <Icon name="User" size={48} className="text-gray-400" />
                           </div>
                         )}
-                        
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-8 pb-2 px-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-white font-bold text-base">
-                                {profile.name}, {profile.age}
-                              </span>
-                              {profile.isVerified && (
-                                <Icon name="BadgeCheck" size={16} className="text-blue-500 flex-shrink-0" />
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1 text-white/80 text-xs">
-                              <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                              <span>
-                                {profile.isOnline ? 'Онлайн' : profile.lastSeen ? formatLastSeen(profile.lastSeen) : 'Давно'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
                       </Card>
+                      
+                      <div className="flex items-center justify-between px-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-base">
+                            {profile.name}, {profile.age}
+                          </span>
+                          {profile.isVerified && (
+                            <Icon name="BadgeCheck" size={16} className="text-blue-500 flex-shrink-0" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-muted-foreground text-xs">
+                          <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+                          <span>
+                            {profile.isOnline ? 'Онлайн' : profile.lastSeen ? formatLastSeen(profile.lastSeen) : 'Давно'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
               </div>
