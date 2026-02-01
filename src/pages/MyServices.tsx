@@ -2,26 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import ServiceCard from '@/components/services/ServiceCard';
+import ServiceDialog from '@/components/services/ServiceDialog';
+import EmptyServiceState from '@/components/services/EmptyServiceState';
 
 interface Category {
   id: number;
@@ -295,218 +280,32 @@ const MyServices = () => {
         </div>
 
         {services.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Icon name="Briefcase" size={48} className="mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-semibold mb-2">У вас пока нет услуг</h3>
-            <p className="text-gray-600 mb-4">Добавьте свою первую услугу, чтобы другие пользователи могли её найти</p>
-            <Button onClick={() => handleOpenDialog()}>Добавить услугу</Button>
-          </Card>
+          <EmptyServiceState onAddService={() => handleOpenDialog()} />
         ) : (
           <div className="space-y-4">
             {services.map((service) => (
-              <Card key={service.id} className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{service.title}</h3>
-                      {service.is_online && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                          Онлайн
-                        </span>
-                      )}
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          service.is_active
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-700'
-                        }`}
-                      >
-                        {service.is_active ? 'Активна' : 'Неактивна'}
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-gray-600 mb-1">
-                      {service.category_name} › {service.subcategory_name}
-                    </p>
-
-                    {service.description && (
-                      <p className="text-sm text-gray-700 mb-2">{service.description}</p>
-                    )}
-
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      {service.price && <span className="font-semibold text-primary">{service.price}</span>}
-                      {service.city && (
-                        <span className="flex items-center gap-1">
-                          <Icon name="MapPin" size={14} />
-                          {service.city}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleActive(service)}
-                    >
-                      <Icon name={service.is_active ? 'EyeOff' : 'Eye'} size={18} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenDialog(service)}
-                    >
-                      <Icon name="Pencil" size={18} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(service.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Icon name="Trash2" size={18} />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
+              <ServiceCard
+                key={service.id}
+                service={service}
+                onToggleActive={toggleActive}
+                onEdit={handleOpenDialog}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingService ? 'Редактировать услугу' : 'Добавить услугу'}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Вид услуг *</Label>
-                <Select
-                  value={formData.category_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, category_id: value, subcategory_id: '' })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите вид услуг" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Категория</Label>
-                <Select
-                  value={formData.subcategory_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, subcategory_id: value })
-                  }
-                  disabled={!formData.category_id}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={formData.category_id ? "Выберите категорию" : "Сначала выберите вид"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subcategories.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id.toString()}>
-                        {sub.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Название услуги *</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Например: Профессиональный маникюр"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Описание</Label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                placeholder="Расскажите подробнее о вашей услуге..."
-                rows={4}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Цена</Label>
-                <Input
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="от 1000 ₽"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Город</Label>
-                <Input
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="Москва"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Район</Label>
-              <Input
-                value={formData.district}
-                onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                placeholder="Центральный"
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="online"
-                checked={formData.is_online}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, is_online: checked })
-                }
-              />
-              <Label htmlFor="online" className="cursor-pointer">
-                Услуга доступна онлайн
-              </Label>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button onClick={handleSave} className="flex-1">
-                {editingService ? 'Сохранить' : 'Добавить'}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-                className="flex-1"
-              >
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ServiceDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        isEditing={!!editingService}
+        formData={formData}
+        onFormDataChange={setFormData}
+        categories={categories}
+        subcategories={subcategories}
+        onSave={handleSave}
+      />
     </div>
   );
 };
