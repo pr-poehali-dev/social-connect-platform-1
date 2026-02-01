@@ -42,6 +42,16 @@ const ServicePublicCard = ({ service, onClick }: ServicePublicCardProps) => {
           </div>
         </div>
 
+        {service.portfolio && service.portfolio.length > 0 && (
+          <div className="mb-4 -mx-6 -mt-2">
+            <img 
+              src={service.portfolio[0]} 
+              alt={service.title}
+              className="w-full aspect-square object-cover"
+            />
+          </div>
+        )}
+
         <div className="space-y-3">
           <div>
             <h4 className="font-semibold text-lg mb-1">{service.title}</h4>
@@ -54,10 +64,10 @@ const ServicePublicCard = ({ service, onClick }: ServicePublicCardProps) => {
 
           <div className="flex items-center justify-between pt-2 border-t">
             <div>
-              {service.city && (
+              {service.city_name && (
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <Icon name="MapPin" size={16} />
-                  <span>{service.city}</span>
+                  <span>{service.city_name}</span>
                 </div>
               )}
             </div>

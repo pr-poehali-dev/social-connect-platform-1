@@ -4,6 +4,12 @@ export interface Category {
   created_at?: string;
 }
 
+export interface City {
+  id: number;
+  name: string;
+  created_at?: string;
+}
+
 export interface Subcategory {
   id: number;
   category_id: number;
@@ -19,7 +25,8 @@ export interface Service {
   title: string;
   description: string;
   price: string;
-  city: string;
+  city_id: number;
+  city_name: string;
   district: string;
   is_online: boolean;
   is_active: boolean;
@@ -27,6 +34,7 @@ export interface Service {
   subcategory_name: string;
   user_name?: string;
   user_avatar?: string;
+  portfolio?: string[];
   created_at: string;
   updated_at?: string;
 }
@@ -38,6 +46,7 @@ export interface ServiceFormData {
   description: string;
   price: string;
   is_online: boolean;
-  city: string;
+  city_id: string;
   district: string;
+  portfolio: string[];
 }

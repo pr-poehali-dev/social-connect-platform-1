@@ -7,12 +7,13 @@ import { useToast } from '@/hooks/use-toast';
 import ServiceCard from '@/components/services/ServiceCard';
 import ServiceDialog from '@/components/services/ServiceDialog';
 import EmptyServiceState from '@/components/services/EmptyServiceState';
-import type { Category, Subcategory, Service, ServiceFormData } from '@/types/services';
+import type { Category, Subcategory, Service, ServiceFormData, City } from '@/types/services';
 
 const MyServices = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -26,12 +27,14 @@ const MyServices = () => {
     description: '',
     price: '',
     is_online: false,
-    city: '',
+    city_id: '',
     district: '',
+    portfolio: [],
   });
 
   useEffect(() => {
     loadCategories();
+    loadCities();
     loadServices();
   }, []);
 
@@ -53,6 +56,18 @@ const MyServices = () => {
       }
     } catch (error) {
       console.error('Error loading categories:', error);
+    }
+  };
+
+  const loadCities = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=cities');
+      if (response.ok) {
+        const data = await response.json();
+        setCities(data);
+      }
+    } catch (error) {
+      console.error('Error loading cities:', error);
     }
   };
 
@@ -105,8 +120,9 @@ const MyServices = () => {
         description: service.description || '',
         price: service.price || '',
         is_online: service.is_online,
-        city: service.city || '',
+        city_id: service.city_id?.toString() || '',
         district: service.district || '',
+        portfolio: service.portfolio || [],
       });
       if (service.category_id) {
         loadSubcategories(service.category_id.toString());
@@ -120,8 +136,9 @@ const MyServices = () => {
         description: '',
         price: '',
         is_online: false,
-        city: '',
+        city_id: '',
         district: '',
+        portfolio: [],
       });
     }
     setDialogOpen(true);
@@ -145,8 +162,9 @@ const MyServices = () => {
       description: formData.description,
       price: formData.price,
       is_online: formData.is_online,
-      city: formData.city,
+      city_id: formData.city_id ? parseInt(formData.city_id) : null,
       district: formData.district,
+      portfolio: formData.portfolio,
     };
 
     try {
@@ -214,9 +232,10 @@ const MyServices = () => {
           description: service.description,
           price: service.price,
           is_online: service.is_online,
-          city: service.city,
+          city_id: service.city_id,
           district: service.district,
           is_active: !service.is_active,
+          portfolio: service.portfolio || [],
         }),
       });
 
@@ -278,6 +297,7 @@ const MyServices = () => {
         onFormDataChange={setFormData}
         categories={categories}
         subcategories={subcategories}
+        cities={cities}
         onSave={handleSave}
       />
     </div>

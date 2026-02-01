@@ -2,8 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { russianCities } from '@/data/cities';
-import type { Category, Subcategory } from '@/types/services';
+import type { Category, Subcategory, City } from '@/types/services';
 
 interface ServicesFiltersProps {
   categoryId: string;
@@ -12,6 +11,7 @@ interface ServicesFiltersProps {
   onlineOnly: boolean;
   categories: Category[];
   subcategories: Subcategory[];
+  cities: City[];
   onCategoryChange: (value: string) => void;
   onSubcategoryChange: (value: string) => void;
   onCityChange: (value: string) => void;
@@ -25,6 +25,7 @@ const ServicesFilters = ({
   onlineOnly,
   categories,
   subcategories,
+  cities,
   onCategoryChange,
   onSubcategoryChange,
   onCityChange,
@@ -77,9 +78,9 @@ const ServicesFilters = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Все города</SelectItem>
-                {russianCities.slice(0, 20).map((cityName) => (
-                  <SelectItem key={cityName} value={cityName}>
-                    {cityName}
+                {cities.map((cityItem) => (
+                  <SelectItem key={cityItem.id} value={cityItem.id.toString()}>
+                    {cityItem.name}
                   </SelectItem>
                 ))}
               </SelectContent>

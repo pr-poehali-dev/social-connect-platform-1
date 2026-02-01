@@ -6,7 +6,7 @@ import Icon from '@/components/ui/icon';
 import ServicesFilters from '@/components/services/ServicesFilters';
 import ServicePublicCard from '@/components/services/ServicePublicCard';
 import EmptyServicesState from '@/components/services/EmptyServicesState';
-import type { Category, Subcategory, Service } from '@/types/services';
+import type { Category, Subcategory, Service, City } from '@/types/services';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -38,12 +38,14 @@ const Services = () => {
   const [onlineOnly, setOnlineOnly] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const placeholder = useTypingPlaceholder('Поиск услуг');
 
   useEffect(() => {
     fetchCategories();
+    fetchCities();
     fetchServices();
   }, []);
 
@@ -70,6 +72,18 @@ const Services = () => {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchCities = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=cities');
+      if (response.ok) {
+        const data = await response.json();
+        setCities(data);
+      }
+    } catch (error) {
+      console.error('Error fetching cities:', error);
     }
   };
 
@@ -146,6 +160,7 @@ const Services = () => {
                 onlineOnly={onlineOnly}
                 categories={categories}
                 subcategories={subcategories}
+                cities={cities}
                 onCategoryChange={setCategoryId}
                 onSubcategoryChange={setSubcategoryId}
                 onCityChange={handleCityChange}

@@ -41,12 +41,30 @@ const ServiceCard = ({ service, onToggleActive, onEdit, onDelete }: ServiceCardP
             <p className="text-sm text-gray-700 mb-2">{service.description}</p>
           )}
 
+          {service.portfolio && service.portfolio.length > 0 && (
+            <div className="flex gap-2 mb-2 overflow-x-auto">
+              {service.portfolio.slice(0, 5).map((img, idx) => (
+                <img 
+                  key={idx} 
+                  src={img} 
+                  alt={`Portfolio ${idx + 1}`}
+                  className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                />
+              ))}
+              {service.portfolio.length > 5 && (
+                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-600 flex-shrink-0">
+                  +{service.portfolio.length - 5}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center gap-4 text-sm text-gray-600">
             {service.price && <span className="font-semibold text-primary">{service.price}</span>}
-            {service.city && (
+            {service.city_name && (
               <span className="flex items-center gap-1">
                 <Icon name="MapPin" size={14} />
-                {service.city}
+                {service.city_name}
               </span>
             )}
           </div>
