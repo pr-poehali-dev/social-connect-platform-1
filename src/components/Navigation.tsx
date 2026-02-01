@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 import { useRadio } from '@/contexts/RadioContext';
 
@@ -15,13 +15,16 @@ const Navigation = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { isPlaying, togglePlay } = useRadio();
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
+  const avatarCacheRef = useRef<string | null>(null);
 
   useEffect(() => {
     const authStatus = isAuthenticated();
     setIsAuth(authStatus);
     if (authStatus) {
       loadUnreadCount();
-      loadUserAvatar();
+      if (!avatarCacheRef.current) {
+        loadUserAvatar();
+      }
     }
   }, [location]);
 
@@ -29,7 +32,7 @@ const Navigation = () => {
     if (!isAuthenticated()) return;
 
     loadUnreadCount();
-    const interval = setInterval(loadUnreadCount, 10000);
+    const interval = setInterval(loadUnreadCount, 60000);
     return () => clearInterval(interval);
   }, [isAuth]);
 
@@ -69,6 +72,11 @@ const Navigation = () => {
   };
 
   const loadUserAvatar = async () => {
+    if (avatarCacheRef.current) {
+      setAvatarUrl(avatarCacheRef.current);
+      return;
+    }
+
     const token = localStorage.getItem('access_token');
     if (!token) return;
 
@@ -92,6 +100,7 @@ const Navigation = () => {
       try {
         const data = JSON.parse(text);
         if (data.avatar_url) {
+          avatarCacheRef.current = data.avatar_url;
           setAvatarUrl(data.avatar_url);
         }
       } catch {

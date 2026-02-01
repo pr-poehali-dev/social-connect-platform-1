@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -46,6 +46,8 @@ const Messages = () => {
   const [callModal, setCallModal] = useState<{ isOpen: boolean; type: 'audio' | 'video' }>({ isOpen: false, type: 'audio' });
   const [reminders, setReminders] = useState<any[]>([]);
   const { toast } = useToast();
+  const conversationsCache = useRef<Record<string, Chat[]>>({});
+  const messagesCache = useRef<Record<number, Message[]>>({});
 
   useEffect(() => {
     loadUserData();
@@ -88,6 +90,12 @@ const Messages = () => {
   };
 
   const loadConversations = async () => {
+    if (conversationsCache.current[activeTab]) {
+      setChats(conversationsCache.current[activeTab]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const token = localStorage.getItem('access_token');
     if (!token) {
@@ -104,7 +112,9 @@ const Messages = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        setChats(data.conversations || []);
+        const conversations = data.conversations || [];
+        conversationsCache.current[activeTab] = conversations;
+        setChats(conversations);
       }
     } catch (error) {
       console.error('Failed to load conversations:', error);
@@ -122,6 +132,11 @@ const Messages = () => {
     const token = localStorage.getItem('access_token');
     if (!token || !selectedChat) return;
 
+    if (messagesCache.current[selectedChat]) {
+      setMessages(messagesCache.current[selectedChat]);
+      return;
+    }
+
     try {
       const response = await fetch(
         `https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=messages&conversationId=${selectedChat}`,
@@ -131,7 +146,9 @@ const Messages = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        setMessages(data.messages || []);
+        const msgs = data.messages || [];
+        messagesCache.current[selectedChat] = msgs;
+        setMessages(msgs);
       }
     } catch (error) {
       console.error('Failed to load messages:', error);
@@ -162,8 +179,8 @@ const Messages = () => {
 
       if (response.ok) {
         setMessageText('');
+        delete messagesCache.current[selectedChat!];
         loadMessages();
-        loadConversations();
       } else {
         toast({
           title: 'Ошибка отправки',

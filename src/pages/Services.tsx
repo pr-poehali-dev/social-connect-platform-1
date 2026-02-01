@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,7 @@ const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const placeholder = useTypingPlaceholder('Поиск услуг');
+  const debounceTimerRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     fetchCategories();
@@ -60,7 +61,19 @@ const Services = () => {
   }, [categoryId]);
 
   useEffect(() => {
-    fetchServices();
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    debounceTimerRef.current = setTimeout(() => {
+      fetchServices();
+    }, 800);
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [categoryId, subcategoryId, city, onlineOnly]);
 
   const fetchCategories = async () => {

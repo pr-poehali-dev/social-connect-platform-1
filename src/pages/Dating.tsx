@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +26,8 @@ const Dating = () => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout>();
+  const [actionLoading, setActionLoading] = useState<{[key: string]: boolean}>({});
 
   const formatLastSeen = (lastLoginAt: string | null) => {
     if (!lastLoginAt) return 'давно';
@@ -99,7 +101,19 @@ const Dating = () => {
   };
 
   useEffect(() => {
-    loadProfiles();
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    debounceTimerRef.current = setTimeout(() => {
+      loadProfiles();
+    }, 800);
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [filters]);
 
   const loadProfiles = async () => {
@@ -184,38 +198,50 @@ const Dating = () => {
   const topAds = profiles.filter(p => p.isTopAd);
 
   const handleAddFriend = async (profileId: number) => {
-    if (!friendRequests.includes(profileId) && !friends.includes(profileId)) {
-      try {
-        const profile = profiles.find(p => p.id === profileId);
-        const response = await fetch(
-          'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=friend-request',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ to_user_id: profile?.user_id })
-          }
-        );
-
-        if (response.ok) {
-          setFriendRequests([...friendRequests, profileId]);
-          toast({
-            title: 'Заявка отправлена',
-            description: 'Ожидайте подтверждения',
-          });
+    if (actionLoading[`friend_${profileId}`] || friendRequests.includes(profileId) || friends.includes(profileId)) {
+      return;
+    }
+    
+    setActionLoading(prev => ({ ...prev, [`friend_${profileId}`]: true }));
+    
+    try {
+      const profile = profiles.find(p => p.id === profileId);
+      const response = await fetch(
+        'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2?action=friend-request',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to_user_id: profile?.user_id })
         }
-      } catch (error) {
-        console.error('Failed to send friend request:', error);
+      );
+
+      if (response.ok) {
+        setFriendRequests([...friendRequests, profileId]);
         toast({
-          title: 'Ошибка',
-          description: 'Не удалось отправить заявку',
+          title: 'Заявка отправлена',
+          description: 'Ожидайте подтверждения',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send friend request:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отправить заявку',
           variant: 'destructive',
         });
       }
+    } finally {
+      setActionLoading(prev => ({ ...prev, [`friend_${profileId}`]: false }));
     }
   };
 
   const handleToggleFavorite = async (profileId: number) => {
+    if (actionLoading[`favorite_${profileId}`]) {
+      return;
+    }
+    
     const isFavorite = favorites.includes(profileId);
+    setActionLoading(prev => ({ ...prev, [`favorite_${profileId}`]: true }));
     
     try {
       const action = isFavorite ? 'unfavorite' : 'favorite';
@@ -248,6 +274,8 @@ const Dating = () => {
         description: 'Не удалось обновить избранное',
         variant: 'destructive',
       });
+    } finally {
+      setActionLoading(prev => ({ ...prev, [`favorite_${profileId}`]: false }));
     }
   };
 

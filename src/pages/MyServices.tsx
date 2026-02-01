@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ const MyServices = () => {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const subcategoriesCache = useRef<Record<string, Subcategory[]>>({});
 
   const [formData, setFormData] = useState<ServiceFormData>({
     category_id: '',
@@ -72,10 +73,16 @@ const MyServices = () => {
   };
 
   const loadSubcategories = async (categoryId: string) => {
+    if (subcategoriesCache.current[categoryId]) {
+      setSubcategories(subcategoriesCache.current[categoryId]);
+      return;
+    }
+
     try {
       const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=subcategories&category_id=${categoryId}`);
       if (response.ok) {
         const data = await response.json();
+        subcategoriesCache.current[categoryId] = data;
         setSubcategories(data);
       }
     } catch (error) {
