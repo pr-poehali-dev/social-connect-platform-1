@@ -16,6 +16,16 @@ def verify_token(token: str) -> dict | None:
     except Exception:
         return None
 
+def escape_sql(value):
+    """Escape single quotes for SQL"""
+    if value is None:
+        return 'NULL'
+    if isinstance(value, bool):
+        return 'TRUE' if value else 'FALSE'
+    if isinstance(value, (int, float)):
+        return str(value)
+    return "'" + str(value).replace("'", "''") + "'"
+
 def handler(event: dict, context) -> dict:
     '''API для управления услугами пользователей'''
     method = event.get('httpMethod', 'GET')
@@ -28,7 +38,8 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -47,7 +58,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps([dict(c) for c in categories], default=str)
+                    'body': json.dumps([dict(c) for c in categories], default=str),
+                    'isBase64Encoded': False
                 }
             
             if action == 'cities':
@@ -56,18 +68,20 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps([dict(c) for c in cities], default=str)
+                    'body': json.dumps([dict(c) for c in cities], default=str),
+                    'isBase64Encoded': False
                 }
             
             if action == 'subcategories':
                 category_id = query_params.get('category_id')
                 if category_id:
-                    cursor.execute('SELECT * FROM service_subcategories WHERE category_id = %s ORDER BY name', (category_id,))
+                    cursor.execute(f'SELECT * FROM service_subcategories WHERE category_id = {escape_sql(category_id)} ORDER BY name')
                     subcategories = cursor.fetchall()
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps([dict(s) for s in subcategories], default=str)
+                        'body': json.dumps([dict(s) for s in subcategories], default=str),
+                        'isBase64Encoded': False
                     }
             
             if action == 'my_services':
@@ -79,31 +93,33 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 401,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Unauthorized'})
+                        'body': json.dumps({'error': 'Unauthorized'}),
+                        'isBase64Encoded': False
                     }
                 
                 user_id = payload.get('id')
-                cursor.execute('''
+                cursor.execute(f'''
                     SELECT s.*, sc.name as category_name, ss.name as subcategory_name,
                            c.name as city_name
                     FROM services s
                     LEFT JOIN service_categories sc ON s.category_id = sc.id
                     LEFT JOIN service_subcategories ss ON s.subcategory_id = ss.id
                     LEFT JOIN cities c ON s.city_id = c.id
-                    WHERE s.user_id = %s
+                    WHERE s.user_id = {escape_sql(user_id)}
                     ORDER BY s.created_at DESC
-                ''', (user_id,))
+                ''')
                 services = cursor.fetchall()
                 
                 # Load portfolio for each service
                 for service in services:
-                    cursor.execute('SELECT image_url FROM service_portfolio WHERE service_id = %s ORDER BY id', (service['id'],))
+                    cursor.execute(f"SELECT image_url FROM service_portfolio WHERE service_id = {escape_sql(service['id'])} ORDER BY id")
                     portfolio = cursor.fetchall()
                     service['portfolio'] = [p['image_url'] for p in portfolio]
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps([dict(s) for s in services], default=str)
+                    'body': json.dumps([dict(s) for s in services], default=str),
+                    'isBase64Encoded': False
                 }
             
             if action == 'favorites':
@@ -115,22 +131,25 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 401,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Unauthorized'})
+                        'body': json.dumps({'error': 'Unauthorized'}),
+                        'isBase64Encoded': False
                     }
                 
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'services': []}, default=str)
+                    'body': json.dumps({'services': []}, default=str),
+                    'isBase64Encoded': False
                 }
             
             if service_id:
-                cursor.execute('SELECT * FROM services WHERE id = %s', (service_id,))
+                cursor.execute(f'SELECT * FROM services WHERE id = {escape_sql(service_id)}')
                 service = cursor.fetchone()
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(dict(service) if service else {})
+                    'body': json.dumps(dict(service) if service else {}),
+                    'isBase64Encoded': False
                 }
             
             category_id = query_params.get('category_id', '')
@@ -148,35 +167,32 @@ def handler(event: dict, context) -> dict:
                 LEFT JOIN cities c ON s.city_id = c.id
                 WHERE s.is_active = TRUE
             '''
-            params = []
             
             if category_id:
-                query += ' AND s.category_id = %s'
-                params.append(category_id)
+                query += f' AND s.category_id = {escape_sql(category_id)}'
             if subcategory_id:
-                query += ' AND s.subcategory_id = %s'
-                params.append(subcategory_id)
+                query += f' AND s.subcategory_id = {escape_sql(subcategory_id)}'
             if city:
-                query += ' AND s.city_id = %s'
-                params.append(city)
+                query += f' AND s.city_id = {escape_sql(city)}'
             if is_online:
                 query += ' AND s.is_online = TRUE'
             
             query += ' ORDER BY s.created_at DESC LIMIT 100'
             
-            cursor.execute(query, params)
+            cursor.execute(query)
             services = cursor.fetchall()
             
             # Load portfolio for each service
             for service in services:
-                cursor.execute('SELECT image_url FROM service_portfolio WHERE service_id = %s ORDER BY id LIMIT 1', (service['id'],))
+                cursor.execute(f"SELECT image_url FROM service_portfolio WHERE service_id = {escape_sql(service['id'])} ORDER BY id LIMIT 1")
                 portfolio = cursor.fetchall()
                 service['portfolio'] = [p['image_url'] for p in portfolio]
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps([dict(s) for s in services], default=str)
+                'body': json.dumps([dict(s) for s in services], default=str),
+                'isBase64Encoded': False
             }
         
         elif method == 'POST':
@@ -188,82 +204,58 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Unauthorized'})
+                    'body': json.dumps({'error': 'Unauthorized'}),
+                    'isBase64Encoded': False
                 }
             
             user_id = payload.get('id')
             body = json.loads(event.get('body', '{}'))
             
-            cursor.execute('''
-                INSERT INTO services 
-                (user_id, category_id, subcategory_id, title, description, price, city_id, district, is_online)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING id
-            ''', (
-                user_id, body.get('category_id'), body.get('subcategory_id'),
-                body.get('title'), body.get('description'), body.get('price'),
-                body.get('city_id'), body.get('district'), body.get('is_online', False)
-            ))
+            # Create service
+            title = escape_sql(body.get('title'))
+            description = escape_sql(body.get('description'))
+            price = escape_sql(body.get('price'))
+            category_id = escape_sql(body.get('category_id'))
+            subcategory_id = escape_sql(body.get('subcategory_id'))
+            city_id = escape_sql(body.get('city_id'))
+            is_online = escape_sql(body.get('is_online', False))
             
+            cursor.execute(f'''
+                INSERT INTO services (user_id, title, description, price, category_id, subcategory_id, city_id, is_online, is_active)
+                VALUES ({escape_sql(user_id)}, {title}, {description}, {price}, {category_id}, {subcategory_id}, {city_id}, {is_online}, TRUE)
+                RETURNING id
+            ''')
             service_id = cursor.fetchone()['id']
             
-            # Upload portfolio images
+            # Handle portfolio images
             portfolio = body.get('portfolio', [])
-            if portfolio and len(portfolio) > 0:
+            if portfolio:
                 s3 = boto3.client('s3',
                     endpoint_url='https://bucket.poehali.dev',
                     aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
                     aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
                 )
                 
-                for idx, img_data in enumerate(portfolio[:10]):  # Max 10 photos
-                    if img_data.startswith('data:image'):
-                        # Extract base64 data
-                        header, encoded = img_data.split(',', 1)
-                        img_bytes = base64.b64decode(encoded)
-                        
-                        # Determine content type
-                        if 'jpeg' in header or 'jpg' in header:
-                            content_type = 'image/jpeg'
-                            ext = 'jpg'
-                        elif 'png' in header:
-                            content_type = 'image/png'
-                            ext = 'png'
-                        else:
-                            content_type = 'image/jpeg'
-                            ext = 'jpg'
-                        
-                        # Upload to S3
-                        key = f'services/{service_id}/{idx}.{ext}'
-                        s3.put_object(Bucket='files', Key=key, Body=img_bytes, ContentType=content_type)
-                        
-                        # Save to database
+                for idx, img_data in enumerate(portfolio[:10]):
+                    try:
+                        img_bytes = base64.b64decode(img_data.split(',')[1] if ',' in img_data else img_data)
+                        key = f'services/{service_id}/portfolio_{idx}.jpg'
+                        s3.put_object(Bucket='files', Key=key, Body=img_bytes, ContentType='image/jpeg')
                         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
-                        cursor.execute(
-                            'INSERT INTO service_portfolio (service_id, image_url) VALUES (%s, %s)',
-                            (service_id, cdn_url)
-                        )
+                        cursor.execute(f"INSERT INTO service_portfolio (service_id, image_url) VALUES ({escape_sql(service_id)}, {escape_sql(cdn_url)})")
+                    except Exception as e:
+                        print(f'Error uploading image: {e}')
             
             conn.commit()
             
             return {
                 'statusCode': 201,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'id': service_id, 'status': 'created'})
+                'body': json.dumps({'id': service_id}),
+                'isBase64Encoded': False
             }
         
         elif method == 'PUT':
-            query_params = event.get('queryStringParameters', {}) or {}
-            service_id = query_params.get('id')
-            body = json.loads(event.get('body', '{}'))
-            
-            if not service_id:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Service ID required'})
-                }
-            
             auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
             token = auth_header.replace('Bearer ', '') if auth_header else ''
             payload = verify_token(token)
@@ -272,76 +264,11 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Unauthorized'})
+                    'body': json.dumps({'error': 'Unauthorized'}),
+                    'isBase64Encoded': False
                 }
             
             user_id = payload.get('id')
-            
-            cursor.execute('''
-                UPDATE services SET
-                    category_id = %s, subcategory_id = %s, title = %s,
-                    description = %s, price = %s, city_id = %s, district = %s,
-                    is_online = %s, is_active = %s, updated_at = CURRENT_TIMESTAMP
-                WHERE id = %s AND user_id = %s
-            ''', (
-                body.get('category_id'), body.get('subcategory_id'), body.get('title'),
-                body.get('description'), body.get('price'), body.get('city_id'),
-                body.get('district'), body.get('is_online'), body.get('is_active', True),
-                service_id, user_id
-            ))
-            
-            # Update portfolio if provided
-            portfolio = body.get('portfolio', [])
-            if portfolio is not None:
-                # Delete old portfolio
-                cursor.execute('DELETE FROM service_portfolio WHERE service_id = %s', (service_id,))
-                
-                if len(portfolio) > 0:
-                    s3 = boto3.client('s3',
-                        endpoint_url='https://bucket.poehali.dev',
-                        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
-                    )
-                    
-                    for idx, img_data in enumerate(portfolio[:10]):  # Max 10 photos
-                        if img_data.startswith('data:image'):
-                            header, encoded = img_data.split(',', 1)
-                            img_bytes = base64.b64decode(encoded)
-                            
-                            if 'jpeg' in header or 'jpg' in header:
-                                content_type = 'image/jpeg'
-                                ext = 'jpg'
-                            elif 'png' in header:
-                                content_type = 'image/png'
-                                ext = 'png'
-                            else:
-                                content_type = 'image/jpeg'
-                                ext = 'jpg'
-                            
-                            key = f'services/{service_id}/{idx}.{ext}'
-                            s3.put_object(Bucket='files', Key=key, Body=img_bytes, ContentType=content_type)
-                            
-                            cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
-                            cursor.execute(
-                                'INSERT INTO service_portfolio (service_id, image_url) VALUES (%s, %s)',
-                                (service_id, cdn_url)
-                            )
-                        elif img_data.startswith('https://cdn.poehali.dev'):
-                            # Existing image URL, just insert
-                            cursor.execute(
-                                'INSERT INTO service_portfolio (service_id, image_url) VALUES (%s, %s)',
-                                (service_id, img_data)
-                            )
-            
-            conn.commit()
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'status': 'updated'})
-            }
-        
-        elif method == 'DELETE':
             query_params = event.get('queryStringParameters', {}) or {}
             service_id = query_params.get('id')
             
@@ -349,29 +276,143 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Service ID required'})
+                    'body': json.dumps({'error': 'Service ID required'}),
+                    'isBase64Encoded': False
                 }
             
-            cursor.execute('UPDATE services SET is_active = FALSE WHERE id = %s', (service_id,))
+            # Check ownership
+            cursor.execute(f'SELECT user_id FROM services WHERE id = {escape_sql(service_id)}')
+            service = cursor.fetchone()
+            
+            if not service or service['user_id'] != user_id:
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Access denied'}),
+                    'isBase64Encoded': False
+                }
+            
+            body = json.loads(event.get('body', '{}'))
+            
+            title = escape_sql(body.get('title'))
+            description = escape_sql(body.get('description'))
+            price = escape_sql(body.get('price'))
+            category_id = escape_sql(body.get('category_id'))
+            subcategory_id = escape_sql(body.get('subcategory_id'))
+            city_id = escape_sql(body.get('city_id'))
+            is_online = escape_sql(body.get('is_online', False))
+            is_active = escape_sql(body.get('is_active', True))
+            
+            cursor.execute(f'''
+                UPDATE services SET
+                    title = {title},
+                    description = {description},
+                    price = {price},
+                    category_id = {category_id},
+                    subcategory_id = {subcategory_id},
+                    city_id = {city_id},
+                    is_online = {is_online},
+                    is_active = {is_active},
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = {escape_sql(service_id)}
+            ''')
+            
+            # Handle portfolio updates
+            if 'portfolio' in body:
+                cursor.execute(f'DELETE FROM service_portfolio WHERE service_id = {escape_sql(service_id)}')
+                
+                portfolio = body.get('portfolio', [])
+                if portfolio:
+                    s3 = boto3.client('s3',
+                        endpoint_url='https://bucket.poehali.dev',
+                        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+                    )
+                    
+                    for idx, img_data in enumerate(portfolio[:10]):
+                        try:
+                            if img_data.startswith('http'):
+                                cursor.execute(f"INSERT INTO service_portfolio (service_id, image_url) VALUES ({escape_sql(service_id)}, {escape_sql(img_data)})")
+                            else:
+                                img_bytes = base64.b64decode(img_data.split(',')[1] if ',' in img_data else img_data)
+                                key = f'services/{service_id}/portfolio_{idx}.jpg'
+                                s3.put_object(Bucket='files', Key=key, Body=img_bytes, ContentType='image/jpeg')
+                                cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+                                cursor.execute(f"INSERT INTO service_portfolio (service_id, image_url) VALUES ({escape_sql(service_id)}, {escape_sql(cdn_url)})")
+                        except Exception as e:
+                            print(f'Error uploading image: {e}')
+            
             conn.commit()
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'status': 'deleted'})
+                'body': json.dumps({'status': 'updated'}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'DELETE':
+            auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+            token = auth_header.replace('Bearer ', '') if auth_header else ''
+            payload = verify_token(token)
+            
+            if not payload:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Unauthorized'}),
+                    'isBase64Encoded': False
+                }
+            
+            user_id = payload.get('id')
+            query_params = event.get('queryStringParameters', {}) or {}
+            service_id = query_params.get('id')
+            
+            if not service_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Service ID required'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Check ownership
+            cursor.execute(f'SELECT user_id FROM services WHERE id = {escape_sql(service_id)}')
+            service = cursor.fetchone()
+            
+            if not service or service['user_id'] != user_id:
+                return {
+                    'statusCode': 403,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Access denied'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f'DELETE FROM service_portfolio WHERE service_id = {escape_sql(service_id)}')
+            cursor.execute(f'DELETE FROM services WHERE id = {escape_sql(service_id)}')
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'status': 'deleted'}),
+                'isBase64Encoded': False
             }
         
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     except Exception as e:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
         }
     
     finally:
