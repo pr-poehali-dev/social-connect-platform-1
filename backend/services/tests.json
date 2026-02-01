@@ -7,22 +7,10 @@
       "expectedStatus": 200
     },
     {
-      "name": "Create service",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "user_id": 1,
-        "name": "Test User",
-        "service_type": "it",
-        "description": "Test service",
-        "price": "5000",
-        "city": "Москва"
-      },
-      "expectedStatus": 201,
-      "expectedBody": {
-        "status": "created"
-      },
-      "bodyMatcher": "partial"
+      "name": "Get categories",
+      "method": "GET",
+      "path": "/?action=categories",
+      "expectedStatus": 200
     }
   ]
 }

@@ -33,76 +33,122 @@ const useTypingPlaceholder = (text: string, speed: number = 50) => {
   return placeholder;
 };
 
+interface Category {
+  id: number;
+  name: string;
+}
+
+interface Subcategory {
+  id: number;
+  category_id: number;
+  name: string;
+}
+
+interface Service {
+  id: number;
+  user_id: number;
+  category_id: number;
+  subcategory_id: number;
+  title: string;
+  description: string;
+  price: string;
+  city: string;
+  district: string;
+  is_online: boolean;
+  is_active: boolean;
+  category_name: string;
+  subcategory_name: string;
+  user_name: string;
+  user_avatar: string;
+}
+
 const Services = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [serviceType, setServiceType] = useState('all');
+  const [categoryId, setCategoryId] = useState<string>('');
+  const [subcategoryId, setSubcategoryId] = useState<string>('');
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [onlineOnly, setOnlineOnly] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(false);
   const placeholder = useTypingPlaceholder('Поиск услуг');
 
-  const serviceTypes = [
-    { value: 'all', label: 'Все услуги' },
-    { value: 'beauty', label: 'Красота и здоровье' },
-    { value: 'education', label: 'Образование' },
-    { value: 'repair', label: 'Ремонт и строительство' },
-    { value: 'cleaning', label: 'Уборка' },
-    { value: 'delivery', label: 'Доставка' },
-    { value: 'photo', label: 'Фото и видео' },
-    { value: 'it', label: 'IT и программирование' },
-    { value: 'design', label: 'Дизайн' },
-    { value: 'consulting', label: 'Консультации' },
-    { value: 'other', label: 'Другое' }
-  ];
+  useEffect(() => {
+    fetchCategories();
+    fetchServices();
+  }, []);
 
-  const services = [
-    {
-      id: 1,
-      name: 'Иван Петров',
-      nickname: 'ivan_petrov',
-      age: 28,
-      city: 'Москва',
-      district: 'Центральный',
-      avatar: null,
-      rating: 4.9,
-      reviews: 127,
-      serviceType: 'it',
-      description: 'Создание веб-сайтов и мобильных приложений',
-      price: 'от 50 000 ₽',
-      online: true
-    },
-    {
-      id: 2,
-      name: 'Анна Смирнова',
-      nickname: 'anna_smirnova',
-      age: 25,
-      city: 'Санкт-Петербург',
-      district: 'Василеостровский',
-      avatar: null,
-      rating: 5.0,
-      reviews: 89,
-      serviceType: 'design',
-      description: 'Графический дизайн, логотипы, брендинг',
-      price: 'от 5 000 ₽',
-      online: true
-    },
-    {
-      id: 3,
-      name: 'Мария Козлова',
-      nickname: 'maria_kozlova',
-      age: 32,
-      city: 'Москва',
-      district: 'Северный',
-      avatar: null,
-      rating: 4.8,
-      reviews: 56,
-      serviceType: 'beauty',
-      description: 'Маникюр, педикюр, наращивание ногтей',
-      price: 'от 2 000 ₽',
-      online: false
+  useEffect(() => {
+    if (categoryId) {
+      fetchSubcategories(categoryId);
+      setSubcategoryId('');
+    } else {
+      setSubcategories([]);
+      setSubcategoryId('');
     }
-  ];
+  }, [categoryId]);
+
+  useEffect(() => {
+    fetchServices();
+  }, [categoryId, subcategoryId, city, onlineOnly]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchSubcategories = async (catId: string) => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=subcategories&category_id=${catId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSubcategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+    }
+  };
+
+  const fetchServices = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (categoryId) params.append('category_id', categoryId);
+      if (subcategoryId) params.append('subcategory_id', subcategoryId);
+      if (city) params.append('city', city);
+      if (onlineOnly) params.append('is_online', 'true');
+
+      const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredServices = services.filter(service => {
+    const query = searchQuery.toLowerCase();
+    return (
+      service.title?.toLowerCase().includes(query) ||
+      service.description?.toLowerCase().includes(query) ||
+      service.category_name?.toLowerCase().includes(query) ||
+      service.subcategory_name?.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -128,14 +174,32 @@ const Services = () => {
                   <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-2">
                       <Label>Вид услуг</Label>
-                      <Select value={serviceType} onValueChange={setServiceType}>
+                      <Select value={categoryId} onValueChange={setCategoryId}>
                         <SelectTrigger className="rounded-xl">
-                          <SelectValue />
+                          <SelectValue placeholder="Все услуги" />
                         </SelectTrigger>
                         <SelectContent>
-                          {serviceTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
+                          <SelectItem value="">Все услуги</SelectItem>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id.toString()}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Категория</Label>
+                      <Select value={subcategoryId} onValueChange={setSubcategoryId} disabled={!categoryId}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder={categoryId ? "Все категории" : "Выберите вид услуг"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Все категории</SelectItem>
+                          {subcategories.map((sub) => (
+                            <SelectItem key={sub.id} value={sub.id.toString()}>
+                              {sub.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -149,25 +213,10 @@ const Services = () => {
                           <SelectValue placeholder="Выберите город" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="">Все города</SelectItem>
                           {russianCities.slice(0, 20).map((cityName) => (
                             <SelectItem key={cityName} value={cityName}>
                               {cityName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Район</Label>
-                      <Select value={district} onValueChange={setDistrict} disabled={!city}>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={city ? "Выберите район" : "Сначала выберите город"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {city && getDistrictsForCity(city).map((districtName) => (
-                            <SelectItem key={districtName} value={districtName}>
-                              {districtName}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -195,69 +244,79 @@ const Services = () => {
               </Card>
             </div>
 
-
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
-                <Card key={service.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl border-2">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Avatar className="w-20 h-20 border-2 border-primary">
-                        {service.avatar ? (
-                          <img src={service.avatar} alt={service.name} />
-                        ) : (
-                          <AvatarFallback className="text-2xl bg-gradient-to-br from-primary via-secondary to-accent text-white">
-                            {service.name.charAt(0)}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold mb-1">{service.name}</h3>
-                        <p className="text-sm text-muted-foreground">{service.age} лет</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Icon name="MapPin" size={16} className="text-muted-foreground" />
-                        <span>{service.city}{service.district && `, ${service.district}`}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <Icon name="Star" size={16} className="text-yellow-500 fill-yellow-500" />
-                          <span className="font-semibold">{service.rating}</span>
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              </div>
+            ) : filteredServices.length === 0 ? (
+              <div className="text-center py-20">
+                <Icon name="SearchX" size={64} className="mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-2xl font-bold mb-2">Услуги не найдены</h3>
+                <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredServices.map((service) => (
+                  <Card key={service.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-3xl border-2" onClick={() => navigate(`/services/${service.user_id}`)}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-4 mb-4">
+                        <Avatar className="w-20 h-20 border-2 border-primary">
+                          {service.user_avatar ? (
+                            <img src={service.user_avatar} alt={service.user_name} />
+                          ) : (
+                            <AvatarFallback className="text-2xl bg-gradient-to-br from-primary via-secondary to-accent text-white">
+                              {service.user_name?.charAt(0) || '?'}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-1">{service.user_name || 'Пользователь'}</h3>
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge variant="secondary" className="rounded-full">
+                              {service.category_name}
+                            </Badge>
+                            {service.is_online && (
+                              <Badge className="rounded-full bg-green-500 hover:bg-green-600">
+                                Онлайн
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <span className="text-sm text-muted-foreground">({service.reviews} отзывов)</span>
                       </div>
 
-                      {service.online && (
-                        <Badge variant="secondary" className="rounded-full">
-                          <Icon name="Wifi" size={12} className="mr-1" />
-                          Онлайн
-                        </Badge>
-                      )}
-                    </div>
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="font-semibold text-lg mb-1">{service.title}</h4>
+                          <p className="text-sm text-muted-foreground">{service.subcategory_name}</p>
+                        </div>
+                        
+                        {service.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">{service.description}</p>
+                        )}
 
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {service.description}
-                    </p>
+                        <div className="flex items-center justify-between pt-2 border-t">
+                          <div>
+                            {service.city && (
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Icon name="MapPin" size={16} />
+                                <span>{service.city}</span>
+                              </div>
+                            )}
+                          </div>
+                          {service.price && (
+                            <span className="text-lg font-bold text-primary">{service.price}</span>
+                          )}
+                        </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <p className="text-xl font-bold text-primary">{service.price}</p>
-                      <Button 
-                        size="sm" 
-                        className="rounded-xl gap-2"
-                        onClick={() => navigate(`/services/${service.nickname}`)}
-                      >
-                        Подробнее
-                        <Icon name="ArrowRight" size={16} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                        <Button className="w-full rounded-xl">
+                          Подробнее
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

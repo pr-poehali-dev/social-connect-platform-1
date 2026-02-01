@@ -23,21 +23,37 @@ import { Switch } from '@/components/ui/switch';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
-interface Service {
+interface Category {
   id: number;
   name: string;
-  service_type: string;
+}
+
+interface Subcategory {
+  id: number;
+  category_id: number;
+  name: string;
+}
+
+interface Service {
+  id: number;
+  category_id: number;
+  subcategory_id: number;
+  title: string;
   description: string;
   price: string;
   is_online: boolean;
   is_active: boolean;
   city: string;
   district: string;
+  category_name: string;
+  subcategory_name: string;
   created_at: string;
 }
 
 const MyServices = () => {
   const [services, setServices] = useState<Service[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -45,8 +61,9 @@ const MyServices = () => {
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
-    name: '',
-    service_type: '',
+    category_id: '',
+    subcategory_id: '',
+    title: '',
     description: '',
     price: '',
     is_online: false,
@@ -54,21 +71,43 @@ const MyServices = () => {
     district: '',
   });
 
-  const serviceTypes = [
-    'Консультация',
-    'Обучение',
-    'Ремонт',
-    'Уборка',
-    'Доставка',
-    'Красота',
-    'Здоровье',
-    'IT',
-    'Другое',
-  ];
-
   useEffect(() => {
+    loadCategories();
     loadServices();
   }, []);
+
+  useEffect(() => {
+    if (formData.category_id) {
+      loadSubcategories(formData.category_id);
+    } else {
+      setSubcategories([]);
+      setFormData(prev => ({ ...prev, subcategory_id: '' }));
+    }
+  }, [formData.category_id]);
+
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const loadSubcategories = async (categoryId: string) => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=subcategories&category_id=${categoryId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSubcategories(data);
+      }
+    } catch (error) {
+      console.error('Error loading subcategories:', error);
+    }
+  };
 
   const loadServices = async () => {
     const token = localStorage.getItem('access_token');
@@ -78,7 +117,7 @@ const MyServices = () => {
     }
 
     try {
-      const response = await fetch('https://functions.poehali.dev/my-services', {
+      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=my_services', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -101,19 +140,24 @@ const MyServices = () => {
     if (service) {
       setEditingService(service);
       setFormData({
-        name: service.name,
-        service_type: service.service_type,
+        category_id: service.category_id.toString(),
+        subcategory_id: service.subcategory_id.toString(),
+        title: service.title,
         description: service.description || '',
         price: service.price || '',
         is_online: service.is_online,
         city: service.city || '',
         district: service.district || '',
       });
+      if (service.category_id) {
+        loadSubcategories(service.category_id.toString());
+      }
     } else {
       setEditingService(null);
       setFormData({
-        name: '',
-        service_type: '',
+        category_id: '',
+        subcategory_id: '',
+        title: '',
         description: '',
         price: '',
         is_online: false,
@@ -125,15 +169,26 @@ const MyServices = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.service_type) {
-      toast({ title: 'Ошибка', description: 'Заполните название и тип услуги', variant: 'destructive' });
+    if (!formData.title || !formData.category_id) {
+      toast({ title: 'Ошибка', description: 'Заполните название и категорию услуги', variant: 'destructive' });
       return;
     }
 
     const token = localStorage.getItem('access_token');
     const url = editingService
-      ? `https://functions.poehali.dev/my-services?id=${editingService.id}`
-      : 'https://functions.poehali.dev/my-services';
+      ? `https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?id=${editingService.id}`
+      : 'https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774';
+
+    const payload = {
+      category_id: parseInt(formData.category_id),
+      subcategory_id: formData.subcategory_id ? parseInt(formData.subcategory_id) : null,
+      title: formData.title,
+      description: formData.description,
+      price: formData.price,
+      is_online: formData.is_online,
+      city: formData.city,
+      district: formData.district,
+    };
 
     try {
       const response = await fetch(url, {
@@ -142,7 +197,7 @@ const MyServices = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -164,7 +219,7 @@ const MyServices = () => {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch(`https://functions.poehali.dev/my-services?id=${id}`, {
+      const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?id=${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -187,14 +242,21 @@ const MyServices = () => {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch(`https://functions.poehali.dev/my-services?id=${service.id}`, {
+      const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?id=${service.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          ...service,
+          category_id: service.category_id,
+          subcategory_id: service.subcategory_id,
+          title: service.title,
+          description: service.description,
+          price: service.price,
+          is_online: service.is_online,
+          city: service.city,
+          district: service.district,
           is_active: !service.is_active,
         }),
       });
@@ -246,7 +308,7 @@ const MyServices = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{service.name}</h3>
+                      <h3 className="text-lg font-semibold">{service.title}</h3>
                       {service.is_online && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                           Онлайн
@@ -263,51 +325,47 @@ const MyServices = () => {
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-2">{service.service_type}</p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      {service.category_name} › {service.subcategory_name}
+                    </p>
 
                     {service.description && (
-                      <p className="text-gray-700 mb-3">{service.description}</p>
+                      <p className="text-sm text-gray-700 mb-2">{service.description}</p>
                     )}
 
-                    <div className="flex flex-wrap gap-4 text-sm">
-                      {service.price && (
-                        <div className="flex items-center gap-1 text-gray-600">
-                          <Icon name="DollarSign" size={16} />
-                          {service.price}
-                        </div>
-                      )}
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      {service.price && <span className="font-semibold text-primary">{service.price}</span>}
                       {service.city && (
-                        <div className="flex items-center gap-1 text-gray-600">
-                          <Icon name="MapPin" size={16} />
+                        <span className="flex items-center gap-1">
+                          <Icon name="MapPin" size={14} />
                           {service.city}
-                          {service.district && `, ${service.district}`}
-                        </div>
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => toggleActive(service)}
                     >
-                      <Icon name={service.is_active ? 'EyeOff' : 'Eye'} size={16} />
+                      <Icon name={service.is_active ? 'EyeOff' : 'Eye'} size={18} />
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => handleOpenDialog(service)}
                     >
-                      <Icon name="Edit" size={16} />
+                      <Icon name="Pencil" size={18} />
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(service.id)}
                       className="text-red-600 hover:text-red-700"
                     >
-                      <Icon name="Trash2" size={16} />
+                      <Icon name="Trash2" size={18} />
                     </Button>
                   </div>
                 </div>
@@ -326,95 +384,124 @@ const MyServices = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Название услуги *</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Вид услуг *</Label>
+                <Select
+                  value={formData.category_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category_id: value, subcategory_id: '' })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите вид услуг" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Категория</Label>
+                <Select
+                  value={formData.subcategory_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, subcategory_id: value })
+                  }
+                  disabled={!formData.category_id}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={formData.category_id ? "Выберите категорию" : "Сначала выберите вид"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subcategories.map((sub) => (
+                      <SelectItem key={sub.id} value={sub.id.toString()}>
+                        {sub.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Название услуги *</Label>
               <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Например: Ремонт компьютеров"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Например: Профессиональный маникюр"
               />
             </div>
 
-            <div>
-              <Label htmlFor="service_type">Тип услуги *</Label>
-              <Select
-                value={formData.service_type}
-                onValueChange={(value) => setFormData({ ...formData, service_type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите тип" />
-                </SelectTrigger>
-                <SelectContent>
-                  {serviceTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="description">Описание</Label>
+            <div className="space-y-2">
+              <Label>Описание</Label>
               <Textarea
-                id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Подробное описание услуги"
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                placeholder="Расскажите подробнее о вашей услуге..."
                 rows={4}
               />
             </div>
 
-            <div>
-              <Label htmlFor="price">Цена</Label>
-              <Input
-                id="price"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                placeholder="Например: 1000 руб/час"
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="city">Город</Label>
+              <div className="space-y-2">
+                <Label>Цена</Label>
                 <Input
-                  id="city"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="от 1000 ₽"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Город</Label>
+                <Input
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   placeholder="Москва"
                 />
               </div>
-
-              <div>
-                <Label htmlFor="district">Район</Label>
-                <Input
-                  id="district"
-                  value={formData.district}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  placeholder="Центральный"
-                />
-              </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-              <Label htmlFor="is_online" className="cursor-pointer">
-                Онлайн услуга (можно оказать удалённо)
-              </Label>
-              <Switch
-                id="is_online"
-                checked={formData.is_online}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_online: checked })}
+            <div className="space-y-2">
+              <Label>Район</Label>
+              <Input
+                value={formData.district}
+                onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                placeholder="Центральный"
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                Отмена
-              </Button>
-              <Button onClick={handleSave}>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="online"
+                checked={formData.is_online}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, is_online: checked })
+                }
+              />
+              <Label htmlFor="online" className="cursor-pointer">
+                Услуга доступна онлайн
+              </Label>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button onClick={handleSave} className="flex-1">
                 {editingService ? 'Сохранить' : 'Добавить'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                className="flex-1"
+              >
+                Отмена
               </Button>
             </div>
           </div>
