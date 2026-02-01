@@ -403,20 +403,20 @@ const Dating = () => {
                           </div>
                         )}
                         
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-12 pb-3 px-3">
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-bold text-lg">
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-8 pb-2 px-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-white font-bold text-base">
                                 {profile.name}, {profile.age}
                               </span>
                               {profile.isVerified && (
-                                <Icon name="BadgeCheck" size={18} className="text-blue-500 flex-shrink-0" />
+                                <Icon name="BadgeCheck" size={16} className="text-blue-500 flex-shrink-0" />
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5 text-white/80 text-xs">
+                            <div className="flex items-center gap-1 text-white/80 text-xs">
                               <div className={`w-1.5 h-1.5 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
                               <span>
-                                {profile.isOnline ? 'Онлайн' : profile.lastSeen ? `Был(а) в сети ${formatLastSeen(profile.lastSeen)}` : 'Был(а) давно'}
+                                {profile.isOnline ? 'Онлайн' : profile.lastSeen ? formatLastSeen(profile.lastSeen) : 'Давно'}
                               </span>
                             </div>
                           </div>
