@@ -1,22 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-
-interface Service {
-  id: number;
-  category_id: number;
-  subcategory_id: number;
-  title: string;
-  description: string;
-  price: string;
-  is_online: boolean;
-  is_active: boolean;
-  city: string;
-  district: string;
-  category_name: string;
-  subcategory_name: string;
-  created_at: string;
-}
+import type { Service } from '@/types/services';
 
 interface ServiceCardProps {
   service: Service;

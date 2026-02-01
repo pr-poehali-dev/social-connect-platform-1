@@ -7,33 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import ServiceCard from '@/components/services/ServiceCard';
 import ServiceDialog from '@/components/services/ServiceDialog';
 import EmptyServiceState from '@/components/services/EmptyServiceState';
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Subcategory {
-  id: number;
-  category_id: number;
-  name: string;
-}
-
-interface Service {
-  id: number;
-  category_id: number;
-  subcategory_id: number;
-  title: string;
-  description: string;
-  price: string;
-  is_online: boolean;
-  is_active: boolean;
-  city: string;
-  district: string;
-  category_name: string;
-  subcategory_name: string;
-  created_at: string;
-}
+import type { Category, Subcategory, Service, ServiceFormData } from '@/types/services';
 
 const MyServices = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -45,7 +19,7 @@ const MyServices = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ServiceFormData>({
     category_id: '',
     subcategory_id: '',
     title: '',

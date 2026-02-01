@@ -3,17 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { russianCities } from '@/data/cities';
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Subcategory {
-  id: number;
-  category_id: number;
-  name: string;
-}
+import type { Category, Subcategory } from '@/types/services';
 
 interface ServicesFiltersProps {
   categoryId: string;

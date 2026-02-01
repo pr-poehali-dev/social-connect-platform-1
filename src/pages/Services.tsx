@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import ServicesFilters from '@/components/services/ServicesFilters';
 import ServicePublicCard from '@/components/services/ServicePublicCard';
 import EmptyServicesState from '@/components/services/EmptyServicesState';
+import type { Category, Subcategory, Service } from '@/types/services';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -26,35 +27,6 @@ const useTypingPlaceholder = (text: string, speed: number = 50) => {
   
   return placeholder;
 };
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Subcategory {
-  id: number;
-  category_id: number;
-  name: string;
-}
-
-interface Service {
-  id: number;
-  user_id: number;
-  category_id: number;
-  subcategory_id: number;
-  title: string;
-  description: string;
-  price: string;
-  city: string;
-  district: string;
-  is_online: boolean;
-  is_active: boolean;
-  category_name: string;
-  subcategory_name: string;
-  user_name: string;
-  user_avatar: string;
-}
 
 const Services = () => {
   const navigate = useNavigate();

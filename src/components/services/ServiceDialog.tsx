@@ -16,35 +16,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Subcategory {
-  id: number;
-  category_id: number;
-  name: string;
-}
-
-interface FormData {
-  category_id: string;
-  subcategory_id: string;
-  title: string;
-  description: string;
-  price: string;
-  is_online: boolean;
-  city: string;
-  district: string;
-}
+import type { Category, Subcategory, ServiceFormData } from '@/types/services';
 
 interface ServiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isEditing: boolean;
-  formData: FormData;
-  onFormDataChange: (data: FormData) => void;
+  formData: ServiceFormData;
+  onFormDataChange: (data: ServiceFormData) => void;
   categories: Category[];
   subcategories: Subcategory[];
   onSave: () => void;

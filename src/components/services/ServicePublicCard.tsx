@@ -3,24 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-
-interface Service {
-  id: number;
-  user_id: number;
-  category_id: number;
-  subcategory_id: number;
-  title: string;
-  description: string;
-  price: string;
-  city: string;
-  district: string;
-  is_online: boolean;
-  is_active: boolean;
-  category_name: string;
-  subcategory_name: string;
-  user_name: string;
-  user_avatar: string;
-}
+import type { Service } from '@/types/services';
 
 interface ServicePublicCardProps {
   service: Service;
