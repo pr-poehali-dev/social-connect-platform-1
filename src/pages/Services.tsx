@@ -74,6 +74,7 @@ const Services = () => {
         clearTimeout(debounceTimerRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId, subcategoryId, city, onlineOnly]);
 
   const fetchCategories = async () => {

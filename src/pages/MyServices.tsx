@@ -46,6 +46,7 @@ const MyServices = () => {
       setSubcategories([]);
       setFormData(prev => ({ ...prev, subcategory_id: '' }));
     }
+     
   }, [formData.category_id]);
 
   const loadCategories = async () => {

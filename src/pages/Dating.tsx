@@ -114,6 +114,7 @@ const Dating = () => {
         clearTimeout(debounceTimerRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const loadProfiles = async () => {

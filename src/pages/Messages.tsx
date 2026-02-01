@@ -56,12 +56,14 @@ const Messages = () => {
 
   useEffect(() => {
     loadConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   useEffect(() => {
     if (selectedChat) {
       loadMessages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedChat]);
 
   useEffect(() => {
