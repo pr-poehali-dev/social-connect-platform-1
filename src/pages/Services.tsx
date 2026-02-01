@@ -123,9 +123,9 @@ const Services = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (categoryId) params.append('category_id', categoryId);
-      if (subcategoryId) params.append('subcategory_id', subcategoryId);
-      if (city) params.append('city', city);
+      if (categoryId && categoryId !== 'all') params.append('category_id', categoryId);
+      if (subcategoryId && subcategoryId !== 'all') params.append('subcategory_id', subcategoryId);
+      if (city && city !== 'all') params.append('city', city);
       if (onlineOnly) params.append('is_online', 'true');
 
       const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?${params}`);
@@ -179,7 +179,7 @@ const Services = () => {
                           <SelectValue placeholder="Все услуги" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Все услуги</SelectItem>
+                          <SelectItem value="all">Все услуги</SelectItem>
                           {categories.map((cat) => (
                             <SelectItem key={cat.id} value={cat.id.toString()}>
                               {cat.name}
@@ -196,7 +196,7 @@ const Services = () => {
                           <SelectValue placeholder={categoryId ? "Все категории" : "Выберите вид услуг"} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Все категории</SelectItem>
+                          <SelectItem value="all">Все категории</SelectItem>
                           {subcategories.map((sub) => (
                             <SelectItem key={sub.id} value={sub.id.toString()}>
                               {sub.name}
@@ -213,7 +213,7 @@ const Services = () => {
                           <SelectValue placeholder="Выберите город" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Все города</SelectItem>
+                          <SelectItem value="all">Все города</SelectItem>
                           {russianCities.slice(0, 20).map((cityName) => (
                             <SelectItem key={cityName} value={cityName}>
                               {cityName}
