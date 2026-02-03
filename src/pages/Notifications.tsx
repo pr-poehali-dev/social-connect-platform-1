@@ -91,10 +91,7 @@ const Notifications = () => {
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <Card className="rounded-3xl border-2 shadow-xl">
-            <CardHeader>
-              <CardTitle className="text-2xl">Уведомления</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {loading ? (
                 <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
               ) : notifications.length === 0 ? (
