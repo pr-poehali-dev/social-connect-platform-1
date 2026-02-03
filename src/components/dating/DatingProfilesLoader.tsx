@@ -147,6 +147,60 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               distance = formatDistance(dist);
             }
 
+            const formatMaritalStatus = (status: string) => {
+              const statuses: {[key: string]: string} = {
+                'single': 'Не женат/не замужем',
+                'married': 'Женат/замужем',
+                'divorced': 'В разводе',
+                'widowed': 'Вдовец/вдова',
+                'in_relationship': 'В отношениях'
+              };
+              return statuses[status] || status;
+            };
+
+            const formatChildren = (children: string) => {
+              const childrenTypes: {[key: string]: string} = {
+                'no': 'Нет',
+                'yes_living_together': 'Есть, живем вместе',
+                'yes_living_separately': 'Есть, живем отдельно',
+                'want': 'Хочу детей',
+                'dont_want': 'Не хочу детей'
+              };
+              return childrenTypes[children] || children;
+            };
+
+            const formatFinancialStatus = (status: string) => {
+              const statuses: {[key: string]: string} = {
+                'below_average': 'Ниже среднего',
+                'average': 'Средний',
+                'above_average': 'Выше среднего',
+                'high': 'Высокий'
+              };
+              return statuses[status] || status;
+            };
+
+            const formatDatingGoal = (goal: string) => {
+              const goals: {[key: string]: string} = {
+                'friendship': 'Дружба',
+                'communication': 'Общение',
+                'dating': 'Свидания',
+                'relationship': 'Отношения',
+                'marriage': 'Брак'
+              };
+              return goals[goal] || goal;
+            };
+
+            const formatBodyType = (type: string) => {
+              const types: {[key: string]: string} = {
+                'slim': 'Стройное',
+                'athletic': 'Спортивное',
+                'average': 'Среднее',
+                'curvy': 'Полное',
+                'muscular': 'Мускулистое'
+              };
+              return types[type] || type;
+            };
+
             return {
               id: p.id,
               user_id: p.user_id,
@@ -170,15 +224,15 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               isTopAd: p.is_top_ad || p.isTopAd,
               status_text: p.status_text,
               distance,
-              bodyType: p.body_type,
-              maritalStatus: p.marital_status,
-              hasChildren: p.children,
+              bodyType: p.body_type ? formatBodyType(p.body_type) : undefined,
+              maritalStatus: p.marital_status ? formatMaritalStatus(p.marital_status) : undefined,
+              hasChildren: p.children ? formatChildren(p.children) : undefined,
               education: p.education,
               work: p.profession,
-              financialStatus: p.financial_status,
-              hasCar: p.has_car,
-              hasHousing: p.has_housing,
-              datingGoal: p.dating_goal,
+              financialStatus: p.financial_status ? formatFinancialStatus(p.financial_status) : undefined,
+              hasCar: p.has_car ? 'Есть' : (p.has_car === false ? 'Нет' : undefined),
+              hasHousing: p.has_housing ? 'Есть' : (p.has_housing === false ? 'Нет' : undefined),
+              datingGoal: p.dating_goal ? formatDatingGoal(p.dating_goal) : undefined,
               bio: p.bio
             };
           })
