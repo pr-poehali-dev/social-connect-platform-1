@@ -20,7 +20,7 @@ const DatingProfile = () => {
   const [isFriend, setIsFriend] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<any[]>([]);
 
   const formatLastSeen = (lastLoginAt: string | null) => {
     if (!lastLoginAt) return 'давно';
@@ -49,15 +49,21 @@ const DatingProfile = () => {
   const loadPhotos = async () => {
     if (!userId) return;
     
+    const token = localStorage.getItem('access_token');
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/e762cdb2-751d-45d3-8ac1-62e736480782?action=list&user_id=${userId}`
+        `https://functions.poehali.dev/e762cdb2-751d-45d3-8ac1-62e736480782?action=list&user_id=${userId}`,
+        { headers }
       );
 
       if (response.ok) {
         const data = await response.json();
-        const photoUrls = (data.photos || []).map((p: any) => p.photo_url);
-        setPhotos(photoUrls);
+        setPhotos(data.photos || []);
       }
     } catch (error) {
       console.error('Failed to load photos:', error);

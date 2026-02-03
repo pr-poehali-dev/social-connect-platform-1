@@ -16,7 +16,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, PUT, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': '',
@@ -70,11 +70,21 @@ def handler(event: dict, context) -> dict:
                 }
             
             cursor.execute(f"""
-                SELECT id, photo_url, position, created_at
-                FROM {schema}.user_photos
-                WHERE user_id = %s
-                ORDER BY position ASC
-            """, (target_user_id,))
+                SELECT 
+                    p.id, 
+                    p.photo_url, 
+                    p.position, 
+                    p.created_at,
+                    COUNT(DISTINCT pl.id) as likes_count,
+                    CASE WHEN %s IS NOT NULL THEN 
+                        EXISTS(SELECT 1 FROM {schema}.photo_likes WHERE photo_id = p.id AND user_id = %s)
+                    ELSE FALSE END as is_liked
+                FROM {schema}.user_photos p
+                LEFT JOIN {schema}.photo_likes pl ON pl.photo_id = p.id
+                WHERE p.user_id = %s
+                GROUP BY p.id, p.photo_url, p.position, p.created_at
+                ORDER BY p.position ASC
+            """, (user_id, user_id, target_user_id))
             
             photos = cursor.fetchall()
             cursor.close()
@@ -153,6 +163,81 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'photo': dict(new_photo)}, default=str),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'POST' and action == 'like':
+            photo_id = body.get('photo_id') if 'body' in locals() else json.loads(event.get('body', '{}')).get('photo_id')
+            
+            if not photo_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID фото не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f"""
+                INSERT INTO {schema}.photo_likes (photo_id, user_id)
+                VALUES (%s, %s)
+                ON CONFLICT (photo_id, user_id) DO NOTHING
+                RETURNING id
+            """, (photo_id, user_id))
+            
+            result = cursor.fetchone()
+            conn.commit()
+            
+            cursor.execute(f"""
+                SELECT COUNT(*) as likes_count FROM {schema}.photo_likes
+                WHERE photo_id = %s
+            """, (photo_id,))
+            
+            likes_count = cursor.fetchone()['likes_count']
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'likes_count': likes_count, 'liked': result is not None}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'POST' and action == 'unlike':
+            photo_id = body.get('photo_id') if 'body' in locals() else json.loads(event.get('body', '{}')).get('photo_id')
+            
+            if not photo_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID фото не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f"""
+                DELETE FROM {schema}.photo_likes
+                WHERE photo_id = %s AND user_id = %s
+            """, (photo_id, user_id))
+            
+            conn.commit()
+            
+            cursor.execute(f"""
+                SELECT COUNT(*) as likes_count FROM {schema}.photo_likes
+                WHERE photo_id = %s
+            """, (photo_id,))
+            
+            likes_count = cursor.fetchone()['likes_count']
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'likes_count': likes_count}),
                 'isBase64Encoded': False
             }
         

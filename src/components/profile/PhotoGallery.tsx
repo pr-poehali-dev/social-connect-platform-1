@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -10,18 +10,26 @@ interface Photo {
   photo_url: string;
   position: number;
   created_at: string;
+  likes_count?: number;
+  is_liked?: boolean;
 }
 
 interface PhotoGalleryProps {
   photos: Photo[];
   editMode: boolean;
   onPhotosUpdate: () => void;
+  canLike?: boolean;
 }
 
 const GALLERY_URL = 'https://functions.poehali.dev/e762cdb2-751d-45d3-8ac1-62e736480782';
 
-const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) => {
+const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: PhotoGalleryProps) => {
   const { toast } = useToast();
+  const [localPhotos, setLocalPhotos] = useState<Photo[]>(photos);
+
+  useEffect(() => {
+    setLocalPhotos(photos);
+  }, [photos]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCropper, setShowCropper] = useState(false);
@@ -88,6 +96,39 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
       });
     } finally {
       setUploadingPosition(null);
+    }
+  };
+
+  const handleLike = async (photo: Photo, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    const action = photo.is_liked ? 'unlike' : 'like';
+    
+    try {
+      const response = await fetch(`${GALLERY_URL}?action=${action}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ photo_id: photo.id })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        setLocalPhotos(prev => prev.map(p => 
+          p.id === photo.id 
+            ? { ...p, is_liked: !p.is_liked, likes_count: data.likes_count }
+            : p
+        ));
+        onPhotosUpdate();
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
     }
   };
 
@@ -168,7 +209,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-4">
-              {photos.map((photo, index) => (
+              {localPhotos.map((photo, index) => (
                 <div key={photo.id} className="relative aspect-square group">
                   <img
                     src={photo.photo_url}
@@ -176,6 +217,26 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate }: PhotoGalleryProps) =
                     className="w-full h-full object-cover rounded-2xl cursor-pointer"
                     onClick={() => !editMode && setFullscreenPhoto(index)}
                   />
+                  {canLike && !editMode && (
+                    <>
+                      <button
+                        onClick={(e) => handleLike(photo, e)}
+                        className="absolute bottom-2 right-2 bg-white/90 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Icon 
+                          name="Heart" 
+                          size={16} 
+                          className={photo.is_liked ? 'fill-red-500 text-red-500' : 'text-gray-700'}
+                        />
+                      </button>
+                      {(photo.likes_count ?? 0) > 0 && (
+                        <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
+                          <Icon name="Heart" size={12} className="fill-white" />
+                          {photo.likes_count}
+                        </div>
+                      )}
+                    </>
+                  )}
                   {editMode && (
                     <>
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-2xl flex items-center justify-center">
