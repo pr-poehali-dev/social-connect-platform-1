@@ -230,7 +230,6 @@ const Dating = () => {
         description: 'Не удалось отправить заявку',
         variant: 'destructive',
       });
-    }
     } finally {
       setActionLoading(prev => ({ ...prev, [`friend_${profileId}`]: false }));
     }
