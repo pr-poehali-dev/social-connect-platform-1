@@ -162,8 +162,7 @@ const AdminLogin = () => {
           <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500 via-purple-500 to-indigo-500 flex items-center justify-center">
             <Icon name="ShieldCheck" size={36} className="text-white" />
           </div>
-          <CardTitle className="text-3xl">Админ-панель
-LOVE IS</CardTitle>
+          <CardTitle className="text-3xl">Админ-панель ConnectHub</CardTitle>
           <CardDescription className="text-base">
             Вход для администраторов
           </CardDescription>
@@ -189,13 +188,13 @@ LOVE IS</CardTitle>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email администратора</Label>
+              <Label htmlFor="email">Логин</Label>
               <div className="relative">
                 <Icon name="Mail" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@connecthub.ru"
+                  placeholder="admin"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
