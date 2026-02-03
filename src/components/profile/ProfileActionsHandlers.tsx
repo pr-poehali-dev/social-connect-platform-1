@@ -10,8 +10,10 @@ interface UseProfileActionsProps {
   setFormData: (formData: ProfileFormData) => void;
   setEditMode: (mode: boolean) => void;
   datingVisible: boolean;
+  shareLocation: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   setDatingVisible: (visible: boolean) => void;
+  setShareLocation: (enabled: boolean) => void;
 }
 
 export const useProfileActions = ({
@@ -21,8 +23,10 @@ export const useProfileActions = ({
   setFormData,
   setEditMode,
   datingVisible,
+  shareLocation,
   setSoundEnabled,
-  setDatingVisible
+  setDatingVisible,
+  setShareLocation
 }: UseProfileActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -44,7 +48,8 @@ export const useProfileActions = ({
       const preparedData = {
         ...formData,
         height: formData.height ? parseInt(formData.height as any) : null,
-        dating_visible: datingVisible
+        dating_visible: datingVisible,
+        share_location: shareLocation
       };
 
       const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
@@ -57,7 +62,7 @@ export const useProfileActions = ({
       });
 
       if (response.ok) {
-        setUser({ ...user, ...formData, dating_visible: datingVisible });
+        setUser({ ...user, ...formData, dating_visible: datingVisible, share_location: shareLocation });
         setEditMode(false);
         toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
       } else {
@@ -159,6 +164,89 @@ export const useProfileActions = ({
     });
   };
 
+  const handleShareLocationToggle = async (enabled: boolean) => {
+    setShareLocation(enabled);
+    localStorage.setItem('shareLocation', enabled.toString());
+    
+    if (enabled) {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            const token = localStorage.getItem('access_token');
+            
+            try {
+              await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  ...formData,
+                  share_location: true,
+                  latitude,
+                  longitude
+                })
+              });
+              
+              setUser({ ...user, share_location: true, latitude, longitude });
+              toast({
+                title: 'Геоданные включены',
+                description: 'Другие пользователи теперь видят расстояние до вас',
+              });
+            } catch (error) {
+              console.error('Failed to save location:', error);
+            }
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+            setShareLocation(false);
+            localStorage.setItem('shareLocation', 'false');
+            toast({
+              title: 'Ошибка',
+              description: 'Не удалось получить ваше местоположение',
+              variant: 'destructive'
+            });
+          }
+        );
+      } else {
+        toast({
+          title: 'Недоступно',
+          description: 'Ваш браузер не поддерживает геолокацию',
+          variant: 'destructive'
+        });
+        setShareLocation(false);
+        localStorage.setItem('shareLocation', 'false');
+      }
+    } else {
+      const token = localStorage.getItem('access_token');
+      try {
+        await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ...formData,
+            share_location: false,
+            latitude: null,
+            longitude: null
+          })
+        });
+        
+        setUser({ ...user, share_location: false, latitude: null, longitude: null });
+        toast({
+          title: 'Геоданные отключены',
+          description: 'Вы больше не делитесь своим местоположением',
+        });
+      } catch (error) {
+        console.error('Failed to disable location:', error);
+      }
+    }
+  };
+
   return {
     handleLogout,
     handleSaveProfile,
@@ -167,6 +255,7 @@ export const useProfileActions = ({
     toggleInterest,
     handleAvatarUpdate,
     handleSoundToggle,
-    handleDatingVisibilityToggle
+    handleDatingVisibilityToggle,
+    handleShareLocationToggle
   };
 };

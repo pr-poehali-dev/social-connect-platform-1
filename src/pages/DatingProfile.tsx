@@ -9,6 +9,7 @@ import ProfileHeader from '@/components/dating/ProfileHeader';
 import ProfileActions from '@/components/dating/ProfileActions';
 import ProfileInfo from '@/components/dating/ProfileInfo';
 import PhotoGallery from '@/components/dating/PhotoGallery';
+import { calculateDistance, formatDistance } from '@/utils/distance';
 
 const DatingProfile = () => {
   const { userId } = useParams();
@@ -21,6 +22,8 @@ const DatingProfile = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
   const [photos, setPhotos] = useState<any[]>([]);
+  const [currentUserLocation, setCurrentUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [distance, setDistance] = useState<string | null>(null);
 
   const formatLastSeen = (lastLoginAt: string | null) => {
     if (!lastLoginAt) return 'давно';
@@ -80,6 +83,13 @@ const DatingProfile = () => {
         if (response.ok) {
           const userData = await response.json();
           setCurrentUserId(userData.id);
+          
+          if (userData.share_location && userData.latitude && userData.longitude) {
+            setCurrentUserLocation({
+              latitude: userData.latitude,
+              longitude: userData.longitude
+            });
+          }
         }
       } catch (error) {
         console.error('Failed to load user data:', error);
@@ -154,6 +164,16 @@ const DatingProfile = () => {
           setIsFavorite(userProfile.is_favorite);
           setRequestSent(userProfile.friend_request_sent);
           setIsFriend(userProfile.is_friend);
+
+          if (currentUserLocation && userProfile.share_location && userProfile.latitude && userProfile.longitude) {
+            const dist = calculateDistance(
+              currentUserLocation.latitude,
+              currentUserLocation.longitude,
+              userProfile.latitude,
+              userProfile.longitude
+            );
+            setDistance(formatDistance(dist));
+          }
         } else {
           toast({
             title: 'Профиль не найден',
@@ -419,7 +439,7 @@ const DatingProfile = () => {
               />
             </div>
 
-            <ProfileInfo profile={profile} />
+            <ProfileInfo profile={{ ...profile, distance }} />
 
             <PhotoGallery photos={profile.image && !photos.includes(profile.image) ? [profile.image, ...photos] : photos} />
           </div>

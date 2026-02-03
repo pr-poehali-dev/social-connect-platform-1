@@ -14,8 +14,10 @@ interface ProfileSettingsDialogProps {
   setSettingsOpen: (open: boolean) => void;
   soundEnabled: boolean;
   datingVisible: boolean;
+  shareLocation: boolean;
   handleSoundToggle: (enabled: boolean) => void;
   handleDatingVisibilityToggle: (enabled: boolean) => void;
+  handleShareLocationToggle: (enabled: boolean) => void;
 }
 
 const ProfileSettingsDialog = ({
@@ -23,8 +25,10 @@ const ProfileSettingsDialog = ({
   setSettingsOpen,
   soundEnabled,
   datingVisible,
+  shareLocation,
   handleSoundToggle,
-  handleDatingVisibilityToggle
+  handleDatingVisibilityToggle,
+  handleShareLocationToggle
 }: ProfileSettingsDialogProps) => {
   return (
     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -69,6 +73,22 @@ const ProfileSettingsDialog = ({
               id="dating-visibility"
               checked={datingVisible}
               onCheckedChange={handleDatingVisibilityToggle}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="share-location" className="text-base font-medium">
+                Делиться геоданными
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Показывать расстояние до вас другим пользователям
+              </p>
+            </div>
+            <Switch
+              id="share-location"
+              checked={shareLocation}
+              onCheckedChange={handleShareLocationToggle}
             />
           </div>
         </div>

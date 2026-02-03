@@ -43,6 +43,10 @@ export const useProfileData = () => {
     const saved = localStorage.getItem('datingProfileVisible');
     return saved !== 'false';
   });
+  const [shareLocation, setShareLocation] = useState(() => {
+    const saved = localStorage.getItem('shareLocation');
+    return saved === 'true';
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -94,6 +98,7 @@ export const useProfileData = () => {
           const userData = await response.json();
           setUser(userData);
           setDatingVisible(userData.dating_visible !== false);
+          setShareLocation(userData.share_location === true);
           setFormData({
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
@@ -200,6 +205,8 @@ export const useProfileData = () => {
     setSoundEnabled,
     datingVisible,
     setDatingVisible,
+    shareLocation,
+    setShareLocation,
     formData,
     setFormData,
     loadPhotos,

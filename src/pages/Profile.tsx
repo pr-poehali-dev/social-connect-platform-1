@@ -17,6 +17,8 @@ const Profile = () => {
     setSoundEnabled,
     datingVisible,
     setDatingVisible,
+    shareLocation,
+    setShareLocation,
     formData,
     setFormData,
     loadPhotos,
@@ -31,7 +33,8 @@ const Profile = () => {
     toggleInterest,
     handleAvatarUpdate,
     handleSoundToggle,
-    handleDatingVisibilityToggle
+    handleDatingVisibilityToggle,
+    handleShareLocationToggle
   } = useProfileActions({
     user,
     setUser,
@@ -39,8 +42,10 @@ const Profile = () => {
     setFormData,
     setEditMode,
     datingVisible,
+    shareLocation,
     setSoundEnabled,
-    setDatingVisible
+    setDatingVisible,
+    setShareLocation
   });
 
   const availableInterests = [
@@ -84,8 +89,10 @@ const Profile = () => {
         setSettingsOpen={setSettingsOpen}
         soundEnabled={soundEnabled}
         datingVisible={datingVisible}
+        shareLocation={shareLocation}
         handleSoundToggle={handleSoundToggle}
         handleDatingVisibilityToggle={handleDatingVisibilityToggle}
+        handleShareLocationToggle={handleShareLocationToggle}
       />
     </>
   );

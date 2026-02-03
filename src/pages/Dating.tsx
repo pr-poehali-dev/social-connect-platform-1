@@ -14,6 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { calculateDistance, formatDistance } from '@/utils/distance';
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,6 +27,7 @@ const Dating = () => {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserLocation, setCurrentUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout>();
   const [actionLoading, setActionLoading] = useState<{[key: string]: boolean}>({});
 
@@ -52,8 +54,32 @@ const Dating = () => {
   }, []);
 
   const loadUserData = async () => {
-    // User data will be loaded from localStorage or session if needed
-    // For now, we work in guest mode
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setCurrentUserId(userData.id);
+        
+        if (userData.share_location && userData.latitude && userData.longitude) {
+          setCurrentUserLocation({
+            latitude: userData.latitude,
+            longitude: userData.longitude
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    }
   };
 
   const [filters, setFilters] = useState({
@@ -152,29 +178,43 @@ const Dating = () => {
       if (response.ok) {
         const data = await response.json();
         const mappedProfiles = (data.profiles || [])
-          .map((p: any) => ({
-            id: p.id,
-            user_id: p.user_id,
-            name: p.name,
-            age: p.age ? parseInt(p.age) : null,
-            birth_date: p.birth_date,
-            city: p.city,
-            district: p.district,
-            gender: p.gender,
-            image: p.avatar_url || p.user_avatar || p.image,
-            isOnline: p.is_online,
-            lastSeen: p.last_login_at,
-            isVerified: p.is_verified,
-            height: p.height,
-            physique: p.body_type || p.bodyType,
-            about: p.bio,
-            interests: p.interests || [],
-            is_favorite: p.is_favorite,
-            friend_request_sent: p.friend_request_sent,
-            is_friend: p.is_friend,
-            isTopAd: p.is_top_ad || p.isTopAd,
-            status_text: p.status_text
-          }))
+          .map((p: any) => {
+            let distance = null;
+            if (currentUserLocation && p.share_location && p.latitude && p.longitude) {
+              const dist = calculateDistance(
+                currentUserLocation.latitude,
+                currentUserLocation.longitude,
+                p.latitude,
+                p.longitude
+              );
+              distance = formatDistance(dist);
+            }
+
+            return {
+              id: p.id,
+              user_id: p.user_id,
+              name: p.name,
+              age: p.age ? parseInt(p.age) : null,
+              birth_date: p.birth_date,
+              city: p.city,
+              district: p.district,
+              gender: p.gender,
+              image: p.avatar_url || p.user_avatar || p.image,
+              isOnline: p.is_online,
+              lastSeen: p.last_login_at,
+              isVerified: p.is_verified,
+              height: p.height,
+              physique: p.body_type || p.bodyType,
+              about: p.bio,
+              interests: p.interests || [],
+              is_favorite: p.is_favorite,
+              friend_request_sent: p.friend_request_sent,
+              is_friend: p.is_friend,
+              isTopAd: p.is_top_ad || p.isTopAd,
+              status_text: p.status_text,
+              distance
+            };
+          })
           .filter((p: any) => p.image && p.image.trim() !== '');
         setProfiles(mappedProfiles);
       } else {

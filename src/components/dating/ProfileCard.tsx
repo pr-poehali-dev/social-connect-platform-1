@@ -25,7 +25,7 @@ interface Profile {
   hasCar?: string;
   hasHousing?: string;
   datingGoal?: string;
-  distance?: number;
+  distance?: string | null;
   isOnline?: boolean;
   lastSeen?: string;
   isVerified?: boolean;
@@ -205,10 +205,10 @@ const ProfileCard = ({
                     {formatLastSeen(profile.lastSeen)}
                   </p>
                 )}
-                {profile.distance !== undefined && (
+                {profile.distance && (
                   <p className="flex items-center gap-1 text-sm">
                     <Icon name="Navigation" size={14} />
-                    {profile.distance < 1 ? `${Math.round(profile.distance * 1000)} м` : `${profile.distance} км`} от вас
+                    {profile.distance} от вас
                   </p>
                 )}
               </div>
