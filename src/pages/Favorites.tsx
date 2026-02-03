@@ -240,7 +240,7 @@ const Favorites = () => {
 
 
             <Tabs defaultValue="profiles" className="space-y-6">
-              <TabsList className="inline-flex w-full overflow-x-auto md:grid md:grid-cols-4 scrollbar-hide">
+              <TabsList className="inline-flex w-full overflow-x-auto md:grid md:grid-cols-4 scrollbar-hide justify-start">
                 <TabsTrigger value="profiles" className="gap-2 whitespace-nowrap flex-shrink-0">
                   <Icon name="Heart" size={18} />
                   Анкеты ({favoriteProfiles.length})
