@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +17,7 @@ const Friends = () => {
   const [friends, setFriends] = useState<any[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<any[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadData();
@@ -205,9 +207,20 @@ const Friends = () => {
           <div className="max-w-4xl mx-auto">
             <div className="mb-8">
               <h1 className="text-4xl font-bold mb-2">Мои друзья</h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-6">
                 Управляйте своими друзьями и заявками
               </p>
+              
+              <div className="relative">
+                <Icon name="Search" size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Поиск по имени, фамилии или городу..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-12 rounded-2xl border-2"
+                />
+              </div>
             </div>
 
             <Tabs defaultValue="friends" className="space-y-6">
@@ -240,7 +253,13 @@ const Friends = () => {
                     </CardContent>
                   </Card>
                 ) : (
-                  friends.map((friend) => (
+                  friends.filter((friend) => {
+                    if (!searchQuery) return true;
+                    const query = searchQuery.toLowerCase();
+                    const name = (friend.name || '').toLowerCase();
+                    const city = (friend.city || '').toLowerCase();
+                    return name.includes(query) || city.includes(query);
+                  }).map((friend) => (
                     <Card key={friend.user_id} className="rounded-3xl border-2 hover:shadow-lg transition-shadow">
                       <CardContent className="p-6">
                         <div className="flex items-center gap-4">
@@ -325,9 +344,21 @@ const Friends = () => {
                       <div className="space-y-3">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                           <Icon name="Inbox" size={20} />
-                          Входящие заявки ({incomingRequests.length})
+                          Входящие заявки ({incomingRequests.filter((req) => {
+                            if (!searchQuery) return true;
+                            const query = searchQuery.toLowerCase();
+                            const name = (req.name || '').toLowerCase();
+                            const city = (req.city || '').toLowerCase();
+                            return name.includes(query) || city.includes(query);
+                          }).length})
                         </h3>
-                        {incomingRequests.map((request) => (
+                        {incomingRequests.filter((req) => {
+                          if (!searchQuery) return true;
+                          const query = searchQuery.toLowerCase();
+                          const name = (req.name || '').toLowerCase();
+                          const city = (req.city || '').toLowerCase();
+                          return name.includes(query) || city.includes(query);
+                        }).map((request) => (
                           <Card key={request.request_id} className="rounded-3xl border-2 hover:shadow-lg transition-shadow">
                             <CardContent className="p-6">
                               <div className="flex items-center gap-4">
@@ -387,9 +418,21 @@ const Friends = () => {
                       <div className="space-y-3">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                           <Icon name="Send" size={20} />
-                          Исходящие заявки ({outgoingRequests.length})
+                          Исходящие заявки ({outgoingRequests.filter((req) => {
+                            if (!searchQuery) return true;
+                            const query = searchQuery.toLowerCase();
+                            const name = (req.name || '').toLowerCase();
+                            const city = (req.city || '').toLowerCase();
+                            return name.includes(query) || city.includes(query);
+                          }).length})
                         </h3>
-                        {outgoingRequests.map((request) => (
+                        {outgoingRequests.filter((req) => {
+                          if (!searchQuery) return true;
+                          const query = searchQuery.toLowerCase();
+                          const name = (req.name || '').toLowerCase();
+                          const city = (req.city || '').toLowerCase();
+                          return name.includes(query) || city.includes(query);
+                        }).map((request) => (
                           <Card key={request.request_id} className="rounded-3xl border-2 hover:shadow-lg transition-shadow">
                             <CardContent className="p-6">
                               <div className="flex items-center gap-4">
