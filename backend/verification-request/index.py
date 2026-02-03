@@ -5,6 +5,17 @@ import boto3
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import jwt as pyjwt
+
+def verify_token(token: str) -> dict | None:
+    if not token:
+        return None
+    try:
+        jwt_secret = os.environ.get('JWT_SECRET', '')
+        payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
+        return payload
+    except Exception:
+        return None
 
 def handler(event: dict, context) -> dict:
     '''API для отправки заявок на верификацию профиля с загрузкой 2 фото'''
@@ -25,33 +36,22 @@ def handler(event: dict, context) -> dict:
     headers = event.get('headers', {})
     token = headers.get('X-Authorization') or headers.get('x-authorization') or headers.get('Authorization') or headers.get('authorization') or ''
     token = token.replace('Bearer ', '')
-    if not token:
+    
+    payload = verify_token(token)
+    if not payload:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Unauthorized'})
         }
     
+    user_id = payload.get('user_id')
+    
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
         schema = 't_p19021063_social_connect_platf'
-        
-        cur.execute(f"""
-            SELECT rt.user_id FROM {schema}.refresh_tokens rt
-            WHERE rt.token = %s AND rt.expires_at > NOW()
-        """, (token,))
-        
-        token_data = cur.fetchone()
-        if not token_data:
-            return {
-                'statusCode': 401,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Invalid token'})
-            }
-        
-        user_id = token_data['user_id']
         
         if method == 'GET':
             cur.execute(f"""
