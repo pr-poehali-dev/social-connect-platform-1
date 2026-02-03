@@ -55,30 +55,52 @@ const AdminDashboard = () => {
 
   const loadPeriodStats = async () => {
     setLoading(true);
+    const token = localStorage.getItem('admin_token');
     
-    const mockStats: PeriodStats = {
-      new_users: Math.floor(Math.random() * 150) + 20,
-      revenue: Math.floor(Math.random() * 50000) + 10000,
-      active_users: Math.floor(Math.random() * 500) + 100,
-      user_growth_percent: (Math.random() * 30 - 5),
-      revenue_growth_percent: (Math.random() * 40 - 10),
-      activity_growth_percent: (Math.random() * 25 - 5)
-    };
+    if (!token) {
+      navigate('/admin/login');
+      return;
+    }
 
-    const mockCities: CityStats[] = [
-      { city: 'Москва', new_users: 45, revenue: 18500, active_users: 230 },
-      { city: 'Санкт-Петербург', new_users: 32, revenue: 12300, active_users: 165 },
-      { city: 'Новосибирск', new_users: 18, revenue: 7200, active_users: 89 },
-      { city: 'Екатеринбург', new_users: 15, revenue: 6100, active_users: 72 },
-      { city: 'Казань', new_users: 12, revenue: 4800, active_users: 58 },
-      { city: 'Нижний Новгород', new_users: 9, revenue: 3600, active_users: 45 },
-      { city: 'Челябинск', new_users: 8, revenue: 3200, active_users: 38 },
-      { city: 'Самара', new_users: 7, revenue: 2900, active_users: 34 },
-    ];
+    try {
+      const params = new URLSearchParams({ action: 'dashboard_stats', period });
+      if (period === 'custom' && customDateFrom && customDateTo) {
+        params.append('date_from', customDateFrom);
+        params.append('date_to', customDateTo);
+      }
 
-    setPeriodStats(mockStats);
-    setCitiesStats(mockCities);
-    setLoading(false);
+      const response = await fetch(`${ADMIN_API}?${params}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPeriodStats(data.stats || {
+          new_users: 0,
+          revenue: 0,
+          active_users: 0,
+          user_growth_percent: 0,
+          revenue_growth_percent: 0,
+          activity_growth_percent: 0
+        });
+        setCitiesStats(data.cities || []);
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось загрузить статистику',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось подключиться к серверу',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {

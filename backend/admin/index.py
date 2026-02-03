@@ -151,6 +151,87 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        # Статистика по периодам для дашборда
+        if action == 'dashboard_stats':
+            period_type = params.get('period', 'today')
+            date_from = params.get('date_from')
+            date_to = params.get('date_to')
+            
+            if period_type == 'today':
+                current_filter = "DATE(created_at) = CURRENT_DATE"
+                prev_filter = "DATE(created_at) = CURRENT_DATE - INTERVAL '1 day'"
+                activity_filter = "DATE(last_login_at) = CURRENT_DATE"
+                prev_activity_filter = "DATE(last_login_at) = CURRENT_DATE - INTERVAL '1 day'"
+            elif period_type == 'yesterday':
+                current_filter = "DATE(created_at) = CURRENT_DATE - INTERVAL '1 day'"
+                prev_filter = "DATE(created_at) = CURRENT_DATE - INTERVAL '2 day'"
+                activity_filter = "DATE(last_login_at) = CURRENT_DATE - INTERVAL '1 day'"
+                prev_activity_filter = "DATE(last_login_at) = CURRENT_DATE - INTERVAL '2 day'"
+            elif period_type == 'month':
+                current_filter = "created_at >= DATE_TRUNC('month', CURRENT_DATE)"
+                prev_filter = "created_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month') AND created_at < DATE_TRUNC('month', CURRENT_DATE)"
+                activity_filter = "last_login_at >= DATE_TRUNC('month', CURRENT_DATE)"
+                prev_activity_filter = "last_login_at >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month') AND last_login_at < DATE_TRUNC('month', CURRENT_DATE)"
+            elif period_type == 'year':
+                current_filter = "created_at >= DATE_TRUNC('year', CURRENT_DATE)"
+                prev_filter = "created_at >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year') AND created_at < DATE_TRUNC('year', CURRENT_DATE)"
+                activity_filter = "last_login_at >= DATE_TRUNC('year', CURRENT_DATE)"
+                prev_activity_filter = "last_login_at >= DATE_TRUNC('year', CURRENT_DATE - INTERVAL '1 year') AND last_login_at < DATE_TRUNC('year', CURRENT_DATE)"
+            elif period_type == 'custom' and date_from and date_to:
+                current_filter = f"DATE(created_at) BETWEEN '{date_from}' AND '{date_to}'"
+                prev_filter = f"DATE(created_at) BETWEEN '{date_from}'::date - ('{date_to}'::date - '{date_from}'::date + 1) AND '{date_from}'::date - 1"
+                activity_filter = f"DATE(last_login_at) BETWEEN '{date_from}' AND '{date_to}'"
+                prev_activity_filter = f"DATE(last_login_at) BETWEEN '{date_from}'::date - ('{date_to}'::date - '{date_from}'::date + 1) AND '{date_from}'::date - 1"
+            else:
+                current_filter = "DATE(created_at) = CURRENT_DATE"
+                prev_filter = "DATE(created_at) = CURRENT_DATE - INTERVAL '1 day'"
+                activity_filter = "DATE(last_login_at) = CURRENT_DATE"
+                prev_activity_filter = "DATE(last_login_at) = CURRENT_DATE - INTERVAL '1 day'"
+            
+            cur.execute(f"SELECT COUNT(*) FROM {SCHEMA}users WHERE {current_filter}")
+            new_users = cur.fetchone()[0]
+            
+            cur.execute(f"SELECT COUNT(*) FROM {SCHEMA}users WHERE {prev_filter}")
+            prev_new_users = cur.fetchone()[0]
+            
+            cur.execute(f"SELECT COUNT(DISTINCT user_id) FROM {SCHEMA}users WHERE {activity_filter}")
+            active_users = cur.fetchone()[0]
+            
+            cur.execute(f"SELECT COUNT(DISTINCT user_id) FROM {SCHEMA}users WHERE {prev_activity_filter}")
+            prev_active_users = cur.fetchone()[0]
+            
+            user_growth = ((new_users - prev_new_users) / prev_new_users * 100) if prev_new_users > 0 else 0
+            activity_growth = ((active_users - prev_active_users) / prev_active_users * 100) if prev_active_users > 0 else 0
+            
+            cur.execute(f"""
+                SELECT c.name, COUNT(DISTINCT u.id) as user_count
+                FROM {SCHEMA}users u
+                LEFT JOIN {SCHEMA}cities c ON u.city_id = c.id
+                WHERE {current_filter}
+                GROUP BY c.name
+                ORDER BY user_count DESC
+                LIMIT 10
+            """)
+            cities_data = cur.fetchall()
+            cities = [{'city': row[0] or 'Не указан', 'new_users': row[1], 'revenue': 0, 'active_users': 0} for row in cities_data]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'stats': {
+                        'new_users': new_users,
+                        'revenue': 0,
+                        'active_users': active_users,
+                        'user_growth_percent': round(user_growth, 1),
+                        'revenue_growth_percent': 0,
+                        'activity_growth_percent': round(activity_growth, 1)
+                    },
+                    'cities': cities
+                }),
+                'isBase64Encoded': False
+            }
+        
         # Получить список пользователей
         if action == 'get_users':
             page = int(params.get('page', 1))
