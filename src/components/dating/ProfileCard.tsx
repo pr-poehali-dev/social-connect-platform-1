@@ -186,7 +186,13 @@ const ProfileCard = ({
               )}
             </div>
             <div className="absolute bottom-4 left-4 text-white">
-              <h3 className="text-2xl font-bold mb-1 flex items-center gap-2">
+              <h3 
+                className="text-2xl font-bold mb-1 flex items-center gap-2 cursor-pointer hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/dating/${profile.id}`);
+                }}
+              >
                 {profile.name}{profile.age ? `, ${profile.age}` : ''}
                 {showBirthdayIcon && (
                   <Icon name="Cake" size={20} className="text-yellow-300 animate-pulse" />
