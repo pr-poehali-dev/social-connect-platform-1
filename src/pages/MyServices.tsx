@@ -164,13 +164,13 @@ const MyServices = () => {
       : 'https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774';
 
     const payload = {
-      category_id: parseInt(formData.category_id),
-      subcategory_id: formData.subcategory_id ? parseInt(formData.subcategory_id) : null,
+      category_id: formData.category_id || null,
+      subcategory_id: formData.subcategory_id || null,
       title: formData.title,
       description: formData.description,
       price: formData.price,
       is_online: formData.is_online,
-      city_id: formData.city_id ? parseInt(formData.city_id) : null,
+      city_id: formData.city_id || null,
       district: formData.district,
       portfolio: formData.portfolio,
     };
