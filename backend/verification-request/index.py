@@ -17,12 +17,14 @@ def handler(event: dict, context) -> dict:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Authorization'
             },
             'body': ''
         }
     
-    token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
+    headers = event.get('headers', {})
+    token = headers.get('X-Authorization') or headers.get('x-authorization') or headers.get('Authorization') or headers.get('authorization') or ''
+    token = token.replace('Bearer ', '')
     if not token:
         return {
             'statusCode': 401,
@@ -34,7 +36,7 @@ def handler(event: dict, context) -> dict:
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
-        schema = os.environ['MAIN_DB_SCHEMA']
+        schema = 't_p19021063_social_connect_platf'
         
         cur.execute(f"""
             SELECT rt.user_id FROM {schema}.refresh_tokens rt

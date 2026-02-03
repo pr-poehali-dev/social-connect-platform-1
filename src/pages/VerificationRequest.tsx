@@ -50,6 +50,7 @@ const VerificationRequest = () => {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
+            'X-Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
@@ -116,6 +117,7 @@ const VerificationRequest = () => {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
