@@ -429,6 +429,61 @@ def handler(event: dict, context) -> dict:
             
             return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True, 'conversation_id': conversation_id}), 'isBase64Encoded': False}
         
+        if action == 'verification_list':
+            from psycopg2.extras import RealDictCursor
+            from verification import list_verification_requests
+            
+            cur.close()
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            
+            filter_type = params.get('filter', 'pending')
+            requests = list_verification_requests(cur, filter_type)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'requests': [dict(r) for r in requests]}, default=str),
+                'isBase64Encoded': False
+            }
+        
+        if action == 'verification_decision':
+            from psycopg2.extras import RealDictCursor
+            from verification import process_verification_decision
+            
+            cur.close()
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            
+            request_id = body.get('request_id')
+            decision = body.get('decision')
+            admin_comment = body.get('admin_comment', '')
+            
+            if not request_id or not decision:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing required fields'}),
+                    'isBase64Encoded': False
+                }
+            
+            result = process_verification_decision(cur, conn, request_id, decision, admin_comment, admin_payload['admin_id'])
+            
+            if 'error' in result:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps(result),
+                    'isBase64Encoded': False
+                }
+            
+            log_admin_action(admin_payload['admin_id'], f'verification_{decision}', 'verification_request', request_id, {'user_id': result['user_id']}, ip, user_agent)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps(result),
+                'isBase64Encoded': False
+            }
+        
         return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Неизвестное действие'}), 'isBase64Encoded': False}
     
     except Exception as e:

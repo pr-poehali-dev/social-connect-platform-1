@@ -5,9 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 interface BasicInfoFieldsProps {
   formData: any;
   setFormData: (data: any) => void;
+  isVerified?: boolean;
 }
 
-const BasicInfoFields = ({ formData, setFormData }: BasicInfoFieldsProps) => {
+const BasicInfoFields = ({ formData, setFormData, isVerified = false }: BasicInfoFieldsProps) => {
   return (
     <>
       <div className="grid md:grid-cols-2 gap-4">
@@ -20,6 +21,7 @@ const BasicInfoFields = ({ formData, setFormData }: BasicInfoFieldsProps) => {
             placeholder="Ваше имя"
             className="rounded-xl"
             maxLength={100}
+            disabled={isVerified}
           />
         </div>
 
@@ -32,6 +34,7 @@ const BasicInfoFields = ({ formData, setFormData }: BasicInfoFieldsProps) => {
             placeholder="Ваша фамилия"
             className="rounded-xl"
             maxLength={100}
+            disabled={isVerified}
           />
         </div>
       </div>
@@ -76,6 +79,7 @@ const BasicInfoFields = ({ formData, setFormData }: BasicInfoFieldsProps) => {
             onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
             className="rounded-xl"
             max={new Date().toISOString().split('T')[0]}
+            disabled={isVerified}
           />
         </div>
 

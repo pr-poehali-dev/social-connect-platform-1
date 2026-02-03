@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get verification status without token",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Submit verification without token",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "selfie_photo": "data:image/jpeg;base64,/9j/4AAQSkZJRg==",
+        "document_photo": "data:image/jpeg;base64,/9j/4AAQSkZJRg=="
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

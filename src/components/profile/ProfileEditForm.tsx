@@ -8,12 +8,13 @@ interface ProfileEditFormProps {
   setFormData: (data: any) => void;
   availableInterests: string[];
   toggleInterest: (interest: string) => void;
+  isVerified?: boolean;
 }
 
-const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInterest }: ProfileEditFormProps) => {
+const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInterest, isVerified = false }: ProfileEditFormProps) => {
   return (
     <div className="space-y-6">
-      <BasicInfoFields formData={formData} setFormData={setFormData} />
+      <BasicInfoFields formData={formData} setFormData={setFormData} isVerified={isVerified} />
       <LocationFields formData={formData} setFormData={setFormData} />
       <PersonalCharacteristicsFields formData={formData} setFormData={setFormData} />
       <InterestsAndBioFields 

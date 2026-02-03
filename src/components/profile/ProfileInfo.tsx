@@ -14,7 +14,7 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
         <span className="break-words">
           {[user.first_name, user.last_name].filter(Boolean).join(' ') || user.name || user.nickname}
         </span>
-        {user.phone_verified && (
+        {user.is_verified && (
           <Icon name="BadgeCheck" size={24} className="text-blue-500 md:w-8 md:h-8 flex-shrink-0" />
         )}
       </h1>

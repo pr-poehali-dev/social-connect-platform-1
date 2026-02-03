@@ -42,7 +42,7 @@ import Notifications from "./pages/Notifications";
 import CallHistory from "./pages/CallHistory";
 import Radio from "./pages/Radio";
 import VerificationRequest from "./pages/VerificationRequest";
-import AdminVerification from "./pages/AdminVerification";
+import AdminVerification from "./pages/admin/AdminVerification";
 
 const queryClient = new QueryClient();
 

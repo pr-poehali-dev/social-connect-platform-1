@@ -365,6 +365,7 @@ const Profile = () => {
                         setFormData={setFormData}
                         availableInterests={availableInterests}
                         toggleInterest={toggleInterest}
+                        isVerified={user?.is_verified}
                       />
                     </div>
                   ) : (
