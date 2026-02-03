@@ -262,9 +262,78 @@ const ProfileCard = ({
           }}
         >
           <div 
-            className="relative flex-1 overflow-auto bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 cursor-pointer"
+            className="relative flex-1 overflow-auto bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 cursor-pointer p-6"
             onClick={handleFlip}
           >
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Icon name="Info" size={20} />
+              Информация
+            </h3>
+            
+            <div className="space-y-3">
+              {profile.city && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="MapPin" size={16} />
+                  <span>{profile.city}{profile.district ? `, ${profile.district}` : ''}</span>
+                </div>
+              )}
+
+              {profile.bodyType && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="User" size={16} />
+                  <span>Телосложение: {profile.bodyType}</span>
+                </div>
+              )}
+
+              {profile.maritalStatus && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Heart" size={16} />
+                  <span>Семейное положение: {profile.maritalStatus}</span>
+                </div>
+              )}
+
+              {profile.hasChildren && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Baby" size={16} />
+                  <span>Дети: {profile.hasChildren}</span>
+                </div>
+              )}
+
+              {profile.work && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Briefcase" size={16} />
+                  <span>Профессия: {profile.work}</span>
+                </div>
+              )}
+
+              {profile.financialStatus && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Wallet" size={16} />
+                  <span>Финансовое положение: {profile.financialStatus}</span>
+                </div>
+              )}
+
+              {profile.hasCar && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Car" size={16} />
+                  <span>Автомобиль: {profile.hasCar}</span>
+                </div>
+              )}
+
+              {profile.hasHousing && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Home" size={16} />
+                  <span>Жилье: {profile.hasHousing}</span>
+                </div>
+              )}
+
+              {profile.datingGoal && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Icon name="Target" size={16} />
+                  <span>Цель знакомства: {profile.datingGoal}</span>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="p-4 flex items-center justify-center gap-2 bg-white">
