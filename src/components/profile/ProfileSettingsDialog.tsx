@@ -1,0 +1,80 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import Icon from '@/components/ui/icon';
+
+interface ProfileSettingsDialogProps {
+  settingsOpen: boolean;
+  setSettingsOpen: (open: boolean) => void;
+  soundEnabled: boolean;
+  datingVisible: boolean;
+  handleSoundToggle: (enabled: boolean) => void;
+  handleDatingVisibilityToggle: (enabled: boolean) => void;
+}
+
+const ProfileSettingsDialog = ({
+  settingsOpen,
+  setSettingsOpen,
+  soundEnabled,
+  datingVisible,
+  handleSoundToggle,
+  handleDatingVisibilityToggle
+}: ProfileSettingsDialogProps) => {
+  return (
+    <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Icon name="Settings" size={24} />
+            Настройки
+          </DialogTitle>
+          <DialogDescription>
+            Управляйте уведомлениями и звуками приложения
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="sound-notifications" className="text-base font-medium">
+                Звук уведомлений
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Проигрывать звук при получении новых сообщений
+              </p>
+            </div>
+            <Switch
+              id="sound-notifications"
+              checked={soundEnabled}
+              onCheckedChange={handleSoundToggle}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="dating-visibility" className="text-base font-medium">
+                Анкета в Знакомствах
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Показывать мой профиль в разделе Знакомства
+              </p>
+            </div>
+            <Switch
+              id="dating-visibility"
+              checked={datingVisible}
+              onCheckedChange={handleDatingVisibilityToggle}
+            />
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ProfileSettingsDialog;
