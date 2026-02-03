@@ -114,6 +114,48 @@ const Favorites = () => {
           toast({ title: 'Удалено из избранного' });
           loadAllFavorites();
         }
+      } else if (type === 'ad') {
+        const response = await fetch('https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?action=favorite', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ ad_id: id })
+        });
+
+        if (response.ok) {
+          toast({ title: 'Удалено из избранного' });
+          loadAllFavorites();
+        }
+      } else if (type === 'service') {
+        const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=favorite', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ service_id: id })
+        });
+
+        if (response.ok) {
+          toast({ title: 'Удалено из избранного' });
+          loadAllFavorites();
+        }
+      } else if (type === 'event') {
+        const response = await fetch('https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8?action=favorite', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ event_id: id })
+        });
+
+        if (response.ok) {
+          toast({ title: 'Удалено из избранного' });
+          loadAllFavorites();
+        }
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось удалить из избранного', variant: 'destructive' });
