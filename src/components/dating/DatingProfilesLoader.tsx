@@ -26,6 +26,16 @@ export interface Profile {
   isTopAd: boolean;
   status_text: string;
   distance: string | null;
+  bodyType?: string;
+  maritalStatus?: string;
+  hasChildren?: string;
+  education?: string;
+  work?: string;
+  financialStatus?: string;
+  hasCar?: string;
+  hasHousing?: string;
+  datingGoal?: string;
+  bio?: string;
 }
 
 interface UseDatingProfilesLoaderProps {
@@ -159,7 +169,17 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               is_friend: p.is_friend,
               isTopAd: p.is_top_ad || p.isTopAd,
               status_text: p.status_text,
-              distance
+              distance,
+              bodyType: p.body_type,
+              maritalStatus: p.marital_status,
+              hasChildren: p.children,
+              education: p.education,
+              work: p.profession,
+              financialStatus: p.financial_status,
+              hasCar: p.has_car,
+              hasHousing: p.has_housing,
+              datingGoal: p.dating_goal,
+              bio: p.bio
             };
           })
           .filter((p: any) => p.image && p.image.trim() !== '');
