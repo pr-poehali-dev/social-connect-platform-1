@@ -189,26 +189,22 @@ const AdminLogin = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Логин</Label>
-              <div className="relative">
-                <Icon name="Mail" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isLocked}
-                  className="rounded-xl pl-10"
-                  autoComplete="username"
-                />
-              </div>
+              <Input
+                id="email"
+                type="email"
+                placeholder="admin"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLocked}
+                className="rounded-xl"
+                autoComplete="username"
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Пароль</Label>
               <div className="relative">
-                <Icon name="Lock" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -217,7 +213,7 @@ const AdminLogin = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLocked}
-                  className="rounded-xl pl-10 pr-10"
+                  className="rounded-xl pr-10"
                   autoComplete="current-password"
                 />
                 <button
