@@ -226,9 +226,27 @@ def handler(event: dict, context) -> dict:
             cur.execute(
                 f"""INSERT INTO {S}dating_favorites (user_id, profile_id, created_at)
                     VALUES (%s, %s, %s)
-                    ON CONFLICT (user_id, profile_id) DO NOTHING""",
+                    ON CONFLICT (user_id, profile_id) DO NOTHING
+                    RETURNING id""",
                 (user_id, profile_id, datetime.now(timezone.utc))
             )
+            result = cur.fetchone()
+            
+            if result:
+                cur.execute(f"SELECT user_id FROM {S}dating_profiles WHERE id = %s", (profile_id,))
+                profile_owner = cur.fetchone()
+                if profile_owner:
+                    owner_id = profile_owner['user_id']
+                    cur.execute(f"SELECT first_name, last_name FROM {S}users WHERE id = %s", (user_id,))
+                    user_info = cur.fetchone()
+                    user_name = f"{user_info['first_name'] or ''} {user_info['last_name'] or ''}".strip() if user_info else 'Пользователь'
+                    
+                    cur.execute(
+                        f"""INSERT INTO {S}notifications (user_id, type, title, content, related_user_id, related_entity_type, related_entity_id)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                        (owner_id, 'favorite', 'Вас добавили в избранное', f'{user_name} добавил вашу анкету в избранное', user_id, 'dating_profile', profile_id)
+                    )
+            
             conn.commit()
             
             return response(200, {'success': True})
@@ -337,9 +355,23 @@ def handler(event: dict, context) -> dict:
                 f"""INSERT INTO {S}dating_friend_requests 
                     (from_user_id, to_profile_id, status, created_at)
                     VALUES (%s, %s, 'pending', CURRENT_TIMESTAMP)
-                    ON CONFLICT DO NOTHING""",
+                    ON CONFLICT DO NOTHING
+                    RETURNING id""",
                 (user_id, to_profile_id)
             )
+            result = cur.fetchone()
+            
+            if result:
+                cur.execute(f"SELECT first_name, last_name FROM {S}users WHERE id = %s", (user_id,))
+                user_info = cur.fetchone()
+                user_name = f"{user_info['first_name'] or ''} {user_info['last_name'] or ''}".strip() if user_info else 'Пользователь'
+                
+                cur.execute(
+                    f"""INSERT INTO {S}notifications (user_id, type, title, content, related_user_id, related_entity_type, related_entity_id)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (to_user_id, 'friend_request', 'Новая заявка в друзья', f'{user_name} отправил вам заявку в друзья', user_id, 'friend_request', result['id'])
+                )
+            
             conn.commit()
             
             return response(200, {'success': True, 'message': 'Friend request sent'})

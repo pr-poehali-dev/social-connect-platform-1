@@ -187,6 +187,25 @@ def handler(event: dict, context) -> dict:
             """, (photo_id, user_id))
             
             result = cursor.fetchone()
+            
+            if result:
+                cursor.execute(f"""
+                    SELECT up.user_id FROM {schema}.user_photos up
+                    WHERE up.id = %s
+                """, (photo_id,))
+                photo_owner = cursor.fetchone()
+                
+                if photo_owner and photo_owner['user_id'] != user_id:
+                    owner_id = photo_owner['user_id']
+                    cursor.execute(f"SELECT first_name, last_name FROM {schema}.users WHERE id = %s", (user_id,))
+                    user_info = cursor.fetchone()
+                    user_name = f"{user_info['first_name'] or ''} {user_info['last_name'] or ''}".strip() if user_info else 'Пользователь'
+                    
+                    cursor.execute(f"""
+                        INSERT INTO {schema}.notifications (user_id, type, title, content, related_user_id, related_entity_type, related_entity_id)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """, (owner_id, 'photo_like', 'Лайк на фото', f'{user_name} оценил ваше фото', user_id, 'photo', photo_id))
+            
             conn.commit()
             
             cursor.execute(f"""

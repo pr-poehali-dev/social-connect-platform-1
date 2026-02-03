@@ -208,12 +208,29 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'error': 'ad_id is required'})
                     }
                 
-                with conn.cursor() as cur:
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute('''
                         INSERT INTO t_p19021063_social_connect_platf.ads_favorites (user_id, ad_id, created_at)
                         VALUES (%s, %s, CURRENT_TIMESTAMP)
                         ON CONFLICT (user_id, ad_id) DO NOTHING
+                        RETURNING id
                     ''', (user_id_from_token, ad_id))
+                    result = cur.fetchone()
+                    
+                    if result:
+                        cur.execute('SELECT user_id FROM t_p19021063_social_connect_platf.ads WHERE id = %s', (ad_id,))
+                        ad_owner = cur.fetchone()
+                        if ad_owner and ad_owner['user_id'] != user_id_from_token:
+                            owner_id = ad_owner['user_id']
+                            cur.execute('SELECT first_name, last_name FROM t_p19021063_social_connect_platf.users WHERE id = %s', (user_id_from_token,))
+                            user_info = cur.fetchone()
+                            user_name = f"{user_info['first_name'] or ''} {user_info['last_name'] or ''}".strip() if user_info else 'Пользователь'
+                            
+                            cur.execute('''
+                                INSERT INTO t_p19021063_social_connect_platf.notifications (user_id, type, title, content, related_user_id, related_entity_type, related_entity_id)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                            ''', (owner_id, 'ad_favorite', 'Ваше объявление добавили в избранное', f'{user_name} добавил ваше объявление в избранное', user_id_from_token, 'ad', ad_id))
+                    
                     conn.commit()
                     
                     return {
