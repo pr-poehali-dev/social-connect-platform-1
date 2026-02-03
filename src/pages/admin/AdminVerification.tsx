@@ -55,7 +55,7 @@ const AdminVerification = () => {
     try {
       const response = await fetch(`${ADMIN_API}?action=verification_list&filter=${filter}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'X-Authorization': `Bearer ${token}`
         }
       });
 
@@ -88,7 +88,7 @@ const AdminVerification = () => {
       const response = await fetch(`${ADMIN_API}?action=verification_decision`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
