@@ -162,7 +162,8 @@ const AdminLogin = () => {
           <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500 via-purple-500 to-indigo-500 flex items-center justify-center">
             <Icon name="ShieldCheck" size={36} className="text-white" />
           </div>
-          <CardTitle className="text-3xl">Админ-панель ConnectHub</CardTitle>
+          <CardTitle className="text-3xl">Админ-панель
+LOVE IS</CardTitle>
           <CardDescription className="text-base">
             Вход для администраторов
           </CardDescription>
