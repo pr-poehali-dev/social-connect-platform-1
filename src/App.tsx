@@ -83,6 +83,7 @@ const App = () => (
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/call-history" element={<ProtectedRoute><CallHistory /></ProtectedRoute>} />
           <Route path="/radio" element={<ProtectedRoute><Radio /></ProtectedRoute>} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AdminUsers />} />

@@ -45,7 +45,18 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setAdminData({ name: 'Developer', role: 'dev' });
+    const token = localStorage.getItem('admin_token');
+    const savedAdminData = localStorage.getItem('admin_data');
+    
+    if (!token) {
+      navigate('/admin/login');
+      return;
+    }
+    
+    if (savedAdminData) {
+      setAdminData(JSON.parse(savedAdminData));
+    }
+    
     loadPeriodStats();
   }, [navigate]);
 
