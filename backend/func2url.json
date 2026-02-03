@@ -21,6 +21,7 @@
   "events": "https://functions.poehali.dev/7505fed2-1ea4-42dd-aa40-46c2608663b8",
   "dating-ads": "https://functions.poehali.dev/e4123cfd-1bed-41c3-afe8-325905b78c2c",
   "services": "https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774",
+  "profile": "https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc",
   "ads": "https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056",
   "google-auth-google-auth": "https://functions.poehali.dev/0c89453c-e2bd-44b7-b54d-2e0f885da946",
   "yandex-auth-yandex-auth": "https://functions.poehali.dev/635fdfd0-fce3-46f9-a566-18d196e6e486",

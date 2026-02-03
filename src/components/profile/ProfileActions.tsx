@@ -4,15 +4,16 @@ import Icon from '@/components/ui/icon';
 
 interface ProfileActionsProps {
   user?: any;
+  verificationStatus?: 'none' | 'pending' | 'approved' | 'rejected';
   onRequestVerification?: () => void;
 }
 
-const ProfileActions = ({ user, onRequestVerification }: ProfileActionsProps) => {
+const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerification }: ProfileActionsProps) => {
   const navigate = useNavigate();
 
   return (
     <div className="space-y-3">
-      {user && !user.is_verified && (
+      {user && !user.is_verified && verificationStatus === 'none' && (
         <Button 
           onClick={onRequestVerification}
           variant="outline"
@@ -20,6 +21,28 @@ const ProfileActions = ({ user, onRequestVerification }: ProfileActionsProps) =>
         >
           <Icon name="BadgeCheck" size={20} className="mr-2" />
           Запросить верификацию
+        </Button>
+      )}
+      
+      {user && !user.is_verified && verificationStatus === 'pending' && (
+        <Button 
+          variant="outline"
+          disabled
+          className="w-full h-14 rounded-2xl border-yellow-500 text-yellow-600 bg-yellow-50"
+        >
+          <Icon name="Clock" size={20} className="mr-2" />
+          Идёт проверка
+        </Button>
+      )}
+      
+      {user && !user.is_verified && verificationStatus === 'rejected' && (
+        <Button 
+          onClick={onRequestVerification}
+          variant="outline"
+          className="w-full h-14 rounded-2xl border-red-500 text-red-600 hover:bg-red-50"
+        >
+          <Icon name="XCircle" size={20} className="mr-2" />
+          Верификация отклонена - попробовать снова
         </Button>
       )}
       

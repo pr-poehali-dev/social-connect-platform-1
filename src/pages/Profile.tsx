@@ -30,6 +30,7 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [photos, setPhotos] = useState<any[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('notificationSoundEnabled');
     return saved !== 'false';
@@ -126,7 +127,40 @@ const Profile = () => {
 
     loadProfile();
     loadPhotos();
+    loadVerificationStatus();
   }, [navigate, toast]);
+
+  const loadVerificationStatus = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/de844d47-7d8b-4431-8204-783aa2013212', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const text = await response.text();
+        if (text && text.trim()) {
+          try {
+            const data = JSON.parse(text);
+            if (data && data.status) {
+              setVerificationStatus(data.status);
+            }
+          } catch (e) {
+            console.error('Failed to parse verification status:', e);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load verification status:', error);
+    }
+  };
 
   const loadPhotos = async () => {
     const token = localStorage.getItem('access_token');
@@ -353,6 +387,7 @@ const Profile = () => {
 
                   <ProfileActions 
                     user={user}
+                    verificationStatus={verificationStatus}
                     onRequestVerification={() => {
                       navigate('/verification-request');
                     }}
