@@ -101,7 +101,7 @@ const Notifications = () => {
                   {notifications.map((notif) => (
                     <div
                       key={notif.id}
-                      className={`p-4 rounded-xl border ${!notif.is_read ? 'bg-blue-50 border-blue-200' : 'bg-white'}`}
+                      className={`p-4 rounded-xl border ${!notif.is_read ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' : 'bg-white dark:bg-slate-800'}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex gap-3">

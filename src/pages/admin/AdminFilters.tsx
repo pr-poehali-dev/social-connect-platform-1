@@ -197,7 +197,7 @@ const AdminFilters = () => {
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        <Card className="bg-white/95 backdrop-blur mb-6">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur mb-6">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-4">

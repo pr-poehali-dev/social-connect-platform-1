@@ -145,8 +145,8 @@ const SelectCity = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-purple-100">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-purple-100 dark:border-slate-700">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4 h-16">
             <Button
@@ -185,7 +185,7 @@ const SelectCity = () => {
                 {!searchQuery && filteredPopularCities.length > 0 && (
                   <div className="mb-6">
                     <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">Популярные города</h2>
-                    <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg overflow-hidden p-4">
                       <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
                         {filteredPopularCities.map((city) => (
                           <button
@@ -226,7 +226,7 @@ const SelectCity = () => {
                 {filteredCities.length > 0 && (
                   <div>
                     {!searchQuery && <h2 className="text-sm font-semibold text-muted-foreground mb-3 px-1">Все города</h2>}
-                    <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg overflow-hidden p-4">
                       <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
                         {filteredCities.map((city) => (
                           <button

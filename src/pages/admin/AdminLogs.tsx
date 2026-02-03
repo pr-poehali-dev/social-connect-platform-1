@@ -91,7 +91,7 @@ const AdminLogs = () => {
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        <Card className="bg-white/95 backdrop-blur">
+        <Card className="bg-white/95 dark:bg-slate-800/95 backdrop-blur">
           <CardHeader>
             <CardTitle>История действий</CardTitle>
           </CardHeader>

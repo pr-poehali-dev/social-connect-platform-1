@@ -157,7 +157,7 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md rounded-3xl border-2 shadow-2xl bg-white/95 backdrop-blur">
+      <Card className="w-full max-w-md rounded-3xl border-2 shadow-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur">
         <CardHeader className="text-center space-y-4">
           <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500 via-purple-500 to-indigo-500 flex items-center justify-center">
             <Icon name="ShieldCheck" size={36} className="text-white" />
