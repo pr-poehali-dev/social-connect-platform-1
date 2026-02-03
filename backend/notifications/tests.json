@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Get notifications without auth fails",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Mark notification as read without auth fails",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "notification_id": 1
+      },
+      "expectedStatus": 401
+    }
+  ]
+}
