@@ -81,7 +81,7 @@ const AdminDashboard = () => {
       }
 
       const response = await fetch(`${ADMIN_API}?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'X-Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
