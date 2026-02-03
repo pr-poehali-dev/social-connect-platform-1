@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 def list_verification_requests(cur, filter_type='pending'):
-    schema = os.environ['MAIN_DB_SCHEMA']
+    schema = 't_p19021063_social_connect_platf'
     
     if filter_type == 'pending':
         status_filter = "WHERE vr.status = 'pending'"
@@ -41,7 +41,7 @@ def list_verification_requests(cur, filter_type='pending'):
     return cur.fetchall()
 
 def process_verification_decision(cur, conn, request_id, decision, admin_comment, admin_id):
-    schema = os.environ['MAIN_DB_SCHEMA']
+    schema = 't_p19021063_social_connect_platf'
     
     cur.execute(f"""
         SELECT user_id, selfie_photo_url, document_photo_url, status

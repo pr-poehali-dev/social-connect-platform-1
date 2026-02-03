@@ -546,7 +546,7 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            result = process_verification_decision(cur, conn, request_id, decision, admin_comment, admin_payload['admin_id'])
+            result = process_verification_decision(cur, conn, request_id, decision, admin_comment, admin_data['admin_id'])
             
             if 'error' in result:
                 return {
@@ -556,7 +556,7 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            log_admin_action(admin_payload['admin_id'], f'verification_{decision}', 'verification_request', request_id, {'user_id': result['user_id']}, ip, user_agent)
+            log_admin_action(admin_data['admin_id'], f'verification_{decision}', 'verification_request', request_id, {'user_id': result['user_id']}, ip, user_agent)
             
             return {
                 'statusCode': 200,
