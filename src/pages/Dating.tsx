@@ -125,13 +125,10 @@ const Dating = () => {
                 key={profile.id}
                 profile={profile}
                 onAddFriend={handleAddFriend}
-                onMessage={handleMessage}
-                onAddToFavorites={handleAddToFavorites}
+                onToggleFavorite={handleAddToFavorites}
                 isFriendRequestSent={friendRequests.includes(profile.id) || profile.friend_request_sent}
                 isFriend={friends.includes(profile.id) || profile.is_friend}
                 isFavorite={favorites.includes(profile.id) || profile.is_favorite}
-                actionLoading={actionLoading}
-                formatLastSeen={formatLastSeen}
               />
             ))}
           </div>
