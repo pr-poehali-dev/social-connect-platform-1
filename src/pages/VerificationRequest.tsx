@@ -55,9 +55,16 @@ const VerificationRequest = () => {
         });
 
         if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            setExistingRequest(data);
+          const text = await response.text();
+          if (text && text.trim()) {
+            try {
+              const data = JSON.parse(text);
+              if (data && typeof data === 'object') {
+                setExistingRequest(data);
+              }
+            } catch (e) {
+              console.error('Failed to parse response:', e);
+            }
           }
         }
       } catch (error) {
