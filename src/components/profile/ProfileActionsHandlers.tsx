@@ -164,6 +164,19 @@ export const useProfileActions = ({
     });
   };
 
+  const handleThemeToggle = (enabled: boolean) => {
+    localStorage.setItem('darkMode', enabled.toString());
+    if (enabled) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    toast({
+      title: enabled ? 'Тёмная тема включена' : 'Светлая тема включена',
+      description: enabled ? 'Интерфейс переключён на тёмное оформление' : 'Интерфейс переключён на светлое оформление',
+    });
+  };
+
   const handleShareLocationToggle = async (enabled: boolean) => {
     setShareLocation(enabled);
     localStorage.setItem('shareLocation', enabled.toString());
@@ -256,6 +269,7 @@ export const useProfileActions = ({
     handleAvatarUpdate,
     handleSoundToggle,
     handleDatingVisibilityToggle,
-    handleShareLocationToggle
+    handleShareLocationToggle,
+    handleThemeToggle
   };
 };

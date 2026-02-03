@@ -15,9 +15,11 @@ interface ProfileSettingsDialogProps {
   soundEnabled: boolean;
   datingVisible: boolean;
   shareLocation: boolean;
+  darkMode: boolean;
   handleSoundToggle: (enabled: boolean) => void;
   handleDatingVisibilityToggle: (enabled: boolean) => void;
   handleShareLocationToggle: (enabled: boolean) => void;
+  handleThemeToggle: (enabled: boolean) => void;
 }
 
 const ProfileSettingsDialog = ({
@@ -26,9 +28,11 @@ const ProfileSettingsDialog = ({
   soundEnabled,
   datingVisible,
   shareLocation,
+  darkMode,
   handleSoundToggle,
   handleDatingVisibilityToggle,
-  handleShareLocationToggle
+  handleShareLocationToggle,
+  handleThemeToggle
 }: ProfileSettingsDialogProps) => {
   return (
     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -44,6 +48,22 @@ const ProfileSettingsDialog = ({
         </DialogHeader>
         
         <div className="space-y-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="dark-mode" className="text-base font-medium">
+                Тёмная тема
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Использовать тёмное оформление интерфейса
+              </p>
+            </div>
+            <Switch
+              id="dark-mode"
+              checked={darkMode}
+              onCheckedChange={handleThemeToggle}
+            />
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="sound-notifications" className="text-base font-medium">

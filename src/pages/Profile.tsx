@@ -19,6 +19,8 @@ const Profile = () => {
     setDatingVisible,
     shareLocation,
     setShareLocation,
+    darkMode,
+    setDarkMode,
     formData,
     setFormData,
     loadPhotos,
@@ -34,7 +36,8 @@ const Profile = () => {
     handleAvatarUpdate,
     handleSoundToggle,
     handleDatingVisibilityToggle,
-    handleShareLocationToggle
+    handleShareLocationToggle,
+    handleThemeToggle
   } = useProfileActions({
     user,
     setUser,
@@ -90,9 +93,11 @@ const Profile = () => {
         soundEnabled={soundEnabled}
         datingVisible={datingVisible}
         shareLocation={shareLocation}
+        darkMode={darkMode}
         handleSoundToggle={handleSoundToggle}
         handleDatingVisibilityToggle={handleDatingVisibilityToggle}
         handleShareLocationToggle={handleShareLocationToggle}
+        handleThemeToggle={handleThemeToggle}
       />
     </>
   );

@@ -47,6 +47,10 @@ export const useProfileData = () => {
     const saved = localStorage.getItem('shareLocation');
     return saved === 'true';
   });
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved === 'true';
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -207,6 +211,8 @@ export const useProfileData = () => {
     setDatingVisible,
     shareLocation,
     setShareLocation,
+    darkMode,
+    setDarkMode,
     formData,
     setFormData,
     loadPhotos,

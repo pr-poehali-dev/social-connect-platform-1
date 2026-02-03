@@ -133,13 +133,13 @@ const Navigation = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border lg:block hidden">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-border lg:block hidden">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group">
               <svg width="150" height="36" viewBox="0 0 150 36" fill="none" className="h-10 transform group-hover:scale-110 transition-transform">
                 <text x="5" y="26" fontFamily="Georgia" fontSize="24" fontWeight="bold" fill="#E91E63">LOVE</text>
-                <text x="78" y="26" fontFamily="Georgia" fontSize="24" fontWeight="normal" fill="#555">IS</text>
+                <text x="78" y="26" fontFamily="Georgia" fontSize="24" fontWeight="normal" className="fill-gray-700 dark:fill-gray-300">IS</text>
                 <path d="M113 16 C113 16, 121 8, 127 12 C133 16, 127 22, 127 22 C127 22, 121 28, 113 22 C105 16, 113 16, 113 16" 
                       fill="#E91E63"/>
               </svg>
@@ -239,7 +239,7 @@ const Navigation = () => {
         </div>
       </nav>
 
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-border">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border">
         <div className="flex justify-around items-center h-14">
           {mainNavItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
@@ -255,7 +255,7 @@ const Navigation = () => {
         </div>
       </div>
 
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-border pb-safe">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe">
         <div className="grid grid-cols-6 gap-1 px-2 py-2">
           {bottomNavItems.map((item) => {
             if (item.path === '/radio') {
