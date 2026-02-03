@@ -191,7 +191,7 @@ const AdminLogin = () => {
               <Label htmlFor="email">Логин</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 placeholder="admin"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
