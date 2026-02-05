@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import ImageCropper from './ImageCropper';
+import PrivateAlbumAccessDialog from './PrivateAlbumAccessDialog';
 
 interface Photo {
   id: number;
@@ -37,6 +38,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
   const [uploadingPosition, setUploadingPosition] = useState<number | null>(null);
   const [fullscreenPhoto, setFullscreenPhoto] = useState<number | null>(null);
   const [showPrivateTab, setShowPrivateTab] = useState(false);
+  const [showAccessDialog, setShowAccessDialog] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, position: number) => {
     const file = event.target.files?.[0];
@@ -193,14 +195,24 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                 Открытый альбом
               </Button>
               {editMode && (
-                <Button
-                  variant={showPrivateTab ? 'default' : 'outline'}
-                  onClick={() => setShowPrivateTab(true)}
-                  className="rounded-xl"
-                >
-                  <Icon name="Lock" size={16} className="mr-2" />
-                  Закрытый альбом
-                </Button>
+                <>
+                  <Button
+                    variant={showPrivateTab ? 'default' : 'outline'}
+                    onClick={() => setShowPrivateTab(true)}
+                    className="rounded-xl"
+                  >
+                    <Icon name="Lock" size={16} className="mr-2" />
+                    Закрытый альбом
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAccessDialog(true)}
+                    className="rounded-xl"
+                    title="Управление доступом"
+                  >
+                    <Icon name="Users" size={16} />
+                  </Button>
+                </>
               )}
             </div>
             {photos.length === 0 && (
@@ -340,6 +352,11 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
           )}
         </CardContent>
       </Card>
+
+      <PrivateAlbumAccessDialog 
+        open={showAccessDialog} 
+        onOpenChange={setShowAccessDialog} 
+      />
 
       {fullscreenPhoto !== null && (
         <div 

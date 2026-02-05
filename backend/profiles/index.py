@@ -47,6 +47,49 @@ def handler(event: dict, context) -> dict:
     
     params = event.get('queryStringParameters') or {}
     profile_id = params.get('id', '')
+    action = params.get('action', '')
+    
+    # Поиск пользователей по имени
+    if action == 'search':
+        search_query = params.get('query', '').strip()
+        if not search_query:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'Search query is required'}),
+                'isBase64Encoded': False
+            }
+        
+        # Ищем по first_name, last_name, nickname
+        escaped_query = search_query.replace("'", "''")
+        cursor.execute(f"""
+            SELECT id, first_name, last_name, nickname, avatar_url
+            FROM t_p19021063_social_connect_platf.users
+            WHERE 
+                LOWER(first_name) LIKE LOWER('%{escaped_query}%')
+                OR LOWER(last_name) LIKE LOWER('%{escaped_query}%')
+                OR LOWER(nickname) LIKE LOWER('%{escaped_query}%')
+            LIMIT 20
+        """)
+        
+        users = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'users': [dict(u) for u in users]}, default=str),
+            'isBase64Encoded': False
+        }
     
     if profile_id:
         cursor.execute(
