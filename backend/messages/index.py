@@ -216,6 +216,8 @@ def handler(event: dict, context) -> dict:
         participant_id = data.get('participantId')
         conv_type = data.get('type', 'personal')
         
+        print(f"[DEBUG] Create conversation: user_id={user_id}, participant_id={participant_id}, data={data}")
+        
         if not participant_id:
             cursor.close()
             conn.close()
