@@ -45,9 +45,11 @@ const AdminUsers = () => {
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showBlockDialog, setShowBlockDialog] = useState(false);
+  const [showBanDialog, setShowBanDialog] = useState(false);
   const [showVipDialog, setShowVipDialog] = useState(false);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [blockReason, setBlockReason] = useState('');
+  const [banReason, setBanReason] = useState('');
   const [vipDays, setVipDays] = useState('30');
   const [messageText, setMessageText] = useState('');
   const { toast } = useToast();
@@ -136,6 +138,40 @@ const AdminUsers = () => {
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось заблокировать', variant: 'destructive' });
+    }
+  };
+
+  const banUser = async () => {
+    const token = localStorage.getItem('admin_token');
+    if (!token || !selectedUser) return;
+
+    try {
+      const response = await fetch(`${ADMIN_API}?action=ban_user`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'ban_user',
+          user_id: selectedUser.id,
+          reason: banReason || 'Нарушение правил'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({ 
+          title: 'Успешно', 
+          description: `Пользователь забанен на 24 часа (бан #${data.ban_count})` 
+        });
+        setShowBanDialog(false);
+        setBanReason('');
+        loadUsers(token);
+        setShowDetails(false);
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось забанить', variant: 'destructive' });
     }
   };
 
@@ -332,6 +368,7 @@ const AdminUsers = () => {
               onUnverify={unverifyUser}
               onBlock={(user) => { setSelectedUser(user); setShowBlockDialog(true); }}
               onUnblock={unblockUser}
+              onBan={(user) => { setSelectedUser(user); setShowBanDialog(true); }}
               onSetVip={(user) => { setSelectedUser(user); setShowVipDialog(true); }}
               onRemoveVip={removeVip}
             />
@@ -358,6 +395,8 @@ const AdminUsers = () => {
       <UserActionDialogs
         showBlockDialog={showBlockDialog}
         setShowBlockDialog={setShowBlockDialog}
+        showBanDialog={showBanDialog}
+        setShowBanDialog={setShowBanDialog}
         showVipDialog={showVipDialog}
         setShowVipDialog={setShowVipDialog}
         showMessageDialog={showMessageDialog}
@@ -365,11 +404,14 @@ const AdminUsers = () => {
         selectedUser={selectedUser}
         blockReason={blockReason}
         setBlockReason={setBlockReason}
+        banReason={banReason}
+        setBanReason={setBanReason}
         vipDays={vipDays}
         setVipDays={setVipDays}
         messageText={messageText}
         setMessageText={setMessageText}
         onBlock={blockUser}
+        onBan={banUser}
         onSetVip={setVip}
         onSendMessage={sendMessage}
       />

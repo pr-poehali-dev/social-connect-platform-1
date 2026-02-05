@@ -22,6 +22,8 @@ interface User {
 interface UserActionDialogsProps {
   showBlockDialog: boolean;
   setShowBlockDialog: (show: boolean) => void;
+  showBanDialog?: boolean;
+  setShowBanDialog?: (show: boolean) => void;
   showVipDialog: boolean;
   setShowVipDialog: (show: boolean) => void;
   showMessageDialog: boolean;
@@ -29,11 +31,14 @@ interface UserActionDialogsProps {
   selectedUser: User | null;
   blockReason: string;
   setBlockReason: (reason: string) => void;
+  banReason?: string;
+  setBanReason?: (reason: string) => void;
   vipDays: string;
   setVipDays: (days: string) => void;
   messageText: string;
   setMessageText: (text: string) => void;
   onBlock: () => void;
+  onBan?: () => void;
   onSetVip: () => void;
   onSendMessage: () => void;
 }
@@ -41,6 +46,8 @@ interface UserActionDialogsProps {
 const UserActionDialogs = ({
   showBlockDialog,
   setShowBlockDialog,
+  showBanDialog,
+  setShowBanDialog,
   showVipDialog,
   setShowVipDialog,
   showMessageDialog,
@@ -48,16 +55,51 @@ const UserActionDialogs = ({
   selectedUser,
   blockReason,
   setBlockReason,
+  banReason,
+  setBanReason,
   vipDays,
   setVipDays,
   messageText,
   setMessageText,
   onBlock,
+  onBan,
   onSetVip,
   onSendMessage
 }: UserActionDialogsProps) => {
   return (
     <>
+      <Dialog open={showBanDialog} onOpenChange={setShowBanDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="ShieldAlert" className="text-red-500" />
+              Забанить пользователя на 24 часа
+            </DialogTitle>
+            <DialogDescription>
+              Пользователь не сможет пользоваться сервисом 24 часа. Укажите причину бана.
+            </DialogDescription>
+          </DialogHeader>
+          <div>
+            <Label>Причина бана</Label>
+            <Textarea
+              value={banReason || ''}
+              onChange={(e) => setBanReason?.(e.target.value)}
+              placeholder="Нарушение правил..."
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBanDialog?.(false)}>
+              Отмена
+            </Button>
+            <Button variant="destructive" onClick={onBan} disabled={!banReason?.trim()}>
+              <Icon name="ShieldAlert" size={16} className="mr-2" />
+              Забанить на 24 часа
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showBlockDialog} onOpenChange={setShowBlockDialog}>
         <DialogContent>
           <DialogHeader>

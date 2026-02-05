@@ -25,6 +25,7 @@ interface UserListProps {
   onUnverify: (userId: number) => void;
   onBlock: (user: User) => void;
   onUnblock: (userId: number) => void;
+  onBan?: (user: User) => void;
   onSetVip: (user: User) => void;
   onRemoveVip: (userId: number) => void;
 }
@@ -38,6 +39,7 @@ const UserList = ({
   onUnverify,
   onBlock,
   onUnblock,
+  onBan,
   onSetVip,
   onRemoveVip
 }: UserListProps) => {
@@ -81,9 +83,16 @@ const UserList = ({
                 <Icon name="Unlock" size={16} />
               </Button>
             ) : (
-              <Button size="sm" variant="outline" onClick={() => onBlock(user)} title="Заблокировать">
-                <Icon name="Ban" size={16} />
-              </Button>
+              <>
+                <Button size="sm" variant="outline" onClick={() => onBlock(user)} title="Заблокировать навсегда">
+                  <Icon name="Ban" size={16} />
+                </Button>
+                {onBan && (
+                  <Button size="sm" variant="destructive" onClick={() => onBan(user)} title="Забанить на 24 часа">
+                    <Icon name="ShieldAlert" size={16} />
+                  </Button>
+                )}
+              </>
             )}
             {user.is_vip ? (
               <Button size="sm" variant="outline" onClick={() => onRemoveVip(user.id)} title="Убрать VIP">

@@ -328,6 +328,96 @@ def handler(event: dict, context) -> dict:
             
             return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
         
+        # Забанить пользователя на 24 часа
+        if action == 'ban_user':
+            user_id = body.get('user_id')
+            reason = body.get('reason', 'Нарушение правил')
+            
+            # Проверяем количество банов у пользователя
+            cur.execute(f"SELECT COUNT(*) FROM {SCHEMA}user_bans WHERE user_id = %s", (user_id,))
+            ban_count = cur.fetchone()[0] + 1
+            
+            # Время бана - 24 часа
+            banned_until = datetime.now() + timedelta(hours=24)
+            
+            # Создаем запись о бане
+            cur.execute(f"""
+                INSERT INTO {SCHEMA}user_bans (user_id, admin_id, reason, banned_until, ban_count)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (user_id, admin_id, reason, banned_until, ban_count))
+            
+            # Обновляем статус пользователя
+            cur.execute(f"UPDATE {SCHEMA}users SET is_banned = true WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'ban_user', 'user', user_id, {'reason': reason, 'ban_count': ban_count}, ip, user_agent)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'ban_count': ban_count, 'banned_until': banned_until.isoformat()}),
+                'isBase64Encoded': False
+            }
+        
+        # Разбанить пользователя
+        if action == 'unban_user':
+            user_id = body.get('user_id')
+            
+            # Деактивируем активный бан
+            cur.execute(f"""
+                UPDATE {SCHEMA}user_bans 
+                SET is_active = false 
+                WHERE user_id = %s AND is_active = true
+            """, (user_id,))
+            
+            # Обновляем статус пользователя
+            cur.execute(f"UPDATE {SCHEMA}users SET is_banned = false WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'unban_user', 'user', user_id, None, ip, user_agent)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
+        # Получить информацию о бане пользователя
+        if action == 'get_ban_info':
+            user_id = params.get('user_id') or body.get('user_id')
+            
+            cur.execute(f"""
+                SELECT reason, banned_at, banned_until, ban_count
+                FROM {SCHEMA}user_bans
+                WHERE user_id = %s AND is_active = true
+                ORDER BY banned_at DESC
+                LIMIT 1
+            """, (user_id,))
+            
+            ban_info = cur.fetchone()
+            
+            if ban_info:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'is_banned': True,
+                        'reason': ban_info[0],
+                        'banned_at': ban_info[1].isoformat(),
+                        'banned_until': ban_info[2].isoformat(),
+                        'ban_count': ban_info[3]
+                    }),
+                    'isBase64Encoded': False
+                }
+            else:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'is_banned': False}),
+                    'isBase64Encoded': False
+                }
+        
         # Разблокировать пользователя
         if action == 'unblock_user':
             user_id = body.get('user_id')

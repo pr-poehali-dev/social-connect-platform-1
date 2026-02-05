@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
                            zodiac_sign, status_text, phone, telegram, instagram,
                            dating_visible, is_verified, verified_at,
                            looking_for_gender, age_from, age_to,
-                           created_at, updated_at
+                           is_banned, created_at, updated_at
                     FROM t_p19021063_social_connect_platf.users
                     WHERE id = {user_id}
                 '''
@@ -90,10 +90,31 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
+                user_data = dict(user)
+                
+                # Проверяем активный бан
+                if user_data.get('is_banned'):
+                    cur.execute(f'''
+                        SELECT reason, banned_at, banned_until, ban_count
+                        FROM t_p19021063_social_connect_platf.user_bans
+                        WHERE user_id = {user_id} AND is_active = true
+                        ORDER BY banned_at DESC
+                        LIMIT 1
+                    ''')
+                    ban_info = cur.fetchone()
+                    
+                    if ban_info:
+                        user_data['ban_info'] = {
+                            'reason': ban_info[0],
+                            'banned_at': ban_info[1].isoformat() if ban_info[1] else None,
+                            'banned_until': ban_info[2].isoformat() if ban_info[2] else None,
+                            'ban_count': ban_info[3]
+                        }
+                
                 return {
                     'statusCode': 200,
                     'headers': {**cors_headers, 'Content-Type': 'application/json'},
-                    'body': json.dumps(dict(user), default=str, ensure_ascii=False),
+                    'body': json.dumps(user_data, default=str, ensure_ascii=False),
                     'isBase64Encoded': False
                 }
         

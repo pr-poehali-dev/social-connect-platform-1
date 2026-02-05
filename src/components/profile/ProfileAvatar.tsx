@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import ImageCropper from './ImageCropper';
+import BanOverlay from './BanOverlay';
 
 interface ProfileAvatarProps {
   user: any;
@@ -116,6 +117,14 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
             </div>
           )}
         </div>
+      )}
+      
+      {user.is_banned && user.ban_info && (
+        <BanOverlay 
+          reason={user.ban_info.reason}
+          bannedUntil={user.ban_info.banned_until}
+          banCount={user.ban_info.ban_count}
+        />
       )}
       {editMode && (
         <>
