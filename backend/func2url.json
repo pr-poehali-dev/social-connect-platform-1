@@ -1,4 +1,5 @@
 {
+  "send-gift": "https://functions.poehali.dev/89b6131c-6cf3-4384-a0fd-d03170e946b1",
   "gift-premium": "https://functions.poehali.dev/19d45ed4-7f95-4f49-b132-32e32c997a29",
   "check-expired-bans": "https://functions.poehali.dev/555a1b0a-0919-4f3b-91dd-451cd9f9a5a5",
   "transfer": "https://functions.poehali.dev/903553bc-a545-45f4-b978-496148337d2f",

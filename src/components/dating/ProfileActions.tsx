@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import GiftPremiumDialog from './GiftPremiumDialog';
+import SendGiftDialog from './SendGiftDialog';
 
 interface ProfileActionsProps {
   isOwnProfile: boolean;
@@ -25,6 +26,7 @@ const ProfileActions = ({
   recipientName
 }: ProfileActionsProps) => {
   const [showGiftDialog, setShowGiftDialog] = useState(false);
+  const [showSendGiftDialog, setShowSendGiftDialog] = useState(false);
 
   if (isOwnProfile) {
     return (
@@ -86,7 +88,7 @@ const ProfileActions = ({
             Premium
           </Button>
           <Button
-            onClick={() => {}}
+            onClick={() => setShowSendGiftDialog(true)}
             variant="outline"
             className="rounded-xl h-12 text-base font-semibold border-pink-500 text-pink-500 hover:bg-pink-50"
           >
@@ -97,12 +99,20 @@ const ProfileActions = ({
       </div>
 
       {recipientId && recipientName && (
-        <GiftPremiumDialog
-          open={showGiftDialog}
-          onOpenChange={setShowGiftDialog}
-          recipientId={recipientId}
-          recipientName={recipientName}
-        />
+        <>
+          <GiftPremiumDialog
+            open={showGiftDialog}
+            onOpenChange={setShowGiftDialog}
+            recipientId={recipientId}
+            recipientName={recipientName}
+          />
+          <SendGiftDialog
+            open={showSendGiftDialog}
+            onOpenChange={setShowSendGiftDialog}
+            recipientId={recipientId}
+            recipientName={recipientName}
+          />
+        </>
       )}
     </>
   );
