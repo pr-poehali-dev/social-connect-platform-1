@@ -215,9 +215,8 @@ const Referral = () => {
                       readOnly
                       className="font-mono rounded-2xl"
                     />
-                    <Button onClick={copyLink} className="gap-2 rounded-2xl whitespace-nowrap">
+                    <Button onClick={copyLink} className="rounded-2xl px-3" size="icon">
                       <Icon name="Copy" size={18} />
-                      Копировать
                     </Button>
                   </div>
                   {qrCodeUrl && (
