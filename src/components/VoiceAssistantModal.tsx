@@ -18,6 +18,7 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<any[] | null>(null);
+  const [resultType, setResultType] = useState<string>('');
   const [query, setQuery] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -85,6 +86,7 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
 
         const data = await response.json();
         setResults(data.results);
+        setResultType(data.type);
         setQuery(data.query);
       };
     } catch (err) {
@@ -95,9 +97,127 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
     }
   };
 
-  const handleViewProfile = (userId: number) => {
+  const handleItemClick = (item: any) => {
     onOpenChange(false);
-    navigate(`/profile/${userId}`);
+    
+    switch (resultType) {
+      case 'people':
+        navigate(`/profile/${item.user_id}`);
+        break;
+      case 'events':
+        navigate(`/events/${item.id}`);
+        break;
+      case 'services':
+        navigate(`/services/${item.id}`);
+        break;
+      case 'ads':
+        navigate(`/ads`);
+        break;
+    }
+  };
+
+  const getResultLabel = () => {
+    if (!results) return '';
+    const count = results.length;
+    
+    switch (resultType) {
+      case 'people':
+        return `${count} ${count === 1 ? 'человек' : 'людей'}`;
+      case 'events':
+        return `${count} ${count === 1 ? 'мероприятие' : count < 5 ? 'мероприятия' : 'мероприятий'}`;
+      case 'services':
+        return `${count} ${count === 1 ? 'услуга' : count < 5 ? 'услуги' : 'услуг'}`;
+      case 'ads':
+        return `${count} ${count === 1 ? 'объявление' : count < 5 ? 'объявления' : 'объявлений'}`;
+      default:
+        return `${count} результатов`;
+    }
+  };
+
+  const renderResultItem = (item: any) => {
+    switch (resultType) {
+      case 'people':
+        return (
+          <div
+            key={item.id}
+            onClick={() => handleItemClick(item)}
+            className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
+          >
+            <img
+              src={item.avatar_url || 'https://via.placeholder.com/48'}
+              alt={item.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{item.name}, {item.age}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.city}</p>
+            </div>
+            <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+          </div>
+        );
+
+      case 'events':
+        return (
+          <div
+            key={item.id}
+            onClick={() => handleItemClick(item)}
+            className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
+          >
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Icon name="Calendar" size={24} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{item.title}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.city} • {item.event_date}</p>
+            </div>
+            <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+          </div>
+        );
+
+      case 'services':
+        return (
+          <div
+            key={item.id}
+            onClick={() => handleItemClick(item)}
+            className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
+          >
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Icon name="Briefcase" size={24} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{item.title || item.name}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.city}</p>
+            </div>
+            <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+          </div>
+        );
+
+      case 'ads':
+        return (
+          <div
+            key={item.id}
+            onClick={() => handleItemClick(item)}
+            className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
+          >
+            <img
+              src={item.avatar_url || 'https://via.placeholder.com/48'}
+              alt={item.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{item.name}, {item.age}</p>
+              <p className="text-sm text-muted-foreground truncate">
+                {item.action === 'invite' ? '🎯 Приглашает' : '👋 Хочет пойти'}: {item.schedule}
+              </p>
+              <p className="text-xs text-muted-foreground">{item.city}</p>
+            </div>
+            <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -145,9 +265,10 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
           <div className="text-xs text-muted-foreground bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
             <p className="font-medium mb-1">Примеры команд:</p>
             <ul className="space-y-1">
-              <li>• "найди девушек из Москвы"</li>
-              <li>• "покажи парней 25-30 лет"</li>
-              <li>• "кто интересуется спортом"</li>
+              <li>👤 "найди девушек из Москвы"</li>
+              <li>🎉 "концерты на выходных"</li>
+              <li>💼 "фотограф в Питере"</li>
+              <li>🎯 "кто хочет пойти в кино"</li>
             </ul>
           </div>
 
@@ -156,29 +277,12 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
                 <p className="text-sm font-medium">Ваш запрос: "{query}"</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Найдено: {results.length} {results.length === 1 ? 'человек' : 'людей'}
+                  Найдено: {getResultLabel()}
                 </p>
               </div>
 
               <div className="max-h-60 overflow-y-auto space-y-2">
-                {results.map((profile) => (
-                  <div
-                    key={profile.id}
-                    onClick={() => handleViewProfile(profile.user_id)}
-                    className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
-                  >
-                    <img
-                      src={profile.avatar_url || 'https://via.placeholder.com/48'}
-                      alt={profile.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{profile.name}, {profile.age}</p>
-                      <p className="text-sm text-muted-foreground truncate">{profile.city}</p>
-                    </div>
-                    <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
-                  </div>
-                ))}
+                {results.map((item) => renderResultItem(item))}
               </div>
             </div>
           )}

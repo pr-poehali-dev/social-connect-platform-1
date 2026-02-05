@@ -1,6 +1,6 @@
 """
-Голосовой помощник для поиска людей на сайте.
-Обрабатывает голосовые запросы и выполняет поиск в базе данных.
+Универсальный голосовой помощник для поиска на сайте.
+Обрабатывает голосовые запросы и ищет людей, мероприятия, услуги и объявления.
 """
 
 import json
@@ -9,6 +9,7 @@ import base64
 from openai import OpenAI
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from datetime import datetime
 
 
 def handler(event: dict, context) -> dict:
@@ -65,41 +66,49 @@ def handler(event: dict, context) -> dict:
         
         user_query = transcription.text
         
-        # Используем GPT для понимания запроса и формирования SQL
+        # Используем GPT для понимания запроса и определения типа поиска
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {
                     "role": "system",
-                    "content": """Ты помощник для поиска людей на сайте знакомств.
-Пользователь дает голосовой запрос, твоя задача - сформировать SQL запрос для поиска в базе данных.
+                    "content": """Ты помощник для универсального поиска на сайте знакомств и мероприятий.
+Определи что ищет пользователь и сформируй SQL запрос.
 
-Таблица: t_p19021063_social_connect_platf.dating_profiles
-Поля:
-- name (имя)
-- age (возраст)
-- city (город)
-- district (район)
-- gender (пол: 'male' или 'female')
-- interests (массив интересов)
-- bio (описание)
-- education (образование)
-- work (работа)
-- marital_status (семейное положение)
-- dating_goal (цель знакомства)
+ДОСТУПНЫЕ ТИПЫ ПОИСКА:
 
-Верни JSON в формате:
+1. ЛЮДИ (dating_profiles):
+Поля: name, age, city, district, gender ('male'/'female'), interests (массив), bio, education, work, marital_status
+Примеры: "найди девушек из Москвы", "парни 25-30 лет", "кто интересуется спортом"
+
+2. МЕРОПРИЯТИЯ (events):
+Поля: title, description, city, category, event_date, event_time, price, location, author_name
+Примеры: "концерты в Москве", "мероприятия на выходных", "бесплатные события"
+
+3. УСЛУГИ (services):
+Поля: title, name, description, city, district, service_type, price, rating, is_online
+Примеры: "фотограф в Москве", "онлайн услуги", "массажист"
+
+4. ОБЪЯВЛЕНИЯ LIVE (ads + users):
+ads.action: 'invite' (пригласить) или 'go' (пойти)
+ads.schedule: текст описания (например "в кино", "на свидание", "на концерт", "на ужин", "в тур")
+users: name, age, city, avatar_url, bio
+Примеры: "кто хочет пойти в кино", "кто приглашает на свидание", "пойти на концерт", "совместный тур"
+
+Для объявлений LIVE используй JOIN:
+SELECT ads.id, ads.action, ads.schedule, users.name, users.age, users.city, users.avatar_url, users.id as user_id
+FROM t_p19021063_social_connect_platf.ads
+JOIN t_p19021063_social_connect_platf.users ON ads.user_id = users.id
+WHERE ads.status = 'active' AND ...
+
+Верни JSON:
 {
-  "sql": "SELECT * FROM t_p19021063_social_connect_platf.dating_profiles WHERE ...",
-  "explanation": "краткое объяснение что найдено"
+  "type": "people|events|services|ads",
+  "sql": "SELECT ... FROM t_p19021063_social_connect_platf.TABLE WHERE ... LIMIT 20",
+  "explanation": "краткое объяснение"
 }
 
-Примеры:
-- "найди девушек из Москвы" -> WHERE city = 'Москва' AND gender = 'female'
-- "покажи парней 25-30 лет" -> WHERE gender = 'male' AND age BETWEEN 25 AND 30
-- "кто интересуется спортом" -> WHERE 'спорт' = ANY(interests)
-
-ВАЖНО: всегда добавляй LIMIT 20"""
+ВАЖНО: всегда используй полное имя схемы и LIMIT 20"""
                 },
                 {"role": "user", "content": user_query}
             ],
@@ -107,6 +116,7 @@ def handler(event: dict, context) -> dict:
         )
         
         ai_response = json.loads(response.choices[0].message.content)
+        search_type = ai_response['type']
         sql_query = ai_response['sql']
         explanation = ai_response['explanation']
         
@@ -119,23 +129,26 @@ def handler(event: dict, context) -> dict:
         conn.close()
         
         # Преобразуем результаты в JSON-совместимый формат
-        profiles = []
+        items = []
         for row in results:
-            profile = dict(row)
-            if profile.get('created_at'):
-                profile['created_at'] = profile['created_at'].isoformat()
-            if profile.get('updated_at'):
-                profile['updated_at'] = profile['updated_at'].isoformat()
-            profiles.append(profile)
+            item = dict(row)
+            # Конвертируем datetime объекты
+            for key, value in item.items():
+                if isinstance(value, datetime):
+                    item[key] = value.isoformat()
+                elif hasattr(value, 'isoformat'):
+                    item[key] = value.isoformat()
+            items.append(item)
         
         return {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({
+                'type': search_type,
                 'query': user_query,
                 'explanation': explanation,
-                'results': profiles,
-                'count': len(profiles)
+                'results': items,
+                'count': len(items)
             }, ensure_ascii=False)
         }
         
