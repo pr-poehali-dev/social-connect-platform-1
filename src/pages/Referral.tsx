@@ -82,11 +82,6 @@ const Referral = () => {
 
   const benefits = [
     {
-      icon: 'Gift',
-      title: 'Бонус за регистрацию',
-      description: 'Получайте 500 ₽ за каждого приглашённого друга'
-    },
-    {
       icon: 'Percent',
       title: 'Процент от пополнений',
       description: '30% от пополнений ваших рефералов'
