@@ -208,15 +208,15 @@ const Referral = () => {
             <Card className="mb-8 rounded-3xl border-2 shadow-xl">
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold mb-4">Ваша реферальная ссылка</h2>
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4 items-start">
                   <div className="flex-1 space-y-3">
                     <div className="flex gap-2">
                       <Input
                         value={referralLink}
                         readOnly
-                        className="font-mono rounded-2xl text-sm"
+                        className="font-mono rounded-2xl text-sm h-9"
                       />
-                      <Button onClick={copyLink} className="rounded-2xl" size="icon">
+                      <Button onClick={copyLink} className="rounded-2xl h-9 w-9" size="icon">
                         <Icon name="Copy" size={16} />
                       </Button>
                     </div>
@@ -241,11 +241,11 @@ const Referral = () => {
                     </div>
                   </div>
                   {qrCodeUrl && (
-                    <div className="flex-shrink-0 self-center md:self-start">
+                    <div className="flex-shrink-0">
                       <img 
                         src={qrCodeUrl} 
                         alt="QR код реферальной ссылки" 
-                        className="w-24 h-24 border-2 border-gray-200 rounded-xl"
+                        className="w-[88px] h-[88px] border-2 border-gray-200 rounded-xl"
                       />
                     </div>
                   )}
