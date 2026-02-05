@@ -90,11 +90,6 @@ const Referral = () => {
       icon: 'Infinity',
       title: 'Навсегда',
       description: 'Вознаграждение начисляется пожизненно'
-    },
-    {
-      icon: 'Zap',
-      title: 'Мгновенный вывод',
-      description: 'Выводите заработок в любое время'
     }
   ];
 
