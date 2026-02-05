@@ -161,6 +161,8 @@ def handler(event: dict, context) -> dict:
                         ELSE FALSE
                     END as is_online,
                     COALESCE(dp.is_top_ad, u.is_vip, FALSE) as is_top_ad,
+                    u.is_vip,
+                    u.profile_background,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
@@ -311,6 +313,8 @@ def handler(event: dict, context) -> dict:
                     u.has_housing,
                     u.dating_goal,
                     u.profession,
+                    u.is_vip,
+                    u.profile_background,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend

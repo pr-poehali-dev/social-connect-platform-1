@@ -161,6 +161,8 @@ const DatingProfile = () => {
             has_housing: userProfile.has_housing,
             dating_goal: userProfile.dating_goal,
             profession: userProfile.profession,
+            is_vip: userProfile.is_vip,
+            profile_background: userProfile.profile_background,
           });
           setIsFavorite(userProfile.is_favorite);
           setRequestSent(userProfile.friend_request_sent);

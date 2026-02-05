@@ -36,6 +36,8 @@ export interface Profile {
   hasHousing?: string;
   datingGoal?: string;
   bio?: string;
+  is_vip?: boolean;
+  profile_background?: string;
 }
 
 interface UseDatingProfilesLoaderProps {
@@ -233,7 +235,9 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               hasCar: p.has_car ? 'Есть' : (p.has_car === false ? 'Нет' : undefined),
               hasHousing: p.has_housing ? 'Есть' : (p.has_housing === false ? 'Нет' : undefined),
               datingGoal: p.dating_goal ? formatDatingGoal(p.dating_goal) : undefined,
-              bio: p.bio
+              bio: p.bio,
+              is_vip: p.is_vip,
+              profile_background: p.profile_background
             };
           })
           .filter((p: any) => p.image && p.image.trim() !== '');

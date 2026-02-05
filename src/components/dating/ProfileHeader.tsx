@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 
 interface ProfileHeaderProps {
   profile: any;
@@ -13,18 +14,24 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
   return (
     <div className="relative md:rounded-3xl overflow-hidden">
       <div className="aspect-[3/4] md:aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden">
+        {profile.is_vip && profile.profile_background && (
+          <div 
+            className={`absolute inset-0 ${getBackgroundClass(profile.profile_background)}`}
+            style={getBackgroundStyle(profile.profile_background)}
+          />
+        )}
         {profile.image ? (
           <img 
             src={profile.image} 
             alt={profile.name}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover ${profile.is_vip ? 'relative z-10 mix-blend-overlay opacity-90' : ''}`}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center relative z-10">
             <Icon name="User" size={96} className="text-muted-foreground" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-20" />
       </div>
 
       <Button
