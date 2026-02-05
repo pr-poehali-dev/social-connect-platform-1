@@ -251,7 +251,7 @@ def handler(event: dict, context) -> dict:
             }
         
         cursor.execute(f'''
-            SELECT id, name, avatar_url FROM {schema}.users WHERE id = %s
+            SELECT id, first_name, last_name, nickname, avatar_url FROM {schema}.users WHERE id = %s
         ''', (participant_id,))
         other_user = cursor.fetchone()
         
@@ -267,12 +267,17 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        # Формируем имя: first_name + last_name, если нет - nickname
+        user_display_name = f"{other_user['first_name'] or ''} {other_user['last_name'] or ''}".strip()
+        if not user_display_name:
+            user_display_name = other_user['nickname'] or 'Пользователь'
+        
         cursor.execute(f'''
             INSERT INTO {schema}.conversations 
             (type, name, avatar_url, created_by)
             VALUES (%s, %s, %s, %s)
             RETURNING id
-        ''', (conv_type, other_user['name'], other_user['avatar_url'], user_id))
+        ''', (conv_type, user_display_name, other_user['avatar_url'], user_id))
         
         new_conv = cursor.fetchone()
         conv_id = new_conv['id']
