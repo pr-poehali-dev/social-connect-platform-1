@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: number;
+  user_id?: number;
   name: string;
   age: number;
   birth_date?: string;
@@ -104,6 +105,12 @@ const ProfileCard = ({
       return;
     }
 
+    const participantId = profile.user_id || profile.id;
+    
+    console.log('[ProfileCard] Opening chat with profile:', profile);
+    console.log('[ProfileCard] Profile ID:', profile.id, 'User ID:', profile.user_id);
+    console.log('[ProfileCard] Sending participantId:', participantId);
+    
     try {
       const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=create-conversation', {
         method: 'POST',
@@ -112,17 +119,18 @@ const ProfileCard = ({
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          participantId: profile.id
+          participantId: participantId
         })
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Created conversation:', data);
+        console.log('[ProfileCard] Created conversation:', data);
+        console.log('[ProfileCard] Navigating to chat ID:', data.conversationId);
         navigate('/messages', { state: { openChatId: data.conversationId } });
       } else {
         const errorData = await response.json();
-        console.error('Failed to create conversation:', errorData);
+        console.error('[ProfileCard] Failed to create conversation:', errorData);
         toast({
           title: 'Ошибка',
           description: 'Не удалось создать чат',
@@ -130,7 +138,7 @@ const ProfileCard = ({
         });
       }
     } catch (error) {
-      console.error('Failed to create conversation:', error);
+      console.error('[ProfileCard] Failed to create conversation:', error);
       toast({
         title: 'Ошибка подключения',
         description: 'Проверьте интернет-соединение',

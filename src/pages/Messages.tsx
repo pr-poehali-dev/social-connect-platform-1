@@ -69,14 +69,17 @@ const Messages = () => {
   useEffect(() => {
     const state = location.state as { openChatId?: number };
     if (state?.openChatId && chats.length > 0) {
-      console.log('Opening chat from state:', state.openChatId);
-      console.log('Available chats:', chats.map(c => ({ id: c.id, name: c.name })));
+      console.log('[Messages] Opening chat from state:', state.openChatId);
+      console.log('[Messages] Total chats loaded:', chats.length);
+      console.log('[Messages] Available chats:', chats.map(c => ({ id: c.id, name: c.name, lastMessage: c.lastMessage })));
       const chatExists = chats.find(c => c.id === state.openChatId);
       if (chatExists) {
+        console.log('[Messages] Chat found! Opening:', chatExists);
         setSelectedChat(state.openChatId);
       } else {
-        console.warn('Chat not found in loaded chats, reloading conversations');
+        console.warn('[Messages] Chat not found in loaded chats, reloading conversations');
         loadConversations().then(() => {
+          console.log('[Messages] After reload, setting chat to:', state.openChatId);
           setSelectedChat(state.openChatId);
         });
       }

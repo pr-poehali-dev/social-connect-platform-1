@@ -251,9 +251,11 @@ def handler(event: dict, context) -> dict:
             }
         
         cursor.execute(f'''
-            SELECT name, avatar_url FROM {schema}.users WHERE id = %s
+            SELECT id, name, avatar_url FROM {schema}.users WHERE id = %s
         ''', (participant_id,))
         other_user = cursor.fetchone()
+        
+        print(f"[DEBUG] Other user found: {other_user}")
         
         if not other_user:
             cursor.close()
@@ -275,6 +277,8 @@ def handler(event: dict, context) -> dict:
         new_conv = cursor.fetchone()
         conv_id = new_conv['id']
         
+        print(f"[DEBUG] Created new conversation with ID: {conv_id} for user {other_user['name']}")
+        
         cursor.execute(f'''
             INSERT INTO {schema}.conversation_participants 
             (conversation_id, user_id) VALUES (%s, %s), (%s, %s)
@@ -283,6 +287,8 @@ def handler(event: dict, context) -> dict:
         conn.commit()
         cursor.close()
         conn.close()
+        
+        print(f"[DEBUG] Returning conversationId: {conv_id}")
         
         return {
             'statusCode': 201,
