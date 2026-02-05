@@ -320,7 +320,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=verify_user`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ action: 'verify_user', user_id: userId })
@@ -346,7 +346,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=unverify_user`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ action: 'unverify_user', user_id: userId })
