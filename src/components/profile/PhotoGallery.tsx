@@ -408,6 +408,24 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
             <Icon name="X" size={24} />
           </Button>
 
+          {editMode && (
+            <Button
+              size="icon"
+              variant="destructive"
+              className="absolute top-4 right-20 rounded-full w-12 h-12 z-10"
+              onClick={async (e) => {
+                e.stopPropagation();
+                const currentPhoto = photos.find(p => p.position === fullscreenPhoto);
+                if (currentPhoto) {
+                  await handleDeletePhoto(currentPhoto.id);
+                  setFullscreenPhoto(null);
+                }
+              }}
+            >
+              <Icon name="Trash2" size={20} />
+            </Button>
+          )}
+
           <Button
             size="icon"
             variant="ghost"
