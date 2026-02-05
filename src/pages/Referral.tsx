@@ -206,32 +206,50 @@ const Referral = () => {
             </div>
 
             <Card className="mb-8 rounded-3xl border-2 shadow-xl">
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold mb-4">Ваша реферальная ссылка</h2>
-                <div className="flex gap-4 mb-4">
-                  <div className="flex-1 flex gap-2">
-                    <Input
-                      value={referralLink}
-                      readOnly
-                      className="font-mono rounded-2xl"
-                    />
-                    <Button onClick={copyLink} className="rounded-2xl px-3" size="icon">
-                      <Icon name="Copy" size={18} />
-                    </Button>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold mb-4">Ваша реферальная ссылка</h2>
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        value={referralLink}
+                        readOnly
+                        className="font-mono rounded-2xl text-sm"
+                      />
+                      <Button onClick={copyLink} className="rounded-2xl" size="icon">
+                        <Icon name="Copy" size={16} />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Код:</span>
+                      <code className="font-mono font-bold text-foreground bg-muted px-2 py-1 rounded">
+                        {referralInfo?.referral_code || 'Загрузка...'}
+                      </code>
+                      <Button 
+                        onClick={() => {
+                          if (referralInfo?.referral_code) {
+                            navigator.clipboard.writeText(referralInfo.referral_code);
+                            toast({ title: 'Скопировано!', description: 'Код в буфере обмена' });
+                          }
+                        }} 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-6 w-6"
+                      >
+                        <Icon name="Copy" size={14} />
+                      </Button>
+                    </div>
                   </div>
                   {qrCodeUrl && (
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 self-center md:self-start">
                       <img 
                         src={qrCodeUrl} 
                         alt="QR код реферальной ссылки" 
-                        className="w-32 h-32 border-2 border-gray-200 rounded-xl"
+                        className="w-24 h-24 border-2 border-gray-200 rounded-xl"
                       />
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Код: <span className="font-mono font-bold">{referralInfo?.referral_code || 'Загрузка...'}</span>
-                </p>
               </CardContent>
             </Card>
 
