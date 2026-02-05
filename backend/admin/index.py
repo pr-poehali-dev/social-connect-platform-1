@@ -479,6 +479,9 @@ def handler(event: dict, context) -> dict:
         if action == 'delete_user':
             user_id = body.get('user_id')
             
+            if not user_id:
+                return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'user_id is required'}), 'isBase64Encoded': False}
+            
             # Удаляем пользователя и все связанные данные (CASCADE удалит связанные записи)
             cur.execute(f"DELETE FROM {SCHEMA}users WHERE id = %s", (user_id,))
             conn.commit()
