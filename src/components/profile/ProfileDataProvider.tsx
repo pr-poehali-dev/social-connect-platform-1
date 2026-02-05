@@ -27,6 +27,9 @@ export interface ProfileFormData {
   phone: string;
   telegram: string;
   instagram: string;
+  lookingForGender?: string;
+  age_from?: number | null;
+  age_to?: number | null;
 }
 
 export const useProfileData = () => {
@@ -79,6 +82,9 @@ export const useProfileData = () => {
     phone: '',
     telegram: '',
     instagram: '',
+    lookingForGender: '',
+    age_from: null,
+    age_to: null,
   });
 
   useEffect(() => {
@@ -128,6 +134,9 @@ export const useProfileData = () => {
             phone: userData.phone || '',
             telegram: userData.telegram || '',
             instagram: userData.instagram || '',
+            lookingForGender: userData.looking_for_gender || '',
+            age_from: userData.age_from || null,
+            age_to: userData.age_to || null,
           });
         } else {
           toast({ title: 'Ошибка', description: 'Не удалось загрузить профиль', variant: 'destructive' });

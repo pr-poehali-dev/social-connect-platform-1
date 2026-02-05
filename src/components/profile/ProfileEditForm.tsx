@@ -2,6 +2,7 @@ import BasicInfoFields from './form-sections/BasicInfoFields';
 import LocationFields from './form-sections/LocationFields';
 import PersonalCharacteristicsFields from './form-sections/PersonalCharacteristicsFields';
 import InterestsAndBioFields from './form-sections/InterestsAndBioFields';
+import DatingPreferencesFields from './form-sections/DatingPreferencesFields';
 
 interface ProfileEditFormProps {
   formData: any;
@@ -17,6 +18,7 @@ const ProfileEditForm = ({ formData, setFormData, availableInterests, toggleInte
       <BasicInfoFields formData={formData} setFormData={setFormData} isVerified={isVerified} />
       <LocationFields formData={formData} setFormData={setFormData} />
       <PersonalCharacteristicsFields formData={formData} setFormData={setFormData} />
+      <DatingPreferencesFields formData={formData} setFormData={setFormData} />
       <InterestsAndBioFields 
         formData={formData} 
         setFormData={setFormData} 

@@ -74,6 +74,7 @@ def handler(event: dict, context) -> dict:
                            has_car, has_housing, dating_goal, interests, profession,
                            zodiac_sign, status_text, phone, telegram, instagram,
                            dating_visible, is_verified, verified_at,
+                           looking_for_gender, age_from, age_to,
                            created_at, updated_at
                     FROM t_p19021063_social_connect_platf.users
                     WHERE id = {user_id}
@@ -104,15 +105,16 @@ def handler(event: dict, context) -> dict:
             # Строковые поля
             string_fields = ['first_name', 'last_name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
-                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram', 'birth_date']
+                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram', 'birth_date', 'lookingForGender']
             
             for field in string_fields:
                 if field in data and data[field] is not None:
+                    db_field = 'looking_for_gender' if field == 'lookingForGender' else field
                     value = data[field].replace("'", "''") if isinstance(data[field], str) else str(data[field])
-                    updates.append(f"{field} = '{value}'")
+                    updates.append(f"{db_field} = '{value}'")
             
             # Числовые поля (integer)
-            int_fields = ['height']
+            int_fields = ['height', 'age_from', 'age_to']
             for field in int_fields:
                 if field in data:
                     # Пропускаем пустые строки
