@@ -362,7 +362,7 @@ const Navigation = () => {
         title="Голосовой помощник"
       >
         <img 
-          src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/32de42ae-a70c-4136-be68-92ecb5fe2df8.png" 
+          src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/793b670b-c5e8-48d7-b455-f92d847bf1c5.png" 
           alt="AI" 
           className="w-8 h-8 group-hover:scale-110 transition-transform"
         />
