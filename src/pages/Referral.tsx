@@ -37,7 +37,10 @@ const Referral = () => {
 
   const loadReferralData = async () => {
     const userId = localStorage.getItem('userId');
+    console.log('Loading referral data for userId:', userId);
+    
     if (!userId) {
+      console.log('No userId found in localStorage');
       setLoading(false);
       return;
     }
@@ -52,14 +55,23 @@ const Referral = () => {
         })
       ]);
 
+      console.log('Info response status:', infoRes.status);
+      console.log('Referrals response status:', referralsRes.status);
+
       if (infoRes.ok) {
         const info = await infoRes.json();
+        console.log('Referral info loaded:', info);
         setReferralInfo(info);
+      } else {
+        console.error('Failed to load referral info:', await infoRes.text());
       }
 
       if (referralsRes.ok) {
         const data = await referralsRes.json();
+        console.log('Referrals loaded:', data);
         setReferrals(data.referrals || []);
+      } else {
+        console.error('Failed to load referrals:', await referralsRes.text());
       }
     } catch (error) {
       console.error('Failed to load referral data:', error);
