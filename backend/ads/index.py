@@ -317,6 +317,7 @@ def handler(event: dict, context) -> dict:
         
         elif method == 'DELETE':
             action_param = query_params.get('action')
+            ad_id_param = query_params.get('id')
             
             if action_param == 'favorite':
                 auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
@@ -353,6 +354,58 @@ def handler(event: dict, context) -> dict:
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'status': 'removed'})
                     }
+            
+            elif ad_id_param:
+                auth_header = event.get('headers', {}).get('Authorization', '') or event.get('headers', {}).get('authorization', '') or event.get('headers', {}).get('X-Authorization', '')
+                token = auth_header.replace('Bearer ', '') if auth_header else ''
+                payload = verify_token(token)
+                
+                if not payload:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Unauthorized'})
+                    }
+                
+                user_id_from_token = payload.get('user_id')
+                
+                with conn.cursor() as cur:
+                    cur.execute('''
+                        SELECT user_id FROM t_p19021063_social_connect_platf.ads
+                        WHERE id = %s
+                    ''', (ad_id_param,))
+                    ad_owner = cur.fetchone()
+                    
+                    if not ad_owner or ad_owner[0] != user_id_from_token:
+                        return {
+                            'statusCode': 403,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Forbidden: You can only delete your own ads'})
+                        }
+                    
+                    cur.execute('''
+                        DELETE FROM t_p19021063_social_connect_platf.ad_events
+                        WHERE ad_id = %s
+                    ''', (ad_id_param,))
+                    
+                    cur.execute('''
+                        DELETE FROM t_p19021063_social_connect_platf.ads
+                        WHERE id = %s
+                    ''', (ad_id_param,))
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'status': 'deleted'})
+                    }
+            
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Missing required parameters'})
+            }
         
         else:
             return {

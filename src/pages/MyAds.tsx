@@ -99,6 +99,44 @@ const MyAds = () => {
     }
   };
 
+  const deleteAd = async (adId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить это объявление? Это действие нельзя отменить.')) {
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/975a1308-86d5-457a-8069-dd843f483056?id=${adId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        await loadAds();
+        toast({
+          title: 'Объявление удалено',
+          description: 'Объявление успешно удалено',
+        });
+      } else {
+        throw new Error('Ошибка удаления');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить объявление',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'active':
@@ -281,6 +319,15 @@ const MyAds = () => {
                               Возобновить
                             </Button>
                           )}
+                          
+                          <Button 
+                            variant="outline" 
+                            className="gap-2 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200"
+                            onClick={() => deleteAd(ad.id)}
+                          >
+                            <Icon name="Trash2" size={16} />
+                            Удалить
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>

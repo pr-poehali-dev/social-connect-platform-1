@@ -119,6 +119,11 @@ const CreateAd = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isLoading) {
+      return;
+    }
+    
     setIsLoading(true);
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -168,7 +173,6 @@ const CreateAd = () => {
         description: 'Не удалось создать объявление',
         variant: 'destructive'
       });
-    } finally {
       setIsLoading(false);
     }
   };
