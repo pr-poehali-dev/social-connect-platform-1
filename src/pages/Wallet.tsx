@@ -6,16 +6,65 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
+
+const PAYMENT_API_URL = 'https://functions.poehali.dev/ff06b527-a0c8-43ae-82f4-f8732af4d197';
 
 const Wallet = () => {
+  const { toast } = useToast();
   const [amount, setAmount] = useState('');
+  const [loading, setLoading] = useState(false);
   const balance = 0;
+
+  const quickAmounts = [500, 1000, 2500, 5000];
 
   const transactions = [
     { id: 1, type: 'deposit', amount: 5000, date: '2026-01-10', status: 'completed', method: 'BTC' },
     { id: 2, type: 'withdrawal', amount: 2000, date: '2026-01-08', status: 'completed', method: 'Robokassa' },
     { id: 3, type: 'deposit', amount: 10000, date: '2026-01-05', status: 'completed', method: 'ETH' }
   ];
+
+  const handleDeposit = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      toast({ title: 'Ошибка', description: 'Необходима авторизация', variant: 'destructive' });
+      return;
+    }
+
+    const depositAmount = parseFloat(amount);
+    if (!depositAmount || depositAmount <= 0) {
+      toast({ title: 'Ошибка', description: 'Укажите корректную сумму', variant: 'destructive' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(PAYMENT_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({ amount: depositAmount })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({ 
+          title: 'Успешно!', 
+          description: `Пополнение на ${depositAmount}₽ выполнено${result.bonus_credited ? '. Наставнику начислен бонус!' : ''}` 
+        });
+        setAmount('');
+      } else {
+        const error = await response.json();
+        toast({ title: 'Ошибка', description: error.error || 'Не удалось выполнить операцию', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Ошибка соединения с сервером', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const cryptoOptions = [
     { name: 'Bitcoin', symbol: 'BTC', icon: '₿' },
@@ -82,6 +131,22 @@ const Wallet = () => {
                     </div>
 
                     <div>
+                      <Label className="mb-3 block">Быстрое пополнение</Label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                        {quickAmounts.map((quickAmount) => (
+                          <Button
+                            key={quickAmount}
+                            variant="outline"
+                            onClick={() => setAmount(String(quickAmount))}
+                            className="h-auto py-4 rounded-2xl hover:border-primary hover:bg-primary/5"
+                          >
+                            <span className="font-bold text-lg">{quickAmount} ₽</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
                       <Label className="mb-3 block">Способ оплаты</Label>
                       <div className="grid grid-cols-3 gap-3">
                         {cryptoOptions.map((crypto) => (
@@ -97,8 +162,12 @@ const Wallet = () => {
                       </div>
                     </div>
 
-                    <Button className="w-full py-6 rounded-2xl text-lg">
-                      Пополнить через Robokassa
+                    <Button 
+                      onClick={handleDeposit}
+                      disabled={loading || !amount || parseFloat(amount) <= 0}
+                      className="w-full py-6 rounded-2xl text-lg"
+                    >
+                      {loading ? 'Обработка...' : 'Пополнить баланс'}
                     </Button>
                   </TabsContent>
 
