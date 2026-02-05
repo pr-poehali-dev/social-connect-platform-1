@@ -46,6 +46,7 @@ const DatingPreferencesFields = ({ formData, setFormData }: DatingPreferencesFie
               <SelectItem value="friendship">Дружба</SelectItem>
               <SelectItem value="dating">Романтические отношения</SelectItem>
               <SelectItem value="marriage">Создание семьи</SelectItem>
+              <SelectItem value="flirt">Флирт</SelectItem>
               <SelectItem value="communication">Общение</SelectItem>
             </SelectContent>
           </Select>
