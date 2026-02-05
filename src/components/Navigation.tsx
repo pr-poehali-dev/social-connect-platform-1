@@ -304,7 +304,11 @@ const Navigation = () => {
             className="h-12 w-full relative bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
             title="Голосовой помощник"
           >
-            <Icon name="Mic" size={24} className="text-purple-500" />
+            <img 
+              src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/32de42ae-a70c-4136-be68-92ecb5fe2df8.png" 
+              alt="AI" 
+              className="w-6 h-6"
+            />
           </Button>
 
           {bottomNavItems.slice(3).map((item) => {
