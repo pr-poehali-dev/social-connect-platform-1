@@ -273,7 +273,7 @@ const Wallet = () => {
                   Пополнение
                 </TabsTrigger>
                 <TabsTrigger value="transfer" className="text-base">
-                  Перевод
+                  Донат
                 </TabsTrigger>
                 <TabsTrigger value="history" className="text-base">
                   История
