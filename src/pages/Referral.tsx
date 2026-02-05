@@ -88,8 +88,8 @@ const Referral = () => {
     },
     {
       icon: 'Percent',
-      title: 'Процент от сделок',
-      description: '5% от всех сделок ваших рефералов'
+      title: 'Процент от пополнений',
+      description: '30% от пополнений ваших рефералов'
     },
     {
       icon: 'Infinity',
