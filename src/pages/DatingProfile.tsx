@@ -441,7 +441,7 @@ const DatingProfile = () => {
 
             <ProfileInfo profile={{ ...profile, distance }} />
 
-            <PhotoGallery photos={profile.image && !photos.includes(profile.image) ? [profile.image, ...photos] : photos} />
+            {photos.length > 0 && <PhotoGallery photos={photos} canLike={!isOwnProfile} />}
           </div>
         </div>
       </div>
