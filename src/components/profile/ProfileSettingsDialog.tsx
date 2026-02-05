@@ -16,10 +16,12 @@ interface ProfileSettingsDialogProps {
   datingVisible: boolean;
   shareLocation: boolean;
   darkMode: boolean;
+  premiumOnly: boolean;
   handleSoundToggle: (enabled: boolean) => void;
   handleDatingVisibilityToggle: (enabled: boolean) => void;
   handleShareLocationToggle: (enabled: boolean) => void;
   handleThemeToggle: (enabled: boolean) => void;
+  handlePremiumOnlyToggle: (enabled: boolean) => void;
 }
 
 const ProfileSettingsDialog = ({
@@ -29,10 +31,12 @@ const ProfileSettingsDialog = ({
   datingVisible,
   shareLocation,
   darkMode,
+  premiumOnly,
   handleSoundToggle,
   handleDatingVisibilityToggle,
   handleShareLocationToggle,
-  handleThemeToggle
+  handleThemeToggle,
+  handlePremiumOnlyToggle
 }: ProfileSettingsDialogProps) => {
   return (
     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -109,6 +113,22 @@ const ProfileSettingsDialog = ({
               id="share-location"
               checked={shareLocation}
               onCheckedChange={handleShareLocationToggle}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="premium-only" className="text-base font-medium">
+                Только PREMIUM могут писать
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Принимать сообщения только от пользователей с PREMIUM статусом
+              </p>
+            </div>
+            <Switch
+              id="premium-only"
+              checked={premiumOnly}
+              onCheckedChange={handlePremiumOnlyToggle}
             />
           </div>
         </div>

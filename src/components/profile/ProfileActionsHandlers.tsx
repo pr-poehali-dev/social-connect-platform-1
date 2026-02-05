@@ -11,9 +11,11 @@ interface UseProfileActionsProps {
   setEditMode: (mode: boolean) => void;
   datingVisible: boolean;
   shareLocation: boolean;
+  premiumOnly: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   setDatingVisible: (visible: boolean) => void;
   setShareLocation: (enabled: boolean) => void;
+  setPremiumOnly: (enabled: boolean) => void;
 }
 
 export const useProfileActions = ({
@@ -24,9 +26,11 @@ export const useProfileActions = ({
   setEditMode,
   datingVisible,
   shareLocation,
+  premiumOnly,
   setSoundEnabled,
   setDatingVisible,
-  setShareLocation
+  setShareLocation,
+  setPremiumOnly
 }: UseProfileActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -49,7 +53,8 @@ export const useProfileActions = ({
         ...formData,
         height: formData.height ? parseInt(formData.height as any) : null,
         dating_visible: datingVisible,
-        share_location: shareLocation
+        share_location: shareLocation,
+        premium_only_messages: premiumOnly
       };
 
       const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
@@ -62,7 +67,7 @@ export const useProfileActions = ({
       });
 
       if (response.ok) {
-        setUser({ ...user, ...formData, dating_visible: datingVisible, share_location: shareLocation });
+        setUser({ ...user, ...formData, dating_visible: datingVisible, share_location: shareLocation, premium_only_messages: premiumOnly });
         setEditMode(false);
         toast({ title: 'Сохранено!', description: 'Профиль успешно обновлён' });
       } else {
@@ -270,6 +275,14 @@ export const useProfileActions = ({
     handleSoundToggle,
     handleDatingVisibilityToggle,
     handleShareLocationToggle,
-    handleThemeToggle
+    handleThemeToggle,
+    handlePremiumOnlyToggle: (enabled: boolean) => {
+      setPremiumOnly(enabled);
+      localStorage.setItem('premiumOnlyMessages', enabled.toString());
+      toast({
+        title: enabled ? 'Фильтр Premium включён' : 'Фильтр Premium выключен',
+        description: enabled ? 'Писать вам могут только PREMIUM пользователи' : 'Писать вам могут все пользователи',
+      });
+    }
   };
 };

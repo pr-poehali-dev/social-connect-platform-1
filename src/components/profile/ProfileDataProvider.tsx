@@ -50,6 +50,10 @@ export const useProfileData = () => {
     const saved = localStorage.getItem('shareLocation');
     return saved === 'true';
   });
+  const [premiumOnly, setPremiumOnly] = useState(() => {
+    const saved = localStorage.getItem('premiumOnlyMessages');
+    return saved === 'true';
+  });
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved === 'true';
@@ -109,6 +113,7 @@ export const useProfileData = () => {
           setUser(userData);
           setDatingVisible(userData.dating_visible !== false);
           setShareLocation(userData.share_location === true);
+          setPremiumOnly(userData.premium_only_messages === true);
           setFormData({
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
@@ -222,6 +227,8 @@ export const useProfileData = () => {
     setShareLocation,
     darkMode,
     setDarkMode,
+    premiumOnly,
+    setPremiumOnly,
     formData,
     setFormData,
     loadPhotos,
