@@ -219,13 +219,13 @@ const AdminUsers = () => {
       });
 
       if (response.ok) {
-        toast({ title: 'Успешно', description: 'VIP статус установлен' });
+        toast({ title: 'Успешно', description: 'Premium статус установлен' });
         setShowVipDialog(false);
         loadUsers(token);
         setShowDetails(false);
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось установить VIP', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: 'Не удалось установить Premium', variant: 'destructive' });
     }
   };
 
@@ -244,11 +244,11 @@ const AdminUsers = () => {
       });
 
       if (response.ok) {
-        toast({ title: 'Успешно', description: 'VIP статус убран' });
+        toast({ title: 'Успешно', description: 'Premium статус убран' });
         loadUsers(token);
       }
     } catch (error) {
-      toast({ title: 'Ошибка', description: 'Не удалось убрать VIP', variant: 'destructive' });
+      toast({ title: 'Ошибка', description: 'Не удалось убрать Premium', variant: 'destructive' });
     }
   };
 

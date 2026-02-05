@@ -56,7 +56,7 @@ const UserList = ({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <span className="font-medium">{user.email}</span>
-              {user.is_vip && <Badge className="bg-yellow-500">VIP</Badge>}
+              {user.is_vip && <Badge className="bg-yellow-500">Premium</Badge>}
               {user.is_verified && <Badge className="bg-blue-500">Верифицирован</Badge>}
               {user.is_blocked && <Badge variant="destructive">Заблокирован</Badge>}
             </div>
@@ -97,11 +97,11 @@ const UserList = ({
               </>
             )}
             {user.is_vip ? (
-              <Button size="sm" variant="outline" onClick={() => onRemoveVip(user.id)} title="Убрать VIP">
+              <Button size="sm" variant="outline" onClick={() => onRemoveVip(user.id)} title="Убрать Premium">
                 <Icon name="Crown" size={16} className="text-yellow-500" />
               </Button>
             ) : (
-              <Button size="sm" variant="outline" onClick={() => onSetVip(user)} title="Установить VIP">
+              <Button size="sm" variant="outline" onClick={() => onSetVip(user)} title="Установить Premium">
                 <Icon name="Crown" size={16} />
               </Button>
             )}

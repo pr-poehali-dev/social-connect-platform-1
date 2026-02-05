@@ -44,7 +44,7 @@ const UserDetailsDialog = ({ open, onOpenChange, user }: UserDetailsDialogProps)
             </div>
             <div>
               <strong>Статус:</strong>{' '}
-              {user.is_vip && <Badge className="bg-yellow-500 mr-2">VIP</Badge>}
+              {user.is_vip && <Badge className="bg-yellow-500 mr-2">Premium</Badge>}
               {user.is_verified && <Badge className="bg-blue-500 mr-2">Верифицирован</Badge>}
               {user.is_blocked && <Badge variant="destructive">Заблокирован</Badge>}
             </div>

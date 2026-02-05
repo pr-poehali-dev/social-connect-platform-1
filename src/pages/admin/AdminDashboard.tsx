@@ -309,7 +309,7 @@ const AdminDashboard = () => {
                   Пользователи
                 </CardTitle>
                 <CardDescription className="text-white/80">
-                  Управление аккаунтами, блокировка, VIP-статус
+                  Управление аккаунтами, блокировка, Premium-статус
                 </CardDescription>
               </CardHeader>
             </Card>

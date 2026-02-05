@@ -134,8 +134,8 @@ const UserActionDialogs = ({
       <Dialog open={showVipDialog} onOpenChange={setShowVipDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Установить VIP статус</DialogTitle>
-            <DialogDescription>Выберите срок действия VIP</DialogDescription>
+            <DialogTitle>Установить Premium статус</DialogTitle>
+            <DialogDescription>Выберите срок действия Premium</DialogDescription>
           </DialogHeader>
           <div>
             <Label>Количество дней</Label>
@@ -151,7 +151,7 @@ const UserActionDialogs = ({
               Отмена
             </Button>
             <Button onClick={onSetVip}>
-              Установить VIP
+              Установить Premium
             </Button>
           </DialogFooter>
         </DialogContent>
