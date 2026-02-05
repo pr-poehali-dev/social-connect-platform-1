@@ -105,15 +105,14 @@ const ProfileCard = ({
     }
 
     try {
-      const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d', {
+      const response = await fetch('https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d?action=create-conversation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          action: 'create_conversation',
-          userId: profile.id
+          participantId: profile.id
         })
       });
 
