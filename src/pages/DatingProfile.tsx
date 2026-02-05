@@ -11,6 +11,7 @@ import ProfileInfo from '@/components/dating/ProfileInfo';
 import PhotoGallery from '@/components/dating/PhotoGallery';
 import ReceivedGifts from '@/components/dating/ReceivedGifts';
 import { calculateDistance, formatDistance } from '@/utils/distance';
+import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 
 const DatingProfile = () => {
   const { userId } = useParams();
@@ -382,35 +383,44 @@ const DatingProfile = () => {
   const isOwnProfile = currentUserId === profile.id;
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
-      <Navigation />
-      
-      <div className="max-w-4xl mx-auto lg:pt-20 pt-16">
-        <div className="grid md:grid-cols-[300px_1fr] gap-0 md:gap-6">
-          <div className="md:sticky md:top-20 h-fit">
-            <ProfileHeader
-              profile={profile}
-              isOwnProfile={isOwnProfile}
-              isFavorite={isFavorite}
-              onBack={() => navigate(-1)}
-              onToggleFavorite={handleToggleFavorite}
-            />
-            
-            <div className="hidden md:block mt-4">
-              <ProfileActions
+    <div className="min-h-screen pb-20 lg:pb-0 relative">
+      {profile.is_vip && profile.profile_background ? (
+        <div 
+          className={`fixed inset-0 ${getBackgroundClass(profile.profile_background)}`}
+          style={getBackgroundStyle(profile.profile_background)}
+        />
+      ) : (
+        <div className="fixed inset-0 bg-background" />
+      )}
+      <div className="relative z-10">
+        <Navigation />
+        
+        <div className="max-w-4xl mx-auto lg:pt-20 pt-16">
+          <div className="grid md:grid-cols-[300px_1fr] gap-0 md:gap-6">
+            <div className="md:sticky md:top-20 h-fit">
+              <ProfileHeader
+                profile={profile}
                 isOwnProfile={isOwnProfile}
-                isFriend={isFriend}
-                requestSent={requestSent}
-                onSendMessage={handleSendMessage}
-                onAddFriend={handleAddFriend}
-                onEditProfile={() => navigate('/profile')}
-                recipientId={profile?.user_id}
-                recipientName={profile?.name}
+                isFavorite={isFavorite}
+                onBack={() => navigate(-1)}
+                onToggleFavorite={handleToggleFavorite}
               />
+              
+              <div className="hidden md:block mt-4">
+                <ProfileActions
+                  isOwnProfile={isOwnProfile}
+                  isFriend={isFriend}
+                  requestSent={requestSent}
+                  onSendMessage={handleSendMessage}
+                  onAddFriend={handleAddFriend}
+                  onEditProfile={() => navigate('/profile')}
+                  recipientId={profile?.user_id}
+                  recipientName={profile?.name}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="px-4 md:px-6 md:py-0 py-6 space-y-6">
+            <div className="px-4 md:px-6 md:py-0 py-6 space-y-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 md:gap-3 mb-2">
@@ -453,6 +463,7 @@ const DatingProfile = () => {
             <ReceivedGifts userId={profile.user_id} isOwnProfile={isOwnProfile} />
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
