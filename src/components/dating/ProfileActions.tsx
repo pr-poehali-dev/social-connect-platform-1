@@ -76,14 +76,24 @@ const ProfileActions = ({
             В друзьях
           </Button>
         )}
-        <Button
-          onClick={() => setShowGiftDialog(true)}
-          variant="outline"
-          className="w-full rounded-xl h-12 text-base font-semibold border-purple-500 text-purple-500 hover:bg-purple-50"
-        >
-          <Icon name="Gift" size={20} className="mr-2" />
-          Подарить Premium
-        </Button>
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            onClick={() => setShowGiftDialog(true)}
+            variant="outline"
+            className="rounded-xl h-12 text-base font-semibold border-purple-500 text-purple-500 hover:bg-purple-50"
+          >
+            <Icon name="Crown" size={20} className="mr-2" />
+            Premium
+          </Button>
+          <Button
+            onClick={() => {}}
+            variant="outline"
+            className="rounded-xl h-12 text-base font-semibold border-pink-500 text-pink-500 hover:bg-pink-50"
+          >
+            <Icon name="Gift" size={20} className="mr-2" />
+            Подарок
+          </Button>
+        </div>
       </div>
 
       {recipientId && recipientName && (
