@@ -329,19 +329,7 @@ const AdminDashboard = () => {
             </Card>
           </Link>
 
-          <Link to="/admin/logs">
-            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="FileText" size={24} />
-                  Логи действий
-                </CardTitle>
-                <CardDescription className="text-white/80">
-                  История действий администраторов
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
+
 
           <Link to="/admin/verification">
             <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
