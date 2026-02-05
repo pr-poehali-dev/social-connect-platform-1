@@ -99,6 +99,29 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            elif path == 'bonuses':
+                # Получение истории начислений бонусов
+                cur.execute("""
+                    SELECT t.id, t.amount, t.description, t.created_at, 
+                           u.first_name, u.last_name, u.email
+                    FROM t_p19021063_social_connect_platf.transactions t
+                    LEFT JOIN t_p19021063_social_connect_platf.users u ON t.referrer_id = u.id
+                    WHERE t.user_id = %s AND t.type = 'bonus'
+                    ORDER BY t.created_at DESC
+                    LIMIT 50
+                """, (user_id,))
+                
+                bonuses = cur.fetchall()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'bonuses': [dict(b) for b in bonuses]
+                    }, default=str),
+                    'isBase64Encoded': False
+                }
+            
             elif path == 'mentor':
                 # Получение информации о наставнике
                 cur.execute("""
