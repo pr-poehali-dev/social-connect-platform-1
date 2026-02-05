@@ -9,6 +9,7 @@ import ProfileHeader from '@/components/dating/ProfileHeader';
 import ProfileActions from '@/components/dating/ProfileActions';
 import ProfileInfo from '@/components/dating/ProfileInfo';
 import PhotoGallery from '@/components/dating/PhotoGallery';
+import ReceivedGifts from '@/components/dating/ReceivedGifts';
 import { calculateDistance, formatDistance } from '@/utils/distance';
 
 const DatingProfile = () => {
@@ -446,6 +447,8 @@ const DatingProfile = () => {
             <ProfileInfo profile={{ ...profile, distance }} />
 
             {photos.length > 0 && <PhotoGallery photos={photos} canLike={!isOwnProfile} />}
+
+            <ReceivedGifts userId={profile.user_id} isOwnProfile={isOwnProfile} />
           </div>
         </div>
       </div>
