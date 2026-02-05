@@ -104,6 +104,25 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        # Получить все цены (публичное действие для админов)
+        if action == 'get_prices':
+            cur.execute(f"SELECT service_key, service_name, price, category, description FROM {SCHEMA}platform_prices ORDER BY category, id")
+            prices = {}
+            for row in cur.fetchall():
+                prices[row[0]] = {
+                    'name': row[1],
+                    'price': row[2],
+                    'category': row[3],
+                    'description': row[4]
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'prices': prices}),
+                'isBase64Encoded': False
+            }
+        
         # Все остальные действия требуют авторизации
         # DEV MODE: allow 'dev-token' for development
         if token == 'dev-token':
@@ -675,25 +694,6 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps(result),
-                'isBase64Encoded': False
-            }
-        
-        # Получить все цены
-        if action == 'get_prices':
-            cur.execute(f"SELECT service_key, service_name, price, category, description FROM {SCHEMA}platform_prices ORDER BY category, id")
-            prices = {}
-            for row in cur.fetchall():
-                prices[row[0]] = {
-                    'name': row[1],
-                    'price': row[2],
-                    'category': row[3],
-                    'description': row[4]
-                }
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'prices': prices}),
                 'isBase64Encoded': False
             }
         
