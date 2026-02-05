@@ -408,6 +408,20 @@ const AdminDashboard = () => {
             </Card>
           </Link>
 
+          <Link to="/admin/prices">
+            <Card className="bg-gradient-to-br from-violet-500 to-violet-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="DollarSign" size={24} />
+                  Цены
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Управление ценами на услуги платформы
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
           <Link to="/admin/deposits">
             <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
               <CardHeader>

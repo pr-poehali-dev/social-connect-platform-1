@@ -44,6 +44,7 @@ import CallHistory from "./pages/CallHistory";
 import Radio from "./pages/Radio";
 import VerificationRequest from "./pages/VerificationRequest";
 import AdminVerification from "./pages/admin/AdminVerification";
+import AdminPrices from "./pages/admin/AdminPrices";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,7 @@ const App = () => {
           <Route path="/admin/filters" element={<AdminFilters />} />
           <Route path="/admin/logs" element={<AdminLogs />} />
           <Route path="/admin/verification" element={<AdminVerification />} />
+          <Route path="/admin/prices" element={<AdminPrices />} />
           <Route path="/verification-request" element={<ProtectedRoute><VerificationRequest /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
