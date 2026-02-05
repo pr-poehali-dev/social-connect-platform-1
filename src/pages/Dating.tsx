@@ -4,6 +4,7 @@ import Navigation from '@/components/Navigation';
 import TopAdsCarousel from '@/components/dating/TopAdsCarousel';
 import DatingFilters from '@/components/dating/DatingFilters';
 import ProfileCard from '@/components/dating/ProfileCard';
+import VoiceAssistant from '@/components/VoiceAssistant';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
 import {
@@ -19,6 +20,8 @@ import { useDatingActionsHandlers } from '@/components/dating/DatingActionsHandl
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [voiceResults, setVoiceResults] = useState<any[] | null>(null);
+  const [voiceQuery, setVoiceQuery] = useState('');
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
 
@@ -40,7 +43,20 @@ const Dating = () => {
 
   const topAds = profiles.filter(p => p.isTopAd);
 
-  const filteredProfiles = profiles.filter(profile =>
+  const handleVoiceResults = (results: any[], query: string, explanation: string) => {
+    setVoiceResults(results);
+    setVoiceQuery(query);
+    setSearchQuery('');
+  };
+
+  const clearVoiceResults = () => {
+    setVoiceResults(null);
+    setVoiceQuery('');
+  };
+
+  const displayProfiles = voiceResults || profiles;
+
+  const filteredProfiles = displayProfiles.filter(profile =>
     !profile.isTopAd &&
     (profile.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       profile.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,6 +66,23 @@ const Dating = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20 pt-20">
       <main className="container mx-auto px-4 py-6 max-w-7xl">
+        <VoiceAssistant onResults={handleVoiceResults} />
+        
+        {voiceQuery && (
+          <div className="mb-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Результаты голосового поиска:</p>
+              <p className="font-medium">"{voiceQuery}"</p>
+            </div>
+            <button
+              onClick={clearVoiceResults}
+              className="px-3 py-1 text-sm bg-white dark:bg-slate-800 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
+            >
+              Очистить
+            </button>
+          </div>
+        )}
+
         <div className="mb-6">
           <div className="relative">
             <Icon name="Search" size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />

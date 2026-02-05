@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Test voice assistant with valid audio",
+      "method": "POST",
+      "body": {
+        "audio": "mock_base64_audio_data"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "query": "string",
+        "explanation": "string",
+        "results": "array",
+        "count": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
