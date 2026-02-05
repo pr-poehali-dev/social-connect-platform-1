@@ -21,6 +21,7 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
   const [results, setResults] = useState<any[] | null>(null);
   const [resultType, setResultType] = useState<string>('');
   const [query, setQuery] = useState('');
+  const [transcribedText, setTranscribedText] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -47,6 +48,8 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
     try {
       setError(null);
       setResults(null);
+      setTranscribedText('');
+      setQuery('');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       const mediaRecorder = new MediaRecorder(stream);
@@ -67,9 +70,15 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
 
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err) {
-      setError('Не удалось получить доступ к микрофону');
+    } catch (err: any) {
       console.error('Microphone error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setError('Разрешите доступ к микрофону в настройках браузера');
+      } else if (err.name === 'NotFoundError') {
+        setError('Микрофон не найден. Подключите микрофон и попробуйте снова');
+      } else {
+        setError('Не удалось получить доступ к микрофону: ' + err.message);
+      }
     }
   };
 
@@ -100,20 +109,24 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
         });
 
         if (!response.ok) {
-          throw new Error('Ошибка обработки запроса');
+          const errorText = await response.text();
+          console.error('Backend error:', errorText);
+          throw new Error('Ошибка обработки запроса: ' + response.status);
         }
 
         const data = await response.json();
+        console.log('Voice assistant response:', data);
+        
+        setTranscribedText(data.query);
         setResults(data.results);
         setResultType(data.type);
         setQuery(data.query);
         
-        // Озвучиваем результат
         speakResults(data.results.length, data.type);
       };
-    } catch (err) {
-      setError('Не удалось обработать голосовой запрос');
+    } catch (err: any) {
       console.error('Processing error:', err);
+      setError('Не удалось обработать запрос: ' + (err.message || 'Неизвестная ошибка'));
     } finally {
       setIsProcessing(false);
     }
@@ -337,6 +350,12 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
                   ? '🔊 Озвучиваю результаты...'
                   : 'Нажмите на микрофон и скажите что ищете'}
               </p>
+              {transcribedText && !results && (
+                <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Распознано:</p>
+                  <p className="text-sm font-medium">"{transcribedText}"</p>
+                </div>
+              )}
               {error && (
                 <p className="text-sm text-red-500 mt-2">{error}</p>
               )}
