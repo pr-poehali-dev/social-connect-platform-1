@@ -3,7 +3,7 @@ import Icon from '@/components/ui/icon';
 
 interface Transaction {
   id: number;
-  amount: number;
+  amount: number | string;
   type: string;
   status: string;
   description: string;
@@ -72,7 +72,7 @@ const HistoryTab = ({ transactions }: HistoryTabProps) => {
                     : 'text-red-600'
                 }`}>
                   {transaction.type === 'deposit' || transaction.type === 'bonus' ? '+' : '-'}
-                  {transaction.amount.toFixed(2)} ₽
+                  {Number(transaction.amount).toFixed(2)} ₽
                 </p>
                 <p className="text-xs text-gray-500">{transaction.status}</p>
               </div>
