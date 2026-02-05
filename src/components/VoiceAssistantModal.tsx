@@ -20,6 +20,7 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
   const [results, setResults] = useState<any[] | null>(null);
   const [resultType, setResultType] = useState<string>('');
   const [query, setQuery] = useState('');
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const navigate = useNavigate();
@@ -88,6 +89,9 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
         setResults(data.results);
         setResultType(data.type);
         setQuery(data.query);
+        
+        // Озвучиваем результат
+        speakResults(data.results.length, data.type);
       };
     } catch (err) {
       setError('Не удалось обработать голосовой запрос');
@@ -113,6 +117,51 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
       case 'ads':
         navigate(`/ads`);
         break;
+    }
+  };
+
+  const speakResults = (count: number, type: string) => {
+    let message = '';
+    
+    if (count === 0) {
+      message = 'Ничего не найдено. Попробуйте изменить запрос.';
+    } else {
+      switch (type) {
+        case 'people':
+          message = `Найдено ${count} ${count === 1 ? 'человек' : 'людей'}. Нажмите на карточку чтобы посмотреть профиль.`;
+          break;
+        case 'events':
+          message = `Найдено ${count} ${count === 1 ? 'мероприятие' : count < 5 ? 'мероприятия' : 'мероприятий'}. Выберите подходящее.`;
+          break;
+        case 'services':
+          message = `Найдено ${count} ${count === 1 ? 'услуга' : count < 5 ? 'услуги' : 'услуг'}. Посмотрите детали.`;
+          break;
+        case 'ads':
+          message = `Найдено ${count} ${count === 1 ? 'объявление' : count < 5 ? 'объявления' : 'объявлений'} в разделе Лайв. Нажмите чтобы узнать больше.`;
+          break;
+        default:
+          message = `Найдено ${count} результатов.`;
+      }
+    }
+    
+    // Используем Web Speech API
+    if ('speechSynthesis' in window) {
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.lang = 'ru-RU';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.8;
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+      };
+      
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -254,6 +303,8 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
                   ? 'Говорите... (нажмите еще раз для остановки)'
                   : isProcessing
                   ? 'Обрабатываю запрос...'
+                  : isSpeaking
+                  ? '🔊 Озвучиваю результаты...'
                   : 'Нажмите на микрофон и скажите что ищете'}
               </p>
               {error && (
