@@ -1,21 +1,81 @@
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+interface Referral {
+  id: number;
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+  created_at: string;
+  avatar_url: string | null;
+}
+
+interface ReferralInfo {
+  referral_code: string;
+  referrals_count: number;
+}
 
 const Referral = () => {
   const { toast } = useToast();
-  const referralLink = 'https://connecthub.com/ref/ABC123';
+  const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
+  const [referrals, setReferrals] = useState<Referral[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const referralLink = referralInfo?.referral_code 
+    ? `${window.location.origin}/register?ref=${referralInfo.referral_code}`
+    : '';
+
+  useEffect(() => {
+    loadReferralData();
+  }, []);
+
+  const loadReferralData = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const [infoRes, referralsRes] = await Promise.all([
+        fetch('https://functions.poehali.dev/17091600-02b0-442b-a13d-2b57827b7106?action=info', {
+          headers: { 'X-User-Id': userId }
+        }),
+        fetch('https://functions.poehali.dev/17091600-02b0-442b-a13d-2b57827b7106?action=referrals', {
+          headers: { 'X-User-Id': userId }
+        })
+      ]);
+
+      if (infoRes.ok) {
+        const info = await infoRes.json();
+        setReferralInfo(info);
+      }
+
+      if (referralsRes.ok) {
+        const data = await referralsRes.json();
+        setReferrals(data.referrals || []);
+      }
+    } catch (error) {
+      console.error('Failed to load referral data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const copyLink = () => {
+    if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
     toast({ title: 'Скопировано!', description: 'Реферальная ссылка в буфере обмена' });
   };
 
   const stats = [
-    { icon: 'Users', label: 'Приглашено друзей', value: '0', color: 'from-emerald-500 to-teal-500' },
+    { icon: 'Users', label: 'Приглашено друзей', value: String(referralInfo?.referrals_count || 0), color: 'from-emerald-500 to-teal-500' },
     { icon: 'Coins', label: 'Заработано', value: '0 ₽', color: 'from-amber-500 to-orange-500' },
     { icon: 'TrendingUp', label: 'За этот месяц', value: '0 ₽', color: 'from-blue-500 to-cyan-500' }
   ];
@@ -42,6 +102,17 @@ const Referral = () => {
       description: 'Выводите заработок в любое время'
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -76,7 +147,7 @@ const Referral = () => {
             <Card className="mb-8 rounded-3xl border-2 shadow-xl">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-bold mb-4">Ваша реферальная ссылка</h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-4">
                   <Input
                     value={referralLink}
                     readOnly
@@ -87,8 +158,55 @@ const Referral = () => {
                     Копировать
                   </Button>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  Код: <span className="font-mono font-bold">{referralInfo?.referral_code}</span>
+                </p>
               </CardContent>
             </Card>
+
+            {referrals.length > 0 && (
+              <Card className="mb-8 rounded-3xl border-2">
+                <CardContent className="p-8">
+                  <h2 className="text-2xl font-bold mb-6">Приглашенные пользователи</h2>
+                  <div className="space-y-4">
+                    {referrals.map((referral) => (
+                      <div
+                        key={referral.id}
+                        className="flex items-center gap-4 p-4 rounded-2xl border bg-card hover:bg-accent/50 transition-colors"
+                      >
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={referral.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {referral.first_name?.[0] || referral.email[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">
+                            {referral.first_name || referral.last_name
+                              ? `${referral.first_name || ''} ${referral.last_name || ''}`.trim()
+                              : referral.email}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {referral.email}
+                          </p>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(referral.created_at).toLocaleDateString('ru-RU', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-6 text-center">Преимущества программы</h2>

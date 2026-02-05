@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "Получение информации о реферальном коде",
+      "method": "GET",
+      "path": "/?action=info",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Получение списка приглашенных",
+      "method": "GET",
+      "path": "/?action=referrals",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200
+    }
+  ]
+}

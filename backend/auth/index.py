@@ -42,6 +42,7 @@ def handle_register(event: dict) -> dict:
     email = data.get('email', '').strip().lower()
     password = data.get('password', '')
     name = data.get('name', '')
+    referral_code = data.get('referral_code', '').strip().upper()
     
     if not email or not password:
         return {
@@ -74,15 +75,32 @@ def handle_register(event: dict) -> dict:
             'isBase64Encoded': False
         }
     
+    # Validate referral code if provided
+    referrer_id = None
+    if referral_code:
+        cur.execute(f"SELECT id FROM {schema}.users WHERE referral_code = %s", (referral_code,))
+        referrer = cur.fetchone()
+        if referrer:
+            referrer_id = referrer[0]
+    
     # Hash password
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
-    # Create user
+    # Create user with referral
     cur.execute(
-        f"INSERT INTO {schema}.users (email, password_hash, name, email_verified) VALUES (%s, %s, %s, %s) RETURNING id",
-        (email, password_hash, name, True)
+        f"INSERT INTO {schema}.users (email, password_hash, name, email_verified, referred_by) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+        (email, password_hash, name, True, referrer_id)
     )
     user_id = cur.fetchone()[0]
+    
+    # Generate unique referral code for new user
+    import secrets
+    new_referral_code = f"REF{str(user_id).zfill(6)}{secrets.token_hex(4).upper()}"
+    cur.execute(
+        f"UPDATE {schema}.users SET referral_code = %s WHERE id = %s",
+        (new_referral_code, user_id)
+    )
+    
     conn.commit()
     
     # Generate tokens
