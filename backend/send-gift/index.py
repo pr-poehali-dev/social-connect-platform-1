@@ -68,6 +68,7 @@ def handler(event: dict, context) -> dict:
         gift_name = body.get('gift_name', 'Подарок')
         gift_emoji = body.get('gift_emoji', '🎁')
         price = Decimal(str(body.get('price', 0)))
+        is_anonymous = body.get('is_anonymous', False)
         
         if not recipient_id or price <= 0:
             cursor.close()
@@ -150,17 +151,24 @@ def handler(event: dict, context) -> dict:
                 gift_emoji VARCHAR(50) NOT NULL,
                 price DECIMAL(10, 2) NOT NULL,
                 is_public BOOLEAN DEFAULT TRUE,
+                is_anonymous BOOLEAN DEFAULT FALSE,
                 created_at TIMESTAMP DEFAULT NOW()
             )
+        """)
+        
+        # Добавляем колонку is_anonymous если её нет
+        cursor.execute(f"""
+            ALTER TABLE {schema}.gifts 
+            ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT FALSE
         """)
         
         # Сохраняем подарок
         cursor.execute(f"""
             INSERT INTO {schema}.gifts 
-            (sender_id, recipient_id, gift_id, gift_name, gift_emoji, price)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (sender_id, recipient_id, gift_id, gift_name, gift_emoji, price, is_anonymous)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id
-        """, (user_id, recipient_id, gift_id, gift_name, gift_emoji, price))
+        """, (user_id, recipient_id, gift_id, gift_name, gift_emoji, price, is_anonymous))
         
         gift_record_id = cursor.fetchone()['id']
         
@@ -175,6 +183,9 @@ def handler(event: dict, context) -> dict:
         """, (user_id, -price, f'Подарок "{gift_name}" для {recipient_name}'))
         
         # Уведомление получателю
+        notification_content = f'Анонимный отправитель подарил вам {gift_name}' if is_anonymous else f'{sender_name} отправил вам {gift_name}'
+        notification_related_user = None if is_anonymous else user_id
+        
         cursor.execute(f"""
             INSERT INTO {schema}.notifications 
             (user_id, type, title, content, related_user_id)
@@ -183,8 +194,8 @@ def handler(event: dict, context) -> dict:
             recipient_id,
             'gift_received',
             f'{gift_emoji} Вам подарок!',
-            f'{sender_name} отправил вам {gift_name}',
-            user_id
+            notification_content,
+            notification_related_user
         ))
         
         conn.commit()

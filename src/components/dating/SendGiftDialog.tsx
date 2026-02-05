@@ -44,6 +44,7 @@ const SendGiftDialog = ({ open, onOpenChange, recipientId, recipientName }: Send
   const navigate = useNavigate();
   const [selectedGift, setSelectedGift] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const handleSendGift = async () => {
     if (!selectedGift) return;
@@ -66,17 +67,21 @@ const SendGiftDialog = ({ open, onOpenChange, recipientId, recipientName }: Send
           gift_id: gift.id,
           gift_name: gift.name,
           gift_emoji: gift.emoji,
-          price: gift.price
+          price: gift.price,
+          is_anonymous: isAnonymous
         })
       });
 
       if (response.ok) {
         toast({
           title: '🎁 Подарок отправлен!',
-          description: `${recipientName} получил ${gift.emoji} ${gift.name}`,
+          description: isAnonymous 
+            ? `${recipientName} получил анонимный подарок ${gift.emoji} ${gift.name}`
+            : `${recipientName} получил ${gift.emoji} ${gift.name}`,
         });
         onOpenChange(false);
         setSelectedGift(null);
+        setIsAnonymous(false);
       } else {
         const data = await response.json();
         if (data.error === 'Недостаточно средств') {
@@ -135,19 +140,40 @@ const SendGiftDialog = ({ open, onOpenChange, recipientId, recipientName }: Send
         </div>
 
         {selectedGiftData && (
-          <div className="mt-4 p-4 bg-pink-50 border border-pink-200 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-4xl">{selectedGiftData.emoji}</span>
-                <div>
-                  <div className="font-semibold">{selectedGiftData.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {selectedGiftData.price} LOVE
+          <div className="mt-4 space-y-3">
+            <div className="p-4 bg-pink-50 border border-pink-200 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl">{selectedGiftData.emoji}</span>
+                  <div>
+                    <div className="font-semibold">{selectedGiftData.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {selectedGiftData.price} LOVE
+                    </div>
                   </div>
                 </div>
+                <Icon name="CheckCircle2" size={24} className="text-pink-500" />
               </div>
-              <Icon name="CheckCircle2" size={24} className="text-pink-500" />
             </div>
+            
+            <button
+              onClick={() => setIsAnonymous(!isAnonymous)}
+              className={`w-full p-3 border-2 rounded-xl transition-all flex items-center gap-3 ${
+                isAnonymous
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-border hover:border-purple-300'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                isAnonymous ? 'border-purple-500 bg-purple-500' : 'border-gray-300'
+              }`}>
+                {isAnonymous && <Icon name="Check" size={14} className="text-white" />}
+              </div>
+              <div className="flex items-center gap-2 flex-1">
+                <Icon name="EyeOff" size={18} className="text-purple-500" />
+                <span className="font-medium">Отправить анонимно</span>
+              </div>
+            </button>
           </div>
         )}
 

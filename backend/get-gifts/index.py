@@ -80,12 +80,19 @@ def handler(event: dict, context) -> dict:
                     SELECT 
                         g.id,
                         g.sender_id,
-                        u.first_name || ' ' || u.last_name as sender_name,
-                        u.avatar_url as sender_avatar,
+                        CASE 
+                            WHEN g.is_anonymous THEN 'Аноним'
+                            ELSE u.first_name || ' ' || u.last_name
+                        END as sender_name,
+                        CASE 
+                            WHEN g.is_anonymous THEN NULL
+                            ELSE u.avatar_url
+                        END as sender_avatar,
                         g.gift_name,
                         g.gift_emoji,
                         g.price,
                         g.is_public,
+                        g.is_anonymous,
                         g.created_at
                     FROM {schema}.gifts g
                     JOIN {schema}.users u ON g.sender_id = u.id
@@ -97,12 +104,19 @@ def handler(event: dict, context) -> dict:
                     SELECT 
                         g.id,
                         g.sender_id,
-                        u.first_name || ' ' || u.last_name as sender_name,
-                        u.avatar_url as sender_avatar,
+                        CASE 
+                            WHEN g.is_anonymous THEN 'Аноним'
+                            ELSE u.first_name || ' ' || u.last_name
+                        END as sender_name,
+                        CASE 
+                            WHEN g.is_anonymous THEN NULL
+                            ELSE u.avatar_url
+                        END as sender_avatar,
                         g.gift_name,
                         g.gift_emoji,
                         g.price,
                         g.is_public,
+                        g.is_anonymous,
                         g.created_at
                     FROM {schema}.gifts g
                     JOIN {schema}.users u ON g.sender_id = u.id
