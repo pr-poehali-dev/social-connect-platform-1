@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Icon from '@/components/ui/icon';
-import funcUrls from '../../../backend/func2url.json';
+
+const REFERRAL_API_URL = 'https://functions.poehali.dev/17091600-02b0-442b-a13d-2b57827b7106';
 
 interface ProfileInfoProps {
   user: any;
@@ -33,7 +34,7 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
     }
 
     try {
-      const res = await fetch(`${funcUrls.referral}?action=mentor`, {
+      const res = await fetch(`${REFERRAL_API_URL}?action=mentor`, {
         headers: { 'X-User-Id': userId }
       });
 

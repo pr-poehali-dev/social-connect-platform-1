@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import funcUrls from '../../../backend/func2url.json';
+
+const REFERRAL_API_URL = 'https://functions.poehali.dev/17091600-02b0-442b-a13d-2b57827b7106';
 
 interface Referral {
   id: number;
@@ -47,12 +48,11 @@ const Referral = () => {
     }
 
     try {
-      const referralUrl = funcUrls.referral;
       const [infoRes, referralsRes] = await Promise.all([
-        fetch(`${referralUrl}?action=info`, {
+        fetch(`${REFERRAL_API_URL}?action=info`, {
           headers: { 'X-User-Id': userId }
         }),
-        fetch(`${referralUrl}?action=referrals`, {
+        fetch(`${REFERRAL_API_URL}?action=referrals`, {
           headers: { 'X-User-Id': userId }
         })
       ]);
