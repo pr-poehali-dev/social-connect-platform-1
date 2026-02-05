@@ -186,7 +186,7 @@ const Referral = () => {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Код: <span className="font-mono font-bold">{referralInfo?.referral_code}</span>
+                  Код: <span className="font-mono font-bold">{referralInfo?.referral_code || 'Загрузка...'}</span>
                 </p>
               </CardContent>
             </Card>
