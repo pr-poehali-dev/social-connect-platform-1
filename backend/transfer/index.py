@@ -135,6 +135,11 @@ def handler(event: dict, context) -> dict:
             }
         
         hashed_password = hash_password(financial_password)
+        print(f"[DEBUG] Input password: '{financial_password}'")
+        print(f"[DEBUG] Hashed input: '{hashed_password}'")
+        print(f"[DEBUG] Stored hash: '{sender['financial_password']}'")
+        print(f"[DEBUG] Match: {sender['financial_password'] == hashed_password}")
+        
         if sender['financial_password'] != hashed_password:
             cur.execute("ROLLBACK")
             return {
