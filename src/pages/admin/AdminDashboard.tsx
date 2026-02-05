@@ -301,6 +301,20 @@ const AdminDashboard = () => {
         </Card>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Link to="/admin/users">
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Users" size={24} />
+                  Пользователи
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Управление аккаунтами, блокировка, VIP-статус
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
           <Link to="/admin/sections">
             <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
               <CardHeader>

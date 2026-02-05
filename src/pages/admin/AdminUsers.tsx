@@ -74,7 +74,7 @@ const AdminUsers = () => {
       if (filterBlocked !== 'all') params.append('blocked', filterBlocked);
 
       const response = await fetch(`${ADMIN_API}?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'X-Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
@@ -99,7 +99,7 @@ const AdminUsers = () => {
 
     try {
       const response = await fetch(`${ADMIN_API}?action=get_user_details&user_id=${userId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'X-Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
@@ -120,7 +120,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=block_user`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -150,7 +150,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=ban_user`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -184,7 +184,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=unblock_user`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ action: 'unblock_user', user_id: userId })
@@ -207,7 +207,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=set_vip`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -236,7 +236,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=remove_vip`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ action: 'remove_vip', user_id: userId })
@@ -259,7 +259,7 @@ const AdminUsers = () => {
       const response = await fetch(`${ADMIN_API}?action=send_message`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({

@@ -305,7 +305,7 @@ def handler(event: dict, context) -> dict:
                 if isinstance(user[key], datetime):
                     user[key] = user[key].isoformat()
             
-            cur.execute("SELECT ip_address, user_agent, login_at, success FROM user_login_history WHERE user_id = %s ORDER BY login_at DESC LIMIT 50", (user_id,))
+            cur.execute(f"SELECT ip_address, user_agent, login_at, success FROM {SCHEMA}user_login_history WHERE user_id = %s ORDER BY login_at DESC LIMIT 50", (user_id,))
             login_history = [{'ip': r[0], 'user_agent': r[1], 'login_at': r[2].isoformat(), 'success': r[3]} for r in cur.fetchall()]
             
             return {
