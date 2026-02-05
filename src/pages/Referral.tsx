@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import QRCode from 'qrcode';
 
 const REFERRAL_API_URL = 'https://functions.poehali.dev/17091600-02b0-442b-a13d-2b57827b7106';
 
@@ -40,6 +41,8 @@ const Referral = () => {
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [bonuses, setBonuses] = useState<BonusTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const referralLink = referralInfo?.referral_code 
     ? `http://loveis.city/ref${referralInfo.referral_code}`
@@ -48,6 +51,19 @@ const Referral = () => {
   useEffect(() => {
     loadReferralData();
   }, []);
+
+  useEffect(() => {
+    if (referralLink) {
+      QRCode.toDataURL(referralLink, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      }).then(setQrCodeUrl);
+    }
+  }, [referralLink]);
 
   const loadReferralData = async () => {
     let userId = localStorage.getItem('userId');
@@ -192,16 +208,27 @@ const Referral = () => {
             <Card className="mb-8 rounded-3xl border-2 shadow-xl">
               <CardContent className="p-8">
                 <h2 className="text-2xl font-bold mb-4">Ваша реферальная ссылка</h2>
-                <div className="flex gap-2 mb-4">
-                  <Input
-                    value={referralLink}
-                    readOnly
-                    className="font-mono rounded-2xl"
-                  />
-                  <Button onClick={copyLink} className="gap-2 rounded-2xl whitespace-nowrap">
-                    <Icon name="Copy" size={18} />
-                    Копировать
-                  </Button>
+                <div className="flex gap-4 mb-4">
+                  <div className="flex-1 flex gap-2">
+                    <Input
+                      value={referralLink}
+                      readOnly
+                      className="font-mono rounded-2xl"
+                    />
+                    <Button onClick={copyLink} className="gap-2 rounded-2xl whitespace-nowrap">
+                      <Icon name="Copy" size={18} />
+                      Копировать
+                    </Button>
+                  </div>
+                  {qrCodeUrl && (
+                    <div className="flex-shrink-0">
+                      <img 
+                        src={qrCodeUrl} 
+                        alt="QR код реферальной ссылки" 
+                        className="w-32 h-32 border-2 border-gray-200 rounded-xl"
+                      />
+                    </div>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Код: <span className="font-mono font-bold">{referralInfo?.referral_code || 'Загрузка...'}</span>
