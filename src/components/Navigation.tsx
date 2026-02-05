@@ -358,13 +358,13 @@ const Navigation = () => {
 
       <button
         onClick={() => setShowVoiceAssistant(true)}
-        className="hidden lg:flex fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all items-center justify-center group"
+        className="hidden lg:flex fixed bottom-6 right-6 z-50 hover:opacity-80 transition-all items-center justify-center group"
         title="Голосовой помощник"
       >
         <img 
           src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/793b670b-c5e8-48d7-b455-f92d847bf1c5.png" 
           alt="AI" 
-          className="w-8 h-8 group-hover:scale-110 transition-transform"
+          className="w-20 h-20 group-hover:scale-110 transition-transform"
         />
       </button>
     </>
