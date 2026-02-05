@@ -401,6 +401,8 @@ const DatingProfile = () => {
                 onSendMessage={handleSendMessage}
                 onAddFriend={handleAddFriend}
                 onEditProfile={() => navigate('/profile')}
+                recipientId={profile?.user_id}
+                recipientName={profile?.name}
               />
             </div>
           </div>
@@ -436,6 +438,8 @@ const DatingProfile = () => {
                 onSendMessage={handleSendMessage}
                 onAddFriend={handleAddFriend}
                 onEditProfile={() => navigate('/profile')}
+                recipientId={profile?.user_id}
+                recipientName={profile?.name}
               />
             </div>
 

@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useState } from 'react';
+import GiftPremiumDialog from './GiftPremiumDialog';
 
 interface ProfileActionsProps {
   isOwnProfile: boolean;
@@ -8,6 +10,8 @@ interface ProfileActionsProps {
   onSendMessage: () => void;
   onAddFriend: () => void;
   onEditProfile: () => void;
+  recipientId?: number;
+  recipientName?: string;
 }
 
 const ProfileActions = ({ 
@@ -16,8 +20,12 @@ const ProfileActions = ({
   requestSent, 
   onSendMessage, 
   onAddFriend, 
-  onEditProfile 
+  onEditProfile,
+  recipientId,
+  recipientName
 }: ProfileActionsProps) => {
+  const [showGiftDialog, setShowGiftDialog] = useState(false);
+
   if (isOwnProfile) {
     return (
       <Button 
@@ -32,42 +40,61 @@ const ProfileActions = ({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <Button 
-        onClick={onSendMessage}
-        className="w-full rounded-xl h-12 text-base font-semibold"
-      >
-        <Icon name="MessageCircle" size={20} className="mr-2" />
-        Написать
-      </Button>
-      {!isFriend && !requestSent ? (
+    <>
+      <div className="flex flex-col gap-3">
         <Button 
-          onClick={onAddFriend}
-          variant="outline"
+          onClick={onSendMessage}
           className="w-full rounded-xl h-12 text-base font-semibold"
         >
-          <Icon name="UserPlus" size={20} className="mr-2" />
-          Добавить в друзья
+          <Icon name="MessageCircle" size={20} className="mr-2" />
+          Написать
         </Button>
-      ) : requestSent ? (
-        <Button 
-          onClick={onAddFriend}
+        {!isFriend && !requestSent ? (
+          <Button 
+            onClick={onAddFriend}
+            variant="outline"
+            className="w-full rounded-xl h-12 text-base font-semibold"
+          >
+            <Icon name="UserPlus" size={20} className="mr-2" />
+            Добавить в друзья
+          </Button>
+        ) : requestSent ? (
+          <Button 
+            onClick={onAddFriend}
+            variant="outline"
+            className="w-full rounded-xl h-12 text-base font-semibold"
+          >
+            <Icon name="Clock" size={20} className="mr-2" />
+            Заявка отправлена
+          </Button>
+        ) : (
+          <Button 
+            variant="outline"
+            className="w-full rounded-xl h-12 text-base font-semibold"
+          >
+            <Icon name="UserCheck" size={20} className="mr-2" />
+            В друзьях
+          </Button>
+        )}
+        <Button
+          onClick={() => setShowGiftDialog(true)}
           variant="outline"
-          className="w-full rounded-xl h-12 text-base font-semibold"
+          className="w-full rounded-xl h-12 text-base font-semibold border-purple-500 text-purple-500 hover:bg-purple-50"
         >
-          <Icon name="Clock" size={20} className="mr-2" />
-          Заявка отправлена
+          <Icon name="Gift" size={20} className="mr-2" />
+          Подарить Premium
         </Button>
-      ) : (
-        <Button 
-          variant="outline"
-          className="w-full rounded-xl h-12 text-base font-semibold"
-        >
-          <Icon name="UserCheck" size={20} className="mr-2" />
-          В друзьях
-        </Button>
+      </div>
+
+      {recipientId && recipientName && (
+        <GiftPremiumDialog
+          open={showGiftDialog}
+          onOpenChange={setShowGiftDialog}
+          recipientId={recipientId}
+          recipientName={recipientName}
+        />
       )}
-    </div>
+    </>
   );
 };
 
