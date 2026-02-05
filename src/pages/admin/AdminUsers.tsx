@@ -56,7 +56,8 @@ const AdminUsers = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadUsers('dev-token');
+    const token = localStorage.getItem('admin_token') || 'dev-token';
+    loadUsers(token);
   }, [page, search, filterVip, filterBlocked, navigate]);
 
   const loadUsers = async (token: string) => {
