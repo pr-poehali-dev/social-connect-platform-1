@@ -76,6 +76,13 @@ def handler(event: dict, context) -> dict:
     try:
         cur.execute("BEGIN")
         
+        # Увеличиваем баланс пользователя
+        cur.execute("""
+            UPDATE t_p19021063_social_connect_platf.users 
+            SET balance = balance + %s
+            WHERE id = %s
+        """, (amount, user_id))
+        
         # Создаем транзакцию пополнения для пользователя
         cur.execute("""
             INSERT INTO t_p19021063_social_connect_platf.transactions 

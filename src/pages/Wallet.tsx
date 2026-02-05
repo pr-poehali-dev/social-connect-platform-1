@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,20 +9,56 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 const PAYMENT_API_URL = 'https://functions.poehali.dev/ff06b527-a0c8-43ae-82f4-f8732af4d197';
+const WALLET_API_URL = 'https://functions.poehali.dev/dcbc72cf-2de6-43eb-b32a-2cd0c34fe525';
+
+interface Transaction {
+  id: number;
+  amount: number;
+  type: string;
+  status: string;
+  description: string;
+  created_at: string;
+}
 
 const Wallet = () => {
   const { toast } = useToast();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
-  const balance = 0;
+  const [dataLoading, setDataLoading] = useState(true);
+  const [balance, setBalance] = useState(0);
+  const [bonusBalance, setBonusBalance] = useState(0);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const quickAmounts = [500, 1000, 2500, 5000];
 
-  const transactions = [
-    { id: 1, type: 'deposit', amount: 5000, date: '2026-01-10', status: 'completed', method: 'BTC' },
-    { id: 2, type: 'withdrawal', amount: 2000, date: '2026-01-08', status: 'completed', method: 'Robokassa' },
-    { id: 3, type: 'deposit', amount: 10000, date: '2026-01-05', status: 'completed', method: 'ETH' }
-  ];
+  useEffect(() => {
+    loadWalletData();
+  }, []);
+
+  const loadWalletData = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setDataLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(WALLET_API_URL, {
+        headers: { 'X-User-Id': userId }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBalance(data.balance || 0);
+        setBonusBalance(data.bonus_balance || 0);
+        setTransactions(data.transactions || []);
+      }
+    } catch (error) {
+      console.error('Failed to load wallet data:', error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const handleDeposit = async () => {
     const userId = localStorage.getItem('userId');
@@ -55,6 +91,7 @@ const Wallet = () => {
           description: `Пополнение на ${depositAmount}₽ выполнено${result.bonus_credited ? '. Наставнику начислен бонус!' : ''}` 
         });
         setAmount('');
+        loadWalletData();
       } else {
         const error = await response.json();
         toast({ title: 'Ошибка', description: error.error || 'Не удалось выполнить операцию', variant: 'destructive' });
@@ -71,6 +108,17 @@ const Wallet = () => {
     { name: 'Ethereum', symbol: 'ETH', icon: 'Ξ' },
     { name: 'USDT', symbol: 'USDT', icon: '₮' }
   ];
+
+  if (dataLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -89,7 +137,13 @@ const Wallet = () => {
                   <p className="text-lg opacity-90">Доступный баланс</p>
                   <Icon name="Wallet" size={32} />
                 </div>
-                <p className="text-5xl font-bold mb-6">{balance.toLocaleString('ru-RU')} ₽</p>
+                <p className="text-5xl font-bold mb-2">{balance.toLocaleString('ru-RU')} ₽</p>
+                {bonusBalance > 0 && (
+                  <p className="text-lg opacity-90 mb-4">
+                    <Icon name="Gift" size={16} className="inline mr-1" />
+                    Бонусный: {bonusBalance.toLocaleString('ru-RU')} ₽
+                  </p>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <Button variant="secondary" size="lg" className="gap-2 rounded-2xl">
                     <Icon name="Plus" size={20} />
@@ -214,24 +268,26 @@ const Wallet = () => {
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                             tx.type === 'deposit' 
                               ? 'bg-emerald-500/10 text-emerald-500' 
+                              : tx.type === 'bonus'
+                              ? 'bg-amber-500/10 text-amber-500'
                               : 'bg-red-500/10 text-red-500'
                           }`}>
-                            <Icon name={tx.type === 'deposit' ? 'ArrowDown' : 'ArrowUp'} size={20} />
+                            <Icon name={tx.type === 'deposit' ? 'ArrowDown' : tx.type === 'bonus' ? 'Gift' : 'ArrowUp'} size={20} />
                           </div>
                           <div>
                             <p className="font-semibold">
-                              {tx.type === 'deposit' ? 'Пополнение' : 'Вывод'}
+                              {tx.type === 'deposit' ? 'Пополнение' : tx.type === 'bonus' ? 'Бонус' : 'Вывод'}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {new Date(tx.date).toLocaleDateString('ru-RU')} • {tx.method}
+                              {new Date(tx.created_at).toLocaleDateString('ru-RU')} • {tx.description}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className={`font-bold text-lg ${
-                            tx.type === 'deposit' ? 'text-emerald-500' : 'text-red-500'
+                            tx.type === 'deposit' || tx.type === 'bonus' ? 'text-emerald-500' : 'text-red-500'
                           }`}>
-                            {tx.type === 'deposit' ? '+' : '-'}{tx.amount.toLocaleString('ru-RU')} ₽
+                            {tx.type === 'deposit' || tx.type === 'bonus' ? '+' : '-'}{tx.amount.toLocaleString('ru-RU')} ₽
                           </p>
                           <p className="text-xs text-muted-foreground">{tx.status === 'completed' ? 'Завершено' : 'В обработке'}</p>
                         </div>

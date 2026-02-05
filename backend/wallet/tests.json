@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Получение баланса и транзакций",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "balance": "number",
+        "bonus_balance": "number",
+        "transactions": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
