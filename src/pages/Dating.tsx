@@ -54,13 +54,12 @@ const Dating = () => {
           <button onClick={() => navigate('/')} className="flex items-center gap-2">
             <Icon name="ArrowLeft" size={24} />
           </button>
-          <h1 className="text-2xl font-bold ml-4">Знакомства</h1>
+          <h1 className="text-2xl font-bold ml-4"></h1>
           <div className="ml-auto flex items-center gap-2">
             <Sheet open={showFilters} onOpenChange={setShowFilters}>
               <SheetTrigger asChild>
                 <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                   <Icon name="SlidersHorizontal" size={20} />
-                  Фильтры
                 </button>
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
