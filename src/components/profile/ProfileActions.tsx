@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileActionsProps {
   user?: any;
@@ -10,6 +11,30 @@ interface ProfileActionsProps {
 
 const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerification }: ProfileActionsProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handlePremiumAction = (action: string) => {
+    if (!user?.is_vip) {
+      toast({
+        title: 'Premium функция',
+        description: 'Эта возможность доступна только для Premium пользователей',
+        action: (
+          <Button 
+            size="sm" 
+            onClick={() => navigate('/premium')}
+            className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600"
+          >
+            Оформить Premium
+          </Button>
+        ),
+      });
+      return;
+    }
+    
+    if (action === 'ads') navigate('/my-ads');
+    if (action === 'services') navigate('/my-services');
+    if (action === 'events') navigate('/my-events');
+  };
 
   return (
     <div className="space-y-3">
@@ -56,26 +81,41 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <span className="text-sm font-medium">Друзья</span>
       </Button>
       <Button 
-        onClick={() => navigate('/my-ads')}
+        onClick={() => handlePremiumAction('ads')}
         variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl"
+        className="h-20 flex-col gap-2 rounded-2xl relative"
       >
+        {!user?.is_vip && (
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+            <Icon name="Lock" size={12} className="text-white" />
+          </div>
+        )}
         <Icon name="MessageSquare" size={24} />
         <span className="text-sm font-medium">Объявления</span>
       </Button>
       <Button 
-        onClick={() => navigate('/my-services')}
+        onClick={() => handlePremiumAction('services')}
         variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl"
+        className="h-20 flex-col gap-2 rounded-2xl relative"
       >
+        {!user?.is_vip && (
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+            <Icon name="Lock" size={12} className="text-white" />
+          </div>
+        )}
         <Icon name="Briefcase" size={24} />
         <span className="text-sm font-medium">Услуги</span>
       </Button>
       <Button 
-        onClick={() => navigate('/my-events')}
+        onClick={() => handlePremiumAction('events')}
         variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl"
+        className="h-20 flex-col gap-2 rounded-2xl relative"
       >
+        {!user?.is_vip && (
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+            <Icon name="Lock" size={12} className="text-white" />
+          </div>
+        )}
         <Icon name="Calendar" size={24} />
         <span className="text-sm font-medium">Мероприятия</span>
       </Button>
