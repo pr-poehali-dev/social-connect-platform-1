@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
+const ADMIN_API = 'https://functions.poehali.dev/1a9ecaa4-2882-4498-965a-c16eb32920ec';
+
 interface PriceSettings {
   premium_month: number;
   premium_3months: number;
@@ -50,7 +52,47 @@ const AdminPrices = () => {
       navigate('/admin/login');
       return;
     }
+    loadPrices();
   }, [navigate]);
+
+  const loadPrices = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch(`${ADMIN_API}?action=get_prices`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const pricesData = data.prices;
+        
+        const newPrices: PriceSettings = {
+          premium_month: pricesData.premium_month?.price || 299,
+          premium_3months: pricesData.premium_3months?.price || 699,
+          premium_6months: pricesData.premium_6months?.price || 1199,
+          premium_year: pricesData.premium_year?.price || 1999,
+          profile_boost_1day: pricesData.profile_boost_1day?.price || 49,
+          profile_boost_3days: pricesData.profile_boost_3days?.price || 99,
+          profile_boost_week: pricesData.profile_boost_week?.price || 199,
+          gift_rose: pricesData.gift_rose?.price || 29,
+          gift_heart: pricesData.gift_heart?.price || 49,
+          gift_kiss: pricesData.gift_kiss?.price || 79,
+          gift_teddy: pricesData.gift_teddy?.price || 149,
+          gift_champagne: pricesData.gift_champagne?.price || 249,
+          gift_diamond: pricesData.gift_diamond?.price || 499
+        };
+        
+        setPrices(newPrices);
+      }
+    } catch (error) {
+      console.error('Failed to load prices:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (field: keyof PriceSettings, value: string) => {
     const numValue = parseInt(value) || 0;
@@ -60,11 +102,24 @@ const AdminPrices = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: 'Цены сохранены',
-        description: 'Новые цены успешно применены',
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch(`${ADMIN_API}?action=update_prices`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ prices })
       });
+
+      if (response.ok) {
+        toast({
+          title: 'Цены сохранены',
+          description: 'Новые цены успешно применены',
+        });
+      } else {
+        throw new Error('Save failed');
+      }
     } catch (error) {
       toast({
         title: 'Ошибка',

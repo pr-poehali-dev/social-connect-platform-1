@@ -678,6 +678,56 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        # Получить все цены
+        if action == 'get_prices':
+            cur.execute(f"SELECT service_key, service_name, price, category, description FROM {SCHEMA}platform_prices ORDER BY category, id")
+            prices = {}
+            for row in cur.fetchall():
+                prices[row[0]] = {
+                    'name': row[1],
+                    'price': row[2],
+                    'category': row[3],
+                    'description': row[4]
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'prices': prices}),
+                'isBase64Encoded': False
+            }
+        
+        # Обновить цены
+        if action == 'update_prices':
+            if not admin_data:
+                return {'statusCode': 401, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Требуется авторизация'}), 'isBase64Encoded': False}
+            
+            admin_id = admin_data['admin_id']
+            prices = body.get('prices', {})
+            
+            if not prices:
+                return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Требуется prices'}), 'isBase64Encoded': False}
+            
+            updated_count = 0
+            for service_key, price_value in prices.items():
+                cur.execute(
+                    f"UPDATE {SCHEMA}platform_prices SET price = %s, updated_at = %s WHERE service_key = %s",
+                    (price_value, datetime.now(), service_key)
+                )
+                if cur.rowcount > 0:
+                    updated_count += 1
+            
+            conn.commit()
+            
+            log_admin_action(admin_id, 'update_prices', 'prices', None, {'count': updated_count}, ip, user_agent)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True, 'updated': updated_count}),
+                'isBase64Encoded': False
+            }
+        
         return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Неизвестное действие'}), 'isBase64Encoded': False}
     
     except Exception as e:
