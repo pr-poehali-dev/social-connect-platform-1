@@ -227,25 +227,23 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                 <Icon name="Image" size={16} className="mr-2" />
                 Открытый альбом
               </Button>
+              <Button
+                variant={showPrivateTab ? 'default' : 'outline'}
+                onClick={() => setShowPrivateTab(true)}
+                className="rounded-xl"
+              >
+                <Icon name="Lock" size={16} className="mr-2" />
+                Закрытый альбом
+              </Button>
               {editMode && (
-                <>
-                  <Button
-                    variant={showPrivateTab ? 'default' : 'outline'}
-                    onClick={() => setShowPrivateTab(true)}
-                    className="rounded-xl"
-                  >
-                    <Icon name="Lock" size={16} className="mr-2" />
-                    Закрытый альбом
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAccessDialog(true)}
-                    className="rounded-xl"
-                    title="Управление доступом"
-                  >
-                    <Icon name="Users" size={16} />
-                  </Button>
-                </>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAccessDialog(true)}
+                  className="rounded-xl"
+                  title="Управление доступом"
+                >
+                  <Icon name="Users" size={16} />
+                </Button>
               )}
             </div>
             {photos.length === 0 && (
