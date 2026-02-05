@@ -231,7 +231,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                 className="rounded-xl"
               >
                 <Icon name="Image" size={16} className="mr-2" />
-                Открытый альбом
+                Открытый
               </Button>
               <Button
                 variant={showPrivateTab ? 'default' : 'outline'}
