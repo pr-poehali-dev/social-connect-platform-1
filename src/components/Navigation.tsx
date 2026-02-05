@@ -355,6 +355,18 @@ const Navigation = () => {
         isOpen={showVoiceAssistant} 
         onOpenChange={setShowVoiceAssistant} 
       />
+
+      <button
+        onClick={() => setShowVoiceAssistant(true)}
+        className="hidden lg:flex fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all items-center justify-center group"
+        title="Голосовой помощник"
+      >
+        <img 
+          src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/32de42ae-a70c-4136-be68-92ecb5fe2df8.png" 
+          alt="AI" 
+          className="w-8 h-8 group-hover:scale-110 transition-transform"
+        />
+      </button>
     </>
   );
 };
