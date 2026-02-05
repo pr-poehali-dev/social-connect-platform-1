@@ -79,18 +79,24 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
           },
           body: JSON.stringify({ 
             image: base64String,
-            position: uploadingPosition
+            position: uploadingPosition,
+            is_private: showPrivateTab
           })
         });
 
         if (response.ok) {
           toast({
             title: 'Фото добавлено',
-            description: 'Фотография успешно загружена в галерею',
+            description: `Фотография добавлена в ${showPrivateTab ? 'закрытый' : 'открытый'} альбом`,
           });
           onPhotosUpdate();
         } else {
-          throw new Error('Upload failed');
+          const errorData = await response.json();
+          toast({
+            title: 'Ошибка загрузки',
+            description: errorData.error || 'Не удалось загрузить фото',
+            variant: 'destructive',
+          });
         }
       };
       reader.readAsDataURL(croppedBlob);
@@ -272,8 +278,8 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
               <p className="text-sm text-muted-foreground">Добавьте свои фотографии</p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
-              {localPhotos.filter(p => editMode ? (showPrivateTab ? p.is_private : !p.is_private) : !p.is_private).map((photo, index) => (
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {localPhotos.filter(p => showPrivateTab ? p.is_private : !p.is_private).map((photo, index) => (
                 <div key={photo.id} className="relative aspect-square group">
                   <img
                     src={photo.photo_url}
@@ -362,23 +368,28 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                 </div>
               ))}
               
-              {photos.length < 9 && (
-                <div className="relative aspect-square">
-                  <button
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*';
-                      input.onchange = (e) => handleFileSelect(e as any, photos.length);
-                      input.click();
-                    }}
-                    className="w-full h-full border-2 border-dashed border-muted-foreground/30 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary"
-                  >
-                    <Icon name="Plus" size={32} />
-                    <span className="text-xs">Добавить фото</span>
-                  </button>
-                </div>
-              )}
+              {editMode && (() => {
+                const currentAlbumPhotos = localPhotos.filter(p => showPrivateTab ? p.is_private : !p.is_private);
+                const maxPhotos = showPrivateTab ? 30 : 9;
+                return currentAlbumPhotos.length < maxPhotos && (
+                  <div className="relative aspect-square">
+                    <button
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = (e) => handleFileSelect(e as any, currentAlbumPhotos.length);
+                        input.click();
+                      }}
+                      className="w-full h-full border-2 border-dashed border-muted-foreground/30 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary"
+                    >
+                      <Icon name="Plus" size={32} />
+                      <span className="text-xs">Добавить фото</span>
+                      <span className="text-xs opacity-70">{currentAlbumPhotos.length}/{maxPhotos}</span>
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </CardContent>

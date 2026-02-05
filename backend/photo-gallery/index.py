@@ -126,19 +126,23 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            # Проверяем лимит для каждого альбома отдельно
             cursor.execute(f"""
                 SELECT COUNT(*) as count FROM {schema}.user_photos
-                WHERE user_id = %s
-            """, (user_id,))
+                WHERE user_id = %s AND is_private = %s
+            """, (user_id, is_private))
             count = cursor.fetchone()['count']
             
-            if count >= 9:
+            max_photos = 30 if is_private else 9
+            error_msg = f'Максимум {max_photos} фотографий в {"закрытом" if is_private else "открытом"} альбоме'
+            
+            if count >= max_photos:
                 cursor.close()
                 conn.close()
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Максимум 9 фотографий'}),
+                    'body': json.dumps({'error': error_msg}),
                     'isBase64Encoded': False
                 }
             
