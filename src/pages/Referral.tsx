@@ -226,7 +226,9 @@ const Referral = () => {
                         {referralInfo?.referral_code || 'Загрузка...'}
                       </code>
                       <Button 
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           if (referralInfo?.referral_code) {
                             navigator.clipboard.writeText(referralInfo.referral_code);
                             toast({ title: 'Скопировано!', description: 'Код в буфере обмена' });
