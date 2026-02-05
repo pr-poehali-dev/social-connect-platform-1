@@ -393,7 +393,7 @@ const DatingProfile = () => {
               onToggleFavorite={handleToggleFavorite}
             />
             
-            <div className="hidden md:block">
+            <div className="hidden md:block mt-4">
               <ProfileActions
                 isOwnProfile={isOwnProfile}
                 isFriend={isFriend}
