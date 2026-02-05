@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useRef } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 import { useRadio } from '@/contexts/RadioContext';
+import VoiceAssistantModal from '@/components/VoiceAssistantModal';
 
 const Navigation = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const Navigation = () => {
   const { isPlaying, togglePlay } = useRadio();
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const avatarCacheRef = useRef<string | null>(null);
+  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
 
   useEffect(() => {
     const authStatus = isAuthenticated();
@@ -256,8 +258,56 @@ const Navigation = () => {
       </div>
 
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe">
-        <div className="grid grid-cols-6 gap-1 px-2 py-2">
-          {bottomNavItems.map((item) => {
+        <div className="grid grid-cols-7 gap-1 px-2 py-2">
+          {bottomNavItems.slice(0, 3).map((item) => {
+            if (item.path === '/radio') {
+              return (
+                <Button
+                  key={item.path}
+                  onClick={() => window.open('/radio', '_blank')}
+                  variant="ghost"
+                  size="icon"
+                  className="h-12 w-full relative"
+                  title="Открыть радио в новом окне"
+                >
+                  <Icon name="Music" size={24} />
+                  {isPlaying && (
+                    <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  )}
+                </Button>
+              );
+            }
+            
+            return (
+              <Link key={item.path} to={item.path}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-12 w-full relative"
+                  title={item.label}
+                >
+                  <Icon name={item.icon} size={24} />
+                  {item.path === '/messages' && unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount > 9 ? '9' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            );
+          })}
+          
+          <Button
+            onClick={() => setShowVoiceAssistant(true)}
+            variant="ghost"
+            size="icon"
+            className="h-12 w-full relative bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
+            title="Голосовой помощник"
+          >
+            <Icon name="Mic" size={24} className="text-purple-500" />
+          </Button>
+
+          {bottomNavItems.slice(3).map((item) => {
             if (item.path === '/radio') {
               return (
                 <Button
@@ -296,6 +346,11 @@ const Navigation = () => {
           })}
         </div>
       </div>
+
+      <VoiceAssistantModal 
+        isOpen={showVoiceAssistant} 
+        onOpenChange={setShowVoiceAssistant} 
+      />
     </>
   );
 };
