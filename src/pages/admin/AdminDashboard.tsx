@@ -14,6 +14,7 @@ interface PeriodStats {
   new_users: number;
   revenue: number;
   active_users: number;
+  paid_subscribers: number;
   user_growth_percent: number;
   revenue_growth_percent: number;
   activity_growth_percent: number;
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
     new_users: 0,
     revenue: 0,
     active_users: 0,
+    paid_subscribers: 0,
     user_growth_percent: 0,
     revenue_growth_percent: 0,
     activity_growth_percent: 0
@@ -90,6 +92,7 @@ const AdminDashboard = () => {
           new_users: 0,
           revenue: 0,
           active_users: 0,
+          paid_subscribers: 0,
           user_growth_percent: 0,
           revenue_growth_percent: 0,
           activity_growth_percent: 0
@@ -214,7 +217,7 @@ const AdminDashboard = () => {
               </TabsList>
 
               <TabsContent value="general" className="space-y-6 mt-6">
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                   <Card className="border-2">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -259,6 +262,21 @@ const AdminDashboard = () => {
                       <p className={`text-sm mt-1 flex items-center gap-1 ${periodStats.activity_growth_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         <Icon name={periodStats.activity_growth_percent >= 0 ? 'TrendingUp' : 'TrendingDown'} size={16} />
                         {periodStats.activity_growth_percent >= 0 ? '+' : ''}{periodStats.activity_growth_percent.toFixed(1)}% к предыдущему периоду
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Icon name="Crown" size={18} className="text-yellow-500" />
+                        Платные подписчики
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{periodStats.paid_subscribers}</div>
+                      <p className="text-sm mt-1 text-muted-foreground">
+                        Активные Premium пользователи
                       </p>
                     </CardContent>
                   </Card>
@@ -368,6 +386,20 @@ const AdminDashboard = () => {
                 </CardTitle>
                 <CardDescription className="text-white/80">
                   Рассмотрение жалоб на пользователей
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/admin/deposits">
+            <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="ArrowDownToLine" size={24} />
+                  Пополнения
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  История пополнений балансов пользователей
                 </CardDescription>
               </CardHeader>
             </Card>
