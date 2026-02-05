@@ -50,7 +50,25 @@ const Referral = () => {
   }, []);
 
   const loadReferralData = async () => {
-    const userId = localStorage.getItem('userId');
+    let userId = localStorage.getItem('userId');
+    
+    // Fallback: try to get userId from user object
+    if (!userId) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          userId = user.id?.toString();
+          if (userId) {
+            localStorage.setItem('userId', userId);
+            console.log('Recovered userId from user object:', userId);
+          }
+        } catch (e) {
+          console.error('Failed to parse user object:', e);
+        }
+      }
+    }
+    
     console.log('Loading referral data for userId:', userId);
     
     if (!userId) {
