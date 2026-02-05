@@ -18,6 +18,10 @@ const BanOverlay = ({ reason, bannedUntil, banCount }: BanOverlayProps) => {
 
       if (distance < 0) {
         setTimeLeft('Бан истёк');
+        // Автоматически перезагружаем страницу через 2 секунды после истечения бана
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
         return;
       }
 

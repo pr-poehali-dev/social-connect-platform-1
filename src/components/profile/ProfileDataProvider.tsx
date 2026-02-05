@@ -155,6 +155,20 @@ export const useProfileData = () => {
     loadProfile();
     loadPhotos();
     loadVerificationStatus();
+    
+    // Проверка истекших банов каждую минуту
+    const checkBansInterval = setInterval(() => {
+      fetch('https://functions.poehali.dev/555a1b0a-0919-4f3b-91dd-451cd9f9a5a5')
+        .then(() => {
+          // После проверки банов перезагружаем профиль, если пользователь был забанен
+          if (user && user.is_banned) {
+            loadProfile();
+          }
+        })
+        .catch(err => console.error('Failed to check expired bans:', err));
+    }, 60000); // Каждую минуту
+    
+    return () => clearInterval(checkBansInterval);
   }, [navigate, toast]);
 
   const loadVerificationStatus = async () => {
