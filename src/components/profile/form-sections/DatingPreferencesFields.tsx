@@ -27,7 +27,7 @@ const DatingPreferencesFields = ({ formData, setFormData }: DatingPreferencesFie
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="male">Мужчина</SelectItem>
-              <SelectItem value="female">Женщина</SelectItem>
+              <SelectItem value="female">Девушка</SelectItem>
               <SelectItem value="any">Любой</SelectItem>
             </SelectContent>
           </Select>
