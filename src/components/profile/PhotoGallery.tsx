@@ -12,6 +12,7 @@ interface Photo {
   created_at: string;
   likes_count?: number;
   is_liked?: boolean;
+  is_private?: boolean;
 }
 
 interface PhotoGalleryProps {
@@ -35,6 +36,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
   const [showCropper, setShowCropper] = useState(false);
   const [uploadingPosition, setUploadingPosition] = useState<number | null>(null);
   const [fullscreenPhoto, setFullscreenPhoto] = useState<number | null>(null);
+  const [showPrivateTab, setShowPrivateTab] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, position: number) => {
     const file = event.target.files?.[0];
@@ -181,7 +183,26 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
       <Card className="rounded-3xl border-2">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">Галерея фотографий</h3>
+            <div className="flex gap-2">
+              <Button
+                variant={!showPrivateTab ? 'default' : 'outline'}
+                onClick={() => setShowPrivateTab(false)}
+                className="rounded-xl"
+              >
+                <Icon name="Image" size={16} className="mr-2" />
+                Открытый альбом
+              </Button>
+              {editMode && (
+                <Button
+                  variant={showPrivateTab ? 'default' : 'outline'}
+                  onClick={() => setShowPrivateTab(true)}
+                  className="rounded-xl"
+                >
+                  <Icon name="Lock" size={16} className="mr-2" />
+                  Закрытый альбом
+                </Button>
+              )}
+            </div>
             {photos.length === 0 && (
               <Button
                 onClick={() => {
@@ -209,7 +230,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-4">
-              {localPhotos.map((photo, index) => (
+              {localPhotos.filter(p => editMode ? (showPrivateTab ? p.is_private : !p.is_private) : !p.is_private).map((photo, index) => (
                 <div key={photo.id} className="relative aspect-square group">
                   <img
                     src={photo.photo_url}
@@ -239,10 +260,10 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                   )}
                   {editMode && (
                     <>
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-2xl flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 rounded-2xl flex items-center justify-center gap-2">
                         <Button
                           size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-12 h-12 bg-white text-primary hover:bg-white/90"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-10 h-10 bg-white text-primary hover:bg-white/90"
                           onClick={() => {
                             const input = document.createElement('input');
                             input.type = 'file';
@@ -251,7 +272,32 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                             input.click();
                           }}
                         >
-                          <Icon name="Camera" size={24} />
+                          <Icon name="Camera" size={20} />
+                        </Button>
+                        <Button
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full w-10 h-10 bg-white text-blue-500 hover:bg-blue-500 hover:text-white"
+                          onClick={async () => {
+                            const token = localStorage.getItem('access_token');
+                            const response = await fetch(`${GALLERY_URL}?action=toggle-privacy`, {
+                              method: 'POST',
+                              headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                              },
+                              body: JSON.dumps({ photo_id: photo.id })
+                            });
+                            if (response.ok) {
+                              const data = await response.json();
+                              toast({ 
+                                title: data.is_private ? 'Фото скрыто' : 'Фото открыто',
+                                description: data.is_private ? 'Фото перемещено в закрытый альбом' : 'Фото перемещено в открытый альбом'
+                              });
+                              onPhotosUpdate();
+                            }
+                          }}
+                        >
+                          <Icon name={photo.is_private ? "Unlock" : "Lock"} size={18} />
                         </Button>
                       </div>
                       <Button
@@ -262,6 +308,12 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                       >
                         <Icon name="X" size={16} />
                       </Button>
+                      {photo.is_private && (
+                        <div className="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                          <Icon name="Lock" size={12} />
+                          Закрыто
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

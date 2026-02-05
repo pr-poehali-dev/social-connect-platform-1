@@ -69,22 +69,35 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            # Проверяем, есть ли доступ к закрытым фото
+            has_access = False
+            if user_id and user_id != target_user_id:
+                cursor.execute(f"""
+                    SELECT COUNT(*) as cnt FROM {schema}.photo_access
+                    WHERE user_id = %s AND granted_to_user_id = %s
+                """, (target_user_id, user_id))
+                has_access = cursor.fetchone()['cnt'] > 0
+            
+            # Владелец видит все фото, другие пользователи - только публичные (или с доступом)
+            is_owner = (user_id == int(target_user_id))
+            
             cursor.execute(f"""
                 SELECT 
                     p.id, 
                     p.photo_url, 
                     p.position, 
                     p.created_at,
+                    p.is_private,
                     COUNT(DISTINCT pl.id) as likes_count,
                     CASE WHEN %s IS NOT NULL THEN 
                         EXISTS(SELECT 1 FROM {schema}.photo_likes WHERE photo_id = p.id AND user_id = %s)
                     ELSE FALSE END as is_liked
                 FROM {schema}.user_photos p
                 LEFT JOIN {schema}.photo_likes pl ON pl.photo_id = p.id
-                WHERE p.user_id = %s
-                GROUP BY p.id, p.photo_url, p.position, p.created_at
+                WHERE p.user_id = %s AND (%s OR NOT p.is_private OR %s)
+                GROUP BY p.id, p.photo_url, p.position, p.created_at, p.is_private
                 ORDER BY p.position ASC
-            """, (user_id, user_id, target_user_id))
+            """, (user_id, user_id, target_user_id, is_owner, has_access))
             
             photos = cursor.fetchall()
             cursor.close()
@@ -101,6 +114,7 @@ def handler(event: dict, context) -> dict:
             body = json.loads(event.get('body', '{}'))
             image_base64 = body.get('image')
             position = body.get('position', 0)
+            is_private = body.get('is_private', False)
             
             if not image_base64:
                 cursor.close()
@@ -148,11 +162,11 @@ def handler(event: dict, context) -> dict:
             photo_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{file_key}"
             
             cursor.execute(f"""
-                INSERT INTO {schema}.user_photos (user_id, photo_url, position)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (user_id, position) DO UPDATE SET photo_url = EXCLUDED.photo_url
-                RETURNING id, photo_url, position, created_at
-            """, (user_id, photo_url, position))
+                INSERT INTO {schema}.user_photos (user_id, photo_url, position, is_private)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (user_id, position) DO UPDATE SET photo_url = EXCLUDED.photo_url, is_private = EXCLUDED.is_private
+                RETURNING id, photo_url, position, is_private, created_at
+            """, (user_id, photo_url, position, is_private))
             
             new_photo = cursor.fetchone()
             conn.commit()
@@ -257,6 +271,129 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'success': True, 'likes_count': likes_count}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'POST' and action == 'toggle-privacy':
+            body = json.loads(event.get('body', '{}'))
+            photo_id = body.get('photo_id')
+            
+            if not photo_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID фото не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f"""
+                UPDATE {schema}.user_photos
+                SET is_private = NOT is_private
+                WHERE id = %s AND user_id = %s
+                RETURNING id, is_private
+            """, (photo_id, user_id))
+            
+            result = cursor.fetchone()
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            if result:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True, 'is_private': result['is_private']}),
+                    'isBase64Encoded': False
+                }
+            else:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Фото не найдено'}),
+                    'isBase64Encoded': False
+                }
+        
+        elif method == 'POST' and action == 'grant-access':
+            body = json.loads(event.get('body', '{}'))
+            granted_to_user_id = body.get('granted_to_user_id')
+            
+            if not granted_to_user_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID пользователя не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f"""
+                INSERT INTO {schema}.photo_access (user_id, granted_to_user_id)
+                VALUES (%s, %s)
+                ON CONFLICT (user_id, granted_to_user_id) DO NOTHING
+                RETURNING id
+            """, (user_id, granted_to_user_id))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'POST' and action == 'revoke-access':
+            body = json.loads(event.get('body', '{}'))
+            granted_to_user_id = body.get('granted_to_user_id')
+            
+            if not granted_to_user_id:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'ID пользователя не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            cursor.execute(f"""
+                DELETE FROM {schema}.photo_access
+                WHERE user_id = %s AND granted_to_user_id = %s
+            """, (user_id, granted_to_user_id))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True}),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'GET' and action == 'access-list':
+            # Список пользователей с доступом к закрытым фото
+            cursor.execute(f"""
+                SELECT pa.granted_to_user_id, u.first_name, u.last_name, u.nickname, u.avatar_url
+                FROM {schema}.photo_access pa
+                JOIN {schema}.users u ON pa.granted_to_user_id = u.id
+                WHERE pa.user_id = %s
+            """, (user_id,))
+            
+            users = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'users': [dict(u) for u in users]}, default=str),
                 'isBase64Encoded': False
             }
         
