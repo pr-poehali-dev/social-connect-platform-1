@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { isAuthenticated } from '@/utils/auth';
+import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 
 const UserProfile = () => {
   const { nickname } = useParams<{ nickname: string }>();
@@ -31,6 +32,8 @@ const UserProfile = () => {
       avatar_url: null,
       joinedDate: new Date().toLocaleDateString('ru-RU'),
       bio: 'Привет! Я новый пользователь ConnectHub 👋',
+      is_vip: true,
+      profile_background: 'gradient-purple',
       stats: {
         dating: 0,
         ads: 0,
@@ -90,9 +93,17 @@ const UserProfile = () => {
       
       <main className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto rounded-3xl border-2 shadow-2xl">
-            <CardHeader className="text-center space-y-6 pb-8">
-              <Avatar className="w-32 h-32 mx-auto border-4 border-primary">
+          <Card className="max-w-4xl mx-auto rounded-3xl border-2 shadow-2xl overflow-hidden">
+            {user.is_vip && user.profile_background && (
+              <div 
+                className={`h-64 ${getBackgroundClass(user.profile_background)} relative`}
+                style={getBackgroundStyle(user.profile_background)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+              </div>
+            )}
+            <CardHeader className={`text-center space-y-6 pb-8 ${user.is_vip && user.profile_background ? '-mt-32 relative z-10' : ''}`}>
+              <Avatar className="w-32 h-32 mx-auto border-4 border-primary shadow-xl">
                 {user.avatar_url ? (
                   <AvatarImage src={user.avatar_url} alt={user.name} />
                 ) : (
@@ -104,6 +115,12 @@ const UserProfile = () => {
               <div>
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <CardTitle className="text-3xl">{user.name}</CardTitle>
+                  {user.is_vip && (
+                    <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                      <Icon name="Crown" size={14} className="mr-1" />
+                      Premium
+                    </Badge>
+                  )}
                   {isOwner && (
                     <Link to="/profile">
                       <Button variant="ghost" size="icon" className="rounded-xl">

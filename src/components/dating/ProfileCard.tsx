@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 
 interface Profile {
   id: number;
@@ -31,6 +32,8 @@ interface Profile {
   lastSeen?: string;
   isVerified?: boolean;
   status_text?: string;
+  is_vip?: boolean;
+  profile_background?: string;
 }
 
 interface ProfileCardProps {
@@ -166,22 +169,30 @@ const ProfileCard = ({
             className="relative flex-1 overflow-hidden cursor-pointer"
             onClick={handleFlip}
           >
+            {profile.is_vip && profile.profile_background && (
+              <div 
+                className={`absolute inset-0 ${getBackgroundClass(profile.profile_background)}`}
+                style={getBackgroundStyle(profile.profile_background)}
+              />
+            )}
             {profile.image ? (
               <img
                 src={profile.image}
                 alt={profile.name}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                className={`w-full h-full object-cover hover:scale-105 transition-transform duration-300 ${profile.is_vip ? 'relative z-10 mix-blend-overlay opacity-90' : ''}`}
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 flex items-center justify-center">
-                <div className="text-center">
+              <div className={`w-full h-full ${profile.is_vip && profile.profile_background ? getBackgroundClass(profile.profile_background) : 'bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400'} flex items-center justify-center`}
+                style={profile.is_vip && profile.profile_background ? getBackgroundStyle(profile.profile_background) : {}}
+              >
+                <div className="text-center relative z-10">
                   <Icon name="ImageOff" size={64} className="text-white/80 mx-auto mb-4" />
                   <p className="text-white font-bold text-2xl tracking-wider">НЕТ ФОТО</p>
                 </div>
               </div>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-            <div className="absolute top-4 right-4 flex gap-2">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-20"></div>
+            <div className="absolute top-4 right-4 flex gap-2 z-30">
               {profile.isVerified && (
                 <Badge className="bg-blue-500/90 text-white rounded-full px-3 py-1 flex items-center gap-1">
                   <Icon name="BadgeCheck" size={14} />
@@ -195,7 +206,7 @@ const ProfileCard = ({
                 </Badge>
               )}
             </div>
-            <div className="absolute bottom-4 left-4 text-white">
+            <div className="absolute bottom-4 left-4 text-white z-30">
               <h3 
                 className="text-2xl font-bold mb-1 flex items-center gap-2 cursor-pointer hover:underline"
                 onClick={(e) => {

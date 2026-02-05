@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import {
   DropdownMenu,
@@ -12,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import ImageCropper from './ImageCropper';
+import BackgroundSelector from './BackgroundSelector';
 
 interface ProfileHeaderProps {
   user: any;
@@ -27,6 +29,7 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCropper, setShowCropper] = useState(false);
+  const [showBackgroundSelector, setShowBackgroundSelector] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -216,7 +219,15 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
         )}
       </div>
       <div>
-        <CardTitle className="text-3xl mb-2">{user.name}</CardTitle>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <CardTitle className="text-3xl">{user.name}</CardTitle>
+          {user.is_vip && (
+            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+              <Icon name="Crown" size={14} className="mr-1" />
+              Premium
+            </Badge>
+          )}
+        </div>
         <CardDescription className="text-base">{user.email}</CardDescription>
         <p className="text-sm text-muted-foreground mt-2">
           @{user.nickname}
@@ -232,6 +243,16 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
             Мой профиль
           </Button>
         </Link>
+        {editMode && (
+          <Button 
+            variant="outline" 
+            className="gap-2 rounded-xl"
+            onClick={() => setShowBackgroundSelector(true)}
+          >
+            <Icon name="Sparkles" size={18} />
+            Фон анкеты
+          </Button>
+        )}
         <Button onClick={onLogout} variant="outline" className="gap-2 rounded-xl">
           <Icon name="LogOut" size={18} />
           Выйти
@@ -246,6 +267,17 @@ const ProfileHeader = ({ user, editMode, onLogout, onDeleteAccount, onAvatarUpda
         </Button>
       </div>
       </CardHeader>
+      <BackgroundSelector
+        isOpen={showBackgroundSelector}
+        onClose={() => setShowBackgroundSelector(false)}
+        currentBackground={user.profile_background}
+        isVip={user.is_vip || false}
+        onBackgroundChange={(bg) => {
+          if (onAvatarUpdate) {
+            window.location.reload();
+          }
+        }}
+      />
     </>
   );
 };
