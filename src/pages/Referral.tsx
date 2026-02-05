@@ -21,6 +21,7 @@ interface Referral {
 interface ReferralInfo {
   referral_code: string;
   referrals_count: number;
+  bonus_balance: number;
 }
 
 const Referral = () => {
@@ -90,7 +91,7 @@ const Referral = () => {
 
   const stats = [
     { icon: 'Users', label: 'Приглашено друзей', value: String(referralInfo?.referrals_count || 0), color: 'from-emerald-500 to-teal-500' },
-    { icon: 'Coins', label: 'Заработано', value: '0 ₽', color: 'from-amber-500 to-orange-500' },
+    { icon: 'Wallet', label: 'Бонусный баланс', value: `${referralInfo?.bonus_balance || 0} ₽`, color: 'from-amber-500 to-orange-500' },
     { icon: 'TrendingUp', label: 'За этот месяц', value: '0 ₽', color: 'from-blue-500 to-cyan-500' }
   ];
 

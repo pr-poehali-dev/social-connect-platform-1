@@ -52,7 +52,7 @@ def handler(event: dict, context) -> dict:
             if path == 'info':
                 # Получение информации о реферальном коде текущего пользователя
                 cur.execute("""
-                    SELECT referral_code, 
+                    SELECT referral_code, bonus_balance,
                            (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.users WHERE referred_by = %s) as referrals_count
                     FROM t_p19021063_social_connect_platf.users 
                     WHERE id = %s
@@ -73,7 +73,8 @@ def handler(event: dict, context) -> dict:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
                         'referral_code': result['referral_code'],
-                        'referrals_count': result['referrals_count']
+                        'referrals_count': result['referrals_count'],
+                        'bonus_balance': float(result['bonus_balance'])
                     }),
                     'isBase64Encoded': False
                 }
