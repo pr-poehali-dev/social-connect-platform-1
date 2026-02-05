@@ -237,10 +237,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
                 variant={showPrivateTab ? 'default' : 'outline'}
                 onClick={() => setShowPrivateTab(true)}
                 className="rounded-xl"
-              >
-                <Icon name="Lock" size={16} className="mr-2" />
-                Закрытый альбом
-              </Button>
+              >Закрытый</Button>
               {editMode && (
                 <Button
                   variant="outline"
