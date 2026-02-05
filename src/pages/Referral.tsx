@@ -28,7 +28,7 @@ const Referral = () => {
   const [loading, setLoading] = useState(true);
 
   const referralLink = referralInfo?.referral_code 
-    ? `${window.location.origin}/register?ref=${referralInfo.referral_code}`
+    ? `http://loveis.city/ref${referralInfo.referral_code}`
     : '';
 
   useEffect(() => {
