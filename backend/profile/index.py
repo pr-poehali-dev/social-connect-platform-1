@@ -166,6 +166,35 @@ def handler(event: dict, context) -> dict:
                     WHERE id = {user_id}
                 '''
                 cur.execute(query)
+                
+                # Обновляем имена в диалогах, если изменилось first_name или last_name
+                if 'first_name' in data or 'last_name' in data:
+                    # Получаем актуальные данные пользователя
+                    cur.execute(f'''
+                        SELECT first_name, last_name, nickname 
+                        FROM t_p19021063_social_connect_platf.users 
+                        WHERE id = {user_id}
+                    ''')
+                    user_data = cur.fetchone()
+                    
+                    if user_data:
+                        # Формируем новое имя
+                        new_name = f"{user_data[0] or ''} {user_data[1] or ''}".strip()
+                        if not new_name:
+                            new_name = user_data[2] or 'Пользователь'
+                        
+                        # Обновляем имя во всех диалогах, где этот пользователь является собеседником
+                        escaped_name = new_name.replace("'", "''")
+                        cur.execute(f'''
+                            UPDATE t_p19021063_social_connect_platf.conversations c
+                            SET name = '{escaped_name}'
+                            FROM t_p19021063_social_connect_platf.conversation_participants cp
+                            WHERE c.id = cp.conversation_id 
+                            AND c.type = 'personal'
+                            AND cp.user_id = {user_id}
+                            AND c.created_by != {user_id}
+                        ''')
+                
                 conn.commit()
                 
                 return {
