@@ -28,6 +28,7 @@ interface UserListProps {
   onBan?: (user: User) => void;
   onSetVip: (user: User) => void;
   onRemoveVip: (userId: number) => void;
+  onDelete?: (user: User) => void;
 }
 
 const UserList = ({
@@ -41,7 +42,8 @@ const UserList = ({
   onUnblock,
   onBan,
   onSetVip,
-  onRemoveVip
+  onRemoveVip,
+  onDelete
 }: UserListProps) => {
   if (loading) {
     return <div className="text-center py-8">Загрузка...</div>;
@@ -101,6 +103,11 @@ const UserList = ({
             ) : (
               <Button size="sm" variant="outline" onClick={() => onSetVip(user)} title="Установить VIP">
                 <Icon name="Crown" size={16} />
+              </Button>
+            )}
+            {onDelete && (
+              <Button size="sm" variant="destructive" onClick={() => onDelete(user)} title="Удалить пользователя">
+                <Icon name="Trash2" size={16} />
               </Button>
             )}
           </div>

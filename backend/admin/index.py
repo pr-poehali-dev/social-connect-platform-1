@@ -475,6 +475,18 @@ def handler(event: dict, context) -> dict:
             
             return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
         
+        # Удалить пользователя из базы данных
+        if action == 'delete_user':
+            user_id = body.get('user_id')
+            
+            # Удаляем пользователя и все связанные данные (CASCADE удалит связанные записи)
+            cur.execute(f"DELETE FROM {SCHEMA}users WHERE id = %s", (user_id,))
+            conn.commit()
+            
+            log_admin_action(admin_id, 'delete_user', 'user', user_id, None, ip, user_agent)
+            
+            return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+        
         # Управление разделами сайта
         if action == 'get_sections':
             cur.execute("SELECT id, section_key, section_name, is_enabled, settings, updated_at FROM site_sections ORDER BY section_key")

@@ -28,6 +28,8 @@ interface UserActionDialogsProps {
   setShowVipDialog: (show: boolean) => void;
   showMessageDialog: boolean;
   setShowMessageDialog: (show: boolean) => void;
+  showDeleteDialog?: boolean;
+  setShowDeleteDialog?: (show: boolean) => void;
   selectedUser: User | null;
   blockReason: string;
   setBlockReason: (reason: string) => void;
@@ -41,6 +43,7 @@ interface UserActionDialogsProps {
   onBan?: () => void;
   onSetVip: () => void;
   onSendMessage: () => void;
+  onDelete?: () => void;
 }
 
 const UserActionDialogs = ({
@@ -52,6 +55,8 @@ const UserActionDialogs = ({
   setShowVipDialog,
   showMessageDialog,
   setShowMessageDialog,
+  showDeleteDialog,
+  setShowDeleteDialog,
   selectedUser,
   blockReason,
   setBlockReason,
@@ -64,7 +69,8 @@ const UserActionDialogs = ({
   onBlock,
   onBan,
   onSetVip,
-  onSendMessage
+  onSendMessage,
+  onDelete
 }: UserActionDialogsProps) => {
   return (
     <>
@@ -175,6 +181,29 @@ const UserActionDialogs = ({
             <Button onClick={onSendMessage} disabled={!messageText.trim()}>
               <Icon name="Send" size={16} className="mr-2" />
               Отправить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Trash2" className="text-red-500" />
+              Удалить пользователя
+            </DialogTitle>
+            <DialogDescription>
+              Вы уверены, что хотите удалить пользователя {selectedUser?.email}? Это действие необратимо и удалит все данные пользователя из базы.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog?.(false)}>
+              Отмена
+            </Button>
+            <Button variant="destructive" onClick={onDelete}>
+              <Icon name="Trash2" size={16} className="mr-2" />
+              Удалить навсегда
             </Button>
           </DialogFooter>
         </DialogContent>

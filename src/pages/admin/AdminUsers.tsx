@@ -48,6 +48,7 @@ const AdminUsers = () => {
   const [showBanDialog, setShowBanDialog] = useState(false);
   const [showVipDialog, setShowVipDialog] = useState(false);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [blockReason, setBlockReason] = useState('');
   const [banReason, setBanReason] = useState('');
   const [vipDays, setVipDays] = useState('30');
@@ -281,6 +282,36 @@ const AdminUsers = () => {
     }
   };
 
+  const deleteUser = async () => {
+    const token = localStorage.getItem('admin_token');
+    if (!token || !selectedUser) return;
+
+    try {
+      const response = await fetch(`${ADMIN_API}?action=delete_user`, {
+        method: 'POST',
+        headers: {
+          'X-Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'delete_user',
+          user_id: selectedUser.id
+        })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успешно', description: 'Пользователь удален из базы данных' });
+        setShowDeleteDialog(false);
+        setShowDetails(false);
+        loadUsers(token);
+      } else {
+        toast({ title: 'Ошибка', description: 'Не удалось удалить пользователя', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Ошибка подключения', variant: 'destructive' });
+    }
+  };
+
   const verifyUser = async (userId: number) => {
     const token = localStorage.getItem('admin_token');
     if (!token) return;
@@ -372,6 +403,7 @@ const AdminUsers = () => {
               onBan={(user) => { setSelectedUser(user); setShowBanDialog(true); }}
               onSetVip={(user) => { setSelectedUser(user); setShowVipDialog(true); }}
               onRemoveVip={removeVip}
+              onDelete={(user) => { setSelectedUser(user); setShowDeleteDialog(true); }}
             />
 
             <div className="flex justify-center gap-2 mt-6">
@@ -402,6 +434,8 @@ const AdminUsers = () => {
         setShowVipDialog={setShowVipDialog}
         showMessageDialog={showMessageDialog}
         setShowMessageDialog={setShowMessageDialog}
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
         selectedUser={selectedUser}
         blockReason={blockReason}
         setBlockReason={setBlockReason}
@@ -415,6 +449,7 @@ const AdminUsers = () => {
         onBan={banUser}
         onSetVip={setVip}
         onSendMessage={sendMessage}
+        onDelete={deleteUser}
       />
     </div>
   );
