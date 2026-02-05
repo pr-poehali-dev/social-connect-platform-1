@@ -76,20 +76,32 @@ def handler(event: dict, context) -> dict:
     try:
         cur.execute("BEGIN")
         
-        # Увеличиваем баланс пользователя
+        # Рассчитываем бонус за пополнение
+        deposit_bonus_percent = Decimal('0')
+        if amount >= 5000:
+            deposit_bonus_percent = Decimal('0.25')  # 25%
+        elif amount >= 2500:
+            deposit_bonus_percent = Decimal('0.15')  # 15%
+        elif amount >= 1000:
+            deposit_bonus_percent = Decimal('0.10')  # 10%
+        
+        deposit_bonus = amount * deposit_bonus_percent
+        
+        # Увеличиваем баланс пользователя (1 рубль = 1 LOVE)
         cur.execute("""
             UPDATE t_p19021063_social_connect_platf.users 
-            SET balance = balance + %s
+            SET balance = balance + %s,
+                bonus_balance = bonus_balance + %s
             WHERE id = %s
-        """, (amount, user_id))
+        """, (amount, deposit_bonus, user_id))
         
         # Создаем транзакцию пополнения для пользователя
         cur.execute("""
             INSERT INTO t_p19021063_social_connect_platf.transactions 
             (user_id, amount, type, status, description)
-            VALUES (%s, %s, 'deposit', 'completed', 'Пополнение баланса')
+            VALUES (%s, %s, 'deposit', 'completed', %s)
             RETURNING id
-        """, (user_id, amount))
+        """, (user_id, amount, f'Пополнение баланса (+{int(deposit_bonus_percent * 100)}% бонус)' if deposit_bonus > 0 else 'Пополнение баланса'))
         
         transaction_id = cur.fetchone()['id']
         
@@ -129,7 +141,9 @@ def handler(event: dict, context) -> dict:
                 'success': True,
                 'transaction_id': transaction_id,
                 'amount': float(amount),
-                'bonus_credited': bool(result and result['referred_by'])
+                'deposit_bonus': float(deposit_bonus),
+                'bonus_percent': int(deposit_bonus_percent * 100),
+                'referrer_bonus_credited': bool(result and result['referred_by'])
             }),
             'isBase64Encoded': False
         }

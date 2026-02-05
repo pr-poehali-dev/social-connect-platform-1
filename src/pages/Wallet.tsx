@@ -113,9 +113,16 @@ const Wallet = () => {
 
       if (response.ok) {
         const result = await response.json();
+        let description = `Получено ${depositAmount} LOVE токенов`;
+        if (result.deposit_bonus > 0) {
+          description += ` + ${result.deposit_bonus} LOVE бонус (+${result.bonus_percent}%)`;
+        }
+        if (result.referrer_bonus_credited) {
+          description += '. Наставнику начислен бонус!';
+        }
         toast({ 
-          title: 'Успешно!', 
-          description: `Пополнение на ${depositAmount}₽ выполнено${result.bonus_credited ? '. Наставнику начислен бонус!' : ''}` 
+          title: '🎉 Пополнение успешно!', 
+          description 
         });
         setAmount('');
         loadWalletData();

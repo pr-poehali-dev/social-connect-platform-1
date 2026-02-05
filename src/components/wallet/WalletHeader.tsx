@@ -14,9 +14,10 @@ const WalletHeader = ({ balance, bonusBalance }: WalletHeaderProps) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-90 mb-2">Основной баланс</p>
-              <p className="text-4xl font-bold">{balance.toFixed(2)} ₽</p>
+              <p className="text-4xl font-bold">{balance.toFixed(0)} LOVE</p>
+              <p className="text-xs opacity-70 mt-1">1 LOVE = 1 рубль</p>
             </div>
-            <Icon name="Wallet" className="w-12 h-12 opacity-50" />
+            <Icon name="Heart" className="w-12 h-12 opacity-50" />
           </div>
         </CardContent>
       </Card>
@@ -26,7 +27,8 @@ const WalletHeader = ({ balance, bonusBalance }: WalletHeaderProps) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-90 mb-2">Бонусный баланс</p>
-              <p className="text-4xl font-bold">{bonusBalance.toFixed(2)} ₽</p>
+              <p className="text-4xl font-bold">{bonusBalance.toFixed(0)} LOVE</p>
+              <p className="text-xs opacity-70 mt-1">Бонусы за пополнения</p>
             </div>
             <Icon name="Gift" className="w-12 h-12 opacity-50" />
           </div>
