@@ -358,6 +358,34 @@ const AdminDashboard = () => {
               </CardHeader>
             </Card>
           </Link>
+
+          <Link to="/admin/complaints">
+            <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="AlertTriangle" size={24} />
+                  Жалобы
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Рассмотрение жалоб на пользователей
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/admin/payouts">
+            <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white hover:shadow-xl transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Banknote" size={24} />
+                  Выплаты
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Партнёрская программа, вывод средств
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
         </div>
       </main>
     </div>
