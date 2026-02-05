@@ -39,6 +39,8 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
   const [fullscreenPhoto, setFullscreenPhoto] = useState<number | null>(null);
   const [showPrivateTab, setShowPrivateTab] = useState(false);
   const [showAccessDialog, setShowAccessDialog] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, position: number) => {
     const file = event.target.files?.[0];
@@ -161,6 +163,37 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
         description: 'Не удалось удалить фото',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd || fullscreenPhoto === null) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      const nextPhoto = photos
+        .filter(p => p.position > fullscreenPhoto)
+        .sort((a, b) => a.position - b.position)[0];
+      if (nextPhoto) setFullscreenPhoto(nextPhoto.position);
+    }
+
+    if (isRightSwipe) {
+      const prevPhoto = photos
+        .filter(p => p.position < fullscreenPhoto)
+        .sort((a, b) => b.position - a.position)[0];
+      if (prevPhoto) setFullscreenPhoto(prevPhoto.position);
     }
   };
 
@@ -362,11 +395,14 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
         <div 
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           onClick={() => setFullscreenPhoto(null)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <Button
             size="icon"
             variant="ghost"
-            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full w-12 h-12"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full w-12 h-12 z-10"
             onClick={() => setFullscreenPhoto(null)}
           >
             <Icon name="X" size={24} />
@@ -375,7 +411,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
           <Button
             size="icon"
             variant="ghost"
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12 disabled:opacity-30"
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12 disabled:opacity-30"
             disabled={fullscreenPhoto === 0 || !photos.find(p => p.position < fullscreenPhoto)}
             onClick={(e) => {
               e.stopPropagation();
@@ -391,7 +427,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
           <Button
             size="icon"
             variant="ghost"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12 disabled:opacity-30"
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full w-12 h-12 disabled:opacity-30"
             disabled={fullscreenPhoto === 8 || !photos.find(p => p.position > fullscreenPhoto)}
             onClick={(e) => {
               e.stopPropagation();
@@ -404,7 +440,7 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
             <Icon name="ChevronRight" size={32} />
           </Button>
 
-          <div className="flex items-center justify-center px-16">
+          <div className="flex items-center justify-center px-4 md:px-16">
             <div className="aspect-square max-w-[90vh] max-h-[90vh] w-full">
               <img
                 src={photos.find(p => p.position === fullscreenPhoto)?.photo_url}
