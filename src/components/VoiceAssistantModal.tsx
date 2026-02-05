@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -21,9 +22,26 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
   const [resultType, setResultType] = useState<string>('');
   const [query, setQuery] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('voiceAssistantEnabled');
+    if (saved !== null) {
+      setVoiceEnabled(saved === 'true');
+    }
+  }, []);
+
+  const toggleVoice = (enabled: boolean) => {
+    setVoiceEnabled(enabled);
+    localStorage.setItem('voiceAssistantEnabled', String(enabled));
+    if (!enabled && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -121,6 +139,8 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
   };
 
   const speakResults = (count: number, type: string) => {
+    if (!voiceEnabled) return;
+    
     let message = '';
     
     if (count === 0) {
@@ -273,9 +293,19 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon name="Mic" size={24} className="text-purple-500" />
-            Голосовой помощник
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon name="Mic" size={24} className="text-purple-500" />
+              Голосовой помощник
+            </div>
+            <div className="flex items-center gap-2">
+              <Icon name={voiceEnabled ? "Volume2" : "VolumeX"} size={18} className="text-muted-foreground" />
+              <Switch
+                checked={voiceEnabled}
+                onCheckedChange={toggleVoice}
+                className="scale-75"
+              />
+            </div>
           </DialogTitle>
         </DialogHeader>
         
