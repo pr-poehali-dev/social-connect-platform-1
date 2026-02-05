@@ -51,29 +51,7 @@ const Dating = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20">
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center px-4 container mx-auto">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2">
-            <Icon name="ArrowLeft" size={24} />
-          </button>
-          <h1 className="text-2xl font-bold ml-4"></h1>
-          <div className="ml-auto flex items-center gap-2">
-            <Sheet open={showFilters} onOpenChange={setShowFilters}>
-              <SheetTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                  <Icon name="SlidersHorizontal" size={20} />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>Фильтры поиска</SheetTitle>
-                </SheetHeader>
-                <DatingFilters
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                  onReset={resetFilters}
-                />
-              </SheetContent>
-            </Sheet>
-          </div>
+          <h1 className="text-2xl font-bold"></h1>
         </div>
       </header>
 
