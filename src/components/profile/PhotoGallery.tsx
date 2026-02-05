@@ -404,13 +404,15 @@ const PhotoGallery = ({ photos, editMode, onPhotosUpdate, canLike = false }: Pho
             <Icon name="ChevronRight" size={32} />
           </Button>
 
-          <div className="max-w-7xl max-h-[90vh] w-full px-16">
-            <img
-              src={photos.find(p => p.position === fullscreenPhoto)?.photo_url}
-              alt={`Фото ${fullscreenPhoto + 1}`}
-              className="w-full h-full object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
+          <div className="flex items-center justify-center px-16">
+            <div className="aspect-square max-w-[90vh] max-h-[90vh] w-full">
+              <img
+                src={photos.find(p => p.position === fullscreenPhoto)?.photo_url}
+                alt={`Фото ${fullscreenPhoto + 1}`}
+                className="w-full h-full object-cover rounded-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
