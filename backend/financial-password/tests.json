@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Проверка наличия финансового пароля",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "has_password": "boolean"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Установка финансового пароля",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "action": "set",
+        "password": "1234"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

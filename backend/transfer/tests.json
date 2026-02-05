@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "Перевод средств",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "recipient_id": 2,
+        "amount": 100,
+        "financial_password": "1234"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

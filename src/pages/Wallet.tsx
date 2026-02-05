@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const PAYMENT_API_URL = 'https://functions.poehali.dev/ff06b527-a0c8-43ae-82f4-f8732af4d197';
 const WALLET_API_URL = 'https://functions.poehali.dev/dcbc72cf-2de6-43eb-b32a-2cd0c34fe525';
+const FINANCIAL_PASSWORD_API_URL = 'https://functions.poehali.dev/26ccbe26-abcf-43ed-a5b8-36f92e5efa86';
+const TRANSFER_API_URL = 'https://functions.poehali.dev/903553bc-a545-45f4-b978-496148337d2f';
 
 interface Transaction {
   id: number;
@@ -28,12 +30,38 @@ const Wallet = () => {
   const [balance, setBalance] = useState(0);
   const [bonusBalance, setBonusBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [hasFinancialPassword, setHasFinancialPassword] = useState(false);
+  const [showSetPassword, setShowSetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [transferRecipientId, setTransferRecipientId] = useState('');
+  const [transferAmount, setTransferAmount] = useState('');
+  const [financialPassword, setFinancialPassword] = useState('');
 
   const quickAmounts = [500, 1000, 2500, 5000];
 
   useEffect(() => {
     loadWalletData();
+    checkFinancialPassword();
   }, []);
+
+  const checkFinancialPassword = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+      const response = await fetch(FINANCIAL_PASSWORD_API_URL, {
+        headers: { 'X-User-Id': userId }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setHasFinancialPassword(data.has_password);
+      }
+    } catch (error) {
+      console.error('Failed to check financial password:', error);
+    }
+  };
 
   const loadWalletData = async () => {
     const userId = localStorage.getItem('userId');
@@ -103,6 +131,109 @@ const Wallet = () => {
     }
   };
 
+  const handleSetPassword = async () => {
+    if (newPassword.length < 4) {
+      toast({ title: 'Ошибка', description: 'Пароль должен содержать минимум 4 символа', variant: 'destructive' });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({ title: 'Ошибка', description: 'Пароли не совпадают', variant: 'destructive' });
+      return;
+    }
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(FINANCIAL_PASSWORD_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({ action: 'set', password: newPassword })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успешно!', description: 'Финансовый пароль установлен' });
+        setHasFinancialPassword(true);
+        setShowSetPassword(false);
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        const error = await response.json();
+        toast({ title: 'Ошибка', description: error.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Ошибка соединения', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTransfer = async () => {
+    if (!hasFinancialPassword) {
+      toast({ title: 'Внимание', description: 'Сначала установите финансовый пароль', variant: 'destructive' });
+      return;
+    }
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    const amount = parseFloat(transferAmount);
+    if (!amount || amount <= 0) {
+      toast({ title: 'Ошибка', description: 'Укажите корректную сумму', variant: 'destructive' });
+      return;
+    }
+
+    if (!transferRecipientId) {
+      toast({ title: 'Ошибка', description: 'Укажите ID получателя', variant: 'destructive' });
+      return;
+    }
+
+    if (!financialPassword) {
+      toast({ title: 'Ошибка', description: 'Введите финансовый пароль', variant: 'destructive' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(TRANSFER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
+        body: JSON.stringify({
+          recipient_id: parseInt(transferRecipientId),
+          amount: amount,
+          financial_password: financialPassword
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast({ 
+          title: 'Успешно!', 
+          description: `Переведено ${amount}₽ для ${result.recipient}` 
+        });
+        setTransferRecipientId('');
+        setTransferAmount('');
+        setFinancialPassword('');
+        loadWalletData();
+      } else {
+        const error = await response.json();
+        toast({ title: 'Ошибка', description: error.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Ошибка соединения', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const cryptoOptions = [
     { name: 'Bitcoin', symbol: 'BTC', icon: '₿' },
     { name: 'Ethereum', symbol: 'ETH', icon: 'Ξ' },
@@ -160,10 +291,14 @@ const Wallet = () => {
             <Card className="mb-8 rounded-3xl border-2">
               <CardContent className="p-8">
                 <Tabs defaultValue="deposit">
-                  <TabsList className="grid w-full grid-cols-2 mb-6 rounded-2xl">
+                  <TabsList className="grid w-full grid-cols-3 mb-6 rounded-2xl">
                     <TabsTrigger value="deposit" className="rounded-xl">
                       <Icon name="ArrowUp" size={16} className="mr-2" />
                       Пополнение
+                    </TabsTrigger>
+                    <TabsTrigger value="transfer" className="rounded-xl">
+                      <Icon name="Send" size={16} className="mr-2" />
+                      Перевод
                     </TabsTrigger>
                     <TabsTrigger value="withdrawal" className="rounded-xl">
                       <Icon name="ArrowDown" size={16} className="mr-2" />
@@ -223,6 +358,102 @@ const Wallet = () => {
                     >
                       {loading ? 'Обработка...' : 'Пополнить баланс'}
                     </Button>
+                  </TabsContent>
+
+                  <TabsContent value="transfer" className="space-y-6">
+                    {!hasFinancialPassword ? (
+                      showSetPassword ? (
+                        <>
+                          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
+                            <p className="text-sm text-amber-800">
+                              <Icon name="Lock" size={16} className="inline mr-1" />
+                              Создайте финансовый пароль для защиты переводов
+                            </p>
+                          </div>
+                          <div>
+                            <Label htmlFor="new-password">Новый пароль (минимум 4 символа)</Label>
+                            <Input
+                              id="new-password"
+                              type="password"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="rounded-2xl"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="confirm-password">Подтвердите пароль</Label>
+                            <Input
+                              id="confirm-password"
+                              type="password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              className="rounded-2xl"
+                            />
+                          </div>
+                          <Button 
+                            onClick={handleSetPassword}
+                            disabled={loading}
+                            className="w-full py-6 rounded-2xl text-lg"
+                          >
+                            {loading ? 'Сохранение...' : 'Установить пароль'}
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Icon name="Lock" size={48} className="mx-auto mb-4 text-amber-500" />
+                          <p className="text-lg mb-4">Для переводов необходим финансовый пароль</p>
+                          <Button onClick={() => setShowSetPassword(true)} className="rounded-2xl">
+                            Создать пароль
+                          </Button>
+                        </div>
+                      )
+                    ) : (
+                      <>
+                        <div>
+                          <Label htmlFor="recipient-id">ID получателя</Label>
+                          <Input
+                            id="recipient-id"
+                            type="number"
+                            placeholder="Введите ID пользователя"
+                            value={transferRecipientId}
+                            onChange={(e) => setTransferRecipientId(e.target.value)}
+                            className="rounded-2xl"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="transfer-amount">Сумма перевода</Label>
+                          <Input
+                            id="transfer-amount"
+                            type="number"
+                            placeholder="0"
+                            value={transferAmount}
+                            onChange={(e) => setTransferAmount(e.target.value)}
+                            className="text-2xl py-6 rounded-2xl"
+                          />
+                          <p className="text-sm text-muted-foreground mt-2">
+                            Доступно: {balance.toLocaleString('ru-RU')} ₽
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="financial-password">Финансовый пароль</Label>
+                          <Input
+                            id="financial-password"
+                            type="password"
+                            placeholder="Введите финансовый пароль"
+                            value={financialPassword}
+                            onChange={(e) => setFinancialPassword(e.target.value)}
+                            className="rounded-2xl"
+                          />
+                        </div>
+                        <Button 
+                          onClick={handleTransfer}
+                          disabled={loading || balance === 0}
+                          className="w-full py-6 rounded-2xl text-lg"
+                        >
+                          {loading ? 'Обработка...' : 'Перевести'}
+                        </Button>
+                      </>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="withdrawal" className="space-y-6">
