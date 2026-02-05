@@ -203,6 +203,9 @@ def handler(event: dict, context) -> dict:
             cur.execute(f"SELECT COUNT(*) FROM {SCHEMA}users WHERE is_vip = true AND vip_expires_at > NOW()")
             paid_subscribers = cur.fetchone()[0]
             
+            cur.execute(f"SELECT COUNT(*) FROM {SCHEMA}users")
+            total_users = cur.fetchone()[0]
+            
             user_growth = ((new_users - prev_new_users) / prev_new_users * 100) if prev_new_users > 0 else 0
             activity_growth = ((active_users - prev_active_users) / prev_active_users * 100) if prev_active_users > 0 else 0
             
@@ -227,6 +230,7 @@ def handler(event: dict, context) -> dict:
                         'revenue': 0,
                         'active_users': active_users,
                         'paid_subscribers': paid_subscribers,
+                        'total_users': total_users,
                         'user_growth_percent': round(user_growth, 1),
                         'revenue_growth_percent': 0,
                         'activity_growth_percent': round(activity_growth, 1)

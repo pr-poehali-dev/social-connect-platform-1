@@ -15,6 +15,7 @@ interface PeriodStats {
   revenue: number;
   active_users: number;
   paid_subscribers: number;
+  total_users: number;
   user_growth_percent: number;
   revenue_growth_percent: number;
   activity_growth_percent: number;
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
     revenue: 0,
     active_users: 0,
     paid_subscribers: 0,
+    total_users: 0,
     user_growth_percent: 0,
     revenue_growth_percent: 0,
     activity_growth_percent: 0
@@ -217,7 +219,22 @@ const AdminDashboard = () => {
               </TabsList>
 
               <TabsContent value="general" className="space-y-6 mt-6">
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+                  <Card className="border-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Icon name="Users" size={18} className="text-indigo-500" />
+                        Всего пользователей
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{periodStats.total_users}</div>
+                      <p className="text-sm mt-1 text-muted-foreground">
+                        Общее количество
+                      </p>
+                    </CardContent>
+                  </Card>
+
                   <Card className="border-2">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-medium flex items-center gap-2">
