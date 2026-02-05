@@ -102,6 +102,17 @@ def handler(event: dict, context) -> dict:
             WHERE id = %s
         ''', (cdn_url, user_id))
         
+        # Обновляем аватар во всех диалогах, где этот пользователь является собеседником
+        cursor.execute('''
+            UPDATE t_p19021063_social_connect_platf.conversations c
+            SET avatar_url = %s
+            FROM t_p19021063_social_connect_platf.conversation_participants cp
+            WHERE c.id = cp.conversation_id 
+            AND c.type = 'personal'
+            AND cp.user_id = %s
+            AND c.created_by != %s
+        ''', (cdn_url, user_id, user_id))
+        
         conn.commit()
         cursor.close()
         conn.close()

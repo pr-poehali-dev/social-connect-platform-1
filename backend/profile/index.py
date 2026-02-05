@@ -195,6 +195,21 @@ def handler(event: dict, context) -> dict:
                             AND c.created_by != {user_id}
                         ''')
                 
+                # Обновляем аватар в диалогах, если изменился avatar_url
+                if 'avatar_url' in data:
+                    avatar_url = data['avatar_url']
+                    if avatar_url:
+                        escaped_url = avatar_url.replace("'", "''") if isinstance(avatar_url, str) else str(avatar_url)
+                        cur.execute(f'''
+                            UPDATE t_p19021063_social_connect_platf.conversations c
+                            SET avatar_url = '{escaped_url}'
+                            FROM t_p19021063_social_connect_platf.conversation_participants cp
+                            WHERE c.id = cp.conversation_id 
+                            AND c.type = 'personal'
+                            AND cp.user_id = {user_id}
+                            AND c.created_by != {user_id}
+                        ''')
+                
                 conn.commit()
                 
                 return {
