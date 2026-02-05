@@ -202,7 +202,12 @@ const AdminUsers = () => {
 
   const setVip = async () => {
     const token = localStorage.getItem('admin_token');
-    if (!token || !selectedUser) return;
+    if (!token || !selectedUser) {
+      console.error('setVip: No token or selectedUser', { token: !!token, selectedUser });
+      return;
+    }
+
+    console.log('setVip: Starting', { userId: selectedUser.id, days: vipDays });
 
     try {
       const response = await fetch(`${ADMIN_API}?action=set_vip`, {
@@ -218,13 +223,22 @@ const AdminUsers = () => {
         })
       });
 
+      console.log('setVip: Response', { status: response.status, ok: response.ok });
+
       if (response.ok) {
+        const data = await response.json();
+        console.log('setVip: Success', data);
         toast({ title: 'Успешно', description: 'Premium статус установлен' });
         setShowVipDialog(false);
         loadUsers(token);
         setShowDetails(false);
+      } else {
+        const errorText = await response.text();
+        console.error('setVip: Failed', { status: response.status, error: errorText });
+        toast({ title: 'Ошибка', description: 'Не удалось установить Premium', variant: 'destructive' });
       }
     } catch (error) {
+      console.error('setVip: Exception', error);
       toast({ title: 'Ошибка', description: 'Не удалось установить Premium', variant: 'destructive' });
     }
   };
