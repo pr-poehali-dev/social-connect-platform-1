@@ -118,8 +118,11 @@ const ProfileCard = ({
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Created conversation:', data);
         navigate('/messages', { state: { openChatId: data.conversationId } });
       } else {
+        const errorData = await response.json();
+        console.error('Failed to create conversation:', errorData);
         toast({
           title: 'Ошибка',
           description: 'Не удалось создать чат',
