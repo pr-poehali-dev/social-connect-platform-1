@@ -297,14 +297,6 @@ const MyServices = () => {
       <Navigation />
 
       <div className="p-6 max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Мои услуги</h1>
-          <Button onClick={() => handleOpenDialog()} className="gap-2">
-            <Icon name="Plus" size={20} />
-            Добавить услугу
-          </Button>
-        </div>
-
         {services.length === 0 ? (
           <EmptyServiceState onAddService={() => handleOpenDialog()} />
         ) : (
