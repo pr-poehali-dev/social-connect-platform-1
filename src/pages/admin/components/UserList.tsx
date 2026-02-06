@@ -12,6 +12,8 @@ interface User {
   is_blocked: boolean;
   block_reason: string | null;
   is_verified: boolean;
+  is_banned: boolean;
+  banned_until: string | null;
   created_at: string;
   last_login_at: string | null;
 }
@@ -26,6 +28,7 @@ interface UserListProps {
   onBlock: (user: User) => void;
   onUnblock: (userId: number) => void;
   onBan?: (user: User) => void;
+  onUnban?: (userId: number) => void;
   onSetVip: (user: User) => void;
   onRemoveVip: (userId: number) => void;
   onDelete?: (user: User) => void;
@@ -41,6 +44,7 @@ const UserList = ({
   onBlock,
   onUnblock,
   onBan,
+  onUnban,
   onSetVip,
   onRemoveVip,
   onDelete
@@ -59,6 +63,11 @@ const UserList = ({
               {user.is_vip && <Badge className="bg-yellow-500">Premium</Badge>}
               {user.is_verified && <Badge className="bg-blue-500">Верифицирован</Badge>}
               {user.is_blocked && <Badge variant="destructive">Заблокирован</Badge>}
+              {user.is_banned && user.banned_until && (
+                <Badge variant="destructive" className="bg-orange-500">
+                  Бан до {new Date(user.banned_until).toLocaleString('ru-RU')}
+                </Badge>
+              )}
             </div>
             <div className="text-sm text-muted-foreground">
               {user.name || user.nickname || 'Без имени'} • ID: {user.id}
@@ -89,10 +98,16 @@ const UserList = ({
                 <Button size="sm" variant="outline" onClick={() => onBlock(user)} title="Заблокировать навсегда">
                   <Icon name="Ban" size={16} />
                 </Button>
-                {onBan && (
-                  <Button size="sm" variant="destructive" onClick={() => onBan(user)} title="Забанить на 24 часа">
-                    <Icon name="ShieldAlert" size={16} />
+                {user.is_banned && onUnban ? (
+                  <Button size="sm" variant="outline" onClick={() => onUnban(user.id)} title="Разбанить">
+                    <Icon name="ShieldAlert" size={16} className="text-green-500" />
                   </Button>
+                ) : (
+                  onBan && (
+                    <Button size="sm" variant="destructive" onClick={() => onBan(user)} title="Забанить на 24 часа">
+                      <Icon name="ShieldAlert" size={16} />
+                    </Button>
+                  )
                 )}
               </>
             )}

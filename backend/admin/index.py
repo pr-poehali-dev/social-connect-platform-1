@@ -269,34 +269,48 @@ def handler(event: dict, context) -> dict:
             
             offset = (page - 1) * limit
             
-            query = f"SELECT id, email, name, nickname, is_vip, vip_expires_at, is_blocked, block_reason, is_verified, created_at, last_login_at FROM {SCHEMA}users WHERE 1=1"
+            query = f"""
+                SELECT u.id, u.email, u.name, u.nickname, u.is_vip, u.vip_expires_at, 
+                       u.is_blocked, u.block_reason, u.is_verified, u.created_at, u.last_login_at,
+                       COALESCE(ub.is_active, false) as is_banned,
+                       ub.banned_until
+                FROM {SCHEMA}users u
+                LEFT JOIN (
+                    SELECT user_id, is_active, banned_until 
+                    FROM {SCHEMA}user_bans 
+                    WHERE is_active = true AND banned_until > NOW()
+                    ORDER BY banned_at DESC
+                    LIMIT 1
+                ) ub ON u.id = ub.user_id
+                WHERE 1=1
+            """
             count_query = f"SELECT COUNT(*) FROM {SCHEMA}users WHERE 1=1"
             query_params = []
             
             if search:
-                query += " AND (email ILIKE %s OR name ILIKE %s OR nickname ILIKE %s)"
+                query += " AND (u.email ILIKE %s OR u.name ILIKE %s OR u.nickname ILIKE %s)"
                 count_query += " AND (email ILIKE %s OR name ILIKE %s OR nickname ILIKE %s)"
                 search_param = f'%{search}%'
                 query_params.extend([search_param, search_param, search_param])
             
             if filter_blocked == 'true':
-                query += " AND is_blocked = true"
+                query += " AND u.is_blocked = true"
                 count_query += " AND is_blocked = true"
             elif filter_blocked == 'false':
-                query += " AND is_blocked = false"
+                query += " AND u.is_blocked = false"
                 count_query += " AND is_blocked = false"
             
             if filter_vip == 'true':
-                query += " AND is_vip = true"
+                query += " AND u.is_vip = true"
                 count_query += " AND is_vip = true"
             elif filter_vip == 'false':
-                query += " AND is_vip = false"
+                query += " AND u.is_vip = false"
                 count_query += " AND is_vip = false"
             
             cur.execute(count_query, query_params if search or filter_blocked or filter_vip else [])
             total = cur.fetchone()[0]
             
-            query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+            query += " ORDER BY u.created_at DESC LIMIT %s OFFSET %s"
             cur.execute(query, query_params + [limit, offset])
             
             users = []
@@ -306,7 +320,9 @@ def handler(event: dict, context) -> dict:
                     'is_vip': row[4], 'vip_expires_at': row[5].isoformat() if row[5] else None,
                     'is_blocked': row[6], 'block_reason': row[7], 'is_verified': row[8],
                     'created_at': row[9].isoformat() if row[9] else None,
-                    'last_login_at': row[10].isoformat() if row[10] else None
+                    'last_login_at': row[10].isoformat() if row[10] else None,
+                    'is_banned': bool(row[11]),
+                    'banned_until': row[12].isoformat() if row[12] else None
                 })
             
             return {

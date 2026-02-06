@@ -21,6 +21,8 @@ interface User {
   is_blocked: boolean;
   block_reason: string | null;
   is_verified: boolean;
+  is_banned: boolean;
+  banned_until: string | null;
   created_at: string;
   last_login_at: string | null;
 }
@@ -206,6 +208,29 @@ const AdminUsers = () => {
       }
     } catch (error) {
       toast({ title: 'Ошибка', description: 'Не удалось разблокировать', variant: 'destructive' });
+    }
+  };
+
+  const unbanUser = async (userId: number) => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${ADMIN_API}?action=unban_user`, {
+        method: 'POST',
+        headers: {
+          'X-Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'unban_user', user_id: userId })
+      });
+
+      if (response.ok) {
+        toast({ title: 'Успешно', description: 'Бан снят досрочно' });
+        loadUsers(token);
+      }
+    } catch (error) {
+      toast({ title: 'Ошибка', description: 'Не удалось снять бан', variant: 'destructive' });
     }
   };
 
@@ -440,6 +465,7 @@ const AdminUsers = () => {
               onBlock={(user) => { setSelectedUser(user); setShowBlockDialog(true); }}
               onUnblock={unblockUser}
               onBan={(user) => { setSelectedUser(user); setShowBanDialog(true); }}
+              onUnban={unbanUser}
               onSetVip={(user) => { setSelectedUser(user); setShowVipDialog(true); }}
               onRemoveVip={removeVip}
               onDelete={(user) => { setSelectedUser(user); setShowDeleteDialog(true); }}
