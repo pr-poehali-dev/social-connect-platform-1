@@ -286,17 +286,17 @@ const Ads = () => {
   const filteredAds = getFilteredAds();
 
   return (
-    <div 
-      ref={containerRef} 
-      className="min-h-screen bg-background"
-      style={{
-        transform: `translateX(${swipeOffset}px)`,
-        transition: isDragging ? 'none' : 'transform 0.3s ease-out'
-      }}
-    >
+    <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
+      <main 
+        ref={containerRef}
+        className="pt-20 pb-24 lg:pt-24 lg:pb-12"
+        style={{
+          transform: `translateX(${swipeOffset}px)`,
+          transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+        }}
+      >
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             
