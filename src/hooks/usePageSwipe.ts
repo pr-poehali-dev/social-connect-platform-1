@@ -12,56 +12,64 @@ export const usePageSwipe = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
+  const [touchCurrent, setTouchCurrent] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [swipeOffset, setSwipeOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const minSwipeDistance = 80;
 
   const onTouchStart = (e: TouchEvent) => {
-    setTouchEnd(0);
     setTouchStart(e.targetTouches[0].clientX);
-    setIsSwiping(true);
+    setTouchCurrent(e.targetTouches[0].clientX);
+    setIsDragging(true);
   };
 
   const onTouchMove = (e: TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (!isDragging) return;
+    
+    const current = e.targetTouches[0].clientX;
+    setTouchCurrent(current);
+    
+    const diff = current - touchStart;
+    const currentIndex = mainPages.findIndex(page => page.path === location.pathname);
+    
+    if ((diff > 0 && currentIndex === 0) || (diff < 0 && currentIndex === mainPages.length - 1)) {
+      setSwipeOffset(diff * 0.3);
+    } else {
+      setSwipeOffset(diff);
+    }
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) {
-      setIsSwiping(false);
-      return;
-    }
+    if (!isDragging) return;
 
-    const distance = touchStart - touchEnd;
+    const distance = touchStart - touchCurrent;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
     const currentIndex = mainPages.findIndex(page => page.path === location.pathname);
     
-    if (currentIndex === -1) {
-      setIsSwiping(false);
-      return;
-    }
-
-    if (isLeftSwipe && currentIndex < mainPages.length - 1) {
-      navigate(mainPages[currentIndex + 1].path);
-    } else if (isRightSwipe && currentIndex > 0) {
-      navigate(mainPages[currentIndex - 1].path);
+    if (currentIndex !== -1) {
+      if (isLeftSwipe && currentIndex < mainPages.length - 1) {
+        navigate(mainPages[currentIndex + 1].path);
+      } else if (isRightSwipe && currentIndex > 0) {
+        navigate(mainPages[currentIndex - 1].path);
+      }
     }
 
     setTouchStart(0);
-    setTouchEnd(0);
-    setIsSwiping(false);
+    setTouchCurrent(0);
+    setIsDragging(false);
+    setSwipeOffset(0);
   };
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    container.addEventListener('touchstart', onTouchStart);
-    container.addEventListener('touchmove', onTouchMove);
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: true });
     container.addEventListener('touchend', onTouchEnd);
 
     return () => {
@@ -69,7 +77,12 @@ export const usePageSwipe = () => {
       container.removeEventListener('touchmove', onTouchMove);
       container.removeEventListener('touchend', onTouchEnd);
     };
-  }, [touchStart, touchEnd, location.pathname]);
+  }, [isDragging, touchStart, touchCurrent, location.pathname]);
 
-  return { containerRef, isSwiping };
+  return { 
+    containerRef, 
+    isDragging, 
+    swipeOffset,
+    currentPageIndex: mainPages.findIndex(page => page.path === location.pathname)
+  };
 };

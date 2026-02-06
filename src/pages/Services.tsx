@@ -44,7 +44,7 @@ const Services = () => {
   const [loading, setLoading] = useState(false);
   const placeholder = useTypingPlaceholder('Поиск услуг');
   const debounceTimerRef = useRef<NodeJS.Timeout>();
-  const { containerRef } = usePageSwipe();
+  const { containerRef, swipeOffset, isDragging } = usePageSwipe();
 
   useEffect(() => {
     fetchCategories();
@@ -152,7 +152,14 @@ const Services = () => {
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div 
+      ref={containerRef} 
+      className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
+      style={{
+        transform: `translateX(${swipeOffset}px)`,
+        transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+      }}
+    >
       <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">

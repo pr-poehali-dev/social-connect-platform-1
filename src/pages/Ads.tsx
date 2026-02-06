@@ -37,7 +37,7 @@ const Ads = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { containerRef } = usePageSwipe();
+  const { containerRef, swipeOffset, isDragging } = usePageSwipe();
 
   const getUserCity = () => {
     const userProfile = localStorage.getItem('userProfile');
@@ -286,7 +286,14 @@ const Ads = () => {
   const filteredAds = getFilteredAds();
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background">
+    <div 
+      ref={containerRef} 
+      className="min-h-screen bg-background"
+      style={{
+        transform: `translateX(${swipeOffset}px)`,
+        transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+      }}
+    >
       <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">

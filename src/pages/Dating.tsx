@@ -25,7 +25,7 @@ const Dating = () => {
   const [voiceQuery, setVoiceQuery] = useState('');
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
-  const { containerRef } = usePageSwipe();
+  const { containerRef, swipeOffset, isDragging } = usePageSwipe();
 
   const { filters, handleFilterChange, resetFilters } = useDatingFilters({
     onFiltersChange: () => loadProfiles()
@@ -78,6 +78,10 @@ const Dating = () => {
     <div 
       ref={containerRef}
       className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20 pt-20"
+      style={{
+        transform: `translateX(${swipeOffset}px)`,
+        transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+      }}
     >
       <main className="container mx-auto px-4 py-6 max-w-7xl">
         
