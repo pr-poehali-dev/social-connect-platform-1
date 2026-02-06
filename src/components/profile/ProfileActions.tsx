@@ -125,15 +125,6 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <span className="text-sm font-medium">Мероприятия</span>
       </Button>
       </div>
-
-      <Button 
-        onClick={() => navigate('/referral')}
-        variant="outline"
-        className="w-full h-14 rounded-2xl gap-2 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border-purple-200"
-      >
-        <Icon name="Gift" size={20} />
-        <span className="font-medium">Партнерская программа</span>
-      </Button>
     </div>
   );
 };
