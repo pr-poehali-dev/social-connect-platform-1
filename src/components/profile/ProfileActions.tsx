@@ -75,56 +75,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           Верификация отклонена - попробовать снова
         </Button>
       )}
-      
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <Button 
-        onClick={() => navigate('/friends')}
-        variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl"
-      >
-        <Icon name="Users" size={24} />
-        <span className="text-sm font-medium">Друзья</span>
-      </Button>
-      <Button 
-        onClick={() => handlePremiumAction('ads')}
-        variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl relative"
-      >
-        {!user?.is_vip && (
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-            <Icon name="Lock" size={12} className="text-white" />
-          </div>
-        )}
-        <Icon name="MessageSquare" size={24} />
-        <span className="text-sm font-medium">Объявления</span>
-      </Button>
-      <Button 
-        onClick={() => handlePremiumAction('services')}
-        variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl relative"
-      >
-        {!user?.is_vip && (
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-            <Icon name="Lock" size={12} className="text-white" />
-          </div>
-        )}
-        <Icon name="Briefcase" size={24} />
-        <span className="text-sm font-medium">Услуги</span>
-      </Button>
-      <Button 
-        onClick={() => handlePremiumAction('events')}
-        variant="outline"
-        className="h-20 flex-col gap-2 rounded-2xl relative"
-      >
-        {!user?.is_vip && (
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-            <Icon name="Lock" size={12} className="text-white" />
-          </div>
-        )}
-        <Icon name="Calendar" size={24} />
-        <span className="text-sm font-medium">Мероприятия</span>
-      </Button>
-      </div>
+
     </div>
   );
 };
