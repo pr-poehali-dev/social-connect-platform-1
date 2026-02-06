@@ -107,8 +107,17 @@ const AdminUsers = () => {
         const data = await response.json();
         setSelectedUser({ ...data.user, login_history: data.login_history });
         setShowDetails(true);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Неизвестная ошибка' }));
+        console.error('HTTP', response.status, ':', `${ADMIN_API}?action=get_user_details&user_id=${userId}`);
+        toast({ 
+          title: 'Ошибка загрузки профиля', 
+          description: errorData.error || `HTTP ${response.status}`, 
+          variant: 'destructive' 
+        });
       }
     } catch (error) {
+      console.error('Load user details error:', error);
       toast({ title: 'Ошибка', description: 'Не удалось загрузить детали', variant: 'destructive' });
     }
   };

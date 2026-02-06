@@ -320,27 +320,52 @@ def handler(event: dict, context) -> dict:
         if action == 'get_user_details':
             user_id = params.get('user_id') or body.get('user_id')
             
-            cur.execute(f"SELECT * FROM {SCHEMA}users WHERE id = %s", (user_id,))
-            columns = [desc[0] for desc in cur.description]
-            row = cur.fetchone()
+            if not user_id:
+                return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Не указан user_id'}), 'isBase64Encoded': False}
             
-            if not row:
-                return {'statusCode': 404, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Пользователь не найден'}), 'isBase64Encoded': False}
-            
-            user = dict(zip(columns, row))
-            for key in user:
-                if isinstance(user[key], datetime):
-                    user[key] = user[key].isoformat()
-            
-            cur.execute(f"SELECT ip_address, user_agent, login_at, success FROM {SCHEMA}user_login_history WHERE user_id = %s ORDER BY login_at DESC LIMIT 50", (user_id,))
-            login_history = [{'ip': r[0], 'user_agent': r[1], 'login_at': r[2].isoformat(), 'success': r[3]} for r in cur.fetchall()]
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'user': user, 'login_history': login_history}),
-                'isBase64Encoded': False
-            }
+            try:
+                cur.execute(f"SELECT * FROM {SCHEMA}users WHERE id = %s", (user_id,))
+                columns = [desc[0] for desc in cur.description]
+                row = cur.fetchone()
+                
+                if not row:
+                    return {'statusCode': 404, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Пользователь не найден'}), 'isBase64Encoded': False}
+                
+                user = dict(zip(columns, row))
+                for key in user:
+                    if isinstance(user[key], datetime):
+                        user[key] = user[key].isoformat()
+                    elif isinstance(user[key], (list, dict)):
+                        pass  # Keep as is for JSON serialization
+                
+                # Безопасно получаем историю логинов
+                try:
+                    cur.execute(f"SELECT ip_address, user_agent, login_at, success FROM {SCHEMA}user_login_history WHERE user_id = %s ORDER BY login_at DESC LIMIT 50", (user_id,))
+                    login_history = []
+                    for r in cur.fetchall():
+                        login_history.append({
+                            'ip': r[0], 
+                            'user_agent': r[1], 
+                            'login_at': r[2].isoformat() if r[2] else None, 
+                            'success': r[3]
+                        })
+                except Exception as e:
+                    # Если таблица истории не существует, просто вернем пустой массив
+                    login_history = []
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'user': user, 'login_history': login_history}),
+                    'isBase64Encoded': False
+                }
+            except Exception as e:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Ошибка получения данных: {str(e)}'}),
+                    'isBase64Encoded': False
+                }
         
         # Блокировать пользователя
         if action == 'block_user':
