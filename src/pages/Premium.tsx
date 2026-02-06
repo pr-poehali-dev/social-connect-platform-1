@@ -171,7 +171,7 @@ const Premium = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full mb-6">
               <Icon name="Crown" size={24} />
-              <span className="font-bold text-lg">ConnectHub Premium</span>
+              <span className="font-bold text-lg">LOVEIS Premium</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Откройте все возможности платформы
