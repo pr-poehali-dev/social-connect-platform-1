@@ -191,12 +191,7 @@ const ProfileCard = ({
                   Premium
                 </Badge>
               )}
-              {profile.isVerified && (
-                <Badge className="bg-blue-500/90 text-white rounded-full px-3 py-1 flex items-center gap-1">
-                  <Icon name="BadgeCheck" size={14} />
-                  Verified
-                </Badge>
-              )}
+
               {profile.isOnline && (
                 <Badge className="bg-green-500/90 text-white rounded-full px-3 py-1 flex items-center gap-1">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
@@ -213,6 +208,9 @@ const ProfileCard = ({
                 }}
               >
                 {profile.name}{profile.age ? `, ${profile.age}` : ''}
+                {profile.isVerified && (
+                  <Icon name="BadgeCheck" size={20} className="text-blue-400" />
+                )}
                 {showBirthdayIcon && (
                   <Icon name="Cake" size={20} className="text-yellow-300 animate-pulse" />
                 )}
