@@ -53,7 +53,8 @@ const Profile = () => {
     setSoundEnabled,
     setDatingVisible,
     setShareLocation,
-    setPremiumOnly
+    setPremiumOnly,
+    setDarkMode
   });
 
   const availableInterests = [

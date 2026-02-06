@@ -16,6 +16,7 @@ interface UseProfileActionsProps {
   setDatingVisible: (visible: boolean) => void;
   setShareLocation: (enabled: boolean) => void;
   setPremiumOnly: (enabled: boolean) => void;
+  setDarkMode: (enabled: boolean) => void;
 }
 
 export const useProfileActions = ({
@@ -30,7 +31,8 @@ export const useProfileActions = ({
   setSoundEnabled,
   setDatingVisible,
   setShareLocation,
-  setPremiumOnly
+  setPremiumOnly,
+  setDarkMode
 }: UseProfileActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -170,6 +172,7 @@ export const useProfileActions = ({
   };
 
   const handleThemeToggle = (enabled: boolean) => {
+    setDarkMode(enabled);
     localStorage.setItem('darkMode', enabled.toString());
     if (enabled) {
       document.documentElement.classList.add('dark');
