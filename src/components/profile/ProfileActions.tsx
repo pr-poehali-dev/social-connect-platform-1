@@ -76,6 +76,65 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         </Button>
       )}
 
+      <div className="grid grid-cols-2 gap-3">
+        <Button
+          onClick={() => navigate('/friends')}
+          variant="outline"
+          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1"
+        >
+          <Icon name="Users" size={24} />
+          <span className="text-sm">Друзья</span>
+        </Button>
+        
+        <Button
+          onClick={() => handlePremiumAction('ads')}
+          variant="outline"
+          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
+        >
+          <Icon name="ShoppingBag" size={24} />
+          <span className="text-sm">Объявления</span>
+          {!user?.is_vip && (
+            <Icon 
+              name="Crown" 
+              size={14} 
+              className="absolute top-2 right-2 text-yellow-500" 
+            />
+          )}
+        </Button>
+
+        <Button
+          onClick={() => handlePremiumAction('services')}
+          variant="outline"
+          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
+        >
+          <Icon name="Briefcase" size={24} />
+          <span className="text-sm">Услуги</span>
+          {!user?.is_vip && (
+            <Icon 
+              name="Crown" 
+              size={14} 
+              className="absolute top-2 right-2 text-yellow-500" 
+            />
+          )}
+        </Button>
+
+        <Button
+          onClick={() => handlePremiumAction('events')}
+          variant="outline"
+          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
+        >
+          <Icon name="Calendar" size={24} />
+          <span className="text-sm">Мероприятия</span>
+          {!user?.is_vip && (
+            <Icon 
+              name="Crown" 
+              size={14} 
+              className="absolute top-2 right-2 text-yellow-500" 
+            />
+          )}
+        </Button>
+      </div>
+
     </div>
   );
 };
