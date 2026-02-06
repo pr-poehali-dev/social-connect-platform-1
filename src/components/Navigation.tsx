@@ -18,6 +18,9 @@ const Navigation = () => {
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const avatarCacheRef = useRef<string | null>(null);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+  const topNavRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
 
   useEffect(() => {
     const authStatus = isAuthenticated();
@@ -119,6 +122,35 @@ const Navigation = () => {
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
   ];
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(distance) < minSwipeDistance) return;
+
+    const currentIndex = mainNavItems.findIndex(item => item.path === location.pathname);
+    if (currentIndex === -1) return;
+
+    if (distance > 0 && currentIndex < mainNavItems.length - 1) {
+      navigate(mainNavItems[currentIndex + 1].path);
+    } else if (distance < 0 && currentIndex > 0) {
+      navigate(mainNavItems[currentIndex - 1].path);
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   const bottomNavItems = [
     { path: '/favorites', label: 'Избранное', icon: 'Star' },
@@ -241,7 +273,13 @@ const Navigation = () => {
         </div>
       </nav>
 
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border">
+      <div 
+        ref={topNavRef}
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="flex justify-around items-center h-14">
           {mainNavItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
