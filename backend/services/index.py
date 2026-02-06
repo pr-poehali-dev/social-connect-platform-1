@@ -27,7 +27,7 @@ def escape_sql(value):
     return "'" + str(value).replace("'", "''") + "'"
 
 def handler(event: dict, context) -> dict:
-    '''API для управления услугами пользователей'''
+    '''API для управления услугами пользователей. Фильтрует тестовые услуги без названия.'''
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
@@ -165,7 +165,7 @@ def handler(event: dict, context) -> dict:
                 LEFT JOIN service_subcategories ss ON s.subcategory_id = ss.id
                 LEFT JOIN users u ON s.user_id = u.id
                 LEFT JOIN cities c ON s.city_id = c.id
-                WHERE s.is_active = TRUE
+                WHERE s.is_active = TRUE AND s.title IS NOT NULL AND s.title != ''''
             '''
             
             if category_id:
