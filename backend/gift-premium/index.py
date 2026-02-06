@@ -156,14 +156,6 @@ def handler(event: dict, context) -> dict:
             WHERE id = %s
         """, (new_premium_until, recipient_id))
         
-        # Начисляем отправителю 50% от стоимости подарка на основной счет
-        cashback_amount = price * Decimal('0.5')
-        cursor.execute(f"""
-            UPDATE {schema}.users
-            SET balance = balance + %s
-            WHERE id = %s
-        """, (cashback_amount, user_id))
-        
         # Записываем транзакции
         sender_name = f"{sender['first_name'] or ''} {sender['last_name'] or ''}".strip() or 'Пользователь'
         recipient_name = f"{recipient['first_name'] or ''} {recipient['last_name'] or ''}".strip() or 'Пользователь'
@@ -173,13 +165,6 @@ def handler(event: dict, context) -> dict:
             (user_id, amount, type, status, description)
             VALUES (%s, %s, 'gift_premium', 'completed', %s)
         """, (user_id, -price, f'Подарок Premium ({months} мес.) для {recipient_name}'))
-        
-        # Транзакция кэшбэка
-        cursor.execute(f"""
-            INSERT INTO {schema}.transactions 
-            (user_id, amount, type, status, description)
-            VALUES (%s, %s, 'cashback', 'completed', %s)
-        """, (user_id, cashback_amount, f'Кэшбэк 50% за подарок Premium для {recipient_name}'))
         
         cursor.execute(f"""
             INSERT INTO {schema}.transactions 
