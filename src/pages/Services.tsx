@@ -135,6 +135,8 @@ const Services = () => {
   };
 
   const filteredServices = services.filter(service => {
+    if (service.title === 'Test service') return false;
+    
     const query = searchQuery.toLowerCase();
     return (
       service.title?.toLowerCase().includes(query) ||
