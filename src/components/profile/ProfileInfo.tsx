@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Icon from '@/components/ui/icon';
+import { Badge } from '@/components/ui/badge';
 
 const REFERRAL_API_URL = 'https://functions.poehali.dev/17091600-02b0-442b-a13d-2b57827b7106';
 
@@ -51,12 +52,18 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
 
   return (
     <div>
-      <h1 className="text-2xl md:text-4xl font-bold mb-2 flex items-center gap-2">
+      <h1 className="text-2xl md:text-4xl font-bold mb-2 flex items-center gap-2 flex-wrap">
         <span className="break-words">
           {[user.first_name, user.last_name].filter(Boolean).join(' ') || user.name || user.nickname}
         </span>
         {user.is_verified && (
           <Icon name="BadgeCheck" size={24} className="text-blue-500 md:w-8 md:h-8 flex-shrink-0" />
+        )}
+        {user.is_vip && (
+          <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+            <Icon name="Crown" size={14} className="mr-1" />
+            Premium
+          </Badge>
         )}
       </h1>
       {!editMode && user.status_text && (

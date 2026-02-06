@@ -110,6 +110,8 @@ export const useProfileData = () => {
 
         if (response.ok) {
           const userData = await response.json();
+          console.log('User data loaded:', userData);
+          console.log('is_vip:', userData.is_vip);
           setUser(userData);
           setDatingVisible(userData.dating_visible !== false);
           setShareLocation(userData.share_location === true);
