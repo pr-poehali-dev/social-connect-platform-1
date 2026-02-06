@@ -228,10 +228,19 @@ const AdminUsers = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('setVip: Success', data);
+        
+        // Обновляем пользователя в локальном списке немедленно
+        setUsers(users.map(u => 
+          u.id === selectedUser.id 
+            ? { ...u, is_vip: true, vip_expires_at: data.expires_at } 
+            : u
+        ));
+        
         toast({ title: 'Успешно', description: 'Premium статус установлен' });
         setShowVipDialog(false);
-        loadUsers(token);
         setShowDetails(false);
+        // Перезагружаем список для синхронизации с сервером
+        loadUsers(token);
       } else {
         const errorText = await response.text();
         console.error('setVip: Failed', { status: response.status, error: errorText });
@@ -258,6 +267,13 @@ const AdminUsers = () => {
       });
 
       if (response.ok) {
+        // Обновляем пользователя в локальном списке немедленно
+        setUsers(users.map(u => 
+          u.id === userId 
+            ? { ...u, is_vip: false, vip_expires_at: null } 
+            : u
+        ));
+        
         toast({ title: 'Успешно', description: 'Premium статус убран' });
         loadUsers(token);
       }
