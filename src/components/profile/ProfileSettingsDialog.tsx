@@ -8,6 +8,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -20,12 +21,14 @@ interface ProfileSettingsDialogProps {
   shareLocation: boolean;
   darkMode: boolean;
   premiumOnly: boolean;
+  contactPrice: number;
   isVip?: boolean;
   handleSoundToggle: (enabled: boolean) => void;
   handleDatingVisibilityToggle: (enabled: boolean) => void;
   handleShareLocationToggle: (enabled: boolean) => void;
   handleThemeToggle: (enabled: boolean) => void;
   handlePremiumOnlyToggle: (enabled: boolean) => void;
+  handleContactPriceChange: (price: number) => void;
 }
 
 const ProfileSettingsDialog = ({
@@ -36,12 +39,14 @@ const ProfileSettingsDialog = ({
   shareLocation,
   darkMode,
   premiumOnly,
+  contactPrice,
   isVip = false,
   handleSoundToggle,
   handleDatingVisibilityToggle,
   handleShareLocationToggle,
   handleThemeToggle,
-  handlePremiumOnlyToggle
+  handlePremiumOnlyToggle,
+  handleContactPriceChange
 }: ProfileSettingsDialogProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -186,6 +191,35 @@ const ProfileSettingsDialog = ({
               }}
               disabled={!isVip && premiumOnly}
             />
+          </div>
+
+          <div className="pt-4 border-t">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="contact-price" className="text-base font-medium">
+                  Монетизация контактов
+                </Label>
+                <Icon name="Heart" size={16} className="text-pink-500" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Укажите, за сколько токенов LOVE вы готовы поделиться своими контактами (телефон, Telegram, Instagram). Если 0 — контакты доступны всем бесплатно.
+              </p>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="contact-price"
+                  type="number"
+                  min="0"
+                  max="10000"
+                  value={contactPrice}
+                  onChange={(e) => handleContactPriceChange(Number(e.target.value))}
+                  className="w-32"
+                />
+                <span className="text-sm font-medium flex items-center gap-1">
+                  <Icon name="Heart" size={14} className="text-pink-500" />
+                  токенов LOVE
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </DialogContent>

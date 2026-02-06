@@ -23,6 +23,8 @@ const Profile = () => {
     setDarkMode,
     premiumOnly,
     setPremiumOnly,
+    contactPrice,
+    setContactPrice,
     formData,
     setFormData,
     loadPhotos,
@@ -40,7 +42,8 @@ const Profile = () => {
     handleDatingVisibilityToggle,
     handleShareLocationToggle,
     handleThemeToggle,
-    handlePremiumOnlyToggle
+    handlePremiumOnlyToggle,
+    handleContactPriceChange
   } = useProfileActions({
     user,
     setUser,
@@ -50,11 +53,13 @@ const Profile = () => {
     datingVisible,
     shareLocation,
     premiumOnly,
+    contactPrice,
     setSoundEnabled,
     setDatingVisible,
     setShareLocation,
     setPremiumOnly,
-    setDarkMode
+    setDarkMode,
+    setContactPrice
   });
 
   const availableInterests = [
@@ -101,12 +106,14 @@ const Profile = () => {
         shareLocation={shareLocation}
         darkMode={darkMode}
         premiumOnly={premiumOnly}
+        contactPrice={contactPrice}
         isVip={user?.is_vip}
         handleSoundToggle={handleSoundToggle}
         handleDatingVisibilityToggle={handleDatingVisibilityToggle}
         handleShareLocationToggle={handleShareLocationToggle}
         handleThemeToggle={handleThemeToggle}
         handlePremiumOnlyToggle={handlePremiumOnlyToggle}
+        handleContactPriceChange={handleContactPriceChange}
       />
     </>
   );

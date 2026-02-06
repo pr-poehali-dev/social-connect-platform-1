@@ -58,6 +58,7 @@ export const useProfileData = () => {
     const saved = localStorage.getItem('darkMode');
     return saved === 'true';
   });
+  const [contactPrice, setContactPrice] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -116,6 +117,7 @@ export const useProfileData = () => {
           setDatingVisible(userData.dating_visible !== false);
           setShareLocation(userData.share_location === true);
           setPremiumOnly(userData.premium_only_messages === true);
+          setContactPrice(userData.contact_price || 0);
           setFormData({
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
@@ -245,6 +247,8 @@ export const useProfileData = () => {
     setDarkMode,
     premiumOnly,
     setPremiumOnly,
+    contactPrice,
+    setContactPrice,
     formData,
     setFormData,
     loadPhotos,

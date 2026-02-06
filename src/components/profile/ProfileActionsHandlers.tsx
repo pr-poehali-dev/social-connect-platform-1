@@ -12,11 +12,13 @@ interface UseProfileActionsProps {
   datingVisible: boolean;
   shareLocation: boolean;
   premiumOnly: boolean;
+  contactPrice: number;
   setSoundEnabled: (enabled: boolean) => void;
   setDatingVisible: (visible: boolean) => void;
   setShareLocation: (enabled: boolean) => void;
   setPremiumOnly: (enabled: boolean) => void;
   setDarkMode: (enabled: boolean) => void;
+  setContactPrice: (price: number) => void;
 }
 
 export const useProfileActions = ({
@@ -28,11 +30,13 @@ export const useProfileActions = ({
   datingVisible,
   shareLocation,
   premiumOnly,
+  contactPrice,
   setSoundEnabled,
   setDatingVisible,
   setShareLocation,
   setPremiumOnly,
-  setDarkMode
+  setDarkMode,
+  setContactPrice
 }: UseProfileActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -286,6 +290,36 @@ export const useProfileActions = ({
         title: enabled ? 'Фильтр Premium включён' : 'Фильтр Premium выключен',
         description: enabled ? 'Писать вам могут только PREMIUM пользователи' : 'Писать вам могут все пользователи',
       });
+    },
+    handleContactPriceChange: async (price: number) => {
+      setContactPrice(price);
+      const token = localStorage.getItem('access_token');
+      try {
+        await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            ...formData,
+            contact_price: price
+          })
+        });
+        setUser({ ...user, contact_price: price });
+        toast({
+          title: 'Настройка сохранена',
+          description: price === 0 
+            ? 'Ваши контакты доступны всем бесплатно' 
+            : `Доступ к вашим контактам стоит ${price} токенов LOVE`,
+        });
+      } catch (error) {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось сохранить настройку',
+          variant: 'destructive'
+        });
+      }
     }
   };
 };
