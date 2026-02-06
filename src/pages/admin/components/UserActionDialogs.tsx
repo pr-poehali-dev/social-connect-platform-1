@@ -39,11 +39,11 @@ interface UserActionDialogsProps {
   setVipDays: (days: string) => void;
   messageText: string;
   setMessageText: (text: string) => void;
-  onBlock: () => void;
-  onBan?: () => void;
-  onSetVip: () => void;
-  onSendMessage: () => void;
-  onDelete?: () => void;
+  blockUser: () => void;
+  banUser?: () => void;
+  setVip: () => void;
+  sendMessage: () => void;
+  deleteUser?: () => void;
 }
 
 const UserActionDialogs = ({
@@ -66,11 +66,11 @@ const UserActionDialogs = ({
   setVipDays,
   messageText,
   setMessageText,
-  onBlock,
-  onBan,
-  onSetVip,
-  onSendMessage,
-  onDelete
+  blockUser,
+  banUser,
+  setVip,
+  sendMessage,
+  deleteUser
 }: UserActionDialogsProps) => {
   return (
     <>
@@ -98,7 +98,7 @@ const UserActionDialogs = ({
             <Button variant="outline" onClick={() => setShowBanDialog?.(false)}>
               Отмена
             </Button>
-            <Button variant="destructive" onClick={onBan} disabled={!banReason?.trim()}>
+            <Button variant="destructive" onClick={banUser} disabled={!banReason?.trim()}>
               <Icon name="ShieldAlert" size={16} className="mr-2" />
               Забанить на 24 часа
             </Button>
@@ -124,7 +124,7 @@ const UserActionDialogs = ({
             <Button variant="outline" onClick={() => setShowBlockDialog(false)}>
               Отмена
             </Button>
-            <Button variant="destructive" onClick={onBlock}>
+            <Button variant="destructive" onClick={blockUser}>
               Заблокировать
             </Button>
           </DialogFooter>
@@ -150,7 +150,7 @@ const UserActionDialogs = ({
             <Button variant="outline" onClick={() => setShowVipDialog(false)}>
               Отмена
             </Button>
-            <Button onClick={onSetVip}>
+            <Button onClick={setVip}>
               Установить Premium
             </Button>
           </DialogFooter>
@@ -178,7 +178,7 @@ const UserActionDialogs = ({
             <Button variant="outline" onClick={() => { setShowMessageDialog(false); setMessageText(''); }}>
               Отмена
             </Button>
-            <Button onClick={onSendMessage} disabled={!messageText.trim()}>
+            <Button onClick={sendMessage} disabled={!messageText.trim()}>
               <Icon name="Send" size={16} className="mr-2" />
               Отправить
             </Button>
@@ -201,7 +201,7 @@ const UserActionDialogs = ({
             <Button variant="outline" onClick={() => setShowDeleteDialog?.(false)}>
               Отмена
             </Button>
-            <Button variant="destructive" onClick={onDelete}>
+            <Button variant="destructive" onClick={deleteUser}>
               <Icon name="Trash2" size={16} className="mr-2" />
               Удалить навсегда
             </Button>
