@@ -158,11 +158,19 @@ const ProfileSettingsDialog = ({
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="premium-only" className="text-base font-medium">
-                Только PREMIUM могут писать
-              </Label>
+          <div className="flex items-center justify-between relative">
+            <div className="space-y-0.5 flex-1">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="premium-only" className="text-base font-medium">
+                  Только PREMIUM могут писать
+                </Label>
+                {!isVip && (
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+                    <Icon name="Crown" size={12} className="text-white" />
+                    <span className="text-xs font-semibold text-white">Premium</span>
+                  </div>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Принимать сообщения только от пользователей с PREMIUM статусом
               </p>
@@ -170,7 +178,14 @@ const ProfileSettingsDialog = ({
             <Switch
               id="premium-only"
               checked={premiumOnly}
-              onCheckedChange={handlePremiumOnlyToggle}
+              onCheckedChange={(checked) => {
+                if (!isVip && checked) {
+                  handlePremiumFeatureClick();
+                  return;
+                }
+                handlePremiumOnlyToggle(checked);
+              }}
+              disabled={!isVip && premiumOnly}
             />
           </div>
         </div>
