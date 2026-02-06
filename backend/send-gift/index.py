@@ -198,7 +198,7 @@ def handler(event: dict, context) -> dict:
         """, (recipient_id, cashback_amount, f'Получен подарок "{gift_name}" ({gift_emoji})'))
         
         # Уведомление получателю
-        notification_content = f'Анонимный отправитель подарил вам {gift_name}' if is_anonymous else f'{sender_name} отправил вам {gift_name}'
+        notification_content = f'Анонимный отправитель подарил вам {gift_name}. Вам начислено {cashback_amount}₽' if is_anonymous else f'{sender_name} отправил вам {gift_name}. Вам начислено {cashback_amount}₽'
         notification_related_user = None if is_anonymous else user_id
         
         cursor.execute(f"""
