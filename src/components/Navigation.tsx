@@ -139,42 +139,7 @@ const Navigation = () => {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) {
-      setSwipeOffset(0);
-      return;
-    }
-    
-    const distance = touchStart - touchEnd;
-    const minSwipeDistance = 50;
-
-    if (Math.abs(distance) < minSwipeDistance) {
-      setSwipeOffset(0);
-      setTouchStart(0);
-      setTouchEnd(0);
-      return;
-    }
-
-    const currentIndex = mainNavItems.findIndex(item => item.path === location.pathname);
-    if (currentIndex === -1) {
-      setSwipeOffset(0);
-      setTouchStart(0);
-      setTouchEnd(0);
-      return;
-    }
-
-    setIsTransitioning(true);
-    
-    if (distance > 0 && currentIndex < mainNavItems.length - 1) {
-      navigate(mainNavItems[currentIndex + 1].path);
-    } else if (distance < 0 && currentIndex > 0) {
-      navigate(mainNavItems[currentIndex - 1].path);
-    }
-
-    setTimeout(() => {
-      setSwipeOffset(0);
-      setIsTransitioning(false);
-    }, 300);
-
+    setSwipeOffset(0);
     setTouchStart(0);
     setTouchEnd(0);
   };

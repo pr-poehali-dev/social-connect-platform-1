@@ -7,6 +7,7 @@ import ServicesFilters from '@/components/services/ServicesFilters';
 import ServicePublicCard from '@/components/services/ServicePublicCard';
 import EmptyServicesState from '@/components/services/EmptyServicesState';
 import type { Category, Subcategory, Service, City } from '@/types/services';
+import { usePageSwipe } from '@/hooks/usePageSwipe';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -43,6 +44,7 @@ const Services = () => {
   const [loading, setLoading] = useState(false);
   const placeholder = useTypingPlaceholder('Поиск услуг');
   const debounceTimerRef = useRef<NodeJS.Timeout>();
+  const { containerRef } = usePageSwipe();
 
   useEffect(() => {
     fetchCategories();
@@ -150,7 +152,7 @@ const Services = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">

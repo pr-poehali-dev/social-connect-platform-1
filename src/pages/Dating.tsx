@@ -17,6 +17,7 @@ import {
 import { useDatingFilters } from '@/components/dating/DatingFiltersState';
 import { useDatingProfilesLoader, formatLastSeen } from '@/components/dating/DatingProfilesLoader';
 import { useDatingActionsHandlers } from '@/components/dating/DatingActionsHandlers';
+import { usePageSwipe } from '@/hooks/usePageSwipe';
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +25,7 @@ const Dating = () => {
   const [voiceQuery, setVoiceQuery] = useState('');
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
+  const { containerRef } = usePageSwipe();
 
   const { filters, handleFilterChange, resetFilters } = useDatingFilters({
     onFiltersChange: () => loadProfiles()
@@ -73,7 +75,10 @@ const Dating = () => {
     });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20 pt-20">
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20 pt-20"
+    >
       <main className="container mx-auto px-4 py-6 max-w-7xl">
         
         {voiceQuery && (
