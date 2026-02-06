@@ -22,6 +22,7 @@ import Applications from "./pages/Applications";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import MyServices from "./pages/MyServices";
+import AddService from "./pages/AddService";
 import Events from "./pages/Events";
 import SelectCity from "./pages/SelectCity";
 import MyEvents from "./pages/MyEvents";
@@ -79,6 +80,8 @@ const App = () => {
           <Route path="/applications/:adId" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
           <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
           <Route path="/my-services" element={<ProtectedRoute><MyServices /></ProtectedRoute>} />
+          <Route path="/add-service" element={<ProtectedRoute><AddService /></ProtectedRoute>} />
+          <Route path="/edit-service/:id" element={<ProtectedRoute><AddService /></ProtectedRoute>} />
           <Route path="/services/:nickname" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
           <Route path="/select-city" element={<ProtectedRoute><SelectCity /></ProtectedRoute>} />

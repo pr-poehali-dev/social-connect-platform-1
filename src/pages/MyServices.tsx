@@ -1,97 +1,22 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import ServiceCard from '@/components/services/ServiceCard';
-import ServiceDialog from '@/components/services/ServiceDialog';
 import EmptyServiceState from '@/components/services/EmptyServiceState';
-import type { Category, Subcategory, Service, ServiceFormData, City } from '@/types/services';
+import type { Subcategory, Service } from '@/types/services';
 
 const MyServices = () => {
   const [services, setServices] = useState<Service[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-  const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-  const [hoveredCategoryId, setHoveredCategoryId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const subcategoriesCache = useRef<Record<string, Subcategory[]>>({});
 
-  const [formData, setFormData] = useState<ServiceFormData>({
-    category_id: '',
-    subcategory_id: '',
-    title: '',
-    description: '',
-    price: '',
-    price_list: [],
-    is_online: false,
-    city_id: '',
-    district: '',
-    portfolio: [],
-  });
-
   useEffect(() => {
-    loadCategories();
-    loadCities();
     loadServices();
   }, []);
-
-  useEffect(() => {
-    if (formData.category_id) {
-      loadSubcategories(formData.category_id);
-    } else {
-      setSubcategories([]);
-      setFormData(prev => ({ ...prev, subcategory_id: '' }));
-    }
-     
-  }, [formData.category_id]);
-
-  const loadCategories = async () => {
-    try {
-      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=categories');
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data);
-      }
-    } catch (error) {
-      console.error('Error loading categories:', error);
-    }
-  };
-
-  const loadCities = async () => {
-    try {
-      const response = await fetch('https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=cities');
-      if (response.ok) {
-        const data = await response.json();
-        setCities(data);
-      }
-    } catch (error) {
-      console.error('Error loading cities:', error);
-    }
-  };
-
-  const loadSubcategories = async (categoryId: string) => {
-    if (subcategoriesCache.current[categoryId]) {
-      setSubcategories(subcategoriesCache.current[categoryId]);
-      return;
-    }
-
-    try {
-      const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=subcategories&category_id=${categoryId}`);
-      if (response.ok) {
-        const data = await response.json();
-        subcategoriesCache.current[categoryId] = data;
-        setSubcategories(data);
-      }
-    } catch (error) {
-      console.error('Error loading subcategories:', error);
-    }
-  };
 
   const handleLoadSubcategoriesForCard = async (categoryId: number) => {
     const categoryIdStr = categoryId.toString();
@@ -134,91 +59,6 @@ const MyServices = () => {
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleOpenDialog = (service?: Service) => {
-    if (service) {
-      setEditingService(service);
-      setFormData({
-        category_id: service.category_id.toString(),
-        subcategory_id: service.subcategory_id.toString(),
-        title: service.title,
-        description: service.description || '',
-        price: service.price || '',
-        price_list: service.price_list || [],
-        is_online: service.is_online,
-        city_id: service.city_id?.toString() || '',
-        district: service.district || '',
-        portfolio: service.portfolio || [],
-      });
-      if (service.category_id) {
-        loadSubcategories(service.category_id.toString());
-      }
-    } else {
-      setEditingService(null);
-      setFormData({
-        category_id: '',
-        subcategory_id: '',
-        title: '',
-        description: '',
-        price: '',
-        price_list: [],
-        is_online: false,
-        city_id: '',
-        district: '',
-        portfolio: [],
-      });
-    }
-    setDialogOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!formData.title || !formData.category_id) {
-      toast({ title: 'Ошибка', description: 'Заполните название и категорию услуги', variant: 'destructive' });
-      return;
-    }
-
-    const token = localStorage.getItem('access_token');
-    const url = editingService
-      ? `https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?id=${editingService.id}`
-      : 'https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774';
-
-    const payload = {
-      category_id: formData.category_id || null,
-      subcategory_id: formData.subcategory_id || null,
-      title: formData.title,
-      description: formData.description,
-      price: formData.price,
-      price_list: formData.price_list || [],
-      is_online: formData.is_online,
-      city_id: formData.city_id || null,
-      district: formData.district,
-      portfolio: formData.portfolio,
-    };
-
-    try {
-      const response = await fetch(url, {
-        method: editingService ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        toast({ title: 'Успешно!', description: editingService ? 'Услуга обновлена' : 'Услуга добавлена' });
-        setDialogOpen(false);
-        loadServices();
-      } else {
-        const data = await response.json();
-        console.error('Server error:', data);
-        toast({ title: 'Ошибка', description: data.error || 'Не удалось сохранить', variant: 'destructive' });
-      }
-    } catch (error) {
-      console.error('Request failed:', error);
-      toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     }
   };
 
@@ -298,7 +138,7 @@ const MyServices = () => {
 
       <div className="p-6 max-w-4xl mx-auto">
         {services.length === 0 ? (
-          <EmptyServiceState onAddService={() => handleOpenDialog()} />
+          <EmptyServiceState />
         ) : (
           <div className="space-y-4">
             {services.map((service) => (
@@ -306,7 +146,6 @@ const MyServices = () => {
                 key={service.id}
                 service={service}
                 onToggleActive={toggleActive}
-                onEdit={handleOpenDialog}
                 onDelete={handleDelete}
                 subcategories={subcategoriesCache.current[service.category_id?.toString() || '']}
                 onLoadSubcategories={handleLoadSubcategoriesForCard}
@@ -316,17 +155,14 @@ const MyServices = () => {
         )}
       </div>
 
-      <ServiceDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        isEditing={!!editingService}
-        formData={formData}
-        onFormDataChange={setFormData}
-        categories={categories}
-        subcategories={subcategories}
-        cities={cities}
-        onSave={handleSave}
-      />
+      {services.length > 0 && (
+        <button
+          onClick={() => navigate('/add-service')}
+          className="fixed bottom-24 right-6 w-14 h-14 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-colors flex items-center justify-center z-50 md:hidden"
+        >
+          <Icon name="Plus" size={24} />
+        </button>
+      )}
     </div>
   );
 };

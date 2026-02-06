@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -7,13 +8,13 @@ import type { Service } from '@/types/services';
 interface ServiceCardProps {
   service: Service;
   onToggleActive: (service: Service) => void;
-  onEdit: (service: Service) => void;
   onDelete: (id: number) => void;
   subcategories?: Array<{ id: number; name: string }>;
   onLoadSubcategories?: (categoryId: number) => void;
 }
 
-const ServiceCard = ({ service, onToggleActive, onEdit, onDelete, subcategories, onLoadSubcategories }: ServiceCardProps) => {
+const ServiceCard = ({ service, onToggleActive, onDelete, subcategories, onLoadSubcategories }: ServiceCardProps) => {
+  const navigate = useNavigate();
   const [showSubcategories, setShowSubcategories] = useState(false);
 
   const handleCategoryHover = () => {
@@ -134,7 +135,7 @@ const ServiceCard = ({ service, onToggleActive, onEdit, onDelete, subcategories,
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onEdit(service)}
+            onClick={() => navigate(`/edit-service/${service.id}`)}
           >
             <Icon name="Pencil" size={18} />
           </Button>
