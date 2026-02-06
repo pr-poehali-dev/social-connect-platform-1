@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
                            zodiac_sign, status_text, phone, telegram, instagram,
                            dating_visible, is_verified, verified_at,
                            looking_for_gender, age_from, age_to,
-                           is_banned, created_at, updated_at
+                           is_banned, created_at, updated_at, is_vip, vip_expires_at
                     FROM t_p19021063_social_connect_platf.users
                     WHERE id = {user_id}
                 '''
