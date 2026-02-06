@@ -55,7 +55,6 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isFlipped, setIsFlipped] = useState(false);
 
   const isBirthday = (birthDate: string) => {
     const today = new Date();
@@ -93,9 +92,7 @@ const ProfileCard = ({
     return lastLogin.toLocaleDateString('ru-RU');
   };
 
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
+
 
   const handleOpenChat = async () => {
     const token = localStorage.getItem('access_token');
@@ -151,27 +148,17 @@ const ProfileCard = ({
   };
 
   return (
-    <div className="perspective-1000 h-[460px] group">
-      <div 
-        className={`relative w-full h-full transition-all duration-600 transform-style-3d ${
-          isFlipped ? 'rotate-y-180' : ''
-        } group-hover:scale-105`}
-        style={{
-          transformStyle: 'preserve-3d',
-          transition: 'transform 0.6s'
-        }}
-      >
+    <div className="h-[460px] group">
         <Card 
-          className={`absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden flex flex-col transition-shadow duration-300 ${
+          className={`w-full h-full rounded-3xl overflow-hidden border-2 flex flex-col transition-all duration-300 ${
             profile.is_vip 
-              ? 'border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)] group-hover:shadow-[0_0_30px_rgba(250,204,21,0.7)]' 
-              : 'group-hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
+              ? 'border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)] group-hover:shadow-[0_0_30px_rgba(250,204,21,0.7)] group-hover:scale-105' 
+              : 'group-hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] group-hover:scale-105'
           }`}
-          style={{ backfaceVisibility: 'hidden' }}
         >
           <div 
             className="relative flex-1 overflow-hidden cursor-pointer"
-            onClick={handleFlip}
+            onClick={() => navigate(`/dating/${profile.id}`)}
           >
             {profile.image ? (
               <img
@@ -274,128 +261,6 @@ const ProfileCard = ({
             </Button>
           </div>
         </Card>
-
-        <Card 
-          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden rotate-y-180 flex flex-col"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
-          }}
-        >
-          <div 
-            className="relative flex-1 overflow-auto bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 cursor-pointer p-6"
-            onClick={handleFlip}
-          >
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Icon name="Info" size={20} />
-              Информация
-            </h3>
-            
-            <div className="space-y-3">
-              {profile.city && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="MapPin" size={16} />
-                  <span>{profile.city}{profile.district ? `, ${profile.district}` : ''}</span>
-                </div>
-              )}
-
-              {profile.bodyType && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="User" size={16} />
-                  <span>Телосложение: {profile.bodyType}</span>
-                </div>
-              )}
-
-              {profile.maritalStatus && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Heart" size={16} />
-                  <span>Семейное положение: {profile.maritalStatus}</span>
-                </div>
-              )}
-
-              {profile.hasChildren && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Baby" size={16} />
-                  <span>Дети: {profile.hasChildren}</span>
-                </div>
-              )}
-
-              {profile.work && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Briefcase" size={16} />
-                  <span>Профессия: {profile.work}</span>
-                </div>
-              )}
-
-              {profile.financialStatus && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Wallet" size={16} />
-                  <span>Финансовое положение: {profile.financialStatus}</span>
-                </div>
-              )}
-
-              {profile.hasCar && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Car" size={16} />
-                  <span>Автомобиль: {profile.hasCar}</span>
-                </div>
-              )}
-
-              {profile.hasHousing && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Home" size={16} />
-                  <span>Жилье: {profile.hasHousing}</span>
-                </div>
-              )}
-
-              {profile.datingGoal && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Icon name="Target" size={16} />
-                  <span>Цель знакомства: {profile.datingGoal}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="p-4 flex items-center justify-center gap-2 bg-white">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full h-12 w-12"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(profile.id);
-              }}
-            >
-              <Icon 
-                name="Star"
-                size={20} 
-                className={isFavorite ? "fill-yellow-400 text-yellow-400" : ""}
-              />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full h-12 w-12"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Icon name="MessageCircle" size={20} />
-            </Button>
-            <Button 
-              variant={isFriend || isFriendRequestSent ? "secondary" : "outline"} 
-              className="rounded-full px-6 h-12 gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddFriend(profile.id);
-              }}
-              disabled={isFriend || isFriendRequestSent}
-            >
-              <Icon name={getFriendButtonIcon()} size={20} />
-              {getFriendButtonText()}
-            </Button>
-          </div>
-        </Card>
-      </div>
     </div>
   );
 };
