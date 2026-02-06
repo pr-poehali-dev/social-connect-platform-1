@@ -20,7 +20,6 @@ const MyServices = () => {
 
   const handleLoadSubcategoriesForCard = async (categoryId: number) => {
     const categoryIdStr = categoryId.toString();
-    setHoveredCategoryId(categoryId);
     
     if (!subcategoriesCache.current[categoryIdStr]) {
       try {
