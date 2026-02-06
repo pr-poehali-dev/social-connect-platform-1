@@ -284,7 +284,7 @@ const Ads = () => {
   const filteredAds = getFilteredAds();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background lg:overflow-auto overflow-y-auto overflow-x-hidden">
       <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">

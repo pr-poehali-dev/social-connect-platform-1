@@ -241,8 +241,8 @@ const Navigation = () => {
         </div>
       </nav>
 
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border">
-        <div className="flex justify-around items-center h-14">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border touch-none">
+        <div className="flex justify-around items-center h-14 overflow-x-hidden">
           {mainNavItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
               <Button
@@ -257,8 +257,8 @@ const Navigation = () => {
         </div>
       </div>
 
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe">
-        <div className="grid grid-cols-7 gap-1 px-2 py-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe touch-none">
+        <div className="grid grid-cols-7 gap-1 px-2 py-2 overflow-x-hidden">
           {bottomNavItems.slice(0, 3).map((item) => {
             if (item.path === '/radio') {
               return (
