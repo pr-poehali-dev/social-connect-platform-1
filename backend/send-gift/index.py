@@ -172,6 +172,14 @@ def handler(event: dict, context) -> dict:
         
         gift_record_id = cursor.fetchone()['id']
         
+        # Начисляем получателю 50% от стоимости подарка на основной счет
+        cashback_amount = price * Decimal('0.5')
+        cursor.execute(f"""
+            UPDATE {schema}.users
+            SET balance = balance + %s
+            WHERE id = %s
+        """, (cashback_amount, recipient_id))
+        
         # Записываем транзакции
         sender_name = f"{sender['first_name'] or ''} {sender['last_name'] or ''}".strip() or 'Пользователь'
         recipient_name = f"{recipient['first_name'] or ''} {recipient['last_name'] or ''}".strip() or 'Пользователь'
@@ -181,6 +189,13 @@ def handler(event: dict, context) -> dict:
             (user_id, amount, type, status, description)
             VALUES (%s, %s, 'send_gift', 'completed', %s)
         """, (user_id, -price, f'Подарок "{gift_name}" для {recipient_name}'))
+        
+        # Транзакция начисления получателю
+        cursor.execute(f"""
+            INSERT INTO {schema}.transactions 
+            (user_id, amount, type, status, description)
+            VALUES (%s, %s, 'gift_cashback', 'completed', %s)
+        """, (recipient_id, cashback_amount, f'Получен подарок "{gift_name}" ({gift_emoji})'))
         
         # Уведомление получателю
         notification_content = f'Анонимный отправитель подарил вам {gift_name}' if is_anonymous else f'{sender_name} отправил вам {gift_name}'
