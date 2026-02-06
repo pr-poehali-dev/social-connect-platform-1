@@ -17,6 +17,12 @@ export interface Subcategory {
   created_at?: string;
 }
 
+export interface PriceListItem {
+  service: string;
+  price: string;
+  time?: string;
+}
+
 export interface Service {
   id: number;
   user_id: number;
@@ -25,6 +31,7 @@ export interface Service {
   title: string;
   description: string;
   price: string;
+  price_list?: PriceListItem[];
   city_id: number;
   city_name: string;
   district: string;
@@ -45,6 +52,7 @@ export interface ServiceFormData {
   title: string;
   description: string;
   price: string;
+  price_list?: PriceListItem[];
   is_online: boolean;
   city_id: string;
   district: string;

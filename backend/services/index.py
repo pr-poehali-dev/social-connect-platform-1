@@ -215,6 +215,8 @@ def handler(event: dict, context) -> dict:
             title = escape_sql(body.get('title', ''))
             description = escape_sql(body.get('description', ''))
             price = escape_sql(body.get('price', ''))
+            price_list = body.get('price_list', [])
+            price_list_json = escape_sql(json.dumps(price_list) if price_list else None)
             category_id = escape_sql(body.get('category_id') or None)
             subcategory_id = escape_sql(body.get('subcategory_id') or None)
             city_id = escape_sql(body.get('city_id') or None)
@@ -222,8 +224,8 @@ def handler(event: dict, context) -> dict:
             is_online = escape_sql(body.get('is_online', False))
             
             cursor.execute(f'''
-                INSERT INTO services (user_id, title, description, price, category_id, subcategory_id, city_id, district, is_online, is_active)
-                VALUES ({escape_sql(user_id)}, {title}, {description}, {price}, {category_id}, {subcategory_id}, {city_id}, {district}, {is_online}, TRUE)
+                INSERT INTO services (user_id, title, description, price, price_list, category_id, subcategory_id, city_id, district, is_online, is_active)
+                VALUES ({escape_sql(user_id)}, {title}, {description}, {price}, {price_list_json}::jsonb, {category_id}, {subcategory_id}, {city_id}, {district}, {is_online}, TRUE)
                 RETURNING id
             ''')
             service_id = cursor.fetchone()['id']
@@ -298,9 +300,12 @@ def handler(event: dict, context) -> dict:
             title = escape_sql(body.get('title'))
             description = escape_sql(body.get('description'))
             price = escape_sql(body.get('price'))
+            price_list = body.get('price_list', [])
+            price_list_json = escape_sql(json.dumps(price_list) if price_list else None)
             category_id = escape_sql(body.get('category_id'))
             subcategory_id = escape_sql(body.get('subcategory_id'))
             city_id = escape_sql(body.get('city_id'))
+            district = escape_sql(body.get('district', ''))
             is_online = escape_sql(body.get('is_online', False))
             is_active = escape_sql(body.get('is_active', True))
             
@@ -309,9 +314,11 @@ def handler(event: dict, context) -> dict:
                     title = {title},
                     description = {description},
                     price = {price},
+                    price_list = {price_list_json}::jsonb,
                     category_id = {category_id},
                     subcategory_id = {subcategory_id},
                     city_id = {city_id},
+                    district = {district},
                     is_online = {is_online},
                     is_active = {is_active},
                     updated_at = CURRENT_TIMESTAMP

@@ -77,6 +77,23 @@ const ServiceCard = ({ service, onToggleActive, onEdit, onDelete, subcategories,
             <p className="text-sm text-gray-700 mb-2">{service.description}</p>
           )}
 
+          {service.price_list && service.price_list.length > 0 && (
+            <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+              <p className="text-xs font-semibold text-gray-600 mb-2">Прайс-лист:</p>
+              <div className="space-y-1">
+                {service.price_list.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-700">{item.service}</span>
+                    <div className="flex items-center gap-2">
+                      {item.time && <span className="text-xs text-gray-500">{item.time}</span>}
+                      <span className="font-semibold text-primary">{item.price}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {service.portfolio && service.portfolio.length > 0 && (
             <div className="flex gap-2 mb-2 overflow-x-auto">
               {service.portfolio.slice(0, 5).map((img, idx) => (
