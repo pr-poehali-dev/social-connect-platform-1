@@ -9,7 +9,12 @@ interface ProfileActionsProps {
   onRequestVerification?: () => void;
 }
 
-const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerification }: ProfileActionsProps) => {
+const defaultVerificationHandler = () => {
+  // Заглушка для верификации
+  console.log('Verification requested');
+};
+
+const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerification = defaultVerificationHandler }: ProfileActionsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 

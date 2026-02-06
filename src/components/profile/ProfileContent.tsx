@@ -155,7 +155,6 @@ const ProfileContent = ({
                       <ProfileActions 
                         user={user}
                         verificationStatus={verificationStatus}
-                        onRequestVerification={handleVerificationRequest}
                       />
                     </div>
                   )}
