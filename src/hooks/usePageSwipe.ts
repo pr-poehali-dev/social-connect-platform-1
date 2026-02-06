@@ -58,10 +58,12 @@ export const usePageSwipe = () => {
       }
     }
 
-    setTouchStart(0);
-    setTouchCurrent(0);
-    setIsDragging(false);
-    setSwipeOffset(0);
+    setTimeout(() => {
+      setTouchStart(0);
+      setTouchCurrent(0);
+      setIsDragging(false);
+      setSwipeOffset(0);
+    }, 50);
   };
 
   useEffect(() => {
