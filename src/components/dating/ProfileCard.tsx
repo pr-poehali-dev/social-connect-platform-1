@@ -162,7 +162,11 @@ const ProfileCard = ({
         }}
       >
         <Card 
-          className="absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden flex flex-col"
+          className={`absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden flex flex-col ${
+            profile.is_vip 
+              ? 'border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)]' 
+              : ''
+          }`}
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div 
