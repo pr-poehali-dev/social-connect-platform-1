@@ -213,9 +213,11 @@ const MyServices = () => {
         loadServices();
       } else {
         const data = await response.json();
+        console.error('Server error:', data);
         toast({ title: 'Ошибка', description: data.error || 'Не удалось сохранить', variant: 'destructive' });
       }
     } catch (error) {
+      console.error('Request failed:', error);
       toast({ title: 'Ошибка', description: 'Не удалось подключиться к серверу', variant: 'destructive' });
     }
   };
