@@ -100,6 +100,7 @@ const Profile = () => {
         shareLocation={shareLocation}
         darkMode={darkMode}
         premiumOnly={premiumOnly}
+        isVip={user?.is_vip}
         handleSoundToggle={handleSoundToggle}
         handleDatingVisibilityToggle={handleDatingVisibilityToggle}
         handleShareLocationToggle={handleShareLocationToggle}

@@ -7,7 +7,10 @@ import {
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileSettingsDialogProps {
   settingsOpen: boolean;
@@ -17,6 +20,7 @@ interface ProfileSettingsDialogProps {
   shareLocation: boolean;
   darkMode: boolean;
   premiumOnly: boolean;
+  isVip?: boolean;
   handleSoundToggle: (enabled: boolean) => void;
   handleDatingVisibilityToggle: (enabled: boolean) => void;
   handleShareLocationToggle: (enabled: boolean) => void;
@@ -32,12 +36,35 @@ const ProfileSettingsDialog = ({
   shareLocation,
   darkMode,
   premiumOnly,
+  isVip = false,
   handleSoundToggle,
   handleDatingVisibilityToggle,
   handleShareLocationToggle,
   handleThemeToggle,
   handlePremiumOnlyToggle
 }: ProfileSettingsDialogProps) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handlePremiumFeatureClick = () => {
+    toast({
+      title: 'Premium функция',
+      description: 'Тёмная тема доступна только для Premium пользователей',
+      action: (
+        <Button 
+          size="sm" 
+          onClick={() => {
+            setSettingsOpen(false);
+            navigate('/premium');
+          }}
+          className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600"
+        >
+          Оформить Premium
+        </Button>
+      ),
+    });
+  };
+
   return (
     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
       <DialogContent className="max-w-md">
@@ -52,11 +79,19 @@ const ProfileSettingsDialog = ({
         </DialogHeader>
         
         <div className="space-y-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="dark-mode" className="text-base font-medium">
-                Тёмная тема
-              </Label>
+          <div className="flex items-center justify-between relative">
+            <div className="space-y-0.5 flex-1">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="dark-mode" className="text-base font-medium">
+                  Тёмная тема
+                </Label>
+                {!isVip && (
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+                    <Icon name="Crown" size={12} className="text-white" />
+                    <span className="text-xs font-semibold text-white">Premium</span>
+                  </div>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Использовать тёмное оформление интерфейса
               </p>
@@ -64,7 +99,14 @@ const ProfileSettingsDialog = ({
             <Switch
               id="dark-mode"
               checked={darkMode}
-              onCheckedChange={handleThemeToggle}
+              onCheckedChange={(checked) => {
+                if (!isVip && checked) {
+                  handlePremiumFeatureClick();
+                  return;
+                }
+                handleThemeToggle(checked);
+              }}
+              disabled={!isVip && darkMode}
             />
           </div>
 
