@@ -151,21 +151,21 @@ const ProfileCard = ({
   };
 
   return (
-    <div className="perspective-1000 h-[460px]">
+    <div className="perspective-1000 h-[460px] group">
       <div 
-        className={`relative w-full h-full transition-transform duration-600 transform-style-3d ${
+        className={`relative w-full h-full transition-all duration-600 transform-style-3d ${
           isFlipped ? 'rotate-y-180' : ''
-        }`}
+        } group-hover:scale-105`}
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 0.6s'
         }}
       >
         <Card 
-          className={`absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden flex flex-col ${
+          className={`absolute w-full h-full rounded-3xl overflow-hidden border-2 backface-hidden flex flex-col transition-shadow duration-300 ${
             profile.is_vip 
-              ? 'border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)]' 
-              : ''
+              ? 'border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)] group-hover:shadow-[0_0_30px_rgba(250,204,21,0.7)]' 
+              : 'group-hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
           }`}
           style={{ backfaceVisibility: 'hidden' }}
         >
