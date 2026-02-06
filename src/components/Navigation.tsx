@@ -18,11 +18,6 @@ const Navigation = () => {
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const avatarCacheRef = useRef<string | null>(null);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
-  const topNavRef = useRef<HTMLDivElement>(null);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [swipeOffset, setSwipeOffset] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const authStatus = isAuthenticated();
@@ -124,25 +119,6 @@ const Navigation = () => {
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
   ];
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-    setSwipeOffset(0);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStart) return;
-    const currentTouch = e.targetTouches[0].clientX;
-    const diff = currentTouch - touchStart;
-    setSwipeOffset(diff);
-    setTouchEnd(currentTouch);
-  };
-
-  const handleTouchEnd = () => {
-    setSwipeOffset(0);
-    setTouchStart(0);
-    setTouchEnd(0);
-  };
 
   const bottomNavItems = [
     { path: '/favorites', label: 'Избранное', icon: 'Star' },
@@ -265,25 +241,13 @@ const Navigation = () => {
         </div>
       </nav>
 
-      <div 
-        ref={topNavRef}
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div 
-          className="flex justify-around items-center h-14 transition-transform"
-          style={{
-            transform: `translateX(${swipeOffset * 0.3}px)`,
-            transition: isTransitioning ? 'transform 0.3s ease-out' : 'none'
-          }}
-        >
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-border">
+        <div className="flex justify-around items-center h-14">
           {mainNavItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
               <Button
                 variant={location.pathname === item.path ? 'default' : 'ghost'}
-                className={`w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1 transition-all ${item.pulse ? 'animate-pulse' : ''}`}
+                className={`w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1 ${item.pulse ? 'animate-pulse' : ''}`}
                 data-active={location.pathname === item.path}
               >
                 {item.label}

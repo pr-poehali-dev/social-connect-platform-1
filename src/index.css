@@ -136,32 +136,6 @@
 }
 
 @layer utilities {
-  @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideInLeft {
-    from {
-      transform: translateX(-100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .page-transition-enter {
-    animation: slideInRight 0.3s ease-out;
-  }
-
   .custom-scrollbar::-webkit-scrollbar {
     height: 8px;
   }

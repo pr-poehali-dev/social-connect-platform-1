@@ -6,7 +6,6 @@ import { useToast } from '@/hooks/use-toast';
 import AdsFilters from '@/components/ads/AdsFilters';
 import AdCard from '@/components/ads/AdCard';
 import InviteDialog from '@/components/ads/InviteDialog';
-import { usePageSwipe } from '@/hooks/usePageSwipe';
 
 interface Ad {
   id: number;
@@ -37,7 +36,6 @@ const Ads = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { containerRef, swipeOffset, isDragging } = usePageSwipe();
 
   const getUserCity = () => {
     const userProfile = localStorage.getItem('userProfile');
@@ -289,14 +287,7 @@ const Ads = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main 
-        ref={containerRef}
-        className="pt-20 pb-24 lg:pt-24 lg:pb-12"
-        style={{
-          transform: `translateX(${swipeOffset}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s ease-out'
-        }}
-      >
+      <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             

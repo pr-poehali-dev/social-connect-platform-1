@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { RadioProvider } from "./contexts/RadioContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
@@ -49,25 +49,6 @@ import Premium from "./pages/Premium";
 
 const queryClient = new QueryClient();
 
-const PageTransition = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-  
-  useEffect(() => {
-    const mainPages = ['/dating', '/ads', '/services', '/events'];
-    if (mainPages.includes(location.pathname)) {
-      const pageElement = document.querySelector('main') || document.querySelector('.min-h-screen');
-      if (pageElement) {
-        pageElement.classList.add('page-transition-enter');
-        setTimeout(() => {
-          pageElement.classList.remove('page-transition-enter');
-        }, 300);
-      }
-    }
-  }, [location.pathname]);
-
-  return <>{children}</>;
-};
-
 const App = () => {
   useEffect(() => {
     const darkMode = localStorage.getItem('darkMode') === 'true';
@@ -84,7 +65,6 @@ const App = () => {
           <Sonner />
           <OfflineIndicator />
           <BrowserRouter>
-          <PageTransition>
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
@@ -127,7 +107,6 @@ const App = () => {
           <Route path="/premium" element={<ProtectedRoute><Premium /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        </PageTransition>
       </BrowserRouter>
       </RadioProvider>
     </TooltipProvider>

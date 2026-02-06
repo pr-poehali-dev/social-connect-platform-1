@@ -17,7 +17,6 @@ import {
 import { useDatingFilters } from '@/components/dating/DatingFiltersState';
 import { useDatingProfilesLoader, formatLastSeen } from '@/components/dating/DatingProfilesLoader';
 import { useDatingActionsHandlers } from '@/components/dating/DatingActionsHandlers';
-import { usePageSwipe } from '@/hooks/usePageSwipe';
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +24,6 @@ const Dating = () => {
   const [voiceQuery, setVoiceQuery] = useState('');
   const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
-  const { containerRef, swipeOffset, isDragging } = usePageSwipe();
 
   const { filters, handleFilterChange, resetFilters } = useDatingFilters({
     onFiltersChange: () => loadProfiles()
@@ -75,16 +73,8 @@ const Dating = () => {
     });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <Navigation />
-      <main 
-        ref={containerRef}
-        className="container mx-auto px-4 py-6 max-w-7xl pb-20 pt-20"
-        style={{
-          transform: `translateX(${swipeOffset}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s ease-out'
-        }}
-      >
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pb-20 pt-20">
+      <main className="container mx-auto px-4 py-6 max-w-7xl">
         
         {voiceQuery && (
           <div className="mb-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-between">
@@ -156,6 +146,8 @@ const Dating = () => {
           </div>
         )}
       </main>
+
+      <Navigation />
     </div>
   );
 };

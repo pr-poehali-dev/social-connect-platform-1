@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { usePageSwipe } from '@/hooks/usePageSwipe';
 
 const useTypingPlaceholder = (text: string, speed: number = 50) => {
   const [placeholder, setPlaceholder] = useState('');
@@ -61,7 +60,6 @@ const Events = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const placeholder = useTypingPlaceholder('Поиск мероприятий');
-  const { containerRef, swipeOffset, isDragging } = usePageSwipe();
   
   // Умное определение города по умолчанию
   const getUserCity = () => {
@@ -304,14 +302,7 @@ const Events = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Navigation />
       
-      <main 
-        ref={containerRef}
-        className="pt-20 pb-24 lg:pt-24 lg:pb-12"
-        style={{
-          transform: `translateX(${swipeOffset}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s ease-out'
-        }}
-      >
+      <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
