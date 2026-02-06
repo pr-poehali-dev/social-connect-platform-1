@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -8,9 +9,20 @@ interface ServiceCardProps {
   onToggleActive: (service: Service) => void;
   onEdit: (service: Service) => void;
   onDelete: (id: number) => void;
+  subcategories?: Array<{ id: number; name: string }>;
+  onLoadSubcategories?: (categoryId: number) => void;
 }
 
-const ServiceCard = ({ service, onToggleActive, onEdit, onDelete }: ServiceCardProps) => {
+const ServiceCard = ({ service, onToggleActive, onEdit, onDelete, subcategories, onLoadSubcategories }: ServiceCardProps) => {
+  const [showSubcategories, setShowSubcategories] = useState(false);
+
+  const handleCategoryHover = () => {
+    if (onLoadSubcategories && service.category_id) {
+      onLoadSubcategories(service.category_id);
+    }
+    setShowSubcategories(true);
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-start justify-between">
@@ -33,9 +45,33 @@ const ServiceCard = ({ service, onToggleActive, onEdit, onDelete }: ServiceCardP
             </span>
           </div>
 
-          <p className="text-sm text-gray-600 mb-1">
-            {service.category_name} › {service.subcategory_name}
-          </p>
+          <div 
+            className="relative inline-block"
+            onMouseEnter={handleCategoryHover}
+            onMouseLeave={() => setShowSubcategories(false)}
+          >
+            <p className="text-sm text-gray-600 mb-1 cursor-pointer hover:text-primary transition-colors">
+              {service.category_name} › {service.subcategory_name}
+            </p>
+            
+            {showSubcategories && subcategories && subcategories.length > 0 && (
+              <div className="absolute left-0 top-full mt-1 bg-white border rounded-lg shadow-lg p-3 z-10 min-w-[200px]">
+                <p className="text-xs font-semibold text-gray-500 mb-2">Подкатегории:</p>
+                <div className="space-y-1">
+                  {subcategories.map((sub) => (
+                    <div
+                      key={sub.id}
+                      className={`text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors ${
+                        sub.id === service.subcategory_id ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700'
+                      }`}
+                    >
+                      {sub.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {service.description && (
             <p className="text-sm text-gray-700 mb-2">{service.description}</p>

@@ -17,6 +17,7 @@ const MyServices = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [hoveredCategoryId, setHoveredCategoryId] = useState<number | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const subcategoriesCache = useRef<Record<string, Subcategory[]>>({});
@@ -88,6 +89,23 @@ const MyServices = () => {
       }
     } catch (error) {
       console.error('Error loading subcategories:', error);
+    }
+  };
+
+  const handleLoadSubcategoriesForCard = async (categoryId: number) => {
+    const categoryIdStr = categoryId.toString();
+    setHoveredCategoryId(categoryId);
+    
+    if (!subcategoriesCache.current[categoryIdStr]) {
+      try {
+        const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=subcategories&category_id=${categoryIdStr}`);
+        if (response.ok) {
+          const data = await response.json();
+          subcategoriesCache.current[categoryIdStr] = data;
+        }
+      } catch (error) {
+        console.error('Error loading subcategories:', error);
+      }
     }
   };
 
@@ -291,6 +309,8 @@ const MyServices = () => {
                 onToggleActive={toggleActive}
                 onEdit={handleOpenDialog}
                 onDelete={handleDelete}
+                subcategories={subcategoriesCache.current[service.category_id?.toString() || '']}
+                onLoadSubcategories={handleLoadSubcategoriesForCard}
               />
             ))}
           </div>
