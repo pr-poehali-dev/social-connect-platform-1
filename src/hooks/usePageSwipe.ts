@@ -11,8 +11,8 @@ const mainPages = [
 export const usePageSwipe = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchCurrent, setTouchCurrent] = useState(0);
+  const touchStartRef = useRef(0);
+  const touchCurrentRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -20,18 +20,16 @@ export const usePageSwipe = () => {
   const minSwipeDistance = 80;
 
   const onTouchStart = (e: TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-    setTouchCurrent(e.targetTouches[0].clientX);
+    touchStartRef.current = e.targetTouches[0].clientX;
+    touchCurrentRef.current = e.targetTouches[0].clientX;
     setIsDragging(true);
   };
 
   const onTouchMove = (e: TouchEvent) => {
-    if (!isDragging) return;
-    
     const current = e.targetTouches[0].clientX;
-    setTouchCurrent(current);
+    touchCurrentRef.current = current;
     
-    const diff = current - touchStart;
+    const diff = current - touchStartRef.current;
     const currentIndex = mainPages.findIndex(page => page.path === location.pathname);
     
     if ((diff > 0 && currentIndex === 0) || (diff < 0 && currentIndex === mainPages.length - 1)) {
@@ -42,9 +40,7 @@ export const usePageSwipe = () => {
   };
 
   const onTouchEnd = () => {
-    if (!isDragging) return;
-
-    const distance = touchStart - touchCurrent;
+    const distance = touchStartRef.current - touchCurrentRef.current;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
@@ -58,12 +54,10 @@ export const usePageSwipe = () => {
       }
     }
 
-    setTimeout(() => {
-      setTouchStart(0);
-      setTouchCurrent(0);
-      setIsDragging(false);
-      setSwipeOffset(0);
-    }, 50);
+    touchStartRef.current = 0;
+    touchCurrentRef.current = 0;
+    setIsDragging(false);
+    setSwipeOffset(0);
   };
 
   useEffect(() => {
@@ -79,7 +73,7 @@ export const usePageSwipe = () => {
       container.removeEventListener('touchmove', onTouchMove);
       container.removeEventListener('touchend', onTouchEnd);
     };
-  }, [isDragging, touchStart, touchCurrent, location.pathname]);
+  }, [location.pathname]);
 
   return { 
     containerRef, 
