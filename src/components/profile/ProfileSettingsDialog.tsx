@@ -106,7 +106,6 @@ const ProfileSettingsDialog = ({
                 }
                 handleThemeToggle(checked);
               }}
-              disabled={!isVip && darkMode}
             />
           </div>
 
