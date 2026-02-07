@@ -13,6 +13,9 @@ interface UseProfileActionsProps {
   shareLocation: boolean;
   premiumOnly: boolean;
   animateAvatar: boolean;
+  animationText: string;
+  animationVoice: string;
+  animationDriver: string;
   contactPrice: number;
   setSoundEnabled: (enabled: boolean) => void;
   setDatingVisible: (visible: boolean) => void;
@@ -20,6 +23,9 @@ interface UseProfileActionsProps {
   setPremiumOnly: (enabled: boolean) => void;
   setDarkMode: (enabled: boolean) => void;
   setAnimateAvatar: (enabled: boolean) => void;
+  setAnimationText: (text: string) => void;
+  setAnimationVoice: (voice: string) => void;
+  setAnimationDriver: (driver: string) => void;
   setContactPrice: (price: number) => void;
 }
 
@@ -33,6 +39,9 @@ export const useProfileActions = ({
   shareLocation,
   premiumOnly,
   animateAvatar,
+  animationText,
+  animationVoice,
+  animationDriver,
   contactPrice,
   setSoundEnabled,
   setDatingVisible,
@@ -40,6 +49,9 @@ export const useProfileActions = ({
   setPremiumOnly,
   setDarkMode,
   setAnimateAvatar,
+  setAnimationText,
+  setAnimationVoice,
+  setAnimationDriver,
   setContactPrice
 }: UseProfileActionsProps) => {
   const navigate = useNavigate();
@@ -301,6 +313,26 @@ export const useProfileActions = ({
       toast({
         title: enabled ? 'Оживление включено' : 'Оживление выключено',
         description: enabled ? 'Фото оживают при наведении курсора' : 'Фото остаются статичными',
+      });
+    },
+    handleAnimationTextChange: (text: string) => {
+      setAnimationText(text);
+      localStorage.setItem('animationText', text);
+    },
+    handleAnimationVoiceChange: (voice: string) => {
+      setAnimationVoice(voice);
+      localStorage.setItem('animationVoice', voice);
+      toast({
+        title: 'Голос изменён',
+        description: 'Новый голос будет использоваться при анимации',
+      });
+    },
+    handleAnimationDriverChange: (driver: string) => {
+      setAnimationDriver(driver);
+      localStorage.setItem('animationDriver', driver);
+      toast({
+        title: 'Стиль изменён',
+        description: 'Новый стиль движения применён',
       });
     },
     handleContactPriceChange: async (price: number) => {

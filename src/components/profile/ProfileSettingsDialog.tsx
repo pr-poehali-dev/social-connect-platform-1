@@ -22,6 +22,9 @@ interface ProfileSettingsDialogProps {
   darkMode: boolean;
   premiumOnly: boolean;
   animateAvatar: boolean;
+  animationText: string;
+  animationVoice: string;
+  animationDriver: string;
   contactPrice: number;
   isVip?: boolean;
   handleSoundToggle: (enabled: boolean) => void;
@@ -30,6 +33,9 @@ interface ProfileSettingsDialogProps {
   handleThemeToggle: (enabled: boolean) => void;
   handlePremiumOnlyToggle: (enabled: boolean) => void;
   handleAnimateAvatarToggle: (enabled: boolean) => void;
+  handleAnimationTextChange: (text: string) => void;
+  handleAnimationVoiceChange: (voice: string) => void;
+  handleAnimationDriverChange: (driver: string) => void;
   handleContactPriceChange: (price: number) => void;
 }
 
@@ -42,6 +48,9 @@ const ProfileSettingsDialog = ({
   darkMode,
   premiumOnly,
   animateAvatar,
+  animationText,
+  animationVoice,
+  animationDriver,
   contactPrice,
   isVip = false,
   handleSoundToggle,
@@ -50,6 +59,9 @@ const ProfileSettingsDialog = ({
   handleThemeToggle,
   handlePremiumOnlyToggle,
   handleAnimateAvatarToggle,
+  handleAnimationTextChange,
+  handleAnimationVoiceChange,
+  handleAnimationDriverChange,
   handleContactPriceChange
 }: ProfileSettingsDialogProps) => {
   const navigate = useNavigate();
@@ -134,20 +146,81 @@ const ProfileSettingsDialog = ({
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="animate-avatar" className="text-base font-medium">
-                Оживлять фото
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Анимировать аватарки при наведении курсора
-              </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="animate-avatar" className="text-base font-medium">
+                  Оживлять фото
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Анимировать аватарки при наведении курсора
+                </p>
+              </div>
+              <Switch
+                id="animate-avatar"
+                checked={animateAvatar}
+                onCheckedChange={handleAnimateAvatarToggle}
+              />
             </div>
-            <Switch
-              id="animate-avatar"
-              checked={animateAvatar}
-              onCheckedChange={handleAnimateAvatarToggle}
-            />
+
+            {animateAvatar && (
+              <div className="pl-4 space-y-4 border-l-2 border-muted">
+                <div className="space-y-2">
+                  <Label htmlFor="animation-text" className="text-sm font-medium">
+                    Текст фразы
+                  </Label>
+                  <Input
+                    id="animation-text"
+                    value={animationText}
+                    onChange={(e) => handleAnimationTextChange(e.target.value)}
+                    placeholder="Hello! Nice to meet you!"
+                    className="text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Фраза, которую будет произносить аватар (минимум 3 символа)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="animation-voice" className="text-sm font-medium">
+                    Голос
+                  </Label>
+                  <select
+                    id="animation-voice"
+                    value={animationVoice}
+                    onChange={(e) => handleAnimationVoiceChange(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <optgroup label="Русские голоса">
+                      <option value="ru-RU-DariyaNeural">Дарья (женский, RU)</option>
+                      <option value="ru-RU-DmitryNeural">Дмитрий (мужской, RU)</option>
+                    </optgroup>
+                    <optgroup label="Английские голоса">
+                      <option value="en-US-JennyNeural">Jenny (женский, US)</option>
+                      <option value="en-US-GuyNeural">Guy (мужской, US)</option>
+                      <option value="en-GB-SoniaNeural">Sonia (женский, UK)</option>
+                      <option value="en-GB-RyanNeural">Ryan (мужской, UK)</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="animation-driver" className="text-sm font-medium">
+                    Стиль движения
+                  </Label>
+                  <select
+                    id="animation-driver"
+                    value={animationDriver}
+                    onChange={(e) => handleAnimationDriverChange(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="bank://lively">Живой (естественные движения)</option>
+                    <option value="bank://subtle">Спокойный (минимальные движения)</option>
+                    <option value="bank://stiff">Статичный (почти без движений)</option>
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between">

@@ -32,6 +32,9 @@ def handler(event: dict, context) -> dict:
     try:
         body = json.loads(event.get('body', '{}'))
         image_url = body.get('imageUrl')
+        text = body.get('text', 'Hello! Nice to meet you!')
+        voice = body.get('voice', 'en-US-JennyNeural')
+        driver = body.get('driver', 'bank://lively')
         
         if not image_url:
             return {
@@ -41,6 +44,16 @@ def handler(event: dict, context) -> dict:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'body': json.dumps({'error': 'imageUrl is required'})
+            }
+        
+        if len(text.strip()) < 3:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'text must be at least 3 characters'})
             }
         
         api_key = os.environ.get('DID_API_KEY')
@@ -58,10 +71,10 @@ def handler(event: dict, context) -> dict:
             'source_url': image_url,
             'script': {
                 'type': 'text',
-                'input': 'Hello',
+                'input': text,
                 'provider': {
                     'type': 'microsoft',
-                    'voice_id': 'en-US-JennyNeural'
+                    'voice_id': voice
                 }
             },
             'config': {
@@ -70,7 +83,10 @@ def handler(event: dict, context) -> dict:
             }
         }
         
-        print(f'Sending request to D-ID API with payload: {json.dumps(payload)}')
+        if driver and driver != 'bank://lively':
+            payload['driver_url'] = driver
+        
+        print(f'D-ID Request: text="{text}", voice={voice}, driver={driver}')
         
         create_response = requests.post(
             'https://api.d-id.com/talks',

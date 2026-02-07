@@ -46,6 +46,9 @@ const Profile = () => {
     handleThemeToggle,
     handlePremiumOnlyToggle,
     handleAnimateAvatarToggle,
+    handleAnimationTextChange,
+    handleAnimationVoiceChange,
+    handleAnimationDriverChange,
     handleContactPriceChange
   } = useProfileActions({
     user,
@@ -57,6 +60,9 @@ const Profile = () => {
     shareLocation,
     premiumOnly,
     animateAvatar,
+    animationText,
+    animationVoice,
+    animationDriver,
     contactPrice,
     setSoundEnabled,
     setDatingVisible,
@@ -64,6 +70,9 @@ const Profile = () => {
     setPremiumOnly,
     setDarkMode,
     setAnimateAvatar,
+    setAnimationText,
+    setAnimationVoice,
+    setAnimationDriver,
     setContactPrice
   });
 
@@ -112,6 +121,9 @@ const Profile = () => {
         darkMode={darkMode}
         premiumOnly={premiumOnly}
         animateAvatar={animateAvatar}
+        animationText={animationText}
+        animationVoice={animationVoice}
+        animationDriver={animationDriver}
         contactPrice={contactPrice}
         isVip={user?.is_vip}
         handleSoundToggle={handleSoundToggle}
@@ -120,6 +132,9 @@ const Profile = () => {
         handleThemeToggle={handleThemeToggle}
         handlePremiumOnlyToggle={handlePremiumOnlyToggle}
         handleAnimateAvatarToggle={handleAnimateAvatarToggle}
+        handleAnimationTextChange={handleAnimationTextChange}
+        handleAnimationVoiceChange={handleAnimationVoiceChange}
+        handleAnimationDriverChange={handleAnimationDriverChange}
         handleContactPriceChange={handleContactPriceChange}
       />
     </>

@@ -62,6 +62,15 @@ export const useProfileData = () => {
     const saved = localStorage.getItem('animateAvatar');
     return saved !== 'false';
   });
+  const [animationText, setAnimationText] = useState(() => {
+    return localStorage.getItem('animationText') || 'Hello! Nice to meet you!';
+  });
+  const [animationVoice, setAnimationVoice] = useState(() => {
+    return localStorage.getItem('animationVoice') || 'en-US-JennyNeural';
+  });
+  const [animationDriver, setAnimationDriver] = useState(() => {
+    return localStorage.getItem('animationDriver') || 'bank://lively';
+  });
   const [contactPrice, setContactPrice] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -253,6 +262,12 @@ export const useProfileData = () => {
     setPremiumOnly,
     animateAvatar,
     setAnimateAvatar,
+    animationText,
+    setAnimationText,
+    animationVoice,
+    setAnimationVoice,
+    animationDriver,
+    setAnimationDriver,
     contactPrice,
     setContactPrice,
     formData,

@@ -114,10 +114,19 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
             if (!animatedVideo && user.avatar_url) {
               setIsLoading(true);
               try {
+                const animationText = localStorage.getItem('animationText') || 'Hello! Nice to meet you!';
+                const animationVoice = localStorage.getItem('animationVoice') || 'en-US-JennyNeural';
+                const animationDriver = localStorage.getItem('animationDriver') || 'bank://lively';
+                
                 const response = await fetch('https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b4570e1e0b', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ imageUrl: user.avatar_url })
+                  body: JSON.stringify({ 
+                    imageUrl: user.avatar_url,
+                    text: animationText,
+                    voice: animationVoice,
+                    driver: animationDriver
+                  })
                 });
                 const data = await response.json();
                 if (data.videoUrl) {
