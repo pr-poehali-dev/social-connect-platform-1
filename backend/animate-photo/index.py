@@ -75,11 +75,14 @@ def handler(event: dict, context) -> dict:
                 'provider': {
                     'type': 'microsoft',
                     'voice_id': voice
-                }
+                },
+                'ssml': False
             },
             'config': {
                 'stitch': True,
-                'result_format': 'mp4'
+                'fluent': True,
+                'result_format': 'mp4',
+                'audio_optimization': 1
             }
         }
         
