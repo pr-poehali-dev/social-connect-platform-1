@@ -54,24 +54,37 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'DID_API_KEY not configured'})
             }
         
+        payload = {
+            'source_url': image_url,
+            'script': {
+                'type': 'text',
+                'input': 'Hello',
+                'provider': {
+                    'type': 'microsoft',
+                    'voice_id': 'en-US-JennyNeural'
+                }
+            },
+            'config': {
+                'stitch': True,
+                'result_format': 'mp4'
+            }
+        }
+        
+        print(f'Sending request to D-ID API with payload: {json.dumps(payload)}')
+        
         create_response = requests.post(
             'https://api.d-id.com/talks',
             headers={
                 'Authorization': f'Basic {api_key}',
                 'Content-Type': 'application/json'
             },
-            json={
-                'source_url': image_url,
-                'driver_url': 'bank://lively',
-                'config': {
-                    'stitch': True,
-                    'result_format': 'mp4'
-                }
-            },
+            json=payload,
             timeout=30
         )
         
         if create_response.status_code != 201:
+            error_details = create_response.text
+            print(f'D-ID API Error: Status {create_response.status_code}, Response: {error_details}')
             return {
                 'statusCode': 500,
                 'headers': {
@@ -80,7 +93,8 @@ def handler(event: dict, context) -> dict:
                 },
                 'body': json.dumps({
                     'error': 'Failed to create animation',
-                    'details': create_response.text
+                    'status_code': create_response.status_code,
+                    'details': error_details
                 })
             }
         
