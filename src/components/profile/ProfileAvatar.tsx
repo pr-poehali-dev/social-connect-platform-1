@@ -15,6 +15,9 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showCropper, setShowCropper] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [animatedVideo, setAnimatedVideo] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleUploadAvatar = () => {
     const input = document.createElement('input');
@@ -101,11 +104,54 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
       )}
     <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200 group">
       {user.avatar_url ? (
-        <img 
-          src={user.avatar_url} 
-          alt={user.name}
-          className="w-full h-full object-cover"
-        />
+        <div
+          className="relative w-full h-full"
+          onMouseEnter={async () => {
+            if (editMode) return;
+            setIsHovering(true);
+            if (!animatedVideo && user.avatar_url) {
+              setIsLoading(true);
+              try {
+                const response = await fetch('https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b4570e1e0b', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ imageUrl: user.avatar_url })
+                });
+                const data = await response.json();
+                if (data.videoUrl) {
+                  setAnimatedVideo(data.videoUrl);
+                }
+              } catch (error) {
+                console.error('Failed to animate photo:', error);
+              } finally {
+                setIsLoading(false);
+              }
+            }
+          }}
+          onMouseLeave={() => setIsHovering(false)}
+        >
+          {isHovering && animatedVideo && !editMode ? (
+            <video
+              src={animatedVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img 
+              src={user.avatar_url} 
+              alt={user.name}
+              className="w-full h-full object-cover"
+            />
+          )}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent" />
+            </div>
+          )}
+        </div>
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center p-6">
           <Icon name="User" size={80} className="text-muted-foreground mb-4" />
