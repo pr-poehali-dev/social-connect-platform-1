@@ -55,6 +55,9 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isHovering, setIsHovering] = useState(false);
+  const [animatedVideo, setAnimatedVideo] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const isBirthday = (birthDate: string) => {
     const today = new Date();
@@ -161,11 +164,53 @@ const ProfileCard = ({
             onClick={() => navigate(`/dating/${profile.id}`)}
           >
             {profile.image ? (
-              <img
-                src={profile.image}
-                alt={profile.name}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
+              <div 
+                className="relative w-full h-full"
+                onMouseEnter={async () => {
+                  setIsHovering(true);
+                  if (!animatedVideo && profile.image) {
+                    setIsLoading(true);
+                    try {
+                      const response = await fetch('https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b4570e1e0b', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ imageUrl: profile.image })
+                      });
+                      const data = await response.json();
+                      if (data.videoUrl) {
+                        setAnimatedVideo(data.videoUrl);
+                      }
+                    } catch (error) {
+                      console.error('Failed to animate photo:', error);
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }
+                }}
+                onMouseLeave={() => setIsHovering(false)}
+              >
+                {isHovering && animatedVideo ? (
+                  <video
+                    src={animatedVideo}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={profile.image}
+                    alt={profile.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                )}
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent" />
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 flex items-center justify-center">
                 <div className="text-center">

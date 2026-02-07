@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Test animate photo with valid image URL",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "imageUrl": "https://cdn.poehali.dev/projects/demo/avatar.jpg"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "videoUrl": "string",
+        "animationId": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test missing imageUrl parameter",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "imageUrl is required"
+      }
+    }
+  ]
+}
