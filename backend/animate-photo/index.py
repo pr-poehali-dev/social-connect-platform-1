@@ -4,7 +4,7 @@ import requests
 import time
 
 def handler(event: dict, context) -> dict:
-    '''API для оживления фотографий с помощью HeyGen'''
+    '''API для оживления фотографий с помощью HeyGen Avatar IV'''
     
     method = event.get('httpMethod', 'POST')
     
@@ -54,15 +54,82 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'HEYGEN_API_KEY not configured'})
             }
         
-        # Создаем анимированный аватар через HeyGen API
-        create_response = requests.post(
-            'https://api.heygen.com/v1/photo_avatar.generate',
+        # Шаг 1: Загружаем фото и получаем talking_photo_id
+        upload_response = requests.post(
+            'https://api.heygen.com/v1/talking_photo',
             headers={
                 'X-Api-Key': api_key,
                 'Content-Type': 'application/json'
             },
             json={
-                'image_url': image_url
+                'url': image_url
+            },
+            timeout=30
+        )
+        
+        if upload_response.status_code != 200:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'error': 'Failed to upload photo',
+                    'details': upload_response.text
+                })
+            }
+        
+        upload_result = upload_response.json()
+        if upload_result.get('code') != 100:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'error': 'Failed to upload photo',
+                    'details': upload_result.get('message', 'Unknown error')
+                })
+            }
+        
+        talking_photo_id = upload_result.get('data', {}).get('id')
+        if not talking_photo_id:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'No talking_photo_id in response'})
+            }
+        
+        # Шаг 2: Создаем видео с Avatar IV
+        create_response = requests.post(
+            'https://api.heygen.com/v2/video/generate',
+            headers={
+                'X-Api-Key': api_key,
+                'Content-Type': 'application/json'
+            },
+            json={
+                'video_inputs': [{
+                    'character': {
+                        'type': 'talking_photo',
+                        'talking_photo_id': talking_photo_id,
+                        'talking_style': 'natural'
+                    },
+                    'voice': {
+                        'type': 'text',
+                        'input_text': ' ',
+                        'voice_id': 'e3827ec5b0e5433c9435e4309a4cdfd5'
+                    }
+                }],
+                'dimension': {
+                    'width': 512,
+                    'height': 512
+                },
+                'aspect_ratio': '1:1'
             },
             timeout=30
         )
@@ -95,23 +162,23 @@ def handler(event: dict, context) -> dict:
                 })
             }
         
-        avatar_id = result.get('data', {}).get('avatar_id')
+        video_id = result.get('data', {}).get('video_id')
         
-        if not avatar_id:
+        if not video_id:
             return {
                 'statusCode': 500,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'No avatar_id in response'})
+                'body': json.dumps({'error': 'No video_id in response'})
             }
         
         # Ждем завершения обработки (максимум 60 секунд)
         max_attempts = 60
         for attempt in range(max_attempts):
             check_response = requests.get(
-                f'https://api.heygen.com/v1/photo_avatar.get?avatar_id={avatar_id}',
+                f'https://api.heygen.com/v1/video_status.get?video_id={video_id}',
                 headers={'X-Api-Key': api_key},
                 timeout=10
             )
@@ -124,8 +191,8 @@ def handler(event: dict, context) -> dict:
                     status = data.get('status')
                     
                     if status == 'completed':
-                        preview_video_url = data.get('preview_video_url')
-                        if preview_video_url:
+                        video_url = data.get('video_url')
+                        if video_url:
                             return {
                                 'statusCode': 200,
                                 'headers': {
@@ -133,18 +200,22 @@ def handler(event: dict, context) -> dict:
                                     'Access-Control-Allow-Origin': '*'
                                 },
                                 'body': json.dumps({
-                                    'videoUrl': preview_video_url,
-                                    'avatarId': avatar_id
+                                    'videoUrl': video_url,
+                                    'videoId': video_id
                                 })
                             }
                     elif status == 'failed':
+                        error_msg = data.get('error', 'Unknown error')
                         return {
                             'statusCode': 500,
                             'headers': {
                                 'Content-Type': 'application/json',
                                 'Access-Control-Allow-Origin': '*'
                             },
-                            'body': json.dumps({'error': 'Animation processing failed'})
+                            'body': json.dumps({
+                                'error': 'Animation processing failed',
+                                'details': error_msg
+                            })
                         }
             
             time.sleep(1)
