@@ -12,12 +12,14 @@ interface UseProfileActionsProps {
   datingVisible: boolean;
   shareLocation: boolean;
   premiumOnly: boolean;
+  animateAvatar: boolean;
   contactPrice: number;
   setSoundEnabled: (enabled: boolean) => void;
   setDatingVisible: (visible: boolean) => void;
   setShareLocation: (enabled: boolean) => void;
   setPremiumOnly: (enabled: boolean) => void;
   setDarkMode: (enabled: boolean) => void;
+  setAnimateAvatar: (enabled: boolean) => void;
   setContactPrice: (price: number) => void;
 }
 
@@ -30,12 +32,14 @@ export const useProfileActions = ({
   datingVisible,
   shareLocation,
   premiumOnly,
+  animateAvatar,
   contactPrice,
   setSoundEnabled,
   setDatingVisible,
   setShareLocation,
   setPremiumOnly,
   setDarkMode,
+  setAnimateAvatar,
   setContactPrice
 }: UseProfileActionsProps) => {
   const navigate = useNavigate();
@@ -289,6 +293,14 @@ export const useProfileActions = ({
       toast({
         title: enabled ? 'Фильтр Premium включён' : 'Фильтр Premium выключен',
         description: enabled ? 'Писать вам могут только PREMIUM пользователи' : 'Писать вам могут все пользователи',
+      });
+    },
+    handleAnimateAvatarToggle: (enabled: boolean) => {
+      setAnimateAvatar(enabled);
+      localStorage.setItem('animateAvatar', enabled.toString());
+      toast({
+        title: enabled ? 'Оживление включено' : 'Оживление выключено',
+        description: enabled ? 'Фото оживают при наведении курсора' : 'Фото остаются статичными',
       });
     },
     handleContactPriceChange: async (price: number) => {

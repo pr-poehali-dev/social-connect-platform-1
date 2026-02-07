@@ -23,6 +23,8 @@ const Profile = () => {
     setDarkMode,
     premiumOnly,
     setPremiumOnly,
+    animateAvatar,
+    setAnimateAvatar,
     contactPrice,
     setContactPrice,
     formData,
@@ -43,6 +45,7 @@ const Profile = () => {
     handleShareLocationToggle,
     handleThemeToggle,
     handlePremiumOnlyToggle,
+    handleAnimateAvatarToggle,
     handleContactPriceChange
   } = useProfileActions({
     user,
@@ -53,12 +56,14 @@ const Profile = () => {
     datingVisible,
     shareLocation,
     premiumOnly,
+    animateAvatar,
     contactPrice,
     setSoundEnabled,
     setDatingVisible,
     setShareLocation,
     setPremiumOnly,
     setDarkMode,
+    setAnimateAvatar,
     setContactPrice
   });
 
@@ -106,6 +111,7 @@ const Profile = () => {
         shareLocation={shareLocation}
         darkMode={darkMode}
         premiumOnly={premiumOnly}
+        animateAvatar={animateAvatar}
         contactPrice={contactPrice}
         isVip={user?.is_vip}
         handleSoundToggle={handleSoundToggle}
@@ -113,6 +119,7 @@ const Profile = () => {
         handleShareLocationToggle={handleShareLocationToggle}
         handleThemeToggle={handleThemeToggle}
         handlePremiumOnlyToggle={handlePremiumOnlyToggle}
+        handleAnimateAvatarToggle={handleAnimateAvatarToggle}
         handleContactPriceChange={handleContactPriceChange}
       />
     </>

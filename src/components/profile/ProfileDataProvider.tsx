@@ -58,6 +58,10 @@ export const useProfileData = () => {
     const saved = localStorage.getItem('darkMode');
     return saved === 'true';
   });
+  const [animateAvatar, setAnimateAvatar] = useState(() => {
+    const saved = localStorage.getItem('animateAvatar');
+    return saved !== 'false';
+  });
   const [contactPrice, setContactPrice] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -247,6 +251,8 @@ export const useProfileData = () => {
     setDarkMode,
     premiumOnly,
     setPremiumOnly,
+    animateAvatar,
+    setAnimateAvatar,
     contactPrice,
     setContactPrice,
     formData,

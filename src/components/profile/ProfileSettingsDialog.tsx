@@ -21,6 +21,7 @@ interface ProfileSettingsDialogProps {
   shareLocation: boolean;
   darkMode: boolean;
   premiumOnly: boolean;
+  animateAvatar: boolean;
   contactPrice: number;
   isVip?: boolean;
   handleSoundToggle: (enabled: boolean) => void;
@@ -28,6 +29,7 @@ interface ProfileSettingsDialogProps {
   handleShareLocationToggle: (enabled: boolean) => void;
   handleThemeToggle: (enabled: boolean) => void;
   handlePremiumOnlyToggle: (enabled: boolean) => void;
+  handleAnimateAvatarToggle: (enabled: boolean) => void;
   handleContactPriceChange: (price: number) => void;
 }
 
@@ -39,6 +41,7 @@ const ProfileSettingsDialog = ({
   shareLocation,
   darkMode,
   premiumOnly,
+  animateAvatar,
   contactPrice,
   isVip = false,
   handleSoundToggle,
@@ -46,6 +49,7 @@ const ProfileSettingsDialog = ({
   handleShareLocationToggle,
   handleThemeToggle,
   handlePremiumOnlyToggle,
+  handleAnimateAvatarToggle,
   handleContactPriceChange
 }: ProfileSettingsDialogProps) => {
   const navigate = useNavigate();
@@ -127,6 +131,22 @@ const ProfileSettingsDialog = ({
               id="sound-notifications"
               checked={soundEnabled}
               onCheckedChange={handleSoundToggle}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="animate-avatar" className="text-base font-medium">
+                Оживлять фото
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Анимировать аватарки при наведении курсора
+              </p>
+            </div>
+            <Switch
+              id="animate-avatar"
+              checked={animateAvatar}
+              onCheckedChange={handleAnimateAvatarToggle}
             />
           </div>
 

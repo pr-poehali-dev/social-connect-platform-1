@@ -58,6 +58,8 @@ const ProfileCard = ({
   const [isHovering, setIsHovering] = useState(false);
   const [animatedVideo, setAnimatedVideo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const animateEnabled = localStorage.getItem('animateAvatar') !== 'false';
 
   const isBirthday = (birthDate: string) => {
     const today = new Date();
@@ -167,6 +169,7 @@ const ProfileCard = ({
               <div 
                 className="relative w-full h-full"
                 onMouseEnter={async () => {
+                  if (!animateEnabled) return;
                   setIsHovering(true);
                   if (!animatedVideo && profile.image) {
                     setIsLoading(true);

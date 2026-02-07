@@ -18,6 +18,8 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
   const [isHovering, setIsHovering] = useState(false);
   const [animatedVideo, setAnimatedVideo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const animateEnabled = localStorage.getItem('animateAvatar') !== 'false';
 
   const handleUploadAvatar = () => {
     const input = document.createElement('input');
@@ -107,7 +109,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
         <div
           className="relative w-full h-full"
           onMouseEnter={async () => {
-            if (editMode) return;
+            if (editMode || !animateEnabled) return;
             setIsHovering(true);
             if (!animatedVideo && user.avatar_url) {
               setIsLoading(true);
