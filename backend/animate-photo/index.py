@@ -4,7 +4,7 @@ import requests
 import time
 
 def handler(event: dict, context) -> dict:
-    '''API для оживления фотографий с помощью D-ID'''
+    '''API для оживления фотографий с помощью HeyGen'''
     
     method = event.get('httpMethod', 'POST')
     
@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps({'error': 'imageUrl is required'})
             }
         
-        api_key = os.environ.get('DID_API_KEY')
+        api_key = os.environ.get('HEYGEN_API_KEY')
         if not api_key:
             return {
                 'statusCode': 500,
@@ -51,28 +51,23 @@ def handler(event: dict, context) -> dict:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'DID_API_KEY not configured'})
+                'body': json.dumps({'error': 'HEYGEN_API_KEY not configured'})
             }
         
-        # Создаем анимацию через D-ID API
+        # Создаем анимированный аватар через HeyGen API
         create_response = requests.post(
-            'https://api.d-id.com/animations',
+            'https://api.heygen.com/v1/photo_avatar.generate',
             headers={
-                'Authorization': api_key,
+                'X-Api-Key': api_key,
                 'Content-Type': 'application/json'
             },
             json={
-                'source_url': image_url,
-                'driver_url': 'bank://lively',
-                'config': {
-                    'stitch': True,
-                    'result_format': 'mp4'
-                }
+                'image_url': image_url
             },
             timeout=30
         )
         
-        if create_response.status_code != 201:
+        if create_response.status_code != 200:
             return {
                 'statusCode': 500,
                 'headers': {
@@ -85,44 +80,72 @@ def handler(event: dict, context) -> dict:
                 })
             }
         
-        animation_data = create_response.json()
-        animation_id = animation_data.get('id')
+        result = create_response.json()
         
-        # Ждем завершения обработки (максимум 30 секунд)
-        max_attempts = 30
+        if result.get('code') != 100:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'error': 'Failed to create animation',
+                    'details': result.get('message', 'Unknown error')
+                })
+            }
+        
+        avatar_id = result.get('data', {}).get('avatar_id')
+        
+        if not avatar_id:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'No avatar_id in response'})
+            }
+        
+        # Ждем завершения обработки (максимум 60 секунд)
+        max_attempts = 60
         for attempt in range(max_attempts):
             check_response = requests.get(
-                f'https://api.d-id.com/animations/{animation_id}',
-                headers={'Authorization': api_key},
+                f'https://api.heygen.com/v1/photo_avatar.get?avatar_id={avatar_id}',
+                headers={'X-Api-Key': api_key},
                 timeout=10
             )
             
             if check_response.status_code == 200:
-                result_data = check_response.json()
-                status = result_data.get('status')
+                status_data = check_response.json()
                 
-                if status == 'done':
-                    video_url = result_data.get('result_url')
-                    return {
-                        'statusCode': 200,
-                        'headers': {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                        'body': json.dumps({
-                            'videoUrl': video_url,
-                            'animationId': animation_id
-                        })
-                    }
-                elif status == 'error':
-                    return {
-                        'statusCode': 500,
-                        'headers': {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                        'body': json.dumps({'error': 'Animation processing failed'})
-                    }
+                if status_data.get('code') == 100:
+                    data = status_data.get('data', {})
+                    status = data.get('status')
+                    
+                    if status == 'completed':
+                        preview_video_url = data.get('preview_video_url')
+                        if preview_video_url:
+                            return {
+                                'statusCode': 200,
+                                'headers': {
+                                    'Content-Type': 'application/json',
+                                    'Access-Control-Allow-Origin': '*'
+                                },
+                                'body': json.dumps({
+                                    'videoUrl': preview_video_url,
+                                    'avatarId': avatar_id
+                                })
+                            }
+                    elif status == 'failed':
+                        return {
+                            'statusCode': 500,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Animation processing failed'})
+                        }
             
             time.sleep(1)
         
