@@ -160,15 +160,6 @@ const ProfileContent = ({
                   )}
 
                   {!editMode && (
-                    <div className="pt-6 border-t">
-                      <ProfileActions 
-                        user={user}
-                        verificationStatus={verificationStatus}
-                      />
-                    </div>
-                  )}
-
-                  {!editMode && (
                     <div className="pt-6 border-t flex flex-col gap-3">
                       <Button 
                         onClick={handleLogout}
