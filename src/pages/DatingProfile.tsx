@@ -11,7 +11,6 @@ import ProfileInfo from '@/components/dating/ProfileInfo';
 import PhotoGallery from '@/components/dating/PhotoGallery';
 import ReceivedGifts from '@/components/dating/ReceivedGifts';
 import { calculateDistance, formatDistance } from '@/utils/distance';
-import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 
 const DatingProfile = () => {
   const { userId } = useParams();
@@ -384,14 +383,7 @@ const DatingProfile = () => {
 
   return (
     <div className="min-h-screen pb-20 lg:pb-0 relative">
-      {profile.is_vip && profile.profile_background ? (
-        <div 
-          className={`fixed inset-0 ${getBackgroundClass(profile.profile_background)}`}
-          style={getBackgroundStyle(profile.profile_background)}
-        />
-      ) : (
-        <div className="fixed inset-0 bg-background" />
-      )}
+      <div className="fixed inset-0 bg-background" />
       <div className="relative z-10">
         <Navigation />
         
