@@ -170,7 +170,6 @@ const ReferralMentorCard = ({ mentor, onMentorSet, apiUrl }: ReferralMentorCardP
               onChange={(e) => setReferrerCode(e.target.value.toUpperCase())}
               placeholder="Введите код (например: ABC123)"
               className="font-mono rounded-2xl uppercase"
-              maxLength={6}
             />
             <Button 
               onClick={validateReferrerCode}
