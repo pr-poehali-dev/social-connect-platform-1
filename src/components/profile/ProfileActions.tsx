@@ -76,14 +76,14 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         </Button>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         <Button
           onClick={() => navigate('/friends')}
           variant="outline"
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1"
         >
           <Icon name="Users" size={24} />
-          <span className="text-sm">Друзья</span>
+          <span className="text-xs">Друзья</span>
         </Button>
         
         <Button
@@ -92,7 +92,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
         >
           <Icon name="ShoppingBag" size={24} />
-          <span className="text-sm">Объявления</span>
+          <span className="text-xs">Объявления</span>
           {!user?.is_vip && (
             <Icon 
               name="Crown" 
@@ -108,7 +108,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
         >
           <Icon name="Briefcase" size={24} />
-          <span className="text-sm">Услуги</span>
+          <span className="text-xs">Услуги</span>
           {!user?.is_vip && (
             <Icon 
               name="Crown" 
@@ -124,7 +124,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
         >
           <Icon name="Calendar" size={24} />
-          <span className="text-sm">Мероприятия</span>
+          <span className="text-xs">Мероприятия</span>
           {!user?.is_vip && (
             <Icon 
               name="Crown" 
