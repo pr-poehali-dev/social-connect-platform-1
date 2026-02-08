@@ -269,7 +269,7 @@ const Premium = () => {
                   </CardDescription>
                   {plan.savings && (
                     <div className="mt-2">
-                      <Badge variant="secondary" className="text-green-600">
+                      <Badge className="bg-green-500 text-black font-normal hover:bg-green-500">
                         {plan.savings}
                       </Badge>
                     </div>
