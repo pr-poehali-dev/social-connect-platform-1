@@ -292,12 +292,12 @@ const ProfileCard = ({
             </div>
           </div>
           
-          <div className="p-4 flex items-center justify-center gap-2">
+          <div className="p-3 flex items-center justify-center gap-2">
             {profile.is_current_user ? (
               <>
                 <Button 
                   variant="outline" 
-                  className="rounded-full px-6 h-12 gap-2 flex-1"
+                  className="rounded-full px-4 h-10 gap-1.5 flex-1 text-sm"
                   onClick={() => {
                     toast({
                       title: 'Поднятие анкеты',
@@ -305,18 +305,18 @@ const ProfileCard = ({
                     });
                   }}
                 >
-                  <Icon name="TrendingUp" size={20} />
+                  <Icon name="TrendingUp" size={16} />
                   Поднять анкету
                 </Button>
                 <Button 
-                  className={`rounded-full px-6 h-12 gap-2 flex-1 ${
+                  className={`rounded-full px-4 h-10 gap-1.5 flex-1 text-sm ${
                     profile.is_vip 
                       ? 'bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600'
                       : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
                   }`}
                   onClick={() => navigate('/premium')}
                 >
-                  <Icon name="Crown" size={20} />
+                  <Icon name="Crown" size={16} />
                   {profile.is_vip ? 'Продлить' : 'Стать Premium'}
                 </Button>
               </>
