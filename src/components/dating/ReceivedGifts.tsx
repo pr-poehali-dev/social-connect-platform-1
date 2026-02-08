@@ -155,16 +155,18 @@ const ReceivedGifts = ({ userId, isOwnProfile }: ReceivedGiftsProps) => {
                   />
                 </button>
               )}
-              <div className="text-xs text-center text-muted-foreground mt-1 flex items-center justify-center gap-1">
-                {gift.is_anonymous ? (
-                  <>
-                    <Icon name="EyeOff" size={12} />
-                    <span>Аноним</span>
-                  </>
-                ) : (
-                  <span>от {gift.sender_name}</span>
-                )}
-              </div>
+              {isOwnProfile && (
+                <div className="text-xs text-center text-muted-foreground mt-1 flex items-center justify-center gap-1">
+                  {gift.is_anonymous ? (
+                    <>
+                      <Icon name="EyeOff" size={12} />
+                      <span>Аноним</span>
+                    </>
+                  ) : (
+                    <span>от {gift.sender_name}</span>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
