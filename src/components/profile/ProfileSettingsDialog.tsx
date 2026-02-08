@@ -27,6 +27,7 @@ interface ProfileSettingsDialogProps {
   animationVoice: string;
   animationDriver: string;
   contactPrice: number;
+  hideMentor: boolean;
   isVip?: boolean;
   handleSoundToggle: (enabled: boolean) => void;
   handleDatingVisibilityToggle: (enabled: boolean) => void;
@@ -38,6 +39,7 @@ interface ProfileSettingsDialogProps {
   handleAnimationVoiceChange: (voice: string) => void;
   handleAnimationDriverChange: (driver: string) => void;
   handleContactPriceChange: (price: number) => void;
+  handleHideMentorToggle: (enabled: boolean) => void;
 }
 
 const ProfileSettingsDialog = ({
@@ -53,6 +55,7 @@ const ProfileSettingsDialog = ({
   animationVoice,
   animationDriver,
   contactPrice,
+  hideMentor,
   isVip = false,
   handleSoundToggle,
   handleDatingVisibilityToggle,
@@ -63,7 +66,8 @@ const ProfileSettingsDialog = ({
   handleAnimationTextChange,
   handleAnimationVoiceChange,
   handleAnimationDriverChange,
-  handleContactPriceChange
+  handleContactPriceChange,
+  handleHideMentorToggle
 }: ProfileSettingsDialogProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -343,6 +347,22 @@ const ProfileSettingsDialog = ({
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="hide-mentor" className="text-base font-medium">
+                Скрыть наставника
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Не показывать информацию о вашем пригласителе другим пользователям
+              </p>
+            </div>
+            <Switch
+              id="hide-mentor"
+              checked={hideMentor}
+              onCheckedChange={handleHideMentorToggle}
+            />
           </div>
         </div>
       </DialogContent>

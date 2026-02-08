@@ -72,6 +72,7 @@ export const useProfileData = () => {
     return localStorage.getItem('animationDriver') || 'bank://lively';
   });
   const [contactPrice, setContactPrice] = useState(0);
+  const [hideMentor, setHideMentor] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -131,6 +132,7 @@ export const useProfileData = () => {
           setShareLocation(userData.share_location === true);
           setPremiumOnly(userData.premium_only_messages === true);
           setContactPrice(userData.contact_price || 0);
+          setHideMentor(userData.hide_mentor === true);
           setFormData({
             first_name: userData.first_name || '',
             last_name: userData.last_name || '',
@@ -270,6 +272,8 @@ export const useProfileData = () => {
     setAnimationDriver,
     contactPrice,
     setContactPrice,
+    hideMentor,
+    setHideMentor,
     formData,
     setFormData,
     loadPhotos,

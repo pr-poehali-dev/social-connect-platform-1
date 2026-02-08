@@ -33,6 +33,8 @@ const Profile = () => {
     setAnimationDriver,
     contactPrice,
     setContactPrice,
+    hideMentor,
+    setHideMentor,
     formData,
     setFormData,
     loadPhotos,
@@ -55,7 +57,8 @@ const Profile = () => {
     handleAnimationTextChange,
     handleAnimationVoiceChange,
     handleAnimationDriverChange,
-    handleContactPriceChange
+    handleContactPriceChange,
+    handleHideMentorToggle
   } = useProfileActions({
     user,
     setUser,
@@ -70,6 +73,7 @@ const Profile = () => {
     animationVoice,
     animationDriver,
     contactPrice,
+    hideMentor,
     setSoundEnabled,
     setDatingVisible,
     setShareLocation,
@@ -79,7 +83,8 @@ const Profile = () => {
     setAnimationText,
     setAnimationVoice,
     setAnimationDriver,
-    setContactPrice
+    setContactPrice,
+    setHideMentor
   });
 
   const availableInterests = [
@@ -131,6 +136,7 @@ const Profile = () => {
         animationVoice={animationVoice}
         animationDriver={animationDriver}
         contactPrice={contactPrice}
+        hideMentor={hideMentor}
         isVip={user?.is_vip}
         handleSoundToggle={handleSoundToggle}
         handleDatingVisibilityToggle={handleDatingVisibilityToggle}
@@ -142,6 +148,7 @@ const Profile = () => {
         handleAnimationVoiceChange={handleAnimationVoiceChange}
         handleAnimationDriverChange={handleAnimationDriverChange}
         handleContactPriceChange={handleContactPriceChange}
+        handleHideMentorToggle={handleHideMentorToggle}
       />
     </>
   );
