@@ -337,26 +337,36 @@ export const useProfileActions = ({
     },
     handleContactPriceChange: async (price: number) => {
       setContactPrice(price);
+      localStorage.setItem('contactPrice', price.toString());
       const token = localStorage.getItem('access_token');
       try {
-        await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            ...formData,
             contact_price: price
           })
         });
-        setUser({ ...user, contact_price: price });
-        toast({
-          title: 'Настройка сохранена',
-          description: price === 0 
-            ? 'Ваши контакты доступны всем бесплатно' 
-            : `Доступ к вашим контактам стоит ${price} токенов LOVE`,
-        });
+        
+        if (response.ok) {
+          setUser({ ...user, contact_price: price });
+          toast({
+            title: 'Настройка сохранена',
+            description: price === 0 
+              ? 'Ваши контакты доступны всем бесплатно' 
+              : `Доступ к вашим контактам стоит ${price} токенов LOVE`,
+          });
+        } else {
+          const errorData = await response.json();
+          toast({
+            title: 'Ошибка',
+            description: errorData.error || 'Не удалось сохранить настройку',
+            variant: 'destructive'
+          });
+        }
       } catch (error) {
         toast({
           title: 'Ошибка',
