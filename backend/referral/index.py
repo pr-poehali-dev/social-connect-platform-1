@@ -210,6 +210,80 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'valid': False}),
                         'isBase64Encoded': False
                     }
+            
+            elif action == 'set_referrer':
+                # Установка пригласителя для текущего пользователя
+                referral_code = body.get('referral_code', '').strip().upper()
+                
+                if not referral_code:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Реферальный код не указан'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Проверяем, что пользователь ещё не указал пригласителя
+                cur.execute("""
+                    SELECT referred_by 
+                    FROM t_p19021063_social_connect_platf.users 
+                    WHERE id = %s
+                """, (user_id,))
+                
+                current_user = cur.fetchone()
+                
+                if current_user and current_user['referred_by']:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Пригласитель уже установлен'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Находим пригласителя по коду
+                cur.execute("""
+                    SELECT id, first_name, last_name 
+                    FROM t_p19021063_social_connect_platf.users 
+                    WHERE referral_code = %s
+                """, (referral_code,))
+                
+                referrer = cur.fetchone()
+                
+                if not referrer:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Неверный код'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Проверяем, что пользователь не указывает сам себя
+                if referrer['id'] == int(user_id):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Нельзя указать свой собственный код'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Устанавливаем пригласителя
+                cur.execute("""
+                    UPDATE t_p19021063_social_connect_platf.users 
+                    SET referred_by = %s 
+                    WHERE id = %s
+                """, (referrer['id'], user_id))
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'referrer': dict(referrer)
+                    }),
+                    'isBase64Encoded': False
+                }
         
         return {
             'statusCode': 405,
