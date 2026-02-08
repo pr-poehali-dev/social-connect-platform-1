@@ -76,11 +76,11 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         </Button>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
         <Button
           onClick={() => navigate('/friends')}
           variant="outline"
-          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1"
+          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 flex-shrink-0"
         >
           <Icon name="Users" size={24} />
           <span className="text-sm">Друзья</span>
@@ -89,7 +89,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button
           onClick={() => handlePremiumAction('ads')}
           variant="outline"
-          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
+          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 relative flex-shrink-0"
         >
           <Icon name="ShoppingBag" size={24} />
           <span className="text-sm">Объявления</span>
@@ -105,7 +105,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button
           onClick={() => handlePremiumAction('services')}
           variant="outline"
-          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
+          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 relative flex-shrink-0"
         >
           <Icon name="Briefcase" size={24} />
           <span className="text-sm">Услуги</span>
@@ -121,7 +121,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button
           onClick={() => handlePremiumAction('events')}
           variant="outline"
-          className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
+          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 relative flex-shrink-0"
         >
           <Icon name="Calendar" size={24} />
           <span className="text-sm">Мероприятия</span>
