@@ -20,6 +20,7 @@ interface ReferralInfo {
   referral_code: string;
   referrals_count: number;
   bonus_balance: number;
+  referral_bonus_available: boolean;
 }
 
 interface BonusTransaction {
@@ -167,6 +168,7 @@ const Referral = () => {
               mentor={mentor} 
               onMentorSet={setMentor}
               apiUrl={REFERRAL_API_URL}
+              referralBonusAvailable={referralInfo?.referral_bonus_available || false}
             />
 
             <ReferralInfoSection 

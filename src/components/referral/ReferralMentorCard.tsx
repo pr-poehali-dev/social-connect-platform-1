@@ -18,9 +18,10 @@ interface ReferralMentorCardProps {
   mentor: Mentor | null;
   onMentorSet: (mentor: Mentor) => void;
   apiUrl: string;
+  referralBonusAvailable?: boolean;
 }
 
-const ReferralMentorCard = ({ mentor, onMentorSet, apiUrl }: ReferralMentorCardProps) => {
+const ReferralMentorCard = ({ mentor, onMentorSet, apiUrl, referralBonusAvailable = false }: ReferralMentorCardProps) => {
   const { toast } = useToast();
   const [referrerCode, setReferrerCode] = useState('');
   const [validatingCode, setValidatingCode] = useState(false);
@@ -147,6 +148,17 @@ const ReferralMentorCard = ({ mentor, onMentorSet, apiUrl }: ReferralMentorCardP
             </div>
             <Icon name="Star" size={24} className="text-yellow-500" />
           </div>
+          {referralBonusAvailable && (
+            <div className="mt-4">
+              <Button 
+                onClick={() => window.location.href = '/premium?referral_bonus=true'}
+                className="w-full rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white text-lg py-6"
+              >
+                <Icon name="Gift" size={20} className="mr-2" />
+                Получить бонус: 7 дней Premium за 1₽
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
