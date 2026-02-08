@@ -5,10 +5,15 @@ interface ProfileInfoProps {
   profile: any;
   isOwnProfile?: boolean;
   contactPrice?: number;
+  currentUserIsVip?: boolean;
 }
 
-const ProfileInfo = ({ profile, isOwnProfile = false, contactPrice = 0 }: ProfileInfoProps) => {
-  const hasAccessToContacts = isOwnProfile || contactPrice === 0;
+const ProfileInfo = ({ profile, isOwnProfile = false, contactPrice = 0, currentUserIsVip = false }: ProfileInfoProps) => {
+  // Доступ к контактам имеют:
+  // 1. Владелец профиля
+  // 2. Пользователи с VIP статусом
+  // 3. Если контакты бесплатные (contactPrice === 0)
+  const hasAccessToContacts = isOwnProfile || currentUserIsVip || contactPrice === 0;
   return (
     <>
       <Card className="p-6 rounded-2xl space-y-4">

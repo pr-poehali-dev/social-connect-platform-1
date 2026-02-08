@@ -19,6 +19,7 @@ const DatingProfile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserIsVip, setCurrentUserIsVip] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
@@ -84,6 +85,7 @@ const DatingProfile = () => {
         if (response.ok) {
           const userData = await response.json();
           setCurrentUserId(userData.id);
+          setCurrentUserIsVip(userData.is_vip || false);
           
           if (userData.share_location && userData.latitude && userData.longitude) {
             setCurrentUserLocation({
@@ -458,6 +460,7 @@ const DatingProfile = () => {
               profile={{ ...profile, distance }} 
               isOwnProfile={isOwnProfile}
               contactPrice={profile?.contact_price || 0}
+              currentUserIsVip={currentUserIsVip}
             />
 
             {photos.length > 0 && <PhotoGallery photos={photos} canLike={!isOwnProfile} />}
