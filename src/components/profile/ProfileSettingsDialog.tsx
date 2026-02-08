@@ -149,7 +149,14 @@ const ProfileSettingsDialog = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="animate-avatar" className="text-base font-medium">Оживлять фото (DEMO)</Label>
+                <Label htmlFor="animate-avatar" className="text-base font-medium flex items-center gap-2">
+                  Оживлять фото
+                  {!isVip && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold">
+                      Premium
+                    </span>
+                  )}
+                </Label>
                 <p className="text-sm text-muted-foreground">
                   Анимировать аватарки при наведении курсора
                 </p>
@@ -157,7 +164,13 @@ const ProfileSettingsDialog = ({
               <Switch
                 id="animate-avatar"
                 checked={animateAvatar}
-                onCheckedChange={handleAnimateAvatarToggle}
+                onCheckedChange={(enabled) => {
+                  if (!isVip && enabled) {
+                    handlePremiumFeatureClick();
+                  } else {
+                    handleAnimateAvatarToggle(enabled);
+                  }
+                }}
               />
             </div>
 
