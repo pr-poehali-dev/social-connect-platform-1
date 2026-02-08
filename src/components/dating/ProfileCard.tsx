@@ -293,35 +293,66 @@ const ProfileCard = ({
           </div>
           
           <div className="p-4 flex items-center justify-center gap-2">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full h-12 w-12"
-              onClick={() => onToggleFavorite(profile.id)}
-            >
-              <Icon 
-                name="Star"
-                size={20} 
-                className={isFavorite ? "fill-yellow-400 text-yellow-400" : ""}
-              />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full h-12 w-12"
-              onClick={handleOpenChat}
-            >
-              <Icon name="MessageCircle" size={20} />
-            </Button>
-            <Button 
-              variant={isFriend || isFriendRequestSent ? "secondary" : "outline"} 
-              className="rounded-full px-6 h-12 gap-2"
-              onClick={() => onAddFriend(profile.id)}
-              disabled={isFriend || isFriendRequestSent}
-            >
-              <Icon name={getFriendButtonIcon()} size={20} />
-              {getFriendButtonText()}
-            </Button>
+            {profile.is_current_user ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  className="rounded-full px-6 h-12 gap-2 flex-1"
+                  onClick={() => {
+                    toast({
+                      title: 'Поднятие анкеты',
+                      description: 'Ваша анкета будет показана в топе на 24 часа',
+                    });
+                  }}
+                >
+                  <Icon name="TrendingUp" size={20} />
+                  Поднять анкету
+                </Button>
+                <Button 
+                  className={`rounded-full px-6 h-12 gap-2 flex-1 ${
+                    profile.is_vip 
+                      ? 'bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600'
+                      : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                  }`}
+                  onClick={() => navigate('/premium')}
+                >
+                  <Icon name="Crown" size={20} />
+                  {profile.is_vip ? 'Продлить Premium' : 'Стать Premium'}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full h-12 w-12"
+                  onClick={() => onToggleFavorite(profile.id)}
+                >
+                  <Icon 
+                    name="Star"
+                    size={20} 
+                    className={isFavorite ? "fill-yellow-400 text-yellow-400" : ""}
+                  />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full h-12 w-12"
+                  onClick={handleOpenChat}
+                >
+                  <Icon name="MessageCircle" size={20} />
+                </Button>
+                <Button 
+                  variant={isFriend || isFriendRequestSent ? "secondary" : "outline"} 
+                  className="rounded-full px-6 h-12 gap-2"
+                  onClick={() => onAddFriend(profile.id)}
+                  disabled={isFriend || isFriendRequestSent}
+                >
+                  <Icon name={getFriendButtonIcon()} size={20} />
+                  {getFriendButtonText()}
+                </Button>
+              </>
+            )}
           </div>
         </Card>
     </div>
