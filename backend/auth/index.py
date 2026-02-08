@@ -3,6 +3,8 @@ import os
 import psycopg2
 import bcrypt
 import jwt
+import secrets
+import string
 from datetime import datetime, timedelta
 
 def handler(event: dict, context) -> dict:
@@ -86,17 +88,40 @@ def handle_register(event: dict) -> dict:
     # Hash password
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
+    # Разбиваем name на first_name и last_name
+    name_parts = name.split(' ', 1) if name else ['', '']
+    first_name = name_parts[0] if len(name_parts) > 0 else ''
+    last_name = name_parts[1] if len(name_parts) > 1 else ''
+    
+    # Генерируем уникальный nickname из email
+    username = email.split('@')[0].lower()
+    username = ''.join(c for c in username if c.isalnum() or c == '_')[:20]
+    if not username:
+        username = 'user'
+    
+    nickname = username
+    counter = 1
+    while True:
+        cur.execute(f"SELECT id FROM {schema}.users WHERE nickname = %s", (nickname,))
+        if not cur.fetchone():
+            break
+        if counter == 1:
+            nickname = f"{username}_{secrets.randbelow(10000):04d}"
+        else:
+            nickname = f"{username}_{secrets.randbelow(100000):05d}"
+        counter += 1
+        if counter > 10:
+            nickname = f"user_{secrets.randbelow(1000000):06d}"
+            break
+    
     # Create user with referral
     cur.execute(
-        f"INSERT INTO {schema}.users (email, password_hash, name, email_verified, referred_by) VALUES (%s, %s, %s, %s, %s) RETURNING id",
-        (email, password_hash, name, True, referrer_id)
+        f"INSERT INTO {schema}.users (email, password_hash, first_name, last_name, nickname, email_verified, referred_by) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
+        (email, password_hash, first_name, last_name, nickname, True, referrer_id)
     )
     user_id = cur.fetchone()[0]
     
     # Generate unique referral code for new user (6 символов: буквы + цифры)
-    import secrets
-    import string
-    
     # Генерируем уникальный 6-символьный код
     max_attempts = 10
     new_referral_code = None
@@ -204,7 +229,7 @@ def handle_login(event: dict) -> dict:
     schema = 't_p19021063_social_connect_platf'
     
     # Get user
-    cur.execute(f"SELECT id, email, password_hash, name FROM {schema}.users WHERE email = %s", (email,))
+    cur.execute(f"SELECT id, email, password_hash, first_name, last_name FROM {schema}.users WHERE email = %s", (email,))
     user = cur.fetchone()
     
     if not user:
@@ -217,7 +242,9 @@ def handle_login(event: dict) -> dict:
             'isBase64Encoded': False
         }
     
-    user_id, user_email, password_hash, name = user
+    user_id, user_email, password_hash, first_name, last_name = user
+    # Формируем полное имя
+    name = f"{first_name or ''} {last_name or ''}".strip()
     
     # Verify password
     if not bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
