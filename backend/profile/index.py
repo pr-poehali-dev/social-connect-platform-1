@@ -126,13 +126,21 @@ def handler(event: dict, context) -> dict:
             # Строковые поля
             string_fields = ['first_name', 'last_name', 'nickname', 'bio', 'avatar_url', 'gender', 'city', 'district',
                            'body_type', 'marital_status', 'children', 'financial_status',
-                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram', 'birth_date', 'lookingForGender']
+                           'dating_goal', 'profession', 'zodiac_sign', 'status_text', 'phone', 'telegram', 'instagram', 'lookingForGender']
             
             for field in string_fields:
                 if field in data and data[field] is not None:
                     db_field = 'looking_for_gender' if field == 'lookingForGender' else field
                     value = data[field].replace("'", "''") if isinstance(data[field], str) else str(data[field])
                     updates.append(f"{db_field} = '{value}'")
+            
+            # Поле даты birth_date
+            if 'birth_date' in data:
+                if data['birth_date'] == '' or data['birth_date'] is None:
+                    updates.append("birth_date = NULL")
+                else:
+                    value = data['birth_date'].replace("'", "''") if isinstance(data['birth_date'], str) else str(data['birth_date'])
+                    updates.append(f"birth_date = '{value}'")
             
             # Числовые поля (integer)
             int_fields = ['height', 'age_from', 'age_to', 'contact_price']
