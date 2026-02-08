@@ -3,9 +3,12 @@ import Icon from '@/components/ui/icon';
 
 interface ProfileInfoProps {
   profile: any;
+  isOwnProfile?: boolean;
+  contactPrice?: number;
 }
 
-const ProfileInfo = ({ profile }: ProfileInfoProps) => {
+const ProfileInfo = ({ profile, isOwnProfile = false, contactPrice = 0 }: ProfileInfoProps) => {
+  const hasAccessToContacts = isOwnProfile || contactPrice === 0;
   return (
     <>
       <Card className="p-6 rounded-2xl space-y-4">
@@ -183,7 +186,14 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
             <Icon name="Phone" size={20} />
             Контакты
+            {!hasAccessToContacts && contactPrice > 0 && (
+              <span className="ml-auto flex items-center gap-1 text-sm font-normal text-pink-500">
+                <Icon name="Heart" size={14} />
+                {contactPrice} LOVE
+              </span>
+            )}
           </h2>
+          {hasAccessToContacts ? (
           <div className="space-y-3">
             {profile.phone && (
               <div className="flex items-center gap-3 text-muted-foreground">
@@ -210,6 +220,16 @@ const ProfileInfo = ({ profile }: ProfileInfoProps) => {
               </div>
             )}
           </div>
+          ) : (
+            <div className="text-center py-6 space-y-3">
+              <div className="w-16 h-16 mx-auto rounded-full bg-pink-100 flex items-center justify-center">
+                <Icon name="Lock" size={28} className="text-pink-500" />
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Контакты доступны за {contactPrice} токенов LOVE
+              </p>
+            </div>
+          )}
         </Card>
       )}
     </>

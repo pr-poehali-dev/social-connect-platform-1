@@ -454,7 +454,11 @@ const DatingProfile = () => {
               />
             </div>
 
-            <ProfileInfo profile={{ ...profile, distance }} />
+            <ProfileInfo 
+              profile={{ ...profile, distance }} 
+              isOwnProfile={isOwnProfile}
+              contactPrice={profile?.contact_price || 0}
+            />
 
             {photos.length > 0 && <PhotoGallery photos={photos} canLike={!isOwnProfile} />}
 

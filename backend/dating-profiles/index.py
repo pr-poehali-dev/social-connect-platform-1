@@ -315,6 +315,7 @@ def handler(event: dict, context) -> dict:
                     u.profession,
                     u.is_vip,
                     u.profile_background,
+                    u.contact_price,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
