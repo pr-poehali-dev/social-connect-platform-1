@@ -292,6 +292,47 @@ export const useProfileActions = ({
     }
   };
 
+  const handleHideMentorToggle = async (enabled: boolean) => {
+    setHideMentor(enabled);
+    const token = localStorage.getItem('access_token');
+    try {
+      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...formData,
+          hide_mentor: enabled
+        })
+      });
+      
+      if (response.ok) {
+        setUser({ ...user, hide_mentor: enabled });
+        toast({
+          title: 'Настройка сохранена',
+          description: enabled 
+            ? 'Информация о наставнике скрыта' 
+            : 'Информация о наставнике видна другим пользователям',
+        });
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: errorData.error || 'Не удалось сохранить настройку',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось сохранить настройку',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return {
     handleLogout,
     handleSaveProfile,
@@ -379,46 +420,6 @@ export const useProfileActions = ({
           variant: 'destructive'
         });
       }
-    }
-  };
-
-  const handleHideMentorToggle = async (enabled: boolean) => {
-    const token = localStorage.getItem('access_token');
-    try {
-      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          hide_mentor: enabled
-        })
-      });
-      
-      if (response.ok) {
-        setUser({ ...user, hide_mentor: enabled });
-        toast({
-          title: 'Настройка сохранена',
-          description: enabled 
-            ? 'Информация о наставнике скрыта' 
-            : 'Информация о наставнике видна другим пользователям',
-        });
-      } else {
-        const errorData = await response.json();
-        toast({
-          title: 'Ошибка',
-          description: errorData.error || 'Не удалось сохранить настройку',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось сохранить настройку',
-        variant: 'destructive'
-      });
     }
   };
 };
