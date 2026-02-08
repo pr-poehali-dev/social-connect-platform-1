@@ -38,6 +38,7 @@ export interface Profile {
   bio?: string;
   is_vip?: boolean;
   profile_background?: string;
+  is_current_user?: boolean;
 }
 
 interface UseDatingProfilesLoaderProps {
@@ -237,7 +238,8 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               datingGoal: p.dating_goal ? formatDatingGoal(p.dating_goal) : undefined,
               bio: p.bio,
               is_vip: p.is_vip,
-              profile_background: p.profile_background
+              profile_background: p.profile_background,
+              is_current_user: p.is_current_user
             };
           })
           .filter((p: any) => p.image && p.image.trim() !== '');

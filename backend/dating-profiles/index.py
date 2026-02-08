@@ -97,9 +97,6 @@ def handler(event: dict, context) -> dict:
             # Показывать только профили с включенной видимостью
             where_conditions.append("u.dating_visible = TRUE")
             
-            if user_id:
-                where_conditions.append(f"u.id != {user_id}")
-            
             if gender:
                 where_conditions.append(f"u.gender = '{gender}'")
             if age_from:
@@ -139,6 +136,8 @@ def handler(event: dict, context) -> dict:
             friend_request_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests dfr JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id WHERE dfr.from_user_id = {user_id} AND dp.user_id = u.id AND dfr.status = 'pending')" if user_id else "FALSE"
             is_friend_check = f"EXISTS(SELECT 1 FROM {S}dating_friend_requests dfr JOIN {S}dating_profiles dp ON dfr.to_profile_id = dp.id WHERE dfr.from_user_id = {user_id} AND dp.user_id = u.id AND dfr.status = 'accepted')" if user_id else "FALSE"
             
+            is_current_user_check = f"u.id = {user_id}" if user_id else "FALSE"
+            
             cur.execute(f"""
                 SELECT 
                     dp.id, dp.user_id,
@@ -165,7 +164,8 @@ def handler(event: dict, context) -> dict:
                     u.profile_background,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
-                    {is_friend_check} as is_friend
+                    {is_friend_check} as is_friend,
+                    {is_current_user_check} as is_current_user
                 FROM {S}dating_profiles dp
                 JOIN {S}users u ON dp.user_id = u.id
                 WHERE {where_clause}

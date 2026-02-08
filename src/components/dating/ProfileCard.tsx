@@ -34,6 +34,7 @@ interface Profile {
   status_text?: string;
   is_vip?: boolean;
   profile_background?: string;
+  is_current_user?: boolean;
 }
 
 interface ProfileCardProps {
@@ -232,6 +233,11 @@ const ProfileCard = ({
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+            {profile.is_current_user && (
+              <Badge className="absolute top-4 left-4 bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-lg text-sm px-3 py-1 z-30">
+                Это Вы
+              </Badge>
+            )}
             <div className="absolute top-4 right-4 flex gap-2 z-30">
               {profile.is_vip && (
                 <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-3 py-1 flex items-center gap-1">
