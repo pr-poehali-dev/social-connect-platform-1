@@ -167,9 +167,9 @@ const ReferralMentorCard = ({ mentor, onMentorSet, apiUrl }: ReferralMentorCardP
           <div className="flex gap-2">
             <Input
               value={referrerCode}
-              onChange={(e) => setReferrerCode(e.target.value.toUpperCase())}
+              onChange={(e) => setReferrerCode(e.target.value)}
               placeholder="Введите код (например: ABC123)"
-              className="font-mono rounded-2xl uppercase"
+              className="font-mono rounded-2xl"
             />
             <Button 
               onClick={validateReferrerCode}
