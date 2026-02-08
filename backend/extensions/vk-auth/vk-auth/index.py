@@ -509,9 +509,12 @@ def handle_callback(event: dict, origin: str) -> dict:
                 }
             }, origin)
 
-        except Exception:
+        except Exception as e:
+            import traceback
+            print(f"[VK AUTH ERROR] Database error: {str(e)}")
+            print(f"[VK AUTH ERROR] Traceback: {traceback.format_exc()}")
             conn.rollback()
-            return error(500, 'Database error', origin)
+            return error(500, f'Database error: {str(e)}', origin)
         finally:
             conn.close()
 
