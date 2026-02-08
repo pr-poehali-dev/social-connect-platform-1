@@ -26,15 +26,6 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        
-        {profile.is_vip && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
-            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
-              <Icon name="Crown" size={20} />
-              <span className="font-bold text-sm">Premium</span>
-            </div>
-          </div>
-        )}
       </div>
 
       <Button
@@ -59,6 +50,15 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
             className={isFavorite ? "fill-red-500 text-red-500" : "hover:fill-white/20"} 
           />
         </Button>
+      )}
+      
+      {profile.is_vip && (
+        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-30">
+          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+            <Icon name="Crown" size={20} />
+            <span className="font-bold text-sm">Premium</span>
+          </div>
+        </div>
       )}
     </div>
   );
