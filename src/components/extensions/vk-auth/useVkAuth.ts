@@ -252,6 +252,14 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
           setStoredCodeVerifier(data.code_verifier);
           console.log('[VK AUTH] Stored code_verifier');
         }
+        // Сохраняем реферальный код из URL (если есть)
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathMatch = window.location.pathname.match(/\/ref\/([A-Z0-9]{6})$/i);
+        const refCode = pathMatch ? pathMatch[1] : urlParams.get('ref');
+        if (refCode) {
+          sessionStorage.setItem('vk_referral_code', refCode.toUpperCase());
+          console.log('[VK AUTH] Stored referral code:', refCode);
+        }
       }
 
       // Redirect to VK (keep loading state, page will navigate away)
@@ -299,6 +307,9 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
           return false;
         }
 
+        // Получаем реферальный код из sessionStorage
+        const referral_code = sessionStorage.getItem('vk_referral_code') || '';
+        
         const response = await fetch(apiUrls.callback, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -306,6 +317,7 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
             code,
             code_verifier,
             device_id: device_id || "",
+            referral_code,
           }),
         });
 

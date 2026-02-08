@@ -206,6 +206,14 @@ export function useYandexAuth(options: UseYandexAuthOptions): UseYandexAuthRetur
       // Store state for callback
       if (typeof window !== "undefined" && data.state) {
         setStoredState(data.state);
+        
+        // Сохраняем реферальный код из URL (если есть)
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathMatch = window.location.pathname.match(/\/ref\/([A-Z0-9]{6})$/i);
+        const refCode = pathMatch ? pathMatch[1] : urlParams.get('ref');
+        if (refCode) {
+          sessionStorage.setItem('yandex_referral_code', refCode.toUpperCase());
+        }
       }
 
       // Redirect to Yandex (keep loading state, page will navigate away)
@@ -242,10 +250,13 @@ export function useYandexAuth(options: UseYandexAuthOptions): UseYandexAuthRetur
           return false;
         }
 
+        // Получаем реферальный код из sessionStorage
+        const referral_code = sessionStorage.getItem('yandex_referral_code') || '';
+        
         const response = await fetch(apiUrls.callback, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code }),
+          body: JSON.stringify({ code, referral_code }),
         });
 
         const data = await response.json();

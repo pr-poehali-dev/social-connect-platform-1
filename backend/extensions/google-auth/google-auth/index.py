@@ -271,6 +271,7 @@ def handle_callback(event: dict, origin: str) -> dict:
         payload = {}
 
     code = payload.get('code', '')
+    referral_code = payload.get('referral_code', '').strip().upper()
 
     if not code:
         query = event.get('queryStringParameters', {}) or {}
@@ -356,14 +357,68 @@ def handle_callback(event: dict, origin: str) -> dict:
                 else:
                     # 3. Create new user
                     nickname = generate_unique_nickname(email, S, conn)
+                    
+                    # Проверяем реферальный код
+                    referrer_id = None
+                    if referral_code:
+                        cur.execute(f"SELECT id FROM {S}users WHERE referral_code = %s", (referral_code,))
+                        referrer = cur.fetchone()
+                        if referrer:
+                            referrer_id = referrer[0]
+                    
                     cur.execute(
                         f"""INSERT INTO {S}users
-                            (google_id, email, password_hash, name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            (google_id, email, password_hash, name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at, referred_by)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                             RETURNING id""",
-                        (google_id, email, '', name, nickname, picture, email_verified, now, now, now)
+                        (google_id, email, '', name, nickname, picture, email_verified, now, now, now, referrer_id)
                     )
                     user_id = cur.fetchone()[0]
+                    
+                    # Генерируем уникальный реферальный код для нового пользователя
+                    import string
+                    max_attempts = 10
+                    new_referral_code = None
+                    for _ in range(max_attempts):
+                        chars = string.ascii_uppercase + string.digits
+                        ref_code = ''.join(secrets.choice(chars) for _ in range(6))
+                        cur.execute(f"SELECT COUNT(*) FROM {S}users WHERE referral_code = %s", (ref_code,))
+                        if cur.fetchone()[0] == 0:
+                            new_referral_code = ref_code
+                            break
+                    
+                    if not new_referral_code:
+                        timestamp = str(int(secrets.randbits(20)))[-6:]
+                        new_referral_code = timestamp.zfill(6)
+                    
+                    cur.execute(f"UPDATE {S}users SET referral_code = %s WHERE id = %s", (new_referral_code, user_id))
+                    
+                    # Начисляем бонусы за реферальную программу
+                    if referrer_id:
+                        # Новый пользователь получает специальную цену (7 дней за 1 руб)
+                        cur.execute(f"UPDATE {S}users SET referral_bonus_available = true WHERE id = %s", (user_id,))
+                        
+                        # Пригласитель получает +1 день премиум подписки
+                        cur.execute(f"SELECT vip_until FROM {S}users WHERE id = %s", (referrer_id,))
+                        vip_result = cur.fetchone()
+                        
+                        if vip_result and vip_result[0]:
+                            new_vip_until = vip_result[0] + timedelta(days=1)
+                        else:
+                            new_vip_until = datetime.now(timezone.utc) + timedelta(days=1)
+                        
+                        cur.execute(
+                            f"UPDATE {S}users SET is_vip = true, vip_until = %s WHERE id = %s",
+                            (new_vip_until, referrer_id)
+                        )
+                        
+                        # Записываем транзакцию бонуса
+                        cur.execute(
+                            f"""INSERT INTO {S}transactions 
+                                (user_id, referrer_id, type, amount, description) 
+                                VALUES (%s, %s, %s, %s, %s)""",
+                            (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
+                        )
 
             access_token, expires_in = create_access_token(user_id, email)
             refresh_token = create_refresh_token()
