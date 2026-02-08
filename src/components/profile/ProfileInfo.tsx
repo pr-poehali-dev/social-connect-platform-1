@@ -71,7 +71,7 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
           {user.status_text}
         </div>
       )}
-      {!editMode && !loadingMentor && mentor && (
+      {!editMode && !loadingMentor && mentor && !user.hide_mentor && (
         <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-2">
           <Icon name="Award" size={16} />
           <span>Ваш наставник: <span className="font-medium text-foreground">
