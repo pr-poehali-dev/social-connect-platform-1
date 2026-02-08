@@ -74,7 +74,7 @@ def handler(event: dict, context) -> dict:
                            has_car, has_housing, dating_goal, interests, profession,
                            zodiac_sign, status_text, phone, telegram, instagram,
                            dating_visible, is_verified, verified_at,
-                           looking_for_gender, age_from, age_to,
+                           looking_for_gender, age_from, age_to, contact_price,
                            is_banned, created_at, updated_at, is_vip, vip_expires_at
                     FROM t_p19021063_social_connect_platf.users
                     WHERE id = {user_id}
@@ -135,7 +135,7 @@ def handler(event: dict, context) -> dict:
                     updates.append(f"{db_field} = '{value}'")
             
             # Числовые поля (integer)
-            int_fields = ['height', 'age_from', 'age_to']
+            int_fields = ['height', 'age_from', 'age_to', 'contact_price']
             for field in int_fields:
                 if field in data:
                     # Пропускаем пустые строки
