@@ -45,7 +45,7 @@ const Referral = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const referralLink = referralInfo?.referral_code 
-    ? `http://loveis.city/ref${referralInfo.referral_code}`
+    ? `loveis.city/r/${referralInfo.referral_code}`
     : '';
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const Referral = () => {
 
   useEffect(() => {
     if (referralLink) {
-      QRCode.toDataURL(referralLink, {
+      QRCode.toDataURL(`https://${referralLink}`, {
         width: 200,
         margin: 2,
         color: {
