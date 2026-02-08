@@ -4,6 +4,7 @@ import os
 import secrets
 import base64
 import hashlib
+import traceback
 from datetime import datetime, timedelta, timezone
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode
@@ -510,7 +511,6 @@ def handle_callback(event: dict, origin: str) -> dict:
             }, origin)
 
         except Exception as e:
-            import traceback
             print(f"[VK AUTH ERROR] Database error: {str(e)}")
             print(f"[VK AUTH ERROR] Traceback: {traceback.format_exc()}")
             conn.rollback()
