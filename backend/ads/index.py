@@ -68,7 +68,7 @@ def handler(event: dict, context) -> dict:
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                a.created_at, a.updated_at, a.photos,
                                u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
+                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date))::int as age
                         FROM t_p19021063_social_connect_platf.ads_favorites af
                         JOIN t_p19021063_social_connect_platf.ads a ON af.ad_id = a.id
                         JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
@@ -97,7 +97,7 @@ def handler(event: dict, context) -> dict:
                         SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                a.created_at, a.updated_at, a.photos,
                                u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age
+                               EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date))::int as age
                         FROM t_p19021063_social_connect_platf.ads a
                         JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
                         WHERE a.user_id = %s
@@ -115,7 +115,7 @@ def handler(event: dict, context) -> dict:
                             SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                    a.created_at, a.updated_at, a.photos,
                                    u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date))::int as age,
                                    EXISTS(SELECT 1 FROM t_p19021063_social_connect_platf.ads_favorites af WHERE af.user_id = %s AND af.ad_id = a.id) as is_favorite
                             FROM t_p19021063_social_connect_platf.ads a
                             JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
@@ -127,7 +127,7 @@ def handler(event: dict, context) -> dict:
                             SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                    a.created_at, a.updated_at, a.photos,
                                    u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date))::int as age,
                                    FALSE as is_favorite
                             FROM t_p19021063_social_connect_platf.ads a
                             JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
@@ -146,7 +146,7 @@ def handler(event: dict, context) -> dict:
                             SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                    a.created_at, a.updated_at, a.photos,
                                    u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date))::int as age,
                                    EXISTS(SELECT 1 FROM t_p19021063_social_connect_platf.ads_favorites af WHERE af.user_id = %s AND af.ad_id = a.id) as is_favorite
                             FROM t_p19021063_social_connect_platf.ads a
                             JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
@@ -158,7 +158,7 @@ def handler(event: dict, context) -> dict:
                             SELECT a.id, a.user_id, a.action, a.schedule, a.status, 
                                    a.created_at, a.updated_at, a.photos,
                                    u.name, u.nickname, u.avatar_url, u.gender, u.city, u.birth_date,
-                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.created_at))::int as age,
+                                   EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date))::int as age,
                                    FALSE as is_favorite
                             FROM t_p19021063_social_connect_platf.ads a
                             JOIN t_p19021063_social_connect_platf.users u ON a.user_id = u.id
