@@ -47,7 +47,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button 
           onClick={onRequestVerification}
           variant="outline"
-          className="w-full h-14 rounded-2xl border-blue-500 text-blue-500 hover:bg-blue-50"
+          className="w-full h-14 rounded-sm border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold"
         >
           <Icon name="BadgeCheck" size={20} className="mr-2" />
           Запросить верификацию
@@ -58,7 +58,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button 
           variant="outline"
           disabled
-          className="w-full h-14 rounded-2xl border-yellow-500 text-yellow-600 bg-yellow-50"
+          className="w-full h-14 rounded-sm border-2 border-yellow-600 text-yellow-700 bg-yellow-50 font-semibold"
         >
           <Icon name="Clock" size={20} className="mr-2" />
           Идёт проверка
@@ -69,7 +69,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button 
           onClick={onRequestVerification}
           variant="outline"
-          className="w-full h-14 rounded-2xl border-red-500 text-red-600 hover:bg-red-50"
+          className="w-full h-14 rounded-sm border-2 border-red-600 text-red-600 hover:bg-red-50 font-semibold"
         >
           <Icon name="XCircle" size={20} className="mr-2" />
           Верификация отклонена - попробовать снова
@@ -80,24 +80,24 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button
           onClick={() => navigate('/friends')}
           variant="outline"
-          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 flex-shrink-0"
+          className="h-20 min-w-[140px] rounded-sm border-2 border-red-800/30 flex flex-col items-center justify-center gap-1 flex-shrink-0 hover:bg-red-50 font-semibold"
         >
-          <Icon name="Users" size={24} />
-          <span className="text-sm">Друзья</span>
+          <Icon name="Users" size={24} className="text-red-800" />
+          <span className="text-sm text-red-900">Друзья</span>
         </Button>
         
         <Button
           onClick={() => handlePremiumAction('ads')}
           variant="outline"
-          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 relative flex-shrink-0"
+          className="h-20 min-w-[140px] rounded-sm border-2 border-red-800/30 flex flex-col items-center justify-center gap-1 relative flex-shrink-0 hover:bg-red-50 font-semibold"
         >
-          <Icon name="ShoppingBag" size={24} />
-          <span className="text-sm">Объявления</span>
+          <Icon name="ShoppingBag" size={24} className="text-red-800" />
+          <span className="text-sm text-red-900">Объявления</span>
           {!user?.is_vip && (
             <Icon 
               name="Crown" 
               size={14} 
-              className="absolute top-2 right-2 text-yellow-500" 
+              className="absolute top-2 right-2 text-yellow-600" 
             />
           )}
         </Button>
@@ -105,15 +105,15 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button
           onClick={() => handlePremiumAction('services')}
           variant="outline"
-          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 relative flex-shrink-0"
+          className="h-20 min-w-[140px] rounded-sm border-2 border-red-800/30 flex flex-col items-center justify-center gap-1 relative flex-shrink-0 hover:bg-red-50 font-semibold"
         >
-          <Icon name="Briefcase" size={24} />
-          <span className="text-sm">Услуги</span>
+          <Icon name="Briefcase" size={24} className="text-red-800" />
+          <span className="text-sm text-red-900">Услуги</span>
           {!user?.is_vip && (
             <Icon 
               name="Crown" 
               size={14} 
-              className="absolute top-2 right-2 text-yellow-500" 
+              className="absolute top-2 right-2 text-yellow-600" 
             />
           )}
         </Button>
@@ -121,15 +121,15 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         <Button
           onClick={() => handlePremiumAction('events')}
           variant="outline"
-          className="h-20 min-w-[140px] rounded-2xl flex flex-col items-center justify-center gap-1 relative flex-shrink-0"
+          className="h-20 min-w-[140px] rounded-sm border-2 border-red-800/30 flex flex-col items-center justify-center gap-1 relative flex-shrink-0 hover:bg-red-50 font-semibold"
         >
-          <Icon name="Calendar" size={24} />
-          <span className="text-sm">Мероприятия</span>
+          <Icon name="Calendar" size={24} className="text-red-800" />
+          <span className="text-sm text-red-900">Мероприятия</span>
           {!user?.is_vip && (
             <Icon 
               name="Crown" 
               size={14} 
-              className="absolute top-2 right-2 text-yellow-500" 
+              className="absolute top-2 right-2 text-yellow-600" 
             />
           )}
         </Button>

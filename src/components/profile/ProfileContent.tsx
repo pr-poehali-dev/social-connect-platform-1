@@ -56,12 +56,31 @@ const ProfileContent = ({
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-red-900">
       <Navigation />
       
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
-          <Card className="max-w-5xl mx-auto rounded-3xl border-2 shadow-2xl overflow-hidden">
+          <Card className="max-w-5xl mx-auto rounded-sm border-4 border-red-800 shadow-2xl overflow-hidden bg-gradient-to-br from-red-50 to-red-100">
+            {/* Шапка паспорта */}
+            <div className="bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white px-8 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center">
+                    <Icon name="Shield" size={24} className="text-red-800" />
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-widest opacity-90">Российская Федерация</div>
+                    <div className="text-xl font-bold">ПАСПОРТ ГРАЖДАНИНА</div>
+                  </div>
+                </div>
+                <div className="text-right text-sm opacity-90">
+                  <div>ID: {user.id}</div>
+                  <div className="text-xs">РФ</div>
+                </div>
+              </div>
+            </div>
+
             <div className="p-8">
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="lg:w-1/3">

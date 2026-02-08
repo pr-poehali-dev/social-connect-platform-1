@@ -104,7 +104,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
           }}
         />
       )}
-    <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-purple-200 to-pink-200 group">
+    <div className="relative aspect-[3/4] rounded-sm overflow-hidden border-4 border-red-800 shadow-xl bg-gradient-to-br from-red-50 to-red-100 group">
       {user.avatar_url ? (
         <div
           className="relative w-full h-full"
