@@ -317,7 +317,7 @@ const ProfileCard = ({
                   onClick={() => navigate('/premium')}
                 >
                   <Icon name="Crown" size={20} />
-                  {profile.is_vip ? 'Продлить Premium' : 'Стать Premium'}
+                  {profile.is_vip ? 'Продлить' : 'Стать Premium'}
                 </Button>
               </>
             ) : (
