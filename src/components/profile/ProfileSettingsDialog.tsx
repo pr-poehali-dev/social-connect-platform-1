@@ -149,9 +149,7 @@ const ProfileSettingsDialog = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="animate-avatar" className="text-base font-medium">
-                  Оживлять фото
-                </Label>
+                <Label htmlFor="animate-avatar" className="text-base font-medium">Оживлять фото (DEMO)</Label>
                 <p className="text-sm text-muted-foreground">
                   Анимировать аватарки при наведении курсора
                 </p>
