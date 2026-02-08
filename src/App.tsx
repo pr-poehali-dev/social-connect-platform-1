@@ -47,6 +47,7 @@ import VerificationRequest from "./pages/VerificationRequest";
 import AdminVerification from "./pages/admin/AdminVerification";
 import AdminPrices from "./pages/admin/AdminPrices";
 import Premium from "./pages/Premium";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -108,6 +109,7 @@ const App = () => {
           <Route path="/admin/prices" element={<AdminPrices />} />
           <Route path="/verification-request" element={<ProtectedRoute><VerificationRequest /></ProtectedRoute>} />
           <Route path="/premium" element={<ProtectedRoute><Premium /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

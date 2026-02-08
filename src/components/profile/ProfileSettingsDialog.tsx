@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
 
 interface ProfileSettingsDialogProps {
   settingsOpen: boolean;
@@ -66,6 +67,24 @@ const ProfileSettingsDialog = ({
 }: ProfileSettingsDialogProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (settingsOpen && isMobile) {
+      navigate('/settings');
+      setSettingsOpen(false);
+    }
+  }, [settingsOpen, isMobile, navigate, setSettingsOpen]);
 
   const handlePremiumFeatureClick = () => {
     toast({
@@ -88,8 +107,8 @@ const ProfileSettingsDialog = ({
 
   return (
     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Icon name="Settings" size={24} />
             Настройки
@@ -99,7 +118,7 @@ const ProfileSettingsDialog = ({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 overflow-y-auto flex-1 pr-2">
           <div className="flex items-center justify-between relative">
             <div className="space-y-0.5 flex-1">
               <div className="flex items-center gap-2">
