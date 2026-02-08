@@ -163,6 +163,11 @@ const Referral = () => {
       description: '+1 день Premium за каждого друга'
     },
     {
+      icon: 'Percent',
+      title: 'Процент с пополнений',
+      description: '30% с каждого пополнения ваших рефералов'
+    },
+    {
       icon: 'Infinity',
       title: 'Навсегда',
       description: 'Накапливайте дни подписки без ограничений'
