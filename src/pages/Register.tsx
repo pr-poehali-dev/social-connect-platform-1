@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -31,6 +32,14 @@ const Register = () => {
   const [userId, setUserId] = useState<number | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const params = useParams<{ code?: string }>();
+
+  useEffect(() => {
+    // Устанавливаем реферальный код из URL параметров
+    if (params.code) {
+      setReferralCode(params.code.toUpperCase());
+    }
+  }, [params]);
 
   const vkAuth = useVkAuth({
     apiUrls: {
@@ -73,7 +82,7 @@ const Register = () => {
       const response = await fetch('https://functions.poehali.dev/38e915e0-7fce-42fe-81a2-0cf20e689f42?action=register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name })
+        body: JSON.stringify({ email, password, name, referral_code: referralCode })
       });
 
       const data = await response.json();
@@ -222,6 +231,24 @@ const Register = () => {
                         </Button>
                       </div>
                     </div>
+
+                    {referralCode && (
+                      <div className="space-y-2">
+                        <Label htmlFor="referralCode">Реферальный код</Label>
+                        <Input
+                          id="referralCode"
+                          type="text"
+                          value={referralCode}
+                          onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                          placeholder="Введите код (если есть)"
+                          maxLength={6}
+                          className="rounded-xl font-mono"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Код из реферальной ссылки (необязательно)
+                        </p>
+                      </div>
+                    )}
 
                     <Button
                       type="submit"

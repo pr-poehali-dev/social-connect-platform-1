@@ -93,9 +93,28 @@ def handle_register(event: dict) -> dict:
     )
     user_id = cur.fetchone()[0]
     
-    # Generate unique referral code for new user
+    # Generate unique referral code for new user (6 символов: буквы + цифры)
     import secrets
-    new_referral_code = f"REF{str(user_id).zfill(6)}{secrets.token_hex(4).upper()}"
+    import string
+    
+    # Генерируем уникальный 6-символьный код
+    max_attempts = 10
+    new_referral_code = None
+    for _ in range(max_attempts):
+        chars = string.ascii_uppercase + string.digits
+        code = ''.join(secrets.choice(chars) for _ in range(6))
+        
+        # Проверяем уникальность
+        cur.execute(f"SELECT COUNT(*) FROM {schema}.users WHERE referral_code = %s", (code,))
+        if cur.fetchone()[0] == 0:
+            new_referral_code = code
+            break
+    
+    # Если не удалось за 10 попыток, используем timestamp
+    if not new_referral_code:
+        timestamp = str(int(secrets.randbits(20)))[-6:]
+        new_referral_code = timestamp.zfill(6)
+    
     cur.execute(
         f"UPDATE {schema}.users SET referral_code = %s WHERE id = %s",
         (new_referral_code, user_id)

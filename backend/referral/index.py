@@ -9,11 +9,32 @@ import hashlib
 def get_db():
     return psycopg2.connect(os.environ['DATABASE_URL'])
 
-def generate_referral_code(user_id: int) -> str:
-    """Генерирует уникальный реферальный код для пользователя"""
-    random_part = secrets.token_hex(4).upper()
-    user_part = str(user_id).zfill(6)
-    return f"REF{user_part}{random_part}"
+def generate_referral_code(conn) -> str:
+    """Генерирует уникальный 6-значный реферальный код (буквы + цифры)"""
+    import string
+    
+    # Пытаемся сгенерировать уникальный код
+    max_attempts = 10
+    for _ in range(max_attempts):
+        # Генерируем случайный код из букв и цифр (6 символов)
+        chars = string.ascii_uppercase + string.digits
+        code = ''.join(secrets.choice(chars) for _ in range(6))
+        
+        # Проверяем уникальность
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT COUNT(*) FROM t_p19021063_social_connect_platf.users WHERE referral_code = %s",
+            (code,)
+        )
+        count = cur.fetchone()[0]
+        cur.close()
+        
+        if count == 0:
+            return code
+    
+    # Если не удалось за 10 попыток - генерируем с timestamp
+    timestamp = str(int(secrets.randbits(20)))[-6:]
+    return timestamp.zfill(6)
 
 def handler(event: dict, context) -> dict:
     """API для работы с реферальной системой"""
