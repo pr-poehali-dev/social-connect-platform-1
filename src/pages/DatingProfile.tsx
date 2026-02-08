@@ -425,6 +425,12 @@ const DatingProfile = () => {
                   {profile.age && (
                     <span className="text-xl md:text-2xl text-muted-foreground">{profile.age}</span>
                   )}
+                  {profile.is_vip && (
+                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full flex items-center gap-1.5">
+                      <Icon name="Crown" size={16} />
+                      <span className="font-bold text-xs">Premium</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
                   <div className={`w-2 h-2 rounded-full ${profile.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
