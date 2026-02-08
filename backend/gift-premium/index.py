@@ -66,6 +66,61 @@ def handler(event: dict, context) -> dict:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         body = json.loads(event.get('body', '{}'))
+        
+        # Специальное предложение для новых пользователей (7 дней за 1 руб)
+        if action == 'activate-trial':
+            # Проверяем, доступен ли бонус
+            cursor.execute(f"""
+                SELECT referral_bonus_available, vip_until
+                FROM {schema}.users
+                WHERE id = %s
+            """, (user_id,))
+            user = cursor.fetchone()
+            
+            if not user or not user['referral_bonus_available']:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Специальное предложение недоступно'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Активируем пробный период (7 дней)
+            now = datetime.now()
+            new_vip_until = now + timedelta(days=7)
+            
+            cursor.execute(f"""
+                UPDATE {schema}.users
+                SET is_vip = true, 
+                    vip_until = %s,
+                    referral_bonus_available = false
+                WHERE id = %s
+            """, (new_vip_until, user_id))
+            
+            # Записываем транзакцию
+            cursor.execute(f"""
+                INSERT INTO {schema}.transactions 
+                (user_id, amount, type, status, description)
+                VALUES (%s, %s, 'trial_premium', 'completed', %s)
+            """, (user_id, -1, 'Активация пробного Premium (7 дней за 1₽)'))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'vip_until': new_vip_until.isoformat(),
+                    'message': 'Premium активирован на 7 дней!'
+                }),
+                'isBase64Encoded': False
+            }
+        
         recipient_id = body.get('recipient_id')
         months = body.get('months', 1)
         price = Decimal(str(body.get('price', 0)))

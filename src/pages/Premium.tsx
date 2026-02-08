@@ -25,10 +25,17 @@ const Premium = () => {
   const [plans, setPlans] = useState<PremiumPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const [hasReferralBonus, setHasReferralBonus] = useState(false);
 
   useEffect(() => {
     loadPrices();
+    checkReferralBonus();
   }, []);
+
+  const checkReferralBonus = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    setHasReferralBonus(user.referral_bonus_available === true);
+  };
 
   const loadPrices = async () => {
     setLoading(true);
@@ -39,40 +46,56 @@ const Premium = () => {
         const data = await response.json();
         const prices = data.prices;
         
-        const premiumPlans: PremiumPlan[] = [
-          {
-            key: 'premium_month',
-            name: '1 месяц',
-            price: prices.premium_month?.price || 299,
-            duration: 'месяц',
-            months: 1
-          },
-          {
-            key: 'premium_3months',
-            name: '3 месяца',
-            price: prices.premium_3months?.price || 699,
-            duration: '3 месяца',
-            months: 3,
-            savings: 'Выгода 20%',
+        const premiumPlans: PremiumPlan[] = [];
+        
+        // Добавляем специальное предложение для новых пользователей по реферальной ссылке
+        if (hasReferralBonus) {
+          premiumPlans.push({
+            key: 'premium_trial',
+            name: '7 дней Premium',
+            price: 1,
+            duration: '7 дней',
+            months: 0.23,
+            savings: 'СПЕЦИАЛЬНОЕ ПРЕДЛОЖЕНИЕ',
             popular: true
-          },
-          {
-            key: 'premium_6months',
-            name: '6 месяцев',
-            price: prices.premium_6months?.price || 1199,
-            duration: '6 месяцев',
-            months: 6,
-            savings: 'Выгода 33%'
-          },
-          {
-            key: 'premium_year',
-            name: '1 год',
-            price: prices.premium_year?.price || 1999,
-            duration: 'год',
-            months: 12,
-            savings: 'Выгода 44%'
-          }
-        ];
+          });
+        }
+        
+        premiumPlans.push({
+          key: 'premium_month',
+          name: '1 месяц',
+          price: prices.premium_month?.price || 299,
+          duration: 'месяц',
+          months: 1
+        });
+        
+        premiumPlans.push({
+          key: 'premium_3months',
+          name: '3 месяца',
+          price: prices.premium_3months?.price || 699,
+          duration: '3 месяца',
+          months: 3,
+          savings: 'Выгода 20%',
+          popular: !hasReferralBonus
+        });
+        
+        premiumPlans.push({
+          key: 'premium_6months',
+          name: '6 месяцев',
+          price: prices.premium_6months?.price || 1199,
+          duration: '6 месяцев',
+          months: 6,
+          savings: 'Выгода 33%'
+        });
+        
+        premiumPlans.push({
+          key: 'premium_year',
+          name: '1 год',
+          price: prices.premium_year?.price || 1999,
+          duration: 'год',
+          months: 12,
+          savings: 'Выгода 44%'
+        });
         
         setPlans(premiumPlans);
       }
@@ -98,22 +121,58 @@ const Premium = () => {
     setPurchasing(plan.key);
     
     try {
-      // TODO: Интеграция с платёжной системой
-      toast({
-        title: 'Оформление подписки',
-        description: `Переход к оплате ${plan.name} Premium за ${plan.price}₽`,
-      });
-      
-      // Временная заглушка - в будущем здесь будет редирект на платёжную систему
-      setTimeout(() => {
-        setPurchasing(null);
-      }, 2000);
+      // Специальное предложение - активация пробного периода
+      if (plan.key === 'premium_trial' && hasReferralBonus) {
+        const response = await fetch('https://functions.poehali.dev/19d45ed4-7f95-4f49-b132-32e32c997a29?action=activate-trial', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({})
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Обновляем пользователя в localStorage
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          user.is_vip = true;
+          user.vip_until = data.vip_until;
+          user.referral_bonus_available = false;
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          setHasReferralBonus(false);
+          
+          toast({
+            title: '🎉 Premium активирован!',
+            description: 'У вас 7 дней Premium подписки. Далее 299₽/мес.',
+          });
+          
+          setTimeout(() => {
+            navigate('/profile');
+          }, 2000);
+        } else {
+          throw new Error(data.error || 'Ошибка активации');
+        }
+      } else {
+        // Обычная покупка через платёжную систему
+        toast({
+          title: 'Оформление подписки',
+          description: `Переход к оплате ${plan.name} Premium за ${plan.price}₽`,
+        });
+        
+        setTimeout(() => {
+          setPurchasing(null);
+        }, 2000);
+      }
     } catch (error) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось оформить подписку',
+        description: error instanceof Error ? error.message : 'Не удалось оформить подписку',
         variant: 'destructive'
       });
+    } finally {
       setPurchasing(null);
     }
   };

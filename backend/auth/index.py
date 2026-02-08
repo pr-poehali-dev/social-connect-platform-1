@@ -120,6 +120,44 @@ def handle_register(event: dict) -> dict:
         (new_referral_code, user_id)
     )
     
+    # Начисляем бонусы за реферальную программу
+    from datetime import datetime, timedelta
+    
+    if referrer_id:
+        # Новый пользователь получает специальную цену на первую подписку (7 дней за 1 руб)
+        # Устанавливаем флаг для специального предложения
+        cur.execute(
+            f"UPDATE {schema}.users SET referral_bonus_available = true WHERE id = %s",
+            (user_id,)
+        )
+        
+        # Пригласитель получает +1 день премиум подписки
+        cur.execute(
+            f"SELECT vip_until FROM {schema}.users WHERE id = %s",
+            (referrer_id,)
+        )
+        vip_result = cur.fetchone()
+        
+        if vip_result and vip_result[0]:
+            # Если уже есть подписка - продлеваем на 1 день
+            new_vip_until = vip_result[0] + timedelta(days=1)
+        else:
+            # Если подписки нет - даём 1 день с сегодня
+            new_vip_until = datetime.utcnow() + timedelta(days=1)
+        
+        cur.execute(
+            f"UPDATE {schema}.users SET is_vip = true, vip_until = %s WHERE id = %s",
+            (new_vip_until, referrer_id)
+        )
+        
+        # Записываем транзакцию бонуса
+        cur.execute(
+            f"""INSERT INTO {schema}.transactions 
+                (user_id, referrer_id, type, amount, description) 
+                VALUES (%s, %s, %s, %s, %s)""",
+            (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
+        )
+    
     conn.commit()
     
     # Generate tokens

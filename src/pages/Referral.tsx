@@ -153,14 +153,19 @@ const Referral = () => {
 
   const benefits = [
     {
-      icon: 'Percent',
-      title: 'Процент от пополнений',
-      description: '30% от пополнений ваших рефералов'
+      icon: 'Gift',
+      title: 'Ваш друг получает',
+      description: '7 дней Premium за 1₽ (далее 299₽/мес)'
+    },
+    {
+      icon: 'Crown',
+      title: 'Вы получаете',
+      description: '+1 день Premium за каждого друга'
     },
     {
       icon: 'Infinity',
       title: 'Навсегда',
-      description: 'Вознаграждение начисляется пожизненно'
+      description: 'Накапливайте дни подписки без ограничений'
     }
   ];
 
