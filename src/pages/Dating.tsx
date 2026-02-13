@@ -18,6 +18,7 @@ import { useDatingFilters } from '@/components/dating/DatingFiltersState';
 import { useDatingProfilesLoader, formatLastSeen } from '@/components/dating/DatingProfilesLoader';
 import { useDatingActionsHandlers } from '@/components/dating/DatingActionsHandlers';
 import OlesyaCard from '@/components/dating/OlesyaCard';
+import DimaCard from '@/components/dating/DimaCard';
 
 const Dating = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,6 +135,7 @@ const Dating = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {!searchQuery && !voiceResults && <OlesyaCard />}
+            {!searchQuery && !voiceResults && <DimaCard />}
             {filteredProfiles.map((profile) => (
               <ProfileCard
                 key={profile.id}
