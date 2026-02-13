@@ -181,7 +181,7 @@ def handler(event: dict, context) -> dict:
                     return json_response(400, {'error': 'room_id required'})
 
                 payload = get_auth(event)
-                user_id = payload.get('id') if payload else None
+                user_id = (payload.get('user_id') or payload.get('id')) if payload else None
 
                 cursor.execute(f"""
                     SELECT r.*, u.first_name as host_name
@@ -243,7 +243,7 @@ def handler(event: dict, context) -> dict:
                 payload = get_auth(event)
                 if not payload:
                     return json_response(401, {'error': 'Unauthorized'})
-                user_id = payload['id']
+                user_id = payload.get('user_id') or payload.get('id')
                 cursor.execute(f"""
                     SELECT r.*, (SELECT COUNT(*) FROM mafia_players WHERE room_id = r.id) as player_count
                     FROM mafia_rooms r
@@ -259,7 +259,7 @@ def handler(event: dict, context) -> dict:
             payload = get_auth(event)
             if not payload:
                 return json_response(401, {'error': 'Unauthorized'})
-            user_id = payload['id']
+            user_id = payload.get('user_id') or payload.get('id')
             body = json.loads(event.get('body', '{}') or '{}')
 
             if action == 'create':
