@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Generate voice for text",
+      "method": "POST",
+      "body": {
+        "text": "Привет, как дела?"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "audioUrl": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Empty text returns error",
+      "method": "POST",
+      "body": {
+        "text": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
