@@ -1,269 +1,21 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
-
-const OLESYA_AVATAR = 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/33e3739a-a831-4bf6-8b23-6a88b399f079.jpg';
-const AI_URL = 'https://functions.poehali.dev/f0b3dae9-2298-428f-befa-830af5d46625';
-const ANIMATE_URL = 'https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b4570e1e0b';
-const TTS_URL = 'https://functions.poehali.dev/0baa4b34-c94f-452c-a527-5fdf417fda39';
-
-const VIDEO_CACHE_KEY = 'olesya_video_cache';
-const MAX_CACHE_SIZE = 30;
-
-const STICKERS: Record<string, { url: string; label: string }> = {
-  love: {
-    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/c4e780c1-1a18-421c-a718-ec0832838733.jpg',
-    label: 'Влюблена'
-  },
-  kiss: {
-    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/22a0b0ea-bc4c-44d3-a6d8-583138dc9a71.jpg',
-    label: 'Поцелуй'
-  },
-  laugh: {
-    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/2263c5cf-7ffa-4a8d-9e9d-7bf8063e4f33.jpg',
-    label: 'Хаха'
-  },
-  shy: {
-    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/7fed2694-7409-407f-80d9-e8e1662efe98.jpg',
-    label: 'Стесняюсь'
-  },
-  sad: {
-    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/d7c22dd1-794a-4c05-bf8c-00f9fb581988.jpg',
-    label: 'Грущу'
-  },
-  angry: {
-    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/c2f0c135-9de9-4e8c-9b61-df002e9af3d3.jpg',
-    label: 'Обижена'
-  }
-};
-
-const STICKER_REGEX = /\[sticker:(\w+)\]/g;
-const VOICE_REGEX = /\[voice:([^\]]+)\]/g;
-
-interface CachedVideo {
-  key: string;
-  url: string;
-  ts: number;
-}
-
-function getVideoCache(): CachedVideo[] {
-  try {
-    return JSON.parse(localStorage.getItem(VIDEO_CACHE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function getCachedVideo(text: string): string | null {
-  const key = text.trim().toLowerCase().slice(0, 250);
-  const cache = getVideoCache();
-  const found = cache.find(c => c.key === key);
-  return found ? found.url : null;
-}
-
-function setCachedVideo(text: string, url: string) {
-  const key = text.trim().toLowerCase().slice(0, 250);
-  let cache = getVideoCache();
-  cache = cache.filter(c => c.key !== key);
-  cache.unshift({ key, url, ts: Date.now() });
-  if (cache.length > MAX_CACHE_SIZE) {
-    cache = cache.slice(0, MAX_CACHE_SIZE);
-  }
-  try {
-    localStorage.setItem(VIDEO_CACHE_KEY, JSON.stringify(cache));
-  } catch {
-    localStorage.removeItem(VIDEO_CACHE_KEY);
-  }
-}
-
-type MessagePart =
-  | { type: 'text'; value: string }
-  | { type: 'sticker'; id: string }
-  | { type: 'voice'; text: string };
-
-function parseMessageContent(content: string): MessagePart[] {
-  const parts: MessagePart[] = [];
-
-  const combined = new RegExp(`${STICKER_REGEX.source}|${VOICE_REGEX.source}`, 'g');
-  let lastIndex = 0;
-  let match;
-
-  while ((match = combined.exec(content)) !== null) {
-    if (match.index > lastIndex) {
-      const textBefore = content.slice(lastIndex, match.index).trim();
-      if (textBefore) parts.push({ type: 'text', value: textBefore });
-    }
-    if (match[1]) {
-      parts.push({ type: 'sticker', id: match[1] });
-    } else if (match[2]) {
-      parts.push({ type: 'voice', text: match[2] });
-    }
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < content.length) {
-    const remaining = content.slice(lastIndex).trim();
-    if (remaining) parts.push({ type: 'text', value: remaining });
-  }
-
-  if (parts.length === 0) parts.push({ type: 'text', value: content });
-
-  return parts;
-}
-
-const VoiceBubble = ({ text }: { text: string }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(Math.max(2, text.length * 0.08));
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioUrlRef = useRef<string | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
-  const loadAudio = async (): Promise<HTMLAudioElement> => {
-    if (audioRef.current && audioUrlRef.current) return audioRef.current;
-
-    setIsLoading(true);
-    const res = await fetch(TTS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    });
-
-    if (!res.ok) throw new Error('TTS failed');
-    const data = await res.json();
-
-    if (data.duration) setDuration(data.duration);
-
-    const audio = new Audio(data.audioUrl);
-    audio.preload = 'auto';
-
-    await new Promise<void>((resolve, reject) => {
-      audio.oncanplaythrough = () => resolve();
-      audio.onerror = () => reject(new Error('Audio load failed'));
-      audio.load();
-    });
-
-    if (audio.duration && isFinite(audio.duration)) {
-      setDuration(audio.duration);
-    }
-
-    audioRef.current = audio;
-    audioUrlRef.current = data.audioUrl;
-    setIsLoading(false);
-    return audio;
-  };
-
-  const play = async () => {
-    if (isLoading) return;
-
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-      setProgress(0);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
-
-    try {
-      const audio = await loadAudio();
-
-      audio.currentTime = 0;
-
-      intervalRef.current = setInterval(() => {
-        if (audio.duration && isFinite(audio.duration)) {
-          setProgress(audio.currentTime / audio.duration);
-        }
-      }, 50);
-
-      audio.onended = () => {
-        setIsPlaying(false);
-        setProgress(1);
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        setTimeout(() => setProgress(0), 600);
-      };
-
-      audio.onerror = () => {
-        setIsPlaying(false);
-        setProgress(0);
-        if (intervalRef.current) clearInterval(intervalRef.current);
-      };
-
-      setIsPlaying(true);
-      await audio.play();
-    } catch {
-      setIsLoading(false);
-      setIsPlaying(false);
-    }
-  };
-
-  const displaySec = Math.ceil(duration);
-  const min = Math.floor(displaySec / 60);
-  const sec = displaySec % 60;
-
-  return (
-    <button onClick={play} className="flex items-center gap-2 group min-w-[160px]">
-      <div className="relative w-10 h-10 shrink-0">
-        <img
-          src={OLESYA_AVATAR}
-          alt="voice"
-          className={`w-10 h-10 rounded-full object-cover border-2 ${isPlaying ? 'border-pink-500' : 'border-pink-300'} transition-colors`}
-        />
-        {isPlaying && (
-          <div className="absolute inset-0 rounded-full border-2 border-pink-400 animate-pulse" />
-        )}
-        <div className={`absolute inset-0 flex items-center justify-center rounded-full ${isPlaying ? 'bg-black/20' : 'bg-black/10 group-hover:bg-black/20'} transition-colors`}>
-          {isLoading ? (
-            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Icon name={isPlaying ? "Pause" : "Play"} size={14} className="text-white ml-0.5" />
-          )}
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-[2px] h-4">
-          {Array.from({ length: 20 }).map((_, i) => {
-            const barProgress = i / 20;
-            const isActive = barProgress <= progress;
-            const h = [3, 5, 8, 6, 10, 7, 12, 5, 9, 11, 6, 8, 13, 7, 10, 5, 9, 6, 4, 3][i];
-            return (
-              <div
-                key={i}
-                className={`w-[3px] rounded-full transition-colors duration-150 ${
-                  isActive
-                    ? 'bg-gradient-to-t from-pink-500 to-purple-500'
-                    : 'bg-pink-200 dark:bg-pink-900/40'
-                }`}
-                style={{ height: `${h}px` }}
-              />
-            );
-          })}
-        </div>
-        <p className="text-[10px] text-slate-400 mt-0.5">{min}:{sec < 10 ? '0' : ''}{sec}</p>
-      </div>
-    </button>
-  );
-};
-
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-interface SpeechRecognitionEvent {
-  results: { [index: number]: { [index: number]: { transcript: string } } };
-}
+import {
+  OLESYA_AVATAR,
+  AI_URL,
+  ANIMATE_URL,
+  STICKERS,
+  STICKER_REGEX,
+  VOICE_REGEX,
+  getCachedVideo,
+  setCachedVideo,
+  parseMessageContent,
+  type ChatMessage,
+  type SpeechRecognitionEvent,
+} from './ai-assistant/constants';
+import { renderMessageContent } from './ai-assistant/MessageContent';
+import { StickerPicker } from './ai-assistant/MessageContent';
 
 const AiAssistantChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -444,35 +196,6 @@ const AiAssistantChat = () => {
     }
   };
 
-  const renderMessageContent = (content: string) => {
-    const parts = parseMessageContent(content);
-    const hasOnlySticker = parts.length === 1 && parts[0].type === 'sticker';
-    const hasOnlyVoice = parts.length === 1 && parts[0].type === 'voice';
-
-    return (
-      <div className={hasOnlySticker || hasOnlyVoice ? 'flex flex-col' : ''}>
-        {parts.map((part, idx) => {
-          if (part.type === 'sticker') {
-            const sticker = STICKERS[part.id];
-            if (!sticker) return null;
-            return (
-              <img
-                key={idx}
-                src={sticker.url}
-                alt={sticker.label}
-                className={`rounded-xl ${hasOnlySticker ? 'w-28 h-28' : 'w-20 h-20 inline-block mt-1'} object-cover`}
-              />
-            );
-          }
-          if (part.type === 'voice') {
-            return <VoiceBubble key={idx} text={part.text} />;
-          }
-          return <span key={idx}>{part.value}</span>;
-        })}
-      </div>
-    );
-  };
-
   if (!isOpen) {
     return (
       <button
@@ -602,20 +325,7 @@ const AiAssistantChat = () => {
       </div>
 
       {showStickerPicker && (
-        <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shrink-0">
-          <div className="grid grid-cols-6 gap-1.5">
-            {Object.entries(STICKERS).map(([id, sticker]) => (
-              <button
-                key={id}
-                onClick={() => sendSticker(id)}
-                className="aspect-square rounded-xl overflow-hidden hover:scale-110 transition-transform active:scale-95 border border-slate-100 dark:border-slate-700"
-                title={sticker.label}
-              >
-                <img src={sticker.url} alt={sticker.label} className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
+        <StickerPicker onSendSticker={sendSticker} />
       )}
 
       <div className="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shrink-0">
