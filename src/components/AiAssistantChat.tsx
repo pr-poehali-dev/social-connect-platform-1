@@ -39,6 +39,9 @@ const AiAssistantChat = () => {
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const swipeStartRef = useRef<number | null>(null);
+  const SWIPE_CANCEL_THRESHOLD = 100;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -287,6 +290,8 @@ const AiAssistantChat = () => {
 
     setIsRecording(false);
     setRecordingTime(0);
+    setSwipeOffset(0);
+    swipeStartRef.current = null;
   };
 
   const cancelRecording = () => {
@@ -313,6 +318,25 @@ const AiAssistantChat = () => {
     audioChunksRef.current = [];
     setIsRecording(false);
     setRecordingTime(0);
+    setSwipeOffset(0);
+    swipeStartRef.current = null;
+  };
+
+  const handleSwipeMove = (clientX: number) => {
+    if (!isRecording || swipeStartRef.current === null) return;
+    const delta = swipeStartRef.current - clientX;
+    const offset = Math.max(0, delta);
+    setSwipeOffset(offset);
+    if (offset >= SWIPE_CANCEL_THRESHOLD) {
+      cancelRecording();
+    }
+  };
+
+  const handleSwipeEnd = () => {
+    if (!isRecording) return;
+    if (swipeOffset < SWIPE_CANCEL_THRESHOLD) {
+      setSwipeOffset(0);
+    }
   };
 
   const finishRecording = (audioUrl: string) => {
@@ -479,35 +503,58 @@ const AiAssistantChat = () => {
 
       <div className="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shrink-0">
         {isRecording ? (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={cancelRecording}
-              className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shrink-0"
+          <div
+            className="relative flex items-center gap-2 select-none touch-none"
+            onMouseMove={(e) => handleSwipeMove(e.clientX)}
+            onMouseUp={handleSwipeEnd}
+            onMouseLeave={handleSwipeEnd}
+            onTouchMove={(e) => handleSwipeMove(e.touches[0].clientX)}
+            onTouchEnd={handleSwipeEnd}
+            onTouchStart={(e) => { if (!swipeStartRef.current) swipeStartRef.current = e.touches[0].clientX; }}
+            onMouseDown={(e) => { if (!swipeStartRef.current) swipeStartRef.current = e.clientX; }}
+          >
+            <div
+              className="flex-1 flex items-center gap-2 transition-transform duration-75"
+              style={{ transform: `translateX(-${swipeOffset}px)`, opacity: Math.max(0, 1 - swipeOffset / SWIPE_CANCEL_THRESHOLD) }}
             >
-              <Icon name="X" size={18} />
-            </button>
-            <div className="flex-1 flex items-center gap-2 px-3">
-              <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-sm text-red-500 font-medium">{formatRecTime(recordingTime)}</span>
-              <div className="flex-1 flex items-center justify-center gap-[2px]">
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-[2px] bg-red-400/60 rounded-full animate-pulse"
-                    style={{
-                      height: `${4 + Math.random() * 12}px`,
-                      animationDelay: `${i * 80}ms`,
-                    }}
-                  />
-                ))}
+              <button
+                onClick={cancelRecording}
+                className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shrink-0"
+              >
+                <Icon name="X" size={18} />
+              </button>
+              <div className="flex-1 flex items-center gap-2 px-2">
+                <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-sm text-red-500 font-medium">{formatRecTime(recordingTime)}</span>
+                <div className="flex-1 flex items-center justify-center gap-[2px]">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-[2px] bg-red-400/60 rounded-full animate-pulse"
+                      style={{
+                        height: `${4 + Math.random() * 12}px`,
+                        animationDelay: `${i * 80}ms`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
+              <button
+                onClick={stopRecording}
+                className="p-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white transition-all shrink-0 hover:shadow-md"
+              >
+                <Icon name="Send" size={18} />
+              </button>
             </div>
-            <button
-              onClick={stopRecording}
-              className="p-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white transition-all shrink-0 hover:shadow-md"
-            >
-              <Icon name="Send" size={18} />
-            </button>
+            {swipeOffset > 10 && (
+              <div
+                className="absolute left-3 flex items-center gap-1.5 text-red-400 transition-opacity"
+                style={{ opacity: Math.min(1, swipeOffset / (SWIPE_CANCEL_THRESHOLD * 0.7)) }}
+              >
+                <Icon name="ChevronLeft" size={14} />
+                <span className="text-xs font-medium">отмена</span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2">
