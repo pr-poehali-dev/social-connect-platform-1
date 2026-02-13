@@ -41,6 +41,7 @@ export interface Service {
   subcategory_name: string;
   user_name?: string;
   user_avatar?: string;
+  user_nickname?: string;
   portfolio?: string[];
   created_at: string;
   updated_at?: string;

@@ -11,6 +11,18 @@
       "method": "GET",
       "path": "/?action=categories",
       "expectedStatus": 200
+    },
+    {
+      "name": "Get detail without nickname",
+      "method": "GET",
+      "path": "/?action=detail",
+      "expectedStatus": 400
+    },
+    {
+      "name": "Get detail for unknown user",
+      "method": "GET",
+      "path": "/?action=detail&nickname=nonexistent_user_xyz",
+      "expectedStatus": 404
     }
   ]
 }

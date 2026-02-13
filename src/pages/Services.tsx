@@ -135,8 +135,6 @@ const Services = () => {
   };
 
   const filteredServices = services.filter(service => {
-    if (service.title === 'Test service') return false;
-    
     const query = searchQuery.toLowerCase();
     return (
       service.title?.toLowerCase().includes(query) ||
@@ -196,7 +194,7 @@ const Services = () => {
                   <ServicePublicCard
                     key={service.id}
                     service={service}
-                    onClick={() => navigate(`/services/${service.user_id}`)}
+                    onClick={() => navigate(`/services/${service.user_nickname || service.user_id}`)}
                   />
                 ))}
               </div>

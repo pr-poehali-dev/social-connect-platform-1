@@ -27,7 +27,7 @@ def escape_sql(value):
     return "'" + str(value).replace("'", "''") + "'"
 
 def handler(event: dict, context) -> dict:
-    '''API для управления услугами пользователей. Фильтрует тестовые услуги и тестовых пользователей.'''
+    '''API для управления услугами: список, детали по nickname, отзывы, CRUD'''
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
@@ -142,6 +142,79 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            if action == 'detail':
+                nickname = query_params.get('nickname', '')
+                if not nickname:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'nickname required'}),
+                        'isBase64Encoded': False
+                    }
+                cursor.execute(f'''
+                    SELECT u.id as user_id, u.first_name, u.last_name, u.nickname, u.avatar_url,
+                           u.city, u.bio, u.gender,
+                           (SELECT EXTRACT(YEAR FROM AGE(CURRENT_DATE, u.birth_date::date))
+                            FROM users WHERE id = u.id AND birth_date IS NOT NULL) as age
+                    FROM users u
+                    WHERE u.nickname = {escape_sql(nickname)}
+                    LIMIT 1
+                ''')
+                user = cursor.fetchone()
+                if not user:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'User not found'}),
+                        'isBase64Encoded': False
+                    }
+                uid = user['user_id']
+                cursor.execute(f'''
+                    SELECT s.*, sc.name as category_name, ss.name as subcategory_name, c.name as city_name
+                    FROM services s
+                    LEFT JOIN service_categories sc ON s.category_id = sc.id
+                    LEFT JOIN service_subcategories ss ON s.subcategory_id = ss.id
+                    LEFT JOIN cities c ON s.city_id = c.id
+                    WHERE s.user_id = {escape_sql(uid)} AND s.is_active = TRUE
+                    ORDER BY s.created_at DESC
+                ''')
+                user_services = cursor.fetchall()
+                for svc in user_services:
+                    cursor.execute(f"SELECT image_url FROM service_portfolio WHERE service_id = {escape_sql(svc['id'])} ORDER BY id")
+                    portfolio = cursor.fetchall()
+                    svc['portfolio'] = [p['image_url'] for p in portfolio]
+                    pl = svc.get('price_list')
+                    if pl and isinstance(pl, str):
+                        svc['price_list'] = json.loads(pl)
+
+                cursor.execute(f'''
+                    SELECT r.id, r.rating, r.text, r.verified, r.created_at,
+                           u2.first_name as author_first_name, u2.last_name as author_last_name
+                    FROM service_reviews r
+                    JOIN users u2 ON r.author_id = u2.id
+                    WHERE r.service_id IN (SELECT id FROM services WHERE user_id = {escape_sql(uid)})
+                    ORDER BY r.created_at DESC
+                    LIMIT 50
+                ''')
+                reviews = cursor.fetchall()
+
+                avg_rating = 0
+                if reviews:
+                    avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1)
+
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'user': dict(user),
+                        'services': [dict(s) for s in user_services],
+                        'reviews': [dict(r) for r in reviews],
+                        'avg_rating': avg_rating,
+                        'total_reviews': len(reviews)
+                    }, default=str),
+                    'isBase64Encoded': False
+                }
+
             if service_id:
                 cursor.execute(f'SELECT * FROM services WHERE id = {escape_sql(service_id)}')
                 service = cursor.fetchone()
@@ -159,7 +232,7 @@ def handler(event: dict, context) -> dict:
             
             query = '''
                 SELECT s.*, sc.name as category_name, ss.name as subcategory_name,
-                       u.name as user_name, u.avatar_url as user_avatar, c.name as city_name
+                       u.name as user_name, u.avatar_url as user_avatar, u.nickname as user_nickname, c.name as city_name
                 FROM services s
                 LEFT JOIN service_categories sc ON s.category_id = sc.id
                 LEFT JOIN service_subcategories ss ON s.subcategory_id = ss.id
