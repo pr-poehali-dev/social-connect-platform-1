@@ -1,17 +1,25 @@
 {
   "tests": [
     {
-      "name": "Test voice assistant with valid audio",
+      "name": "Search people",
       "method": "POST",
       "body": {
-        "audio": "mock_base64_audio_data"
+        "text": "девушки"
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "query": "string",
-        "explanation": "string",
-        "results": "array",
-        "count": "number"
+        "type": "people",
+        "query": "девушки"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing text",
+      "method": "POST",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
       },
       "bodyMatcher": "partial"
     }

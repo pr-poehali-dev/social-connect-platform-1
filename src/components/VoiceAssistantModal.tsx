@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -14,18 +15,24 @@ interface VoiceAssistantModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface SpeechRecognitionEvent {
+  results: { [index: number]: { [index: number]: { transcript: string } } };
+}
+
+const BACKEND_URL = 'https://functions.poehali.dev/b193ada3-6fc7-4a7d-aaf0-1f33cc4fa615';
+
 const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps) => {
-  const [isRecording, setIsRecording] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<any[] | null>(null);
+  const [results, setResults] = useState<Record<string, unknown>[] | null>(null);
   const [resultType, setResultType] = useState<string>('');
   const [query, setQuery] = useState('');
   const [transcribedText, setTranscribedText] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const [textQuery, setTextQuery] = useState('');
+  const recognitionRef = useRef<unknown>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +41,15 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
       setVoiceEnabled(saved === 'true');
     }
   }, []);
+
+  useEffect(() => {
+    if (!isOpen && recognitionRef.current) {
+      try {
+        (recognitionRef.current as { stop: () => void }).stop();
+      } catch (_) { /* ignore */ }
+      setIsListening(false);
+    }
+  }, [isOpen]);
 
   const toggleVoice = (enabled: boolean) => {
     setVoiceEnabled(enabled);
@@ -44,103 +60,119 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
     }
   };
 
-  const startRecording = async () => {
-    try {
-      setError(null);
-      setResults(null);
-      setTranscribedText('');
-      setQuery('');
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
+  const startListening = () => {
+    const SpeechRecognition = (window as unknown as Record<string, unknown>).SpeechRecognition ||
+      (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
+    if (!SpeechRecognition) {
+      setError('Ваш браузер не поддерживает распознавание речи. Используйте текстовый ввод.');
+      return;
+    }
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        await processAudio(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
+    setError(null);
+    setResults(null);
+    setTranscribedText('');
+    setQuery('');
 
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (err: any) {
-      console.error('Microphone error:', err);
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+    const recognition = new (SpeechRecognition as new () => {
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      continuous: boolean;
+      onresult: (event: SpeechRecognitionEvent) => void;
+      onerror: (event: { error: string }) => void;
+      onend: () => void;
+      start: () => void;
+      stop: () => void;
+    })();
+
+    recognition.lang = 'ru-RU';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const text = event.results[0][0].transcript;
+      setTranscribedText(text);
+      setIsListening(false);
+      searchByText(text);
+    };
+
+    recognition.onerror = (event: { error: string }) => {
+      setIsListening(false);
+      if (event.error === 'not-allowed') {
         setError('Разрешите доступ к микрофону в настройках браузера');
-      } else if (err.name === 'NotFoundError') {
-        setError('Микрофон не найден. Подключите микрофон и попробуйте снова');
+      } else if (event.error === 'no-speech') {
+        setError('Речь не распознана. Попробуйте снова или введите текст.');
+      } else if (event.error === 'network') {
+        setError('Нет подключения к интернету для распознавания речи. Используйте текстовый ввод.');
       } else {
-        setError('Не удалось получить доступ к микрофону: ' + err.message);
+        setError('Ошибка распознавания: ' + event.error);
       }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      (recognitionRef.current as { stop: () => void }).stop();
+      setIsListening(false);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
+  const searchByText = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || isProcessing) return;
 
-  const processAudio = async (audioBlob: Blob) => {
     setIsProcessing(true);
     setError(null);
 
     try {
-      const base64Audio = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (reader.result) {
-            resolve((reader.result as string).split(',')[1]);
-          } else {
-            reject(new Error('Не удалось прочитать аудио'));
-          }
-        };
-        reader.onerror = () => reject(new Error('Ошибка чтения аудио'));
-        reader.readAsDataURL(audioBlob);
-      });
-
-      const response = await fetch('https://functions.poehali.dev/b193ada3-6fc7-4a7d-aaf0-1f33cc4fa615', {
+      const response = await fetch(BACKEND_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ audio: base64Audio })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: trimmed })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Backend error:', errorText);
-        throw new Error('Ошибка обработки запроса: ' + response.status);
+        throw new Error('Ошибка обработки запроса');
       }
 
       const data = await response.json();
-      console.log('Voice assistant response:', data);
+      console.log('Search response:', data);
 
-      setTranscribedText(data.query);
-      setResults(data.results);
+      setResults(data.results as Record<string, unknown>[]);
       setResultType(data.type);
       setQuery(data.query);
-
       speakResults(data.results.length, data.type);
-    } catch (err: any) {
-      console.error('Processing error:', err);
-      setError('Не удалось обработать запрос: ' + (err.message || 'Неизвестная ошибка'));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
+      console.error('Search error:', err);
+      setError('Не удалось выполнить поиск: ' + message);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleItemClick = (item: any) => {
+  const handleTextSubmit = () => {
+    const trimmed = textQuery.trim();
+    if (!trimmed || isProcessing) return;
+    setTranscribedText(trimmed);
+    setTextQuery('');
+    searchByText(trimmed);
+  };
+
+  const handleItemClick = (item: Record<string, unknown>) => {
     onOpenChange(false);
-    
     switch (resultType) {
       case 'people':
         navigate(`/profile/${item.user_id}`);
@@ -159,31 +191,27 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
 
   const speakResults = (count: number, type: string) => {
     if (!voiceEnabled) return;
-    
     let message = '';
-    
     if (count === 0) {
       message = 'Ничего не найдено. Попробуйте изменить запрос.';
     } else {
       switch (type) {
         case 'people':
-          message = `Найдено ${count} ${count === 1 ? 'человек' : 'людей'}. Нажмите на карточку чтобы посмотреть профиль.`;
+          message = `Найдено ${count} ${count === 1 ? 'человек' : 'людей'}.`;
           break;
         case 'events':
-          message = `Найдено ${count} ${count === 1 ? 'мероприятие' : count < 5 ? 'мероприятия' : 'мероприятий'}. Выберите подходящее.`;
+          message = `Найдено ${count} ${count === 1 ? 'мероприятие' : count < 5 ? 'мероприятия' : 'мероприятий'}.`;
           break;
         case 'services':
-          message = `Найдено ${count} ${count === 1 ? 'услуга' : count < 5 ? 'услуги' : 'услуг'}. Посмотрите детали.`;
+          message = `Найдено ${count} ${count === 1 ? 'услуга' : count < 5 ? 'услуги' : 'услуг'}.`;
           break;
         case 'ads':
-          message = `Найдено ${count} ${count === 1 ? 'объявление' : count < 5 ? 'объявления' : 'объявлений'} в разделе Лайв. Нажмите чтобы узнать больше.`;
+          message = `Найдено ${count} ${count === 1 ? 'объявление' : count < 5 ? 'объявления' : 'объявлений'}.`;
           break;
         default:
           message = `Найдено ${count} результатов.`;
       }
     }
-    
-    // Используем Web Speech API
     if ('speechSynthesis' in window) {
       setIsSpeaking(true);
       const utterance = new SpeechSynthesisUtterance(message);
@@ -191,15 +219,8 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
       utterance.rate = 1.0;
       utterance.pitch = 1.0;
       utterance.volume = 0.8;
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
-      
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-      };
-      
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -207,7 +228,6 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
   const getResultLabel = () => {
     if (!results) return '';
     const count = results.length;
-    
     switch (resultType) {
       case 'people':
         return `${count} ${count === 1 ? 'человек' : 'людей'}`;
@@ -222,23 +242,23 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
     }
   };
 
-  const renderResultItem = (item: any) => {
+  const renderResultItem = (item: Record<string, unknown>) => {
     switch (resultType) {
       case 'people':
         return (
           <div
-            key={item.id}
+            key={item.id as string}
             onClick={() => handleItemClick(item)}
             className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
           >
             <img
-              src={item.avatar_url || 'https://via.placeholder.com/48'}
-              alt={item.name}
+              src={(item.avatar_url as string) || 'https://via.placeholder.com/48'}
+              alt={item.name as string}
               className="w-12 h-12 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{item.name}, {item.age}</p>
-              <p className="text-sm text-muted-foreground truncate">{item.city}</p>
+              <p className="font-medium truncate">{item.name as string}, {item.age as number}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.city as string}</p>
             </div>
             <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
           </div>
@@ -247,16 +267,16 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
       case 'events':
         return (
           <div
-            key={item.id}
+            key={item.id as string}
             onClick={() => handleItemClick(item)}
             className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shrink-0">
               <Icon name="Calendar" size={24} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{item.title}</p>
-              <p className="text-sm text-muted-foreground truncate">{item.city} • {item.event_date}</p>
+              <p className="font-medium truncate">{item.title as string}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.city as string} {item.event_date ? `• ${item.event_date as string}` : ''}</p>
             </div>
             <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
           </div>
@@ -265,16 +285,16 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
       case 'services':
         return (
           <div
-            key={item.id}
+            key={item.id as string}
             onClick={() => handleItemClick(item)}
             className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shrink-0">
               <Icon name="Briefcase" size={24} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{item.title || item.name}</p>
-              <p className="text-sm text-muted-foreground truncate">{item.city}</p>
+              <p className="font-medium truncate">{item.title as string || item.name as string}</p>
+              <p className="text-sm text-muted-foreground truncate">{item.city as string} {item.price ? `• ${item.price as string}` : ''}</p>
             </div>
             <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
           </div>
@@ -283,21 +303,21 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
       case 'ads':
         return (
           <div
-            key={item.id}
+            key={item.id as string}
             onClick={() => handleItemClick(item)}
             className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border hover:border-purple-500 cursor-pointer transition-colors"
           >
             <img
-              src={item.avatar_url || 'https://via.placeholder.com/48'}
-              alt={item.name}
+              src={(item.avatar_url as string) || 'https://via.placeholder.com/48'}
+              alt={item.name as string}
               className="w-12 h-12 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{item.name}, {item.age}</p>
+              <p className="font-medium truncate">{item.name as string}, {item.age as number}</p>
               <p className="text-sm text-muted-foreground truncate">
-                {item.action === 'invite' ? '🎯 Приглашает' : '👋 Хочет пойти'}: {item.schedule}
+                {item.action === 'invite' ? 'Приглашает' : 'Хочет пойти'}: {item.schedule as string}
               </p>
-              <p className="text-xs text-muted-foreground">{item.city}</p>
+              <p className="text-xs text-muted-foreground">{item.city as string}</p>
             </div>
             <Icon name="ChevronRight" size={20} className="text-muted-foreground" />
           </div>
@@ -314,8 +334,8 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Icon name="Mic" size={24} className="text-purple-500" />
-              Голосовой помощник
+              <Icon name="Search" size={24} className="text-purple-500" />
+              Умный поиск
             </div>
             <div className="flex items-center gap-2">
               <Icon name={voiceEnabled ? "Volume2" : "VolumeX"} size={18} className="text-muted-foreground" />
@@ -329,67 +349,100 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
         </DialogHeader>
         
         <div className="space-y-4">
-          <div className="flex flex-col items-center gap-4 py-4">
+          <div className="flex items-center gap-2">
+            <Input
+              value={textQuery}
+              onChange={(e) => setTextQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleTextSubmit()}
+              placeholder="Напишите что ищете..."
+              disabled={isProcessing || isListening}
+              className="flex-1"
+            />
             <button
-              onClick={isRecording ? stopRecording : startRecording}
-              disabled={isProcessing}
-              className={`flex items-center justify-center w-20 h-20 rounded-full transition-all ${
-                isRecording
-                  ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
-              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={handleTextSubmit}
+              disabled={isProcessing || isListening || !textQuery.trim()}
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shrink-0"
             >
               {isProcessing ? (
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white" />
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
               ) : (
-                <Icon name={isRecording ? 'Square' : 'Mic'} size={40} className="text-white" />
+                <Icon name="Search" size={20} className="text-white" />
               )}
             </button>
-            
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                {isRecording
-                  ? 'Говорите... (нажмите еще раз для остановки)'
-                  : isProcessing
-                  ? 'Обрабатываю запрос...'
-                  : isSpeaking
-                  ? '🔊 Озвучиваю результаты...'
-                  : 'Нажмите на микрофон и скажите что ищете'}
-              </p>
-              {transcribedText && !results && (
-                <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Распознано:</p>
-                  <p className="text-sm font-medium">"{transcribedText}"</p>
-                </div>
-              )}
-              {error && (
-                <p className="text-sm text-red-500 mt-2">{error}</p>
-              )}
-            </div>
+            <button
+              onClick={isListening ? stopListening : startListening}
+              disabled={isProcessing}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all shrink-0 ${
+                isListening
+                  ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Icon
+                name={isListening ? 'Square' : 'Mic'}
+                size={20}
+                className={isListening ? 'text-white' : 'text-purple-500'}
+              />
+            </button>
           </div>
 
-          <div className="text-xs text-muted-foreground bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-            <p className="font-medium mb-1">Примеры команд:</p>
-            <ul className="space-y-1">
-              <li>👤 "найди девушек из Москвы"</li>
-              <li>🎉 "концерты на выходных"</li>
-              <li>💼 "фотограф в Питере"</li>
-              <li>🎯 "кто хочет пойти в кино"</li>
-            </ul>
-          </div>
+          {isListening && (
+            <div className="text-center py-2">
+              <div className="flex items-center justify-center gap-1 mb-2">
+                <span className="w-1 h-4 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                <span className="w-1 h-6 bg-pink-500 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                <span className="w-1 h-5 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                <span className="w-1 h-7 bg-pink-500 rounded-full animate-pulse" style={{ animationDelay: '450ms' }} />
+                <span className="w-1 h-4 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '600ms' }} />
+              </div>
+              <p className="text-sm text-muted-foreground">Говорите...</p>
+            </div>
+          )}
+
+          {transcribedText && !isListening && (
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <p className="text-xs text-muted-foreground mb-1">Запрос:</p>
+              <p className="text-sm font-medium">"{transcribedText}"</p>
+            </div>
+          )}
+
+          {error && (
+            <p className="text-sm text-red-500 text-center">{error}</p>
+          )}
+
+          {isSpeaking && (
+            <p className="text-sm text-purple-500 text-center">Озвучиваю результаты...</p>
+          )}
+
+          {!results && !isListening && !isProcessing && !error && (
+            <div className="text-xs text-muted-foreground bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+              <p className="font-medium mb-1">Примеры запросов:</p>
+              <ul className="space-y-1">
+                <li>👤 "девушки из Москвы"</li>
+                <li>🎉 "концерты на выходных"</li>
+                <li>💼 "фотограф в Питере"</li>
+                <li>🎯 "кто хочет пойти в кино"</li>
+              </ul>
+            </div>
+          )}
 
           {query && results && (
             <div className="space-y-3">
               <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                <p className="text-sm font-medium">Ваш запрос: "{query}"</p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground">
                   Найдено: {getResultLabel()}
                 </p>
               </div>
 
-              <div className="max-h-60 overflow-y-auto space-y-2">
-                {results.map((item) => renderResultItem(item))}
-              </div>
+              {results.length > 0 ? (
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {results.map((item) => renderResultItem(item))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Ничего не найдено. Попробуйте другой запрос.
+                </p>
+              )}
             </div>
           )}
         </div>
