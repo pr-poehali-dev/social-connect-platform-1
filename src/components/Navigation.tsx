@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useRef } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 import { useRadio } from '@/contexts/RadioContext';
-import VoiceAssistantModal from '@/components/VoiceAssistantModal';
+
 
 const Navigation = () => {
   const location = useLocation();
@@ -17,7 +17,7 @@ const Navigation = () => {
   const { isPlaying, togglePlay } = useRadio();
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const avatarCacheRef = useRef<string | null>(null);
-  const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+
 
   useEffect(() => {
     const authStatus = isAuthenticated();
@@ -258,7 +258,7 @@ const Navigation = () => {
       </div>
 
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe touch-none">
-        <div className="grid grid-cols-7 gap-1 px-2 py-2 overflow-x-hidden">
+        <div className="grid grid-cols-6 gap-1 px-2 py-2 overflow-x-hidden">
           {bottomNavItems.slice(0, 3).map((item) => {
             if (item.path === '/radio') {
               return (
@@ -297,20 +297,6 @@ const Navigation = () => {
             );
           })}
           
-          <Button
-            onClick={() => setShowVoiceAssistant(true)}
-            variant="ghost"
-            size="icon"
-            className="h-12 w-full relative bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20"
-            title="Голосовой помощник"
-          >
-            <img 
-              src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/32de42ae-a70c-4136-be68-92ecb5fe2df8.png" 
-              alt="AI" 
-              className="w-6 h-6"
-            />
-          </Button>
-
           {bottomNavItems.slice(3).map((item) => {
             if (item.path === '/radio') {
               return (
@@ -351,23 +337,7 @@ const Navigation = () => {
         </div>
       </div>
 
-      <VoiceAssistantModal 
-        isOpen={showVoiceAssistant} 
-        onOpenChange={setShowVoiceAssistant} 
-      />
 
-      <button
-        onClick={() => setShowVoiceAssistant(true)}
-        className="hidden lg:flex fixed bottom-6 right-6 z-50 hover:opacity-80 transition-all items-center justify-center group"
-        title="Голосовой помощник"
-      >
-        <img 
-          src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/793b670b-c5e8-48d7-b455-f92d847bf1c5.png" 
-          alt="AI" 
-          className="w-20 h-20 group-hover:scale-110 transition-transform animate-pulse"
-          style={{ animationDuration: '3s' }}
-        />
-      </button>
     </>
   );
 };
