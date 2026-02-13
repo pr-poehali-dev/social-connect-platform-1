@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { RadioProvider } from "./contexts/RadioContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
+import AiAssistantChat from "./components/AiAssistantChat";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -113,6 +114,7 @@ const App = () => {
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+      <AiAssistantChat />
       </BrowserRouter>
       </RadioProvider>
     </TooltipProvider>
