@@ -6,6 +6,45 @@ const OLESYA_AVATAR = 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-
 const AI_URL = 'https://functions.poehali.dev/f0b3dae9-2298-428f-befa-830af5d46625';
 const ANIMATE_URL = 'https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b4570e1e0b';
 
+const VIDEO_CACHE_KEY = 'olesya_video_cache';
+const MAX_CACHE_SIZE = 30;
+
+interface CachedVideo {
+  key: string;
+  url: string;
+  ts: number;
+}
+
+function getVideoCache(): CachedVideo[] {
+  try {
+    return JSON.parse(localStorage.getItem(VIDEO_CACHE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function getCachedVideo(text: string): string | null {
+  const key = text.trim().toLowerCase().slice(0, 250);
+  const cache = getVideoCache();
+  const found = cache.find(c => c.key === key);
+  return found ? found.url : null;
+}
+
+function setCachedVideo(text: string, url: string) {
+  const key = text.trim().toLowerCase().slice(0, 250);
+  let cache = getVideoCache();
+  cache = cache.filter(c => c.key !== key);
+  cache.unshift({ key, url, ts: Date.now() });
+  if (cache.length > MAX_CACHE_SIZE) {
+    cache = cache.slice(0, MAX_CACHE_SIZE);
+  }
+  try {
+    localStorage.setItem(VIDEO_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    localStorage.removeItem(VIDEO_CACHE_KEY);
+  }
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -52,6 +91,14 @@ const AiAssistantChat = () => {
   const generateTalkingHead = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
 
+    const shortText = text.length > 250 ? text.slice(0, 247) + '...' : text;
+
+    const cached = getCachedVideo(shortText);
+    if (cached) {
+      setTalkingVideoUrl(cached);
+      return;
+    }
+
     if (abortRef.current) {
       abortRef.current.abort();
     }
@@ -62,8 +109,6 @@ const AiAssistantChat = () => {
     setTalkingVideoUrl(null);
 
     try {
-      const shortText = text.length > 250 ? text.slice(0, 247) + '...' : text;
-
       const response = await fetch(ANIMATE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,6 +124,7 @@ const AiAssistantChat = () => {
 
       const data = await response.json();
       if (data.videoUrl && !controller.signal.aborted) {
+        setCachedVideo(shortText, data.videoUrl);
         setTalkingVideoUrl(data.videoUrl);
       }
     } catch (e) {
