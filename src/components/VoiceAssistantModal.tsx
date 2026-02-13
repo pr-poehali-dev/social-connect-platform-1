@@ -94,36 +94,42 @@ const VoiceAssistantModal = ({ isOpen, onOpenChange }: VoiceAssistantModalProps)
     setError(null);
 
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      
-      reader.onloadend = async () => {
-        const base64Audio = (reader.result as string).split(',')[1];
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result) {
+            resolve((reader.result as string).split(',')[1]);
+          } else {
+            reject(new Error('Не удалось прочитать аудио'));
+          }
+        };
+        reader.onerror = () => reject(new Error('Ошибка чтения аудио'));
+        reader.readAsDataURL(audioBlob);
+      });
 
-        const response = await fetch('https://functions.poehali.dev/b193ada3-6fc7-4a7d-aaf0-1f33cc4fa615', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ audio: base64Audio })
-        });
+      const response = await fetch('https://functions.poehali.dev/b193ada3-6fc7-4a7d-aaf0-1f33cc4fa615', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ audio: base64Audio })
+      });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Backend error:', errorText);
-          throw new Error('Ошибка обработки запроса: ' + response.status);
-        }
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend error:', errorText);
+        throw new Error('Ошибка обработки запроса: ' + response.status);
+      }
 
-        const data = await response.json();
-        console.log('Voice assistant response:', data);
-        
-        setTranscribedText(data.query);
-        setResults(data.results);
-        setResultType(data.type);
-        setQuery(data.query);
-        
-        speakResults(data.results.length, data.type);
-      };
+      const data = await response.json();
+      console.log('Voice assistant response:', data);
+
+      setTranscribedText(data.query);
+      setResults(data.results);
+      setResultType(data.type);
+      setQuery(data.query);
+
+      speakResults(data.results.length, data.type);
     } catch (err: any) {
       console.error('Processing error:', err);
       setError('Не удалось обработать запрос: ' + (err.message || 'Неизвестная ошибка'));
