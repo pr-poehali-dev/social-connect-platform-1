@@ -9,6 +9,35 @@ const ANIMATE_URL = 'https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b45
 const VIDEO_CACHE_KEY = 'olesya_video_cache';
 const MAX_CACHE_SIZE = 30;
 
+const STICKERS: Record<string, { url: string; label: string }> = {
+  love: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/c4e780c1-1a18-421c-a718-ec0832838733.jpg',
+    label: 'Влюблена'
+  },
+  kiss: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/22a0b0ea-bc4c-44d3-a6d8-583138dc9a71.jpg',
+    label: 'Поцелуй'
+  },
+  laugh: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/2263c5cf-7ffa-4a8d-9e9d-7bf8063e4f33.jpg',
+    label: 'Хаха'
+  },
+  shy: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/7fed2694-7409-407f-80d9-e8e1662efe98.jpg',
+    label: 'Стесняюсь'
+  },
+  sad: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/d7c22dd1-794a-4c05-bf8c-00f9fb581988.jpg',
+    label: 'Грущу'
+  },
+  angry: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/c2f0c135-9de9-4e8c-9b61-df002e9af3d3.jpg',
+    label: 'Обижена'
+  }
+};
+
+const STICKER_REGEX = /\[sticker:(\w+)\]/g;
+
 interface CachedVideo {
   key: string;
   url: string;
@@ -45,6 +74,32 @@ function setCachedVideo(text: string, url: string) {
   }
 }
 
+function parseMessageContent(content: string) {
+  const parts: Array<{ type: 'text'; value: string } | { type: 'sticker'; id: string }> = [];
+  let lastIndex = 0;
+
+  const regex = new RegExp(STICKER_REGEX.source, 'g');
+  let match;
+
+  while ((match = regex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      const textBefore = content.slice(lastIndex, match.index).trim();
+      if (textBefore) parts.push({ type: 'text', value: textBefore });
+    }
+    parts.push({ type: 'sticker', id: match[1] });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < content.length) {
+    const remaining = content.slice(lastIndex).trim();
+    if (remaining) parts.push({ type: 'text', value: remaining });
+  }
+
+  if (parts.length === 0) parts.push({ type: 'text', value: content });
+
+  return parts;
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -63,6 +118,7 @@ const AiAssistantChat = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [talkingVideoUrl, setTalkingVideoUrl] = useState<string | null>(null);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [showStickerPicker, setShowStickerPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<unknown>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -91,7 +147,10 @@ const AiAssistantChat = () => {
   const generateTalkingHead = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
 
-    const shortText = text.length > 250 ? text.slice(0, 247) + '...' : text;
+    const cleanText = text.replace(STICKER_REGEX, '').trim();
+    if (!cleanText) return;
+
+    const shortText = cleanText.length > 250 ? cleanText.slice(0, 247) + '...' : cleanText;
 
     const cached = getCachedVideo(shortText);
     if (cached) {
@@ -145,6 +204,7 @@ const AiAssistantChat = () => {
     setMessages(newMessages);
     setInput('');
     setIsLoading(true);
+    setShowStickerPicker(false);
 
     try {
       const response = await fetch(AI_URL, {
@@ -170,6 +230,13 @@ const AiAssistantChat = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const sendSticker = (stickerId: string) => {
+    const sticker = STICKERS[stickerId];
+    if (!sticker || isLoading) return;
+    setShowStickerPicker(false);
+    sendMessage(`[sticker:${stickerId}]`);
   };
 
   const startListening = () => {
@@ -219,6 +286,31 @@ const AiAssistantChat = () => {
     if (abortRef.current) {
       abortRef.current.abort();
     }
+  };
+
+  const renderMessageContent = (content: string, isUser: boolean) => {
+    const parts = parseMessageContent(content);
+    const hasOnlySticker = parts.length === 1 && parts[0].type === 'sticker';
+
+    return (
+      <div className={hasOnlySticker ? 'flex flex-col items-center' : ''}>
+        {parts.map((part, idx) => {
+          if (part.type === 'sticker') {
+            const sticker = STICKERS[part.id];
+            if (!sticker) return null;
+            return (
+              <img
+                key={idx}
+                src={sticker.url}
+                alt={sticker.label}
+                className={`rounded-xl ${hasOnlySticker ? 'w-28 h-28' : 'w-20 h-20 inline-block mt-1'} object-cover`}
+              />
+            );
+          }
+          return <span key={idx} className={isUser ? '' : ''}>{part.value}</span>;
+        })}
+      </div>
+    );
   };
 
   if (!isOpen) {
@@ -308,20 +400,27 @@ const AiAssistantChat = () => {
           </div>
         )}
 
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            {msg.role === 'assistant' && (
-              <img src={OLESYA_AVATAR} alt="Олеся" className="w-8 h-8 rounded-full object-cover shrink-0 mt-1" />
-            )}
-            <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-              msg.role === 'user'
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-sm'
-                : 'bg-white dark:bg-slate-800 text-foreground rounded-bl-sm shadow-sm border border-slate-100 dark:border-slate-700'
-            }`}>
-              {msg.content}
+        {messages.map((msg, i) => {
+          const parts = parseMessageContent(msg.content);
+          const isOnlySticker = parts.length === 1 && parts[0].type === 'sticker';
+
+          return (
+            <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              {msg.role === 'assistant' && (
+                <img src={OLESYA_AVATAR} alt="Олеся" className="w-8 h-8 rounded-full object-cover shrink-0 mt-1" />
+              )}
+              <div className={`max-w-[80%] ${isOnlySticker ? 'p-1' : 'px-3 py-2'} rounded-2xl text-sm leading-relaxed ${
+                isOnlySticker
+                  ? 'bg-transparent border-none shadow-none'
+                  : msg.role === 'user'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-sm'
+                    : 'bg-white dark:bg-slate-800 text-foreground rounded-bl-sm shadow-sm border border-slate-100 dark:border-slate-700'
+              }`}>
+                {renderMessageContent(msg.content, msg.role === 'user')}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {isLoading && (
           <div className="flex gap-2">
@@ -338,6 +437,23 @@ const AiAssistantChat = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {showStickerPicker && (
+        <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shrink-0">
+          <div className="grid grid-cols-6 gap-1.5">
+            {Object.entries(STICKERS).map(([id, sticker]) => (
+              <button
+                key={id}
+                onClick={() => sendSticker(id)}
+                className="aspect-square rounded-xl overflow-hidden hover:scale-110 transition-transform active:scale-95 border border-slate-100 dark:border-slate-700"
+                title={sticker.label}
+              >
+                <img src={sticker.url} alt={sticker.label} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shrink-0">
         <div className="flex items-center gap-2">
           <button
@@ -350,6 +466,17 @@ const AiAssistantChat = () => {
             } ${isLoading ? 'opacity-50' : ''}`}
           >
             <Icon name={isListening ? "Square" : "Mic"} size={18} />
+          </button>
+          <button
+            onClick={() => setShowStickerPicker(!showStickerPicker)}
+            disabled={isLoading}
+            className={`p-2 rounded-full transition-all shrink-0 ${
+              showStickerPicker
+                ? 'bg-pink-500 text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-purple-500 hover:bg-slate-200 dark:hover:bg-slate-700'
+            } ${isLoading ? 'opacity-50' : ''}`}
+          >
+            <Icon name="Smile" size={18} />
           </button>
           <Input
             ref={inputRef}
