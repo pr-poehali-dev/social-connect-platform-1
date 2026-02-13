@@ -55,7 +55,8 @@ def assign_roles(player_count):
 
 def get_auth(event):
     headers = event.get('headers', {}) or {}
-    auth = headers.get('Authorization', '') or headers.get('authorization', '') or headers.get('X-Authorization', '')
+    auth = (headers.get('X-Authorization') or headers.get('x-authorization')
+            or headers.get('Authorization') or headers.get('authorization') or '')
     token = auth.replace('Bearer ', '') if auth else ''
     return verify_token(token)
 
@@ -600,6 +601,7 @@ def handler(event: dict, context) -> dict:
 
     except Exception as e:
         conn.rollback()
+        print(f'MAFIA ERROR: {e}')
         return json_response(500, {'error': str(e)})
     finally:
         cursor.close()
