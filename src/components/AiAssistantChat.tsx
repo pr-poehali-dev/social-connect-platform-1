@@ -37,6 +37,7 @@ const STICKERS: Record<string, { url: string; label: string }> = {
 };
 
 const STICKER_REGEX = /\[sticker:(\w+)\]/g;
+const VOICE_REGEX = /\[voice:([^\]]+)\]/g;
 
 interface CachedVideo {
   key: string;
@@ -74,19 +75,28 @@ function setCachedVideo(text: string, url: string) {
   }
 }
 
-function parseMessageContent(content: string) {
-  const parts: Array<{ type: 'text'; value: string } | { type: 'sticker'; id: string }> = [];
-  let lastIndex = 0;
+type MessagePart =
+  | { type: 'text'; value: string }
+  | { type: 'sticker'; id: string }
+  | { type: 'voice'; text: string };
 
-  const regex = new RegExp(STICKER_REGEX.source, 'g');
+function parseMessageContent(content: string): MessagePart[] {
+  const parts: MessagePart[] = [];
+
+  const combined = new RegExp(`${STICKER_REGEX.source}|${VOICE_REGEX.source}`, 'g');
+  let lastIndex = 0;
   let match;
 
-  while ((match = regex.exec(content)) !== null) {
+  while ((match = combined.exec(content)) !== null) {
     if (match.index > lastIndex) {
       const textBefore = content.slice(lastIndex, match.index).trim();
       if (textBefore) parts.push({ type: 'text', value: textBefore });
     }
-    parts.push({ type: 'sticker', id: match[1] });
+    if (match[1]) {
+      parts.push({ type: 'sticker', id: match[1] });
+    } else if (match[2]) {
+      parts.push({ type: 'voice', text: match[2] });
+    }
     lastIndex = match.index + match[0].length;
   }
 
@@ -99,6 +109,85 @@ function parseMessageContent(content: string) {
 
   return parts;
 }
+
+const VoiceBubble = ({ text }: { text: string }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const durationEstimate = Math.max(2, text.length * 0.08);
+
+  const play = () => {
+    if (!('speechSynthesis' in window)) return;
+
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      setProgress(0);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ru-RU';
+    utter.rate = 1.0;
+    utter.pitch = 1.1;
+    utter.volume = 0.9;
+
+    const startTime = Date.now();
+    intervalRef.current = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const p = Math.min(elapsed / durationEstimate, 0.95);
+      setProgress(p);
+    }, 50);
+
+    utter.onend = () => {
+      setIsPlaying(false);
+      setProgress(1);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setTimeout(() => setProgress(0), 500);
+    };
+    utter.onerror = () => {
+      setIsPlaying(false);
+      setProgress(0);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+
+    utterRef.current = utter;
+    setIsPlaying(true);
+    window.speechSynthesis.speak(utter);
+  };
+
+  const seconds = Math.ceil(durationEstimate);
+
+  return (
+    <button onClick={play} className="flex items-center gap-2 group min-w-[140px]">
+      <div className="relative w-10 h-10 shrink-0">
+        <img
+          src={OLESYA_AVATAR}
+          alt="voice"
+          className={`w-10 h-10 rounded-full object-cover border-2 ${isPlaying ? 'border-pink-500' : 'border-pink-300'}`}
+        />
+        {isPlaying && (
+          <div className="absolute inset-0 rounded-full border-2 border-pink-400 animate-pulse" />
+        )}
+        <div className={`absolute inset-0 flex items-center justify-center rounded-full ${isPlaying ? 'bg-black/20' : 'bg-black/10 group-hover:bg-black/20'} transition-colors`}>
+          <Icon name={isPlaying ? "Pause" : "Play"} size={14} className="text-white ml-0.5" />
+        </div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="h-1.5 bg-pink-200 dark:bg-pink-900/40 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-100"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+        <p className="text-[10px] text-slate-400 mt-0.5">0:{seconds < 10 ? '0' : ''}{seconds}</p>
+      </div>
+    </button>
+  );
+};
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -147,7 +236,7 @@ const AiAssistantChat = () => {
   const generateTalkingHead = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
 
-    const cleanText = text.replace(STICKER_REGEX, '').trim();
+    const cleanText = text.replace(STICKER_REGEX, '').replace(VOICE_REGEX, '$1').trim();
     if (!cleanText) return;
 
     const shortText = cleanText.length > 250 ? cleanText.slice(0, 247) + '...' : cleanText;
@@ -288,12 +377,13 @@ const AiAssistantChat = () => {
     }
   };
 
-  const renderMessageContent = (content: string, isUser: boolean) => {
+  const renderMessageContent = (content: string) => {
     const parts = parseMessageContent(content);
     const hasOnlySticker = parts.length === 1 && parts[0].type === 'sticker';
+    const hasOnlyVoice = parts.length === 1 && parts[0].type === 'voice';
 
     return (
-      <div className={hasOnlySticker ? 'flex flex-col items-center' : ''}>
+      <div className={hasOnlySticker || hasOnlyVoice ? 'flex flex-col' : ''}>
         {parts.map((part, idx) => {
           if (part.type === 'sticker') {
             const sticker = STICKERS[part.id];
@@ -307,7 +397,10 @@ const AiAssistantChat = () => {
               />
             );
           }
-          return <span key={idx} className={isUser ? '' : ''}>{part.value}</span>;
+          if (part.type === 'voice') {
+            return <VoiceBubble key={idx} text={part.text} />;
+          }
+          return <span key={idx}>{part.value}</span>;
         })}
       </div>
     );
@@ -403,20 +496,24 @@ const AiAssistantChat = () => {
         {messages.map((msg, i) => {
           const parts = parseMessageContent(msg.content);
           const isOnlySticker = parts.length === 1 && parts[0].type === 'sticker';
+          const isOnlyVoice = parts.length === 1 && parts[0].type === 'voice';
+          const isSpecial = isOnlySticker || isOnlyVoice;
 
           return (
             <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
               {msg.role === 'assistant' && (
                 <img src={OLESYA_AVATAR} alt="Олеся" className="w-8 h-8 rounded-full object-cover shrink-0 mt-1" />
               )}
-              <div className={`max-w-[80%] ${isOnlySticker ? 'p-1' : 'px-3 py-2'} rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[80%] ${isSpecial ? 'p-1' : 'px-3 py-2'} rounded-2xl text-sm leading-relaxed ${
                 isOnlySticker
                   ? 'bg-transparent border-none shadow-none'
-                  : msg.role === 'user'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-sm'
-                    : 'bg-white dark:bg-slate-800 text-foreground rounded-bl-sm shadow-sm border border-slate-100 dark:border-slate-700'
+                  : isOnlyVoice
+                    ? 'bg-white dark:bg-slate-800 rounded-bl-sm shadow-sm border border-slate-100 dark:border-slate-700 px-2 py-2'
+                    : msg.role === 'user'
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-br-sm'
+                      : 'bg-white dark:bg-slate-800 text-foreground rounded-bl-sm shadow-sm border border-slate-100 dark:border-slate-700'
               }`}>
-                {renderMessageContent(msg.content, msg.role === 'user')}
+                {renderMessageContent(msg.content)}
               </div>
             </div>
           );
