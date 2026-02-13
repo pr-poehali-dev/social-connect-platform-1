@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { OLESYA_AVATAR } from '@/components/ai-assistant/constants';
+import { DIMA_AVATAR } from '@/components/dima-assistant/constants';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -21,6 +23,7 @@ const Settings = () => {
   const [animationVoice, setAnimationVoice] = useState('en-US-JennyNeural');
   const [animationDriver, setAnimationDriver] = useState('bank://lively');
   const [contactPrice, setContactPrice] = useState(0);
+  const [preferredAssistant, setPreferredAssistant] = useState<'olesya' | 'dima'>('olesya');
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -35,6 +38,14 @@ const Settings = () => {
     setAnimationVoice(localStorage.getItem('animationVoice') || 'en-US-JennyNeural');
     setAnimationDriver(localStorage.getItem('animationDriver') || 'bank://lively');
     setContactPrice(parseInt(localStorage.getItem('contactPrice') || '0'));
+    const savedAssistant = localStorage.getItem('preferredAssistant');
+    if (savedAssistant === 'olesya' || savedAssistant === 'dima') {
+      setPreferredAssistant(savedAssistant);
+    } else {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      const gender = (userData.gender || '').toLowerCase();
+      setPreferredAssistant(gender === 'female' || gender === 'женский' ? 'dima' : 'olesya');
+    }
   }, []);
 
   const handlePremiumFeatureClick = () => {
@@ -101,6 +112,12 @@ const Settings = () => {
   const handleAnimationDriverChange = (driver: string) => {
     setAnimationDriver(driver);
     localStorage.setItem('animationDriver', driver);
+  };
+
+  const handleAssistantChange = (value: 'olesya' | 'dima') => {
+    setPreferredAssistant(value);
+    localStorage.setItem('preferredAssistant', value);
+    window.dispatchEvent(new CustomEvent('assistant-preference-changed'));
   };
 
   const handleContactPriceChange = (price: number) => {
@@ -304,6 +321,45 @@ const Settings = () => {
             checked={premiumOnly}
             onCheckedChange={handlePremiumOnlyToggle}
           />
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label className="text-base font-medium">ИИ-помощник</Label>
+            <p className="text-sm text-muted-foreground mt-1">
+              Выберите, кто будет вашим ИИ-собеседником в нижнем меню
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => handleAssistantChange('olesya')}
+              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                preferredAssistant === 'olesya'
+                  ? 'border-pink-400 bg-pink-50 dark:bg-pink-950/20'
+                  : 'border-border hover:border-pink-200'
+              }`}
+            >
+              <img src={OLESYA_AVATAR} alt="Олеся" className="w-10 h-10 rounded-full object-cover border-2 border-pink-300" />
+              <div className="text-left">
+                <p className="font-medium text-sm">Олеся</p>
+                <p className="text-xs text-muted-foreground">25 лет, Москва</p>
+              </div>
+            </button>
+            <button
+              onClick={() => handleAssistantChange('dima')}
+              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                preferredAssistant === 'dima'
+                  ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/20'
+                  : 'border-border hover:border-blue-200'
+              }`}
+            >
+              <img src={DIMA_AVATAR} alt="Дима" className="w-10 h-10 rounded-full object-cover border-2 border-blue-300" />
+              <div className="text-left">
+                <p className="font-medium text-sm">Дима</p>
+                <p className="text-xs text-muted-foreground">35 лет, Москва</p>
+              </div>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-3">

@@ -5,7 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect, useRef } from 'react';
 import { isAuthenticated } from '@/utils/auth';
 import { useRadio } from '@/contexts/RadioContext';
+import { OLESYA_AVATAR } from './ai-assistant/constants';
+import { DIMA_AVATAR } from './dima-assistant/constants';
 
+const getDefaultAssistant = (): 'olesya' | 'dima' => {
+  const saved = localStorage.getItem('preferredAssistant');
+  if (saved === 'olesya' || saved === 'dima') return saved;
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const gender = (user.gender || '').toLowerCase();
+  if (gender === 'female' || gender === 'женский') return 'dima';
+  return 'olesya';
+};
 
 const Navigation = () => {
   const location = useLocation();
@@ -17,6 +27,7 @@ const Navigation = () => {
   const { isPlaying, togglePlay } = useRadio();
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const avatarCacheRef = useRef<string | null>(null);
+  const [assistant, setAssistant] = useState<'olesya' | 'dima'>(getDefaultAssistant);
 
 
   useEffect(() => {
@@ -28,7 +39,14 @@ const Navigation = () => {
         loadUserAvatar();
       }
     }
+    setAssistant(getDefaultAssistant());
   }, [location]);
+
+  useEffect(() => {
+    const onAssistantChanged = () => setAssistant(getDefaultAssistant());
+    window.addEventListener('assistant-preference-changed', onAssistantChanged);
+    return () => window.removeEventListener('assistant-preference-changed', onAssistantChanged);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated()) return;
@@ -207,6 +225,24 @@ const Navigation = () => {
             <Button
               variant="ghost"
               size="icon"
+              className="h-9 w-9 relative"
+              title={assistant === 'olesya' ? 'Чат с Олесей' : 'Чат с Димой'}
+              onClick={() => {
+                const event = assistant === 'olesya' ? 'open-olesya-chat' : 'open-dima-chat';
+                window.dispatchEvent(new CustomEvent(event));
+              }}
+            >
+              <img
+                src={assistant === 'olesya' ? OLESYA_AVATAR : DIMA_AVATAR}
+                alt={assistant === 'olesya' ? 'Олеся' : 'Дима'}
+                className="w-full h-full rounded-md object-cover"
+              />
+              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
               className="lg:hidden hidden"
               onClick={() => setIsOpen(!isOpen)}
             >
@@ -258,7 +294,7 @@ const Navigation = () => {
       </div>
 
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe touch-none">
-        <div className="grid grid-cols-6 gap-1 px-2 py-2 overflow-x-hidden">
+        <div className="grid grid-cols-7 gap-1 px-2 py-2 overflow-x-hidden">
           {bottomNavItems.slice(0, 3).map((item) => {
             if (item.path === '/radio') {
               return (
@@ -297,6 +333,25 @@ const Navigation = () => {
             );
           })}
           
+          <Button
+            onClick={() => {
+              const event = assistant === 'olesya' ? 'open-olesya-chat' : 'open-dima-chat';
+              window.dispatchEvent(new CustomEvent(event));
+            }}
+            variant="ghost"
+            size="icon"
+            className="h-12 w-full relative"
+            title={assistant === 'olesya' ? 'Олеся' : 'Дима'}
+          >
+            <img
+              src={assistant === 'olesya' ? OLESYA_AVATAR : DIMA_AVATAR}
+              alt={assistant === 'olesya' ? 'Олеся' : 'Дима'}
+              className="w-7 h-7 rounded-full object-cover border-2 border-pink-400"
+              style={{ borderColor: assistant === 'olesya' ? '#f472b6' : '#60a5fa' }}
+            />
+            <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full" />
+          </Button>
+
           {bottomNavItems.slice(3).map((item) => {
             if (item.path === '/radio') {
               return (
