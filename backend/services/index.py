@@ -289,7 +289,10 @@ def handler(event: dict, context) -> dict:
             user_id = payload.get('id')
             body = json.loads(event.get('body', '{}'))
             
-            # Create service
+            cursor.execute(f"SELECT first_name, last_name FROM users WHERE id = {escape_sql(user_id)}")
+            user_data = cursor.fetchone()
+            user_name = f"{user_data['first_name']} {user_data['last_name']}" if user_data else 'User'
+            
             title = escape_sql(body.get('title', ''))
             description = escape_sql(body.get('description', ''))
             price = escape_sql(body.get('price', ''))
@@ -302,8 +305,8 @@ def handler(event: dict, context) -> dict:
             is_online = escape_sql(body.get('is_online', False))
             
             cursor.execute(f'''
-                INSERT INTO services (user_id, title, description, price, price_list, category_id, subcategory_id, city_id, district, is_online, is_active)
-                VALUES ({escape_sql(user_id)}, {title}, {description}, {price}, {price_list_json}::jsonb, {category_id}, {subcategory_id}, {city_id}, {district}, {is_online}, TRUE)
+                INSERT INTO services (user_id, name, title, description, price, price_list, category_id, subcategory_id, city_id, district, is_online, is_active)
+                VALUES ({escape_sql(user_id)}, {escape_sql(user_name)}, {title}, {description}, {price}, {price_list_json}::jsonb, {category_id}, {subcategory_id}, {city_id}, {district}, {is_online}, TRUE)
                 RETURNING id
             ''')
             service_id = cursor.fetchone()['id']
