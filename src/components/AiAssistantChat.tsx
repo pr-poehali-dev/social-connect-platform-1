@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 
 const OLESYA_AVATAR = 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/33e3739a-a831-4bf6-8b23-6a88b399f079.jpg';
 const AI_URL = 'https://functions.poehali.dev/f0b3dae9-2298-428f-befa-830af5d46625';
+const ANIMATE_URL = 'https://functions.poehali.dev/d79fde84-e2a9-4f7a-b135-37b4570e1e0b';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -20,11 +21,14 @@ const AiAssistantChat = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [talkingVideoUrl, setTalkingVideoUrl] = useState<string | null>(null);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<unknown>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,19 +49,46 @@ const AiAssistantChat = () => {
     }
   }, [isOpen]);
 
-  const speakText = (text: string) => {
-    if (!voiceEnabled || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    setIsSpeaking(true);
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ru-RU';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.1;
-    utterance.volume = 0.8;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-    window.speechSynthesis.speak(utterance);
-  };
+  const generateTalkingHead = useCallback(async (text: string) => {
+    if (!voiceEnabled) return;
+
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setIsGeneratingVideo(true);
+    setTalkingVideoUrl(null);
+
+    try {
+      const shortText = text.length > 250 ? text.slice(0, 247) + '...' : text;
+
+      const response = await fetch(ANIMATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl: OLESYA_AVATAR,
+          text: shortText,
+          voice: 'ru-RU-SvetlanaNeural'
+        }),
+        signal: controller.signal
+      });
+
+      if (!response.ok) throw new Error('Failed');
+
+      const data = await response.json();
+      if (data.videoUrl && !controller.signal.aborted) {
+        setTalkingVideoUrl(data.videoUrl);
+      }
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        console.log('D-ID animation unavailable');
+      }
+    } finally {
+      setIsGeneratingVideo(false);
+    }
+  }, [voiceEnabled]);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -84,7 +115,7 @@ const AiAssistantChat = () => {
       const data = await response.json();
       const assistantMsg: ChatMessage = { role: 'assistant', content: data.reply };
       setMessages(prev => [...prev, assistantMsg]);
-      speakText(data.reply);
+      generateTalkingHead(data.reply);
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -116,9 +147,9 @@ const AiAssistantChat = () => {
     recognition.continuous = false;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const text = event.results[0][0].transcript;
+      const result = event.results[0][0].transcript;
       setIsListening(false);
-      sendMessage(text);
+      sendMessage(result);
     };
 
     recognition.onerror = () => setIsListening(false);
@@ -136,10 +167,11 @@ const AiAssistantChat = () => {
     }
   };
 
-  const stopSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+  const closeTalkingVideo = () => {
+    setTalkingVideoUrl(null);
+    setIsGeneratingVideo(false);
+    if (abortRef.current) {
+      abortRef.current.abort();
     }
   };
 
@@ -169,22 +201,26 @@ const AiAssistantChat = () => {
       <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white shrink-0">
         <div className="relative">
           <img src={OLESYA_AVATAR} alt="Олеся" className="w-10 h-10 rounded-full object-cover border-2 border-white/30" />
+          {isGeneratingVideo && (
+            <div className="absolute inset-0 rounded-full border-2 border-white/60 animate-ping" />
+          )}
           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-pink-500" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm">Олеся</p>
           <p className="text-xs text-white/70">
-            {isLoading ? 'печатает...' : isSpeaking ? 'говорит...' : 'онлайн'}
+            {isLoading ? 'печатает...' : isGeneratingVideo ? 'оживает...' : talkingVideoUrl ? 'говорит...' : 'онлайн'}
           </p>
         </div>
         <button
           onClick={() => setVoiceEnabled(!voiceEnabled)}
           className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
+          title={voiceEnabled ? 'Выключить анимацию' : 'Включить анимацию'}
         >
-          <Icon name={voiceEnabled ? "Volume2" : "VolumeX"} size={18} />
+          <Icon name={voiceEnabled ? "Video" : "VideoOff"} size={18} />
         </button>
         <button
-          onClick={() => { setIsOpen(false); stopSpeaking(); }}
+          onClick={() => { setIsOpen(false); closeTalkingVideo(); }}
           className="p-1.5 rounded-full hover:bg-white/20 transition-colors"
         >
           <Icon name="X" size={18} />
@@ -192,6 +228,40 @@ const AiAssistantChat = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50 dark:bg-slate-950">
+        {talkingVideoUrl && (
+          <div className="flex justify-center py-2 animate-in fade-in duration-500">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl border-2 border-pink-400/50 bg-black">
+              <video
+                ref={videoRef}
+                src={talkingVideoUrl}
+                autoPlay
+                playsInline
+                className="w-52 h-52 object-cover"
+                onEnded={() => setTalkingVideoUrl(null)}
+                onError={() => setTalkingVideoUrl(null)}
+              />
+              <button
+                onClick={closeTalkingVideo}
+                className="absolute top-1.5 right-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              >
+                <Icon name="X" size={12} />
+              </button>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-1">
+                <p className="text-white text-[10px] font-medium">Олеся говорит...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isGeneratingVideo && !talkingVideoUrl && (
+          <div className="flex justify-center py-2">
+            <div className="flex items-center gap-2 bg-pink-50 dark:bg-pink-950/30 text-pink-600 dark:text-pink-400 px-3 py-1.5 rounded-full text-xs">
+              <div className="w-3 h-3 border-2 border-pink-400 border-t-transparent rounded-full animate-spin" />
+              Олеся оживает...
+            </div>
+          </div>
+        )}
+
         {messages.map((msg, i) => (
           <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
             {msg.role === 'assistant' && (
