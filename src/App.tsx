@@ -53,6 +53,8 @@ import Premium from "./pages/Premium";
 import Settings from "./pages/Settings";
 import OlesyaProfile from "./pages/OlesyaProfile";
 import DimaProfile from "./pages/DimaProfile";
+import MafiaLobby from "./pages/MafiaLobby";
+import MafiaGame from "./pages/MafiaGame";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +120,8 @@ const App = () => {
           <Route path="/verification-request" element={<ProtectedRoute><VerificationRequest /></ProtectedRoute>} />
           <Route path="/premium" element={<ProtectedRoute><Premium /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/mafia" element={<ProtectedRoute><MafiaLobby /></ProtectedRoute>} />
+          <Route path="/mafia/:roomId" element={<ProtectedRoute><MafiaGame /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       <AiAssistantChat />

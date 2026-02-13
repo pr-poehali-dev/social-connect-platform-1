@@ -136,6 +136,7 @@ const Navigation = () => {
     { path: '/ads', label: 'LIVE', icon: 'Radio', pulse: true },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
+    { path: '/mafia', label: 'GAME', icon: 'Gamepad2' },
   ];
 
   const bottomNavItems = [
