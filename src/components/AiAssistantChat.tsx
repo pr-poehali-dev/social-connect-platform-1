@@ -44,6 +44,12 @@ const AiAssistantChat = () => {
     }
   }, [isOpen, messages.length]);
 
+  useEffect(() => {
+    const handleOpenChat = () => setIsOpen(true);
+    window.addEventListener('open-olesya-chat', handleOpenChat);
+    return () => window.removeEventListener('open-olesya-chat', handleOpenChat);
+  }, []);
+
   const generateTalkingHead = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
 

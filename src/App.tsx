@@ -49,6 +49,7 @@ import AdminVerification from "./pages/admin/AdminVerification";
 import AdminPrices from "./pages/admin/AdminPrices";
 import Premium from "./pages/Premium";
 import Settings from "./pages/Settings";
+import OlesyaProfile from "./pages/OlesyaProfile";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
+          <Route path="/dating/olesya-ai" element={<ProtectedRoute><OlesyaProfile /></ProtectedRoute>} />
           <Route path="/dating/:userId" element={<ProtectedRoute><DatingProfile /></ProtectedRoute>} />
           <Route path="/ads" element={<ProtectedRoute><Ads /></ProtectedRoute>} />
           <Route path="/my-ads" element={<ProtectedRoute><MyAds /></ProtectedRoute>} />
