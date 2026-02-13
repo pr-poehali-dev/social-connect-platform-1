@@ -11,7 +11,7 @@ const DimaProfile = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
 
   const openChat = () => {
-    window.dispatchEvent(new CustomEvent('open-olesya-chat'));
+    window.dispatchEvent(new CustomEvent('open-dima-chat'));
   };
 
   return (

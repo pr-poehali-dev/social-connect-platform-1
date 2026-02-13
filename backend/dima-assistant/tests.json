@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Send message to Dima",
+      "method": "POST",
+      "body": {
+        "message": "Привет!",
+        "history": []
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "reply": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Empty message",
+      "method": "POST",
+      "body": {
+        "message": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

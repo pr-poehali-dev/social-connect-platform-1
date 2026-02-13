@@ -10,7 +10,7 @@ const DimaCard = () => {
 
   const openChat = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.dispatchEvent(new CustomEvent('open-olesya-chat'));
+    window.dispatchEvent(new CustomEvent('open-dima-chat'));
   };
 
   return (

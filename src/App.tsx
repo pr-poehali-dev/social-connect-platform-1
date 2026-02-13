@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { RadioProvider } from "./contexts/RadioContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import AiAssistantChat from "./components/AiAssistantChat";
+import DimaChat from "./components/DimaChat";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -119,6 +120,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       <AiAssistantChat />
+      <DimaChat />
       </BrowserRouter>
       </RadioProvider>
     </TooltipProvider>
