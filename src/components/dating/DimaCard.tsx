@@ -50,9 +50,7 @@ const DimaCard = () => {
         </div>
 
         <div className="p-3 bg-white dark:bg-slate-800 space-y-2">
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            Бисексуал. Открыт к общению со всеми — без табу и ограничений 😏
-          </p>
+          <p className="text-xs text-muted-foreground line-clamp-2">Открыт к общению со всеми на любые темы! Буду рад знакомству!</p>
           <div className="flex gap-2">
             <Button
               size="sm"
