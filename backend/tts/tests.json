@@ -1,14 +1,29 @@
 {
   "tests": [
     {
-      "name": "Generate voice for text",
+      "name": "Generate voice default mood",
       "method": "POST",
       "body": {
         "text": "Привет, как дела?"
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "audioUrl": "string"
+        "audioUrl": "string",
+        "mood": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Generate voice whisper mood",
+      "method": "POST",
+      "body": {
+        "text": "Иди сюда, расскажу на ушко",
+        "mood": "whisper"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "audioUrl": "string",
+        "mood": "string"
       },
       "bodyMatcher": "partial"
     },

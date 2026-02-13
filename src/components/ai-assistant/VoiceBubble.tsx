@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
-import { OLESYA_AVATAR, TTS_URL } from './constants';
+import { OLESYA_AVATAR, TTS_URL, MOOD_LABELS, MOOD_COLORS, type VoiceMood } from './constants';
 
-const VoiceBubble = ({ text }: { text: string }) => {
+const VoiceBubble = ({ text, mood = 'default' }: { text: string; mood?: VoiceMood }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -10,6 +10,9 @@ const VoiceBubble = ({ text }: { text: string }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const colors = MOOD_COLORS[mood] || MOOD_COLORS.default;
+  const label = MOOD_LABELS[mood] || '';
 
   useEffect(() => {
     return () => {
@@ -28,7 +31,7 @@ const VoiceBubble = ({ text }: { text: string }) => {
     const res = await fetch(TTS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, mood }),
     });
 
     if (!res.ok) throw new Error('TTS failed');
@@ -109,10 +112,10 @@ const VoiceBubble = ({ text }: { text: string }) => {
         <img
           src={OLESYA_AVATAR}
           alt="voice"
-          className={`w-10 h-10 rounded-full object-cover border-2 ${isPlaying ? 'border-pink-500' : 'border-pink-300'} transition-colors`}
+          className={`w-10 h-10 rounded-full object-cover border-2 ${isPlaying ? colors.border : 'border-pink-300'} transition-colors`}
         />
         {isPlaying && (
-          <div className="absolute inset-0 rounded-full border-2 border-pink-400 animate-pulse" />
+          <div className={`absolute inset-0 rounded-full border-2 ${colors.border} animate-pulse`} />
         )}
         <div className={`absolute inset-0 flex items-center justify-center rounded-full ${isPlaying ? 'bg-black/20' : 'bg-black/10 group-hover:bg-black/20'} transition-colors`}>
           {isLoading ? (
@@ -133,7 +136,7 @@ const VoiceBubble = ({ text }: { text: string }) => {
                 key={i}
                 className={`w-[3px] rounded-full transition-colors duration-150 ${
                   isActive
-                    ? 'bg-gradient-to-t from-pink-500 to-purple-500'
+                    ? `bg-gradient-to-t ${colors.from} ${colors.to}`
                     : 'bg-pink-200 dark:bg-pink-900/40'
                 }`}
                 style={{ height: `${h}px` }}
@@ -141,7 +144,14 @@ const VoiceBubble = ({ text }: { text: string }) => {
             );
           })}
         </div>
-        <p className="text-[10px] text-slate-400 mt-0.5">{min}:{sec < 10 ? '0' : ''}{sec}</p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="text-[10px] text-slate-400">{min}:{sec < 10 ? '0' : ''}{sec}</p>
+          {label && (
+            <span className={`text-[9px] font-medium bg-gradient-to-r ${colors.from} ${colors.to} bg-clip-text text-transparent`}>
+              {label}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );

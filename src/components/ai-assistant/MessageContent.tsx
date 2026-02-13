@@ -22,7 +22,7 @@ export const renderMessageContent = (content: string) => {
           );
         }
         if (part.type === 'voice') {
-          return <VoiceBubble key={idx} text={part.text} />;
+          return <VoiceBubble key={idx} text={part.text} mood={part.mood} />;
         }
         return <span key={idx}>{part.value}</span>;
       })}

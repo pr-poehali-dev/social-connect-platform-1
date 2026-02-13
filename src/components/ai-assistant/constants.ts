@@ -34,7 +34,7 @@ export const STICKERS: Record<string, { url: string; label: string }> = {
 };
 
 export const STICKER_REGEX = /\[sticker:(\w+)\]/g;
-export const VOICE_REGEX = /\[voice:([^\]]+)\]/g;
+export const VOICE_REGEX = /\[voice:(?:(\w+):)?([^\]]+)\]/g;
 
 export interface CachedVideo {
   key: string;
@@ -51,10 +51,28 @@ export interface SpeechRecognitionEvent {
   results: { [index: number]: { [index: number]: { transcript: string } } };
 }
 
+export type VoiceMood = 'whisper' | 'tender' | 'playful' | 'passionate' | 'default';
+
+export const MOOD_LABELS: Record<VoiceMood, string> = {
+  whisper: 'шёпот',
+  tender: 'нежно',
+  playful: 'игриво',
+  passionate: 'страстно',
+  default: '',
+};
+
+export const MOOD_COLORS: Record<VoiceMood, { from: string; to: string; border: string }> = {
+  whisper: { from: 'from-violet-400', to: 'to-indigo-500', border: 'border-violet-400' },
+  tender: { from: 'from-pink-400', to: 'to-rose-500', border: 'border-pink-400' },
+  playful: { from: 'from-amber-400', to: 'to-orange-500', border: 'border-amber-400' },
+  passionate: { from: 'from-red-500', to: 'to-rose-600', border: 'border-red-500' },
+  default: { from: 'from-pink-500', to: 'to-purple-500', border: 'border-pink-400' },
+};
+
 export type MessagePart =
   | { type: 'text'; value: string }
   | { type: 'sticker'; id: string }
-  | { type: 'voice'; text: string };
+  | { type: 'voice'; text: string; mood: VoiceMood };
 
 export function getVideoCache(): CachedVideo[] {
   try {
@@ -86,6 +104,8 @@ export function setCachedVideo(text: string, url: string) {
   }
 }
 
+const VALID_MOODS = ['whisper', 'tender', 'playful', 'passionate', 'default'];
+
 export function parseMessageContent(content: string): MessagePart[] {
   const parts: MessagePart[] = [];
 
@@ -100,8 +120,10 @@ export function parseMessageContent(content: string): MessagePart[] {
     }
     if (match[1]) {
       parts.push({ type: 'sticker', id: match[1] });
-    } else if (match[2]) {
-      parts.push({ type: 'voice', text: match[2] });
+    } else if (match[3]) {
+      const rawMood = (match[2] || 'default').toLowerCase();
+      const mood = (VALID_MOODS.includes(rawMood) ? rawMood : 'default') as VoiceMood;
+      parts.push({ type: 'voice', text: match[3], mood });
     }
     lastIndex = match.index + match[0].length;
   }
