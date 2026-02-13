@@ -33,8 +33,36 @@ export const STICKERS: Record<string, { url: string; label: string }> = {
   }
 };
 
+export const PHOTOS: Record<string, { url: string; caption: string }> = {
+  cafe: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/196d1ddc-5eb3-499c-8528-14aedf778a81.jpg',
+    caption: 'В кафешке'
+  },
+  mirror: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/b09779fb-0dff-4e95-9567-f50e23e5ebbf.jpg',
+    caption: 'Домашнее селфи'
+  },
+  walk: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/56f84ac3-b713-465c-b27b-34237efe378a.jpg',
+    caption: 'Гуляю'
+  },
+  evening: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/fe292132-fd3c-400c-93ef-4ba31cae6075.jpg',
+    caption: 'Вечерний образ'
+  },
+  morning: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/f1768a9e-bd9e-43a5-bc76-1df08d6dd524.jpg',
+    caption: 'Доброе утро'
+  },
+  beach: {
+    url: 'https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/files/bbcd8584-d577-4c39-9096-87a413874965.jpg',
+    caption: 'На пляже'
+  }
+};
+
 export const STICKER_REGEX = /\[sticker:(\w+)\]/g;
 export const VOICE_REGEX = /\[voice:(?:(\w+):)?([^\]]+)\]/g;
+export const PHOTO_REGEX = /\[photo:(\w+)\]/g;
 
 export interface CachedVideo {
   key: string;
@@ -73,7 +101,8 @@ export const MOOD_COLORS: Record<VoiceMood, { from: string; to: string; border: 
 export type MessagePart =
   | { type: 'text'; value: string }
   | { type: 'sticker'; id: string }
-  | { type: 'voice'; text: string; mood: VoiceMood };
+  | { type: 'voice'; text: string; mood: VoiceMood }
+  | { type: 'photo'; id: string };
 
 export function getVideoCache(): CachedVideo[] {
   try {
@@ -110,7 +139,9 @@ const VALID_MOODS = ['whisper', 'tender', 'playful', 'passionate', 'default'];
 export function parseMessageContent(content: string): MessagePart[] {
   const parts: MessagePart[] = [];
 
-  const combined = new RegExp(`${STICKER_REGEX.source}|${VOICE_REGEX.source}`, 'g');
+  const combined = new RegExp(
+    `${STICKER_REGEX.source}|${VOICE_REGEX.source}|${PHOTO_REGEX.source}`, 'g'
+  );
   let lastIndex = 0;
   let match;
 
@@ -125,6 +156,8 @@ export function parseMessageContent(content: string): MessagePart[] {
       const rawMood = (match[2] || 'default').toLowerCase();
       const mood = (VALID_MOODS.includes(rawMood) ? rawMood : 'default') as VoiceMood;
       parts.push({ type: 'voice', text: match[3], mood });
+    } else if (match[4]) {
+      parts.push({ type: 'photo', id: match[4] });
     }
     lastIndex = match.index + match[0].length;
   }

@@ -6,6 +6,7 @@ import {
   STICKERS,
   STICKER_REGEX,
   VOICE_REGEX,
+  PHOTO_REGEX,
   getCachedVideo,
   setCachedVideo,
   type ChatMessage,
@@ -46,7 +47,7 @@ const AiAssistantChat = () => {
   const generateTalkingHead = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
 
-    const cleanText = text.replace(STICKER_REGEX, '').replace(VOICE_REGEX, '$2').trim();
+    const cleanText = text.replace(STICKER_REGEX, '').replace(VOICE_REGEX, '$2').replace(PHOTO_REGEX, '').trim();
     if (!cleanText) return;
 
     const shortText = cleanText.length > 250 ? cleanText.slice(0, 247) + '...' : cleanText;
