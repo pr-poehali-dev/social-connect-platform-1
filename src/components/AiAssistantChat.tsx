@@ -323,26 +323,21 @@ const AiAssistantChat = () => {
     }
   };
 
-  if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-4 z-50 group"
-      >
-        <div className="relative">
-          <img
-            src={OLESYA_AVATAR}
-            alt="Олеся"
-            className="w-14 h-14 rounded-full border-3 border-pink-400 shadow-lg object-cover group-hover:scale-110 transition-transform"
-          />
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shadow">
-            Олеся
-          </div>
-        </div>
-      </button>
-    );
-  }
+  useEffect(() => {
+    if (isOpen) {
+      window.dispatchEvent(new CustomEvent('olesya-chat-opened'));
+    } else {
+      window.dispatchEvent(new CustomEvent('olesya-chat-closed'));
+    }
+  }, [isOpen]);
+
+  const switchToDima = () => {
+    setIsOpen(false);
+    closeTalkingVideo();
+    setTimeout(() => window.dispatchEvent(new CustomEvent('open-dima-chat')), 100);
+  };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed bottom-0 right-0 sm:bottom-4 sm:right-4 z-50 w-full sm:w-96 h-[100dvh] sm:h-[550px] flex flex-col bg-white dark:bg-slate-900 sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -355,6 +350,7 @@ const AiAssistantChat = () => {
         onClose={() => { setIsOpen(false); closeTalkingVideo(); }}
         onCloseTalkingVideo={closeTalkingVideo}
         onVideoEnded={() => setTalkingVideoUrl(null)}
+        onSwitchChat={switchToDima}
       />
 
       <ChatMessages

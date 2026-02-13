@@ -16,6 +16,7 @@ import {
 import { renderMessageContent, StickerPicker } from './dima-assistant/MessageContent';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { OLESYA_AVATAR } from './ai-assistant/constants';
 
 const UserVoiceBubble = ({ audioUrl }: { audioUrl: string }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -138,8 +139,24 @@ const DimaChat = () => {
   }, []);
 
   useEffect(() => {
+    if (isOpen) {
+      window.dispatchEvent(new CustomEvent('dima-chat-opened'));
+    } else {
+      window.dispatchEvent(new CustomEvent('dima-chat-closed'));
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  const switchToOlesya = () => {
+    setIsOpen(false);
+    setTalkingVideoUrl(null);
+    setIsGeneratingVideo(false);
+    if (abortRef.current) abortRef.current.abort();
+    setTimeout(() => window.dispatchEvent(new CustomEvent('open-olesya-chat')), 100);
+  };
 
   const generateTalkingHead = useCallback(async (text: string) => {
     if (!voiceEnabled) return;
@@ -320,6 +337,10 @@ const DimaChat = () => {
             {isLoading ? 'печатает...' : isGeneratingVideo ? 'оживает...' : talkingVideoUrl ? 'говорит...' : 'онлайн'}
           </p>
         </div>
+        <button onClick={switchToOlesya} className="relative p-0.5 rounded-full hover:bg-white/20 transition-colors group" title="Переключиться на Олесю">
+          <img src={OLESYA_AVATAR} alt="Олеся" className="w-8 h-8 rounded-full object-cover border-2 border-white/40 group-hover:border-white/80 transition-colors" />
+          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border border-blue-500" />
+        </button>
         <button onClick={() => setVoiceEnabled(!voiceEnabled)} className="p-1.5 rounded-full hover:bg-white/20 transition-colors" title={voiceEnabled ? 'Выключить анимацию' : 'Включить анимацию'}>
           <Icon name={voiceEnabled ? "Video" : "VideoOff"} size={18} />
         </button>

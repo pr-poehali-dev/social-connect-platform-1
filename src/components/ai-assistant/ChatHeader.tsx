@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import { OLESYA_AVATAR } from './constants';
+import { DIMA_AVATAR } from '../dima-assistant/constants';
 
 interface ChatHeaderProps {
   isLoading: boolean;
@@ -11,6 +12,7 @@ interface ChatHeaderProps {
   onClose: () => void;
   onCloseTalkingVideo: () => void;
   onVideoEnded: () => void;
+  onSwitchChat?: () => void;
 }
 
 const ChatHeader = ({
@@ -22,6 +24,7 @@ const ChatHeader = ({
   onClose,
   onCloseTalkingVideo,
   onVideoEnded,
+  onSwitchChat,
 }: ChatHeaderProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -41,6 +44,16 @@ const ChatHeader = ({
             {isLoading ? 'печатает...' : isGeneratingVideo ? 'оживает...' : talkingVideoUrl ? 'говорит...' : 'онлайн'}
           </p>
         </div>
+        {onSwitchChat && (
+          <button
+            onClick={onSwitchChat}
+            className="relative p-0.5 rounded-full hover:bg-white/20 transition-colors group"
+            title="Переключиться на Диму"
+          >
+            <img src={DIMA_AVATAR} alt="Дима" className="w-8 h-8 rounded-full object-cover border-2 border-white/40 group-hover:border-white/80 transition-colors" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border border-purple-500" />
+          </button>
+        )}
         <button
           onClick={onToggleVoice}
           className="p-1.5 rounded-full hover:bg-white/20 transition-colors"

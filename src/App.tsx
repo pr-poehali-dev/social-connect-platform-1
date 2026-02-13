@@ -9,6 +9,7 @@ import { RadioProvider } from "./contexts/RadioContext";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import AiAssistantChat from "./components/AiAssistantChat";
 import DimaChat from "./components/DimaChat";
+import ChatSwitcher from "./components/ChatSwitcher";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -121,6 +122,7 @@ const App = () => {
         </Routes>
       <AiAssistantChat />
       <DimaChat />
+      <ChatSwitcher />
       </BrowserRouter>
       </RadioProvider>
     </TooltipProvider>
