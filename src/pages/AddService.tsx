@@ -195,7 +195,7 @@ const AddService = () => {
 
     const payload = {
       category_id: formData.category_id || null,
-      subcategory_id: formData.subcategory_id || null,
+      subcategory_id: formData.subcategory_id && formData.subcategory_id !== '0' ? formData.subcategory_id : null,
       title: formData.title,
       description: formData.description,
       price: formData.price,
