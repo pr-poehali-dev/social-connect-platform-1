@@ -20,7 +20,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
   const [isLoading, setIsLoading] = useState(false);
   const [animateFailed, setAnimateFailed] = useState(false);
   
-  const animateEnabled = localStorage.getItem('animateAvatar') !== 'false';
+  const animateEnabled = false;
 
   const handleUploadAvatar = () => {
     const input = document.createElement('input');
