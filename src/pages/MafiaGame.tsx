@@ -201,7 +201,7 @@ const MafiaGame = () => {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ room_id: Number(roomId) }),
     });
-    navigate('/mafia');
+    navigate('/game/mafia');
   };
 
   if (loading) {

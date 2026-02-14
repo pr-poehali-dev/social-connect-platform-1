@@ -136,7 +136,7 @@ const Navigation = () => {
     { path: '/ads', label: 'LIVE', icon: 'Radio', pulse: true },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
-    { path: '/mafia', label: 'GAME', icon: 'Gamepad2' },
+    { path: '/game', label: 'GAME', icon: 'Gamepad2' },
   ];
 
   const bottomNavItems = [
@@ -170,7 +170,7 @@ const Navigation = () => {
               {mainNavItems.map((item) => (
                 <Link key={item.path} to={item.path}>
                   <Button
-                    variant={location.pathname === item.path ? 'default' : 'ghost'}
+                    variant={location.pathname === item.path || location.pathname.startsWith(item.path + '/') ? 'default' : 'ghost'}
                     className={`gap-1.5 px-3 text-sm ${item.pulse ? 'animate-pulse' : ''}`}
                   >
                     <Icon name={item.icon} size={16} />
@@ -265,9 +265,9 @@ const Navigation = () => {
           {mainNavItems.map((item) => (
             <Link key={item.path} to={item.path} className="flex-1">
               <Button
-                variant={location.pathname === item.path ? 'default' : 'ghost'}
+                variant={location.pathname === item.path || location.pathname.startsWith(item.path + '/') ? 'default' : 'ghost'}
                 className={`w-full h-12 rounded-none border-b-2 border-transparent data-[active=true]:border-primary text-xs px-1 ${item.pulse ? 'animate-pulse' : ''}`}
-                data-active={location.pathname === item.path}
+                data-active={location.pathname === item.path || location.pathname.startsWith(item.path + '/')}
               >
                 {item.label}
               </Button>

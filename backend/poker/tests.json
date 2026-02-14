@@ -1,0 +1,1 @@
+{"tests": [{"name": "Get rooms list", "method": "GET", "path": "/?action=rooms", "expectedStatus": 200, "expectedBody": [], "bodyMatcher": "partial"}, {"name": "API info", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"status": "string"}, "bodyMatcher": "partial"}]}

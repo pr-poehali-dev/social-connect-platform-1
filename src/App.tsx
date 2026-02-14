@@ -55,6 +55,9 @@ import OlesyaProfile from "./pages/OlesyaProfile";
 import DimaProfile from "./pages/DimaProfile";
 import MafiaLobby from "./pages/MafiaLobby";
 import MafiaGame from "./pages/MafiaGame";
+import GameHub from "./pages/GameHub";
+import PokerLobby from "./pages/PokerLobby";
+import PokerGame from "./pages/PokerGame";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
@@ -124,8 +127,12 @@ const App = () => {
           <Route path="/verification-request" element={<ProtectedRoute><VerificationRequest /></ProtectedRoute>} />
           <Route path="/premium" element={<ProtectedRoute><Premium /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/mafia" element={<ProtectedRoute><MafiaLobby /></ProtectedRoute>} />
-          <Route path="/mafia/:roomId" element={<ProtectedRoute><MafiaGame /></ProtectedRoute>} />
+          <Route path="/game" element={<ProtectedRoute><GameHub /></ProtectedRoute>} />
+          <Route path="/game/mafia" element={<ProtectedRoute><MafiaLobby /></ProtectedRoute>} />
+          <Route path="/game/mafia/:roomId" element={<ProtectedRoute><MafiaGame /></ProtectedRoute>} />
+          <Route path="/game/poker" element={<ProtectedRoute><PokerLobby /></ProtectedRoute>} />
+          <Route path="/game/poker/:roomId" element={<ProtectedRoute><PokerGame /></ProtectedRoute>} />
+          <Route path="/mafia" element={<ProtectedRoute><GameHub /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       <AiAssistantChat />

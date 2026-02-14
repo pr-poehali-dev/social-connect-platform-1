@@ -80,7 +80,7 @@ const MafiaLobby = () => {
       const data = await res.json();
       if (res.ok) {
         setCreateOpen(false);
-        navigate(`/mafia/${data.id}`);
+        navigate(`/game/mafia/${data.id}`);
       } else {
         toast({ title: data.error || 'Ошибка', variant: 'destructive' });
       }
@@ -102,7 +102,7 @@ const MafiaLobby = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        navigate(`/mafia/${data.id}`);
+        navigate(`/game/mafia/${data.id}`);
       } else {
         toast({ title: data.error || 'Комната не найдена', variant: 'destructive' });
       }
@@ -122,7 +122,7 @@ const MafiaLobby = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        navigate(`/mafia/${data.id}`);
+        navigate(`/game/mafia/${data.id}`);
       } else {
         toast({ title: data.error || 'Не удалось войти', variant: 'destructive' });
       }
@@ -321,7 +321,14 @@ const MafiaLobby = () => {
             </>
           )}
 
-          <Card className="bg-slate-800/30 border-purple-500/10 mt-8">
+          <div className="mt-8 text-center">
+            <Button variant="ghost" className="text-purple-300/60 hover:text-purple-200" onClick={() => navigate('/game')}>
+              <Icon name="ArrowLeft" size={16} className="mr-2" />
+              Все игры
+            </Button>
+          </div>
+
+          <Card className="bg-slate-800/30 border-purple-500/10 mt-4">
             <CardContent className="p-6">
               <h3 className="font-semibold text-purple-200 mb-3">Как играть?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-purple-300/70">
