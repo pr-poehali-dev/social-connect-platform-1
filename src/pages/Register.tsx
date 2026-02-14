@@ -135,11 +135,6 @@ const Register = () => {
           <div className="max-w-md mx-auto">
             <Card className="rounded-3xl border-2 shadow-2xl">
               <CardHeader className="text-center space-y-4">
-                <img 
-                  src="https://cdn.poehali.dev/projects/902f5507-7435-42fc-a6de-16cd6a37f64d/bucket/214c5eeb-fddf-4e50-86e9-baf072a385d5.png" 
-                  alt="LOVE iS" 
-                  className="h-20 mx-auto"
-                />
                 <CardTitle className="text-3xl">Регистрация</CardTitle>
                 <CardDescription className="text-base">
                   Создайте аккаунт за минуту
