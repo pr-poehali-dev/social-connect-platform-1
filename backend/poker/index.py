@@ -32,7 +32,6 @@ def cards_to_str(cards):
     return ','.join(cards)
 
 def evaluate_hand(cards):
-    """Evaluate best 5-card hand from 7 cards. Returns (rank_name, score_tuple)."""
     if len(cards) < 5:
         return ('High Card', (0,))
     best = None
@@ -132,8 +131,48 @@ def get_conn():
 def get_user_id(payload):
     return payload.get('user_id') or payload.get('sub')
 
+def get_user_balance(cur, user_id):
+    cur.execute(f"SELECT COALESCE(balance, 0) + COALESCE(bonus_balance, 0) AS total FROM {SCHEMA}.users WHERE id = {escape_sql(user_id)}")
+    row = cur.fetchone()
+    return float(row['total']) if row else 0
+
+def deduct_love(cur, user_id, amount):
+    cur.execute(f"SELECT COALESCE(balance, 0) AS bal, COALESCE(bonus_balance, 0) AS bonus FROM {SCHEMA}.users WHERE id = {escape_sql(user_id)}")
+    row = cur.fetchone()
+    if not row:
+        return False
+    bal = float(row['bal'])
+    bonus = float(row['bonus'])
+    total = bal + bonus
+    if total < amount:
+        return False
+    from_bonus = min(bonus, amount)
+    from_main = amount - from_bonus
+    cur.execute(f"""
+        UPDATE {SCHEMA}.users
+        SET balance = balance - {escape_sql(from_main)}, bonus_balance = bonus_balance - {escape_sql(from_bonus)}
+        WHERE id = {escape_sql(user_id)}
+    """)
+    cur.execute(f"""
+        INSERT INTO {SCHEMA}.transactions (user_id, amount, type, status, description)
+        VALUES ({escape_sql(user_id)}, {escape_sql(-amount)}, 'game_buyin', 'completed', 'Покер: buy-in')
+    """)
+    return True
+
+def credit_love(cur, user_id, amount):
+    if amount <= 0:
+        return
+    cur.execute(f"""
+        UPDATE {SCHEMA}.users SET balance = balance + {escape_sql(amount)}
+        WHERE id = {escape_sql(user_id)}
+    """)
+    cur.execute(f"""
+        INSERT INTO {SCHEMA}.transactions (user_id, amount, type, status, description)
+        VALUES ({escape_sql(user_id)}, {escape_sql(amount)}, 'game_cashout', 'completed', 'Покер: выигрыш')
+    """)
+
 def handler(event, context):
-    """Покер Texas Hold'em — создание комнат, подключение, игровой процесс."""
+    """Покер Texas Hold'em — создание комнат, подключение, игровой процесс. Ставки в LOVE токенах."""
     if event.get('httpMethod') == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -167,15 +206,35 @@ def handler(event, context):
         return handle_chat(event)
     elif action == 'leave':
         return handle_leave(event)
+    elif action == 'balance':
+        return handle_balance(event)
 
-    return json_response(200, {'status': 'poker-api', 'actions': ['rooms', 'create', 'join', 'room', 'ready', 'start', 'action', 'chat', 'leave']})
+    return json_response(200, {'status': 'poker-api', 'actions': ['rooms', 'create', 'join', 'room', 'ready', 'start', 'action', 'chat', 'leave', 'balance']})
+
+def handle_balance(event):
+    auth = get_auth(event)
+    if not auth:
+        return json_response(401, {'error': 'Требуется авторизация'})
+    user_id = get_user_id(auth)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(f"SELECT COALESCE(balance, 0) AS balance, COALESCE(bonus_balance, 0) AS bonus_balance FROM {SCHEMA}.users WHERE id = {escape_sql(user_id)}")
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return json_response(404, {'error': 'Пользователь не найден'})
+    return json_response(200, {
+        'balance': float(row['balance']),
+        'bonus_balance': float(row['bonus_balance']),
+        'total': float(row['balance']) + float(row['bonus_balance'])
+    })
 
 def handle_rooms():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(f"""
         SELECT r.id, r.code, r.name, r.max_players, r.small_blind, r.big_blind,
-               r.start_chips, r.status, r.created_at,
+               r.start_chips, r.buy_in, r.status, r.created_at,
                u.first_name || ' ' || COALESCE(u.last_name, '') AS host_name,
                u.avatar_url AS host_avatar,
                (SELECT COUNT(*) FROM {SCHEMA}.poker_players pp WHERE pp.room_id = r.id AND pp.is_active = TRUE) AS player_count
@@ -199,25 +258,37 @@ def handle_create(event):
     max_players = min(max(int(body.get('max_players', 8)), 2), 8)
     small_blind = max(int(body.get('small_blind', 10)), 1)
     big_blind = max(int(body.get('big_blind', small_blind * 2)), small_blind * 2)
-    start_chips = max(int(body.get('start_chips', 1000)), big_blind * 10)
+    buy_in = max(int(body.get('buy_in', 100)), big_blind * 5)
+    start_chips = buy_in
     code = generate_code()
 
     conn = get_conn()
     cur = conn.cursor()
+
+    user_bal = get_user_balance(cur, user_id)
+    if user_bal < buy_in:
+        conn.close()
+        return json_response(400, {'error': f'Недостаточно LOVE токенов. Нужно {buy_in}, у вас {int(user_bal)}'})
+
+    if not deduct_love(cur, user_id, buy_in):
+        conn.close()
+        return json_response(400, {'error': 'Не удалось списать LOVE токены'})
+
     cur.execute(f"""
-        INSERT INTO {SCHEMA}.poker_rooms (code, host_id, name, max_players, small_blind, big_blind, start_chips)
+        INSERT INTO {SCHEMA}.poker_rooms (code, host_id, name, max_players, small_blind, big_blind, start_chips, buy_in)
         VALUES ({escape_sql(code)}, {escape_sql(user_id)}, {escape_sql(name)},
-                {escape_sql(max_players)}, {escape_sql(small_blind)}, {escape_sql(big_blind)}, {escape_sql(start_chips)})
+                {escape_sql(max_players)}, {escape_sql(small_blind)}, {escape_sql(big_blind)}, 
+                {escape_sql(start_chips)}, {escape_sql(buy_in)})
         RETURNING id
     """)
     room_id = cur.fetchone()['id']
     cur.execute(f"""
-        INSERT INTO {SCHEMA}.poker_players (room_id, user_id, seat, chips)
-        VALUES ({escape_sql(room_id)}, {escape_sql(user_id)}, 0, {escape_sql(start_chips)})
+        INSERT INTO {SCHEMA}.poker_players (room_id, user_id, seat, chips, love_invested)
+        VALUES ({escape_sql(room_id)}, {escape_sql(user_id)}, 0, {escape_sql(start_chips)}, {escape_sql(buy_in)})
     """)
     cur.execute(f"""
         INSERT INTO {SCHEMA}.poker_messages (room_id, message, is_system)
-        VALUES ({escape_sql(room_id)}, 'Комната создана', TRUE)
+        VALUES ({escape_sql(room_id)}, {escape_sql('Комната создана. Buy-in: ' + str(buy_in) + ' LOVE')}, TRUE)
     """)
     conn.commit()
     conn.close()
@@ -256,6 +327,16 @@ def handle_join(event):
         conn.close()
         return json_response(400, {'error': 'Комната заполнена'})
 
+    buy_in = room['buy_in']
+    user_bal = get_user_balance(cur, user_id)
+    if user_bal < buy_in:
+        conn.close()
+        return json_response(400, {'error': f'Недостаточно LOVE токенов. Buy-in: {buy_in}, у вас {int(user_bal)}'})
+
+    if not deduct_love(cur, user_id, buy_in):
+        conn.close()
+        return json_response(400, {'error': 'Не удалось списать LOVE токены'})
+
     cur.execute(f"SELECT seat FROM {SCHEMA}.poker_players WHERE room_id = {escape_sql(room['id'])} ORDER BY seat")
     taken_seats = [r['seat'] for r in cur.fetchall()]
     next_seat = 0
@@ -269,12 +350,12 @@ def handle_join(event):
     player_name = user['first_name'] if user else 'Игрок'
 
     cur.execute(f"""
-        INSERT INTO {SCHEMA}.poker_players (room_id, user_id, seat, chips)
-        VALUES ({escape_sql(room['id'])}, {escape_sql(user_id)}, {escape_sql(next_seat)}, {escape_sql(room['start_chips'])})
+        INSERT INTO {SCHEMA}.poker_players (room_id, user_id, seat, chips, love_invested)
+        VALUES ({escape_sql(room['id'])}, {escape_sql(user_id)}, {escape_sql(next_seat)}, {escape_sql(room['start_chips'])}, {escape_sql(buy_in)})
     """)
     cur.execute(f"""
         INSERT INTO {SCHEMA}.poker_messages (room_id, message, is_system)
-        VALUES ({escape_sql(room['id'])}, {escape_sql(player_name + ' присоединился')}, TRUE)
+        VALUES ({escape_sql(room['id'])}, {escape_sql(player_name + ' присоединился (buy-in: ' + str(buy_in) + ' LOVE)')}, TRUE)
     """)
     conn.commit()
     conn.close()
@@ -415,10 +496,15 @@ def start_new_hand(cur, room_id, room, players):
         if winner:
             cur.execute(f"SELECT first_name FROM {SCHEMA}.users WHERE id = {escape_sql(winner['user_id'])}")
             w = cur.fetchone()
+            cashout_amount = winner['chips']
+            credit_love(cur, winner['user_id'], cashout_amount)
             cur.execute(f"""
                 INSERT INTO {SCHEMA}.poker_messages (room_id, message, is_system)
-                VALUES ({escape_sql(room_id)}, {escape_sql((w['first_name'] if w else 'Игрок') + ' победил в турнире!')}, TRUE)
+                VALUES ({escape_sql(room_id)}, {escape_sql((w['first_name'] if w else 'Игрок') + ' победил в турнире! Выигрыш: ' + str(int(cashout_amount)) + ' LOVE')}, TRUE)
             """)
+        for p in players:
+            if p['is_active'] and p != winner and p['chips'] > 0:
+                credit_love(cur, p['user_id'], p['chips'])
         return
 
     cur.execute(f"""
@@ -828,15 +914,24 @@ def handle_leave(event):
 
     conn = get_conn()
     cur = conn.cursor()
+
+    cur.execute(f"SELECT chips FROM {SCHEMA}.poker_players WHERE room_id = {escape_sql(room_id)} AND user_id = {escape_sql(user_id)}")
+    player = cur.fetchone()
+    if player and player['chips'] > 0:
+        credit_love(cur, user_id, player['chips'])
+
     cur.execute(f"""
-        UPDATE {SCHEMA}.poker_players SET is_active = FALSE, is_folded = TRUE
+        UPDATE {SCHEMA}.poker_players SET is_active = FALSE, is_folded = TRUE, chips = 0
         WHERE room_id = {escape_sql(room_id)} AND user_id = {escape_sql(user_id)}
     """)
     cur.execute(f"SELECT first_name FROM {SCHEMA}.users WHERE id = {escape_sql(user_id)}")
     user = cur.fetchone()
+    cashout_msg = ''
+    if player and player['chips'] > 0:
+        cashout_msg = f" (вывел {int(player['chips'])} LOVE)"
     cur.execute(f"""
         INSERT INTO {SCHEMA}.poker_messages (room_id, message, is_system)
-        VALUES ({escape_sql(room_id)}, {escape_sql((user['first_name'] if user else 'Игрок') + ' покинул стол')}, TRUE)
+        VALUES ({escape_sql(room_id)}, {escape_sql((user['first_name'] if user else 'Игрок') + ' покинул стол' + cashout_msg)}, TRUE)
     """)
     cur.execute(f"SELECT COUNT(*) AS cnt FROM {SCHEMA}.poker_players WHERE room_id = {escape_sql(room_id)} AND is_active = TRUE")
     remaining = cur.fetchone()['cnt']

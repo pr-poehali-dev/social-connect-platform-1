@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+
+const WALLET_API_URL = 'https://functions.poehali.dev/dcbc72cf-2de6-43eb-b32a-2cd0c34fe525';
 
 interface GameCard {
   id: string;
@@ -33,7 +36,7 @@ const games: GameCard[] = [
   {
     id: 'poker',
     title: 'Покер',
-    description: 'Texas Hold\'em — блефуй, повышай ставки и забирай банк!',
+    description: 'Texas Hold\'em — ставь LOVE токены, блефуй и забирай банк!',
     emoji: '🃏',
     path: '/game/poker',
     gradient: 'from-emerald-500 to-teal-600',
@@ -45,13 +48,45 @@ const games: GameCard[] = [
 ];
 
 const GameHub = () => {
+  const [balance, setBalance] = useState<number | null>(null);
+  const [bonusBalance, setBonusBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadBalance();
+  }, []);
+
+  const loadBalance = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch(WALLET_API_URL, {
+        headers: { 'X-User-Id': userId }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBalance(data.balance || 0);
+        setBonusBalance(data.bonus_balance || 0);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalBalance = (balance || 0) + bonusBalance;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Navigation />
 
       <main className="pt-24 pb-24 lg:pb-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-10">
+          <div className="text-center mb-6">
             <div className="inline-flex items-center gap-3 mb-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center shadow-lg shadow-red-500/30">
                 <span className="text-3xl">🎮</span>
@@ -62,6 +97,47 @@ const GameHub = () => {
               </div>
             </div>
           </div>
+
+          {balance !== null && (
+            <div className="mb-8">
+              <Card className="bg-gradient-to-r from-pink-600/30 to-purple-600/30 border-pink-500/30 backdrop-blur-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+                        <Icon name="Heart" size={20} className="text-pink-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-pink-300/70">Баланс для игр</p>
+                        <div className="flex items-baseline gap-2">
+                          {loading ? (
+                            <Icon name="Loader2" className="animate-spin text-pink-300" size={18} />
+                          ) : (
+                            <>
+                              <span className="text-2xl font-bold text-white">{totalBalance.toFixed(0)}</span>
+                              <span className="text-sm text-pink-300">LOVE</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Link to="/wallet">
+                      <div className="flex items-center gap-1 text-sm text-pink-300 hover:text-pink-200 transition-colors cursor-pointer">
+                        <Icon name="Plus" size={16} />
+                        <span>Пополнить</span>
+                      </div>
+                    </Link>
+                  </div>
+                  {bonusBalance > 0 && (
+                    <div className="mt-2 pt-2 border-t border-pink-500/20 flex gap-4 text-xs text-pink-300/60">
+                      <span>Основной: {(balance || 0).toFixed(0)}</span>
+                      <span>Бонусный: {bonusBalance.toFixed(0)}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {games.map((game) => (
