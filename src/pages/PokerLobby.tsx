@@ -169,35 +169,25 @@ const PokerLobby = () => {
 
       <main className="pt-24 pb-24 lg:pb-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-3 mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                <span className="text-3xl">🃏</span>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <span className="text-2xl">🃏</span>
               </div>
-              <div className="text-left">
-                <h1 className="text-3xl font-bold text-white">LOVE POKER</h1>
-                <p className="text-emerald-300">Texas Hold'em</p>
+              <div>
+                <h1 className="text-2xl font-bold text-white">LOVE POKER</h1>
+                <p className="text-emerald-300 text-sm">Texas Hold'em</p>
               </div>
             </div>
+            {balance !== null && (
+              <Link to="/wallet" className="flex items-center gap-2 bg-pink-600/20 border border-pink-500/30 rounded-xl px-3 py-2 hover:bg-pink-600/30 transition-colors">
+                <Icon name="Heart" size={16} className="text-pink-400" />
+                <span className="text-lg font-bold text-white">{Math.floor(balance)}</span>
+                <span className="text-xs text-pink-300">LOVE</span>
+                <Icon name="Plus" size={14} className="text-pink-400/60 ml-1" />
+              </Link>
+            )}
           </div>
-
-          {balance !== null && (
-            <Card className="bg-gradient-to-r from-pink-600/20 to-emerald-600/20 border-emerald-500/30 backdrop-blur-sm mb-6">
-              <CardContent className="p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Icon name="Heart" size={18} className="text-pink-400" />
-                  <span className="text-sm text-emerald-200/70">Баланс:</span>
-                  <span className="text-lg font-bold text-white">{Math.floor(balance)} LOVE</span>
-                </div>
-                <Link to="/wallet">
-                  <Button variant="ghost" size="sm" className="text-emerald-300 hover:text-emerald-200 gap-1 h-8">
-                    <Icon name="Plus" size={14} />
-                    Пополнить
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
