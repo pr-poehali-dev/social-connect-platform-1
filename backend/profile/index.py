@@ -104,10 +104,10 @@ def handler(event: dict, context) -> dict:
                          WHERE user_id = {user_id}) AS events_count
                 ''')
                 counts = cur.fetchone()
-                user_data['friends_count'] = counts[0] if counts else 0
-                user_data['ads_count'] = counts[1] if counts else 0
-                user_data['services_count'] = counts[2] if counts else 0
-                user_data['events_count'] = counts[3] if counts else 0
+                user_data['friends_count'] = counts['friends_count'] if counts else 0
+                user_data['ads_count'] = counts['ads_count'] if counts else 0
+                user_data['services_count'] = counts['services_count'] if counts else 0
+                user_data['events_count'] = counts['events_count'] if counts else 0
 
                 # Проверяем активный бан
                 if user_data.get('is_banned'):
@@ -122,10 +122,10 @@ def handler(event: dict, context) -> dict:
                     
                     if ban_info:
                         user_data['ban_info'] = {
-                            'reason': ban_info[0],
-                            'banned_at': ban_info[1].isoformat() if ban_info[1] else None,
-                            'banned_until': ban_info[2].isoformat() if ban_info[2] else None,
-                            'ban_count': ban_info[3]
+                            'reason': ban_info['reason'],
+                            'banned_at': ban_info['banned_at'].isoformat() if ban_info['banned_at'] else None,
+                            'banned_until': ban_info['banned_until'].isoformat() if ban_info['banned_until'] else None,
+                            'ban_count': ban_info['ban_count']
                         }
                 
                 return {
