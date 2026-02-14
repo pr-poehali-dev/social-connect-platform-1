@@ -456,10 +456,8 @@ def handle_callback(event: dict, origin: str) -> dict:
                         vip_result = cur.fetchone()
                         
                         if vip_result and vip_result[0]:
-                            from datetime import timedelta
                             new_vip_until = vip_result[0] + timedelta(days=1)
                         else:
-                            from datetime import timedelta
                             new_vip_until = datetime.now(timezone.utc) + timedelta(days=1)
                         
                         cur.execute(
