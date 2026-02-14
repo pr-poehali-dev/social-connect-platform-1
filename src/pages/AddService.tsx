@@ -85,7 +85,12 @@ const AddService = () => {
       const response = await fetch(`https://functions.poehali.dev/39bc832e-a96a-47ed-9448-cce91cbda774?action=subcategories&category_id=${categoryId}`);
       if (response.ok) {
         const data = await response.json();
-        setSubcategories(data);
+        if (!data || data.length === 0) {
+          setSubcategories([{ id: 0, category_id: Number(categoryId), name: 'Отсутствует' }]);
+          setFormData(prev => ({ ...prev, subcategory_id: '0' }));
+        } else {
+          setSubcategories(data);
+        }
       }
     } catch (error) {
       console.error('Error loading subcategories:', error);
