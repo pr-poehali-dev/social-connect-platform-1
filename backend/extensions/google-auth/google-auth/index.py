@@ -324,17 +324,19 @@ def handle_callback(event: dict, origin: str) -> dict:
             row = cur.fetchone()
 
             if row:
-                # User found by google_id - just login
                 user_id, db_email, db_name, db_avatar = row
                 cur.execute(
-                    f"UPDATE {S}users SET last_login_at = %s, updated_at = %s WHERE id = %s",
-                    (now, now, user_id)
+                    f"""UPDATE {S}users SET last_login_at = %s, updated_at = %s,
+                        avatar_url = COALESCE(NULLIF(avatar_url, ''), %s),
+                        name = COALESCE(NULLIF(name, ''), %s)
+                        WHERE id = %s""",
+                    (now, now, picture, name, user_id)
                 )
                 email = db_email or email
                 name = db_name or name
                 picture = db_avatar or picture
             else:
-                # 2. Check if user exists by email - link Google account
+                row = None
                 if email:
                     cur.execute(
                         f"SELECT id, name, avatar_url FROM {S}users WHERE email = %s",
@@ -343,14 +345,15 @@ def handle_callback(event: dict, origin: str) -> dict:
                     row = cur.fetchone()
 
                 if email and row:
-                    # User found by email - link Google account
                     user_id, db_name, db_avatar = row
                     cur.execute(
                         f"""UPDATE {S}users
-                            SET google_id = %s, avatar_url = COALESCE(avatar_url, %s),
+                            SET google_id = %s,
+                                avatar_url = COALESCE(NULLIF(avatar_url, ''), %s),
+                                name = COALESCE(NULLIF(name, ''), %s),
                                 last_login_at = %s, updated_at = %s
                             WHERE id = %s""",
-                        (google_id, picture, now, now, user_id)
+                        (google_id, picture, name, now, now, user_id)
                     )
                     name = db_name or name
                     picture = db_avatar or picture

@@ -66,122 +66,122 @@ def handle_register(event: dict) -> dict:
     schema = 't_p19021063_social_connect_platf'
     
     # Check if user exists
-    cur.execute(f"SELECT id FROM {schema}.users WHERE email = %s", (email,))
-    if cur.fetchone():
-        cur.close()
-        conn.close()
-        return {
-            'statusCode': 400,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Пользователь с таким email уже существует'}),
-            'isBase64Encoded': False
-        }
+    cur.execute(f"SELECT id, password_hash FROM {schema}.users WHERE email = %s", (email,))
+    existing = cur.fetchone()
     
-    # Validate referral code if provided
-    referrer_id = None
-    if referral_code:
-        cur.execute(f"SELECT id FROM {schema}.users WHERE referral_code = %s", (referral_code,))
-        referrer = cur.fetchone()
-        if referrer:
-            referrer_id = referrer[0]
-    
-    # Hash password
     password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
-    # Разбиваем name на first_name и last_name
-    name_parts = name.split(' ', 1) if name else ['', '']
-    first_name = name_parts[0] if len(name_parts) > 0 else ''
-    last_name = name_parts[1] if len(name_parts) > 1 else ''
-    
-    # Генерируем уникальный nickname из email
-    username = email.split('@')[0].lower()
-    username = ''.join(c for c in username if c.isalnum() or c == '_')[:20]
-    if not username:
-        username = 'user'
-    
-    nickname = username
-    counter = 1
-    while True:
-        cur.execute(f"SELECT id FROM {schema}.users WHERE nickname = %s", (nickname,))
-        if not cur.fetchone():
-            break
-        if counter == 1:
-            nickname = f"{username}_{secrets.randbelow(10000):04d}"
-        else:
-            nickname = f"{username}_{secrets.randbelow(100000):05d}"
-        counter += 1
-        if counter > 10:
-            nickname = f"user_{secrets.randbelow(1000000):06d}"
-            break
-    
-    # Create user with referral
-    cur.execute(
-        f"INSERT INTO {schema}.users (email, password_hash, first_name, last_name, nickname, email_verified, referred_by) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
-        (email, password_hash, first_name, last_name, nickname, True, referrer_id)
-    )
-    user_id = cur.fetchone()[0]
-    
-    # Generate unique referral code for new user (6 символов: буквы + цифры)
-    # Генерируем уникальный 6-символьный код
-    max_attempts = 10
-    new_referral_code = None
-    for _ in range(max_attempts):
-        chars = string.ascii_uppercase + string.digits
-        code = ''.join(secrets.choice(chars) for _ in range(6))
+    if existing:
+        existing_id, existing_pw = existing
+        if existing_pw and existing_pw.strip():
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Пользователь с таким email уже существует'}),
+                'isBase64Encoded': False
+            }
         
-        # Проверяем уникальность
-        cur.execute(f"SELECT COUNT(*) FROM {schema}.users WHERE referral_code = %s", (code,))
-        if cur.fetchone()[0] == 0:
-            new_referral_code = code
-            break
-    
-    # Если не удалось за 10 попыток, используем timestamp
-    if not new_referral_code:
-        timestamp = str(int(secrets.randbits(20)))[-6:]
-        new_referral_code = timestamp.zfill(6)
-    
-    cur.execute(
-        f"UPDATE {schema}.users SET referral_code = %s WHERE id = %s",
-        (new_referral_code, user_id)
-    )
-    
-    # Начисляем бонусы за реферальную программу
-    from datetime import datetime, timedelta
-    
-    if referrer_id:
-        # Новый пользователь получает специальную цену на первую подписку (7 дней за 1 руб)
-        # Устанавливаем флаг для специального предложения
-        cur.execute(
-            f"UPDATE {schema}.users SET referral_bonus_available = true WHERE id = %s",
-            (user_id,)
-        )
-        
-        # Пригласитель получает +1 день премиум подписки
-        cur.execute(
-            f"SELECT vip_until FROM {schema}.users WHERE id = %s",
-            (referrer_id,)
-        )
-        vip_result = cur.fetchone()
-        
-        if vip_result and vip_result[0]:
-            # Если уже есть подписка - продлеваем на 1 день
-            new_vip_until = vip_result[0] + timedelta(days=1)
-        else:
-            # Если подписки нет - даём 1 день с сегодня
-            new_vip_until = datetime.utcnow() + timedelta(days=1)
+        name_parts = name.split(' ', 1) if name else ['', '']
+        first_name = name_parts[0] if len(name_parts) > 0 else ''
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
         
         cur.execute(
-            f"UPDATE {schema}.users SET is_vip = true, vip_until = %s WHERE id = %s",
-            (new_vip_until, referrer_id)
+            f"""UPDATE {schema}.users SET password_hash = %s,
+                first_name = COALESCE(NULLIF(first_name, ''), %s),
+                last_name = COALESCE(NULLIF(last_name, ''), %s),
+                updated_at = NOW(), last_login_at = NOW()
+                WHERE id = %s""",
+            (password_hash, first_name, last_name, existing_id)
+        )
+        user_id = existing_id
+    else:
+        referrer_id = None
+        if referral_code:
+            cur.execute(f"SELECT id FROM {schema}.users WHERE referral_code = %s", (referral_code,))
+            referrer = cur.fetchone()
+            if referrer:
+                referrer_id = referrer[0]
+        
+        name_parts = name.split(' ', 1) if name else ['', '']
+        first_name = name_parts[0] if len(name_parts) > 0 else ''
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
+        
+        username = email.split('@')[0].lower()
+        username = ''.join(c for c in username if c.isalnum() or c == '_')[:20]
+        if not username:
+            username = 'user'
+        
+        nickname = username
+        counter = 1
+        while True:
+            cur.execute(f"SELECT id FROM {schema}.users WHERE nickname = %s", (nickname,))
+            if not cur.fetchone():
+                break
+            if counter == 1:
+                nickname = f"{username}_{secrets.randbelow(10000):04d}"
+            else:
+                nickname = f"{username}_{secrets.randbelow(100000):05d}"
+            counter += 1
+            if counter > 10:
+                nickname = f"user_{secrets.randbelow(1000000):06d}"
+                break
+        
+        cur.execute(
+            f"INSERT INTO {schema}.users (email, password_hash, first_name, last_name, nickname, email_verified, referred_by) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (email, password_hash, first_name, last_name, nickname, True, referrer_id)
+        )
+        user_id = cur.fetchone()[0]
+    
+    if not existing:
+        max_attempts = 10
+        new_referral_code = None
+        for _ in range(max_attempts):
+            chars = string.ascii_uppercase + string.digits
+            code = ''.join(secrets.choice(chars) for _ in range(6))
+            cur.execute(f"SELECT COUNT(*) FROM {schema}.users WHERE referral_code = %s", (code,))
+            if cur.fetchone()[0] == 0:
+                new_referral_code = code
+                break
+        
+        if not new_referral_code:
+            timestamp = str(int(secrets.randbits(20)))[-6:]
+            new_referral_code = timestamp.zfill(6)
+        
+        cur.execute(
+            f"UPDATE {schema}.users SET referral_code = %s WHERE id = %s",
+            (new_referral_code, user_id)
         )
         
-        # Записываем транзакцию бонуса
-        cur.execute(
-            f"""INSERT INTO {schema}.transactions 
-                (user_id, referrer_id, type, amount, description) 
-                VALUES (%s, %s, %s, %s, %s)""",
-            (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
-        )
+        if referrer_id:
+            cur.execute(
+                f"UPDATE {schema}.users SET referral_bonus_available = true WHERE id = %s",
+                (user_id,)
+            )
+            
+            cur.execute(
+                f"SELECT vip_until FROM {schema}.users WHERE id = %s",
+                (referrer_id,)
+            )
+            vip_result = cur.fetchone()
+            
+            if vip_result and vip_result[0]:
+                new_vip_until = vip_result[0] + timedelta(days=1)
+            else:
+                new_vip_until = datetime.utcnow() + timedelta(days=1)
+            
+            cur.execute(
+                f"UPDATE {schema}.users SET is_vip = true, vip_until = %s WHERE id = %s",
+                (new_vip_until, referrer_id)
+            )
+            
+            cur.execute(
+                f"""INSERT INTO {schema}.transactions 
+                    (user_id, referrer_id, type, amount, description) 
+                    VALUES (%s, %s, %s, %s, %s)""",
+                (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
+            )
     
     conn.commit()
     
@@ -243,10 +243,18 @@ def handle_login(event: dict) -> dict:
         }
     
     user_id, user_email, password_hash, first_name, last_name = user
-    # Формируем полное имя
     name = f"{first_name or ''} {last_name or ''}".strip()
     
-    # Verify password
+    if not password_hash or not password_hash.strip():
+        cur.close()
+        conn.close()
+        return {
+            'statusCode': 401,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Этот аккаунт создан через соцсеть. Войдите через VK, Яндекс или Google, либо зарегистрируйтесь чтобы задать пароль'}),
+            'isBase64Encoded': False
+        }
+    
     if not bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
         cur.close()
         conn.close()

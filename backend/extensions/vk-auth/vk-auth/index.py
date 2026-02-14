@@ -366,37 +366,41 @@ def handle_callback(event: dict, origin: str) -> dict:
             row = cur.fetchone()
 
             if row:
-                # User found by vk_id - just login
                 user_id, email, first_name_db, last_name_db, db_avatar = row
                 cur.execute(
-                    f"UPDATE {S}users SET last_login_at = %s, updated_at = %s WHERE id = %s",
-                    (now, now, user_id)
+                    f"""UPDATE {S}users SET last_login_at = %s, updated_at = %s,
+                        avatar_url = COALESCE(NULLIF(avatar_url, ''), %s),
+                        first_name = COALESCE(NULLIF(first_name, ''), %s),
+                        last_name = COALESCE(NULLIF(last_name, ''), %s)
+                        WHERE id = %s""",
+                    (now, now, photo_url, first_name, last_name, user_id)
                 )
                 email = email or vk_email
-                # Формируем полное имя из first_name и last_name
                 name = f"{first_name_db or ''} {last_name_db or ''}".strip() or full_name
                 photo_url = db_avatar or photo_url
             else:
-                # 2. Check if user exists by email - link VK account
+                row = None
                 if vk_email:
                     cur.execute(
-                        f"SELECT id, first_name, avatar_url FROM {S}users WHERE email = %s",
+                        f"SELECT id, first_name, last_name, avatar_url FROM {S}users WHERE email = %s",
                         (vk_email,)
                     )
                     row = cur.fetchone()
 
                 if vk_email and row:
-                    # User found by email - link VK account
-                    user_id, db_first_name, db_avatar = row
+                    user_id, db_first_name, db_last_name, db_avatar = row
                     cur.execute(
                         f"""UPDATE {S}users
-                            SET vk_id = %s, avatar_url = COALESCE(avatar_url, %s),
+                            SET vk_id = %s,
+                                avatar_url = COALESCE(NULLIF(avatar_url, ''), %s),
+                                first_name = COALESCE(NULLIF(first_name, ''), %s),
+                                last_name = COALESCE(NULLIF(last_name, ''), %s),
                                 last_login_at = %s, updated_at = %s
                             WHERE id = %s""",
-                        (str(vk_user_id), photo_url, now, now, user_id)
+                        (str(vk_user_id), photo_url, first_name, last_name, now, now, user_id)
                     )
                     email = vk_email
-                    name = db_first_name or full_name
+                    name = f"{db_first_name or ''} {db_last_name or ''}".strip() or full_name
                     photo_url = db_avatar or photo_url
                 else:
                     # 3. Create new user
