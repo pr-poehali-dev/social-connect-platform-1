@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useYandexAuth } from '@/components/extensions/yandex-auth/useYandexAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
@@ -8,27 +7,62 @@ const YANDEX_AUTH_URL = 'https://functions.poehali.dev/635fdfd0-fce3-46f9-a566-1
 
 const YandexCallback = () => {
   const navigate = useNavigate();
-  const yandexAuth = useYandexAuth({
-    apiUrls: {
-      authUrl: `${YANDEX_AUTH_URL}?action=auth-url`,
-      callback: `${YANDEX_AUTH_URL}?action=callback`,
-      refresh: `${YANDEX_AUTH_URL}?action=refresh`,
-      logout: `${YANDEX_AUTH_URL}?action=logout`,
-    },
-  });
+  const [status, setStatus] = useState('Обработка входа...');
+  const [errorMsg, setErrorMsg] = useState('');
+  const processedRef = useRef(false);
 
   useEffect(() => {
+    if (processedRef.current) return;
+    processedRef.current = true;
+
     const processCallback = async () => {
-      const success = await yandexAuth.handleCallback();
-      if (success) {
-        setTimeout(() => navigate('/profile'), 1000);
-      } else {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+
+      if (!code) {
+        setErrorMsg('Код авторизации не получен от Яндекса');
         setTimeout(() => navigate('/login'), 2000);
+        return;
+      }
+
+      const referralCode = sessionStorage.getItem('yandex_referral_code') || '';
+
+      try {
+        const response = await fetch(`${YANDEX_AUTH_URL}?action=callback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, referral_code: referralCode }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setErrorMsg(data.error || 'Ошибка авторизации');
+          setTimeout(() => navigate('/login'), 3000);
+          return;
+        }
+
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        localStorage.setItem('yandex_auth_refresh_token', data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data.user?.id) {
+          localStorage.setItem('userId', String(data.user.id));
+        }
+
+        sessionStorage.removeItem('yandex_auth_state');
+        sessionStorage.removeItem('yandex_referral_code');
+
+        setStatus('Вход выполнен! Перенаправляем...');
+        setTimeout(() => navigate('/profile'), 1000);
+      } catch {
+        setErrorMsg('Ошибка сети. Попробуйте снова.');
+        setTimeout(() => navigate('/login'), 3000);
       }
     };
 
     processCallback();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center">
@@ -39,7 +73,7 @@ const YandexCallback = () => {
           </div>
           <h2 className="text-2xl font-bold mb-2">Авторизация через Яндекс</h2>
           <p className="text-muted-foreground">
-            {yandexAuth.error ? yandexAuth.error : 'Обработка входа...'}
+            {errorMsg || status}
           </p>
         </CardContent>
       </Card>
