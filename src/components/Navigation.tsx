@@ -226,24 +226,6 @@ const Navigation = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 relative"
-              title={assistant === 'olesya' ? 'Чат с Олесей' : 'Чат с Димой'}
-              onClick={() => {
-                const event = assistant === 'olesya' ? 'open-olesya-chat' : 'open-dima-chat';
-                window.dispatchEvent(new CustomEvent(event));
-              }}
-            >
-              <img
-                src={assistant === 'olesya' ? OLESYA_AVATAR : DIMA_AVATAR}
-                alt={assistant === 'olesya' ? 'Олеся' : 'Дима'}
-                className="w-full h-full rounded-md object-cover"
-              />
-              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
               className="lg:hidden hidden"
               onClick={() => setIsOpen(!isOpen)}
             >
@@ -394,6 +376,24 @@ const Navigation = () => {
       </div>
 
 
+      <Button
+        variant="ghost"
+        size="icon"
+        className="hidden lg:flex fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg bg-white dark:bg-slate-800 border border-border hover:scale-110 transition-transform"
+        title={assistant === 'olesya' ? 'Чат с Олесей' : 'Чат с Димой'}
+        onClick={() => {
+          const event = assistant === 'olesya' ? 'open-olesya-chat' : 'open-dima-chat';
+          window.dispatchEvent(new CustomEvent(event));
+        }}
+      >
+        <img
+          src={assistant === 'olesya' ? OLESYA_AVATAR : DIMA_AVATAR}
+          alt={assistant === 'olesya' ? 'Олеся' : 'Дима'}
+          className="w-11 h-11 rounded-full object-cover border-2"
+          style={{ borderColor: assistant === 'olesya' ? '#f472b6' : '#60a5fa' }}
+        />
+        <div className="absolute top-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-slate-800" />
+      </Button>
     </>
   );
 };
