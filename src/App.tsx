@@ -55,6 +55,8 @@ import OlesyaProfile from "./pages/OlesyaProfile";
 import DimaProfile from "./pages/DimaProfile";
 import MafiaLobby from "./pages/MafiaLobby";
 import MafiaGame from "./pages/MafiaGame";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +80,8 @@ const App = () => {
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/ref/:code" element={<Register />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />

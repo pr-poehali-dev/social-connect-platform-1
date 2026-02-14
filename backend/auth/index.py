@@ -1,5 +1,9 @@
 import json
 import os
+import hashlib
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import psycopg2
 import bcrypt
 import jwt
@@ -30,6 +34,10 @@ def handler(event: dict, context) -> dict:
             return handle_register(event)
         elif action == 'login':
             return handle_login(event)
+        elif action == 'forgot-password':
+            return handle_forgot_password(event)
+        elif action == 'reset-password':
+            return handle_reset_password(event)
     
     return {
         'statusCode': 400,
@@ -308,5 +316,133 @@ def generate_access_token(user_id: int, email: str) -> str:
 
 def generate_refresh_token() -> str:
     '''Генерация refresh token'''
-    import secrets
     return secrets.token_urlsafe(32)
+
+
+def send_reset_email(to_email: str, reset_link: str) -> None:
+    '''Отправка письма для сброса пароля'''
+    smtp_host = os.environ.get('SMTP_HOST', '')
+    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+    smtp_user = os.environ.get('SMTP_USER', '')
+    smtp_password = os.environ.get('SMTP_PASSWORD', '')
+    smtp_from = os.environ.get('SMTP_FROM', smtp_user)
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Сброс пароля — LOVE IS'
+    msg['From'] = smtp_from
+    msg['To'] = to_email
+
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+        <h2 style="color: #333;">Сброс пароля</h2>
+        <p>Вы запросили сброс пароля. Нажмите кнопку ниже, чтобы задать новый пароль:</p>
+        <a href="{reset_link}" style="display: inline-block; background: #e11d48; color: white; padding: 12px 32px; border-radius: 12px; text-decoration: none; font-weight: bold; margin: 16px 0;">
+            Сбросить пароль
+        </a>
+        <p style="color: #888; font-size: 13px;">Ссылка действительна 1 час. Если вы не запрашивали сброс — просто проигнорируйте это письмо.</p>
+    </div>
+    """
+
+    msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+    with smtplib.SMTP(smtp_host, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.sendmail(smtp_user, to_email, msg.as_string())
+
+
+def handle_forgot_password(event: dict) -> dict:
+    '''Запрос на сброс пароля — отправка email'''
+    cors = {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+    data = json.loads(event.get('body', '{}'))
+    email = data.get('email', '').strip().lower()
+
+    if not email:
+        return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Email обязателен'})}
+
+    schema = 't_p19021063_social_connect_platf'
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    cur = conn.cursor()
+
+    cur.execute(f"SELECT id FROM {schema}.users WHERE email = %s", (email,))
+    user = cur.fetchone()
+
+    if not user:
+        cur.close()
+        conn.close()
+        return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'message': 'Если аккаунт существует, письмо отправлено'})}
+
+    user_id = user[0]
+    token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    expires_at = datetime.utcnow() + timedelta(hours=1)
+
+    cur.execute(
+        f"UPDATE {schema}.password_reset_tokens SET used = TRUE WHERE user_id = %s AND used = FALSE",
+        (user_id,)
+    )
+
+    cur.execute(
+        f"INSERT INTO {schema}.password_reset_tokens (user_id, token_hash, expires_at) VALUES (%s, %s, %s)",
+        (user_id, token_hash, expires_at)
+    )
+    conn.commit()
+
+    origin = event.get('headers', {}).get('origin', event.get('headers', {}).get('Origin', 'https://loveis.city'))
+    reset_link = f"{origin}/reset-password?token={token}"
+
+    try:
+        send_reset_email(email, reset_link)
+    except Exception:
+        cur.close()
+        conn.close()
+        return {'statusCode': 500, 'headers': cors, 'body': json.dumps({'error': 'Не удалось отправить письмо'})}
+
+    cur.close()
+    conn.close()
+    return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'message': 'Если аккаунт существует, письмо отправлено'})}
+
+
+def handle_reset_password(event: dict) -> dict:
+    '''Сброс пароля по токену'''
+    cors = {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+    data = json.loads(event.get('body', '{}'))
+    token = data.get('token', '')
+    password = data.get('password', '')
+
+    if not token or not password:
+        return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Токен и пароль обязательны'})}
+
+    if len(password) < 6:
+        return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Пароль должен быть не менее 6 символов'})}
+
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    schema = 't_p19021063_social_connect_platf'
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    cur = conn.cursor()
+
+    try:
+        now = datetime.utcnow().isoformat()
+        cur.execute(
+            f"SELECT id, user_id FROM {schema}.password_reset_tokens WHERE token_hash = %s AND used = FALSE AND expires_at > %s",
+            (token_hash, now)
+        )
+        row = cur.fetchone()
+
+        if not row:
+            return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Ссылка недействительна или истекла'})}
+
+        reset_id, user_id = row
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        cur.execute(f"UPDATE {schema}.users SET password_hash = %s, updated_at = NOW() WHERE id = %s", (password_hash, user_id))
+        cur.execute(f"UPDATE {schema}.password_reset_tokens SET used = TRUE WHERE id = %s", (reset_id,))
+        conn.commit()
+
+        return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'message': 'Пароль успешно изменён'})}
+    except Exception:
+        conn.rollback()
+        return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Ссылка недействительна или истекла'})}
+    finally:
+        cur.close()
+        conn.close()
