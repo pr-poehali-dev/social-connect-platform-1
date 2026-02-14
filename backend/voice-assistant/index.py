@@ -1,11 +1,14 @@
-"""Умный текстовый поиск по сайту: люди, мероприятия, услуги, объявления."""
+"""Голосовой и текстовый поиск по сайту: люди, мероприятия, услуги, объявления."""
 
 import json
 import os
 import re
+import base64
+import tempfile
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
+from openai import OpenAI
 
 SCHEMA = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
 
@@ -35,8 +38,38 @@ GENDER_MAP = {
 }
 
 
+def transcribe_audio(audio_base64):
+    """Распознаёт речь из base64 аудио через OpenAI Whisper"""
+    api_key = os.environ.get('OPENAI_API_KEY', '')
+    if not api_key:
+        return None
+
+    audio_bytes = base64.b64decode(audio_base64)
+
+    with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as f:
+        f.write(audio_bytes)
+        tmp_path = f.name
+
+    try:
+        client = OpenAI(api_key=api_key)
+        with open(tmp_path, 'rb') as audio_file:
+            transcript = client.audio.transcriptions.create(
+                model='whisper-1',
+                file=audio_file,
+                language='ru'
+            )
+        return transcript.text.strip() if transcript.text else None
+    except Exception as e:
+        print(f'Whisper error: {e}')
+        return None
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
+
+
 def detect_type(text):
-    """Определяет тип поиска по ключевым словам"""
     lower = text.lower()
     scores = {'people': 0, 'events': 0, 'services': 0, 'ads': 0}
 
@@ -60,7 +93,6 @@ def detect_type(text):
 
 
 def extract_city(text):
-    """Извлекает город из запроса"""
     lower = text.lower()
     patterns = [
         r'(?:из|в|город[еа]?)\s+([А-ЯЁа-яё-]+(?:\s[А-ЯЁа-яё-]+)?)',
@@ -75,7 +107,6 @@ def extract_city(text):
 
 
 def extract_gender(text):
-    """Определяет пол из запроса"""
     lower = text.lower()
     for kw, gender in GENDER_MAP.items():
         if kw in lower:
@@ -84,7 +115,6 @@ def extract_gender(text):
 
 
 def extract_age_range(text):
-    """Извлекает диапазон возраста"""
     m = re.search(r'(\d{2})\s*[-–]\s*(\d{2})\s*лет', text)
     if m:
         return int(m.group(1)), int(m.group(2))
@@ -99,7 +129,6 @@ def extract_age_range(text):
 
 
 def search_people(text, cur):
-    """Поиск людей"""
     conditions = []
     params = []
 
@@ -136,7 +165,6 @@ def search_people(text, cur):
 
 
 def search_events(text, cur):
-    """Поиск мероприятий"""
     conditions = ["e.is_active = true"]
     params = []
 
@@ -159,7 +187,6 @@ def search_events(text, cur):
             keywords_for_search.append(w)
 
     if keywords_for_search:
-        search_term = ' | '.join(keywords_for_search[:3])
         conditions.append(f"(LOWER(e.title) LIKE %s OR LOWER(e.description) LIKE %s OR LOWER(e.category) LIKE %s)")
         like_term = f'%{keywords_for_search[0]}%'
         params.extend([like_term, like_term, like_term])
@@ -180,7 +207,6 @@ def search_events(text, cur):
 
 
 def search_services(text, cur):
-    """Поиск услуг"""
     conditions = ["s.is_active = true"]
     params = []
 
@@ -219,7 +245,6 @@ def search_services(text, cur):
 
 
 def search_ads(text, cur):
-    """Поиск объявлений LIVE"""
     conditions = ["a.status = 'active'"]
     params = []
 
@@ -261,8 +286,21 @@ def search_ads(text, cur):
     return cur.fetchall()
 
 
+def generate_explanation(text, search_type, count):
+    type_names = {
+        'people': 'людей',
+        'events': 'мероприятий',
+        'services': 'услуг',
+        'ads': 'объявлений'
+    }
+    category = type_names.get(search_type, 'результатов')
+    if count == 0:
+        return f'По запросу "{text}" ничего не найдено. Попробуйте изменить запрос.'
+    return f'Нашёл {count} {category} по запросу "{text}"'
+
+
 def handler(event: dict, context) -> dict:
-    """Обрабатывает текстовые поисковые запросы и возвращает результаты"""
+    """Голосовой и текстовый поиск — распознаёт речь через Whisper и ищет по базе"""
     method = event.get('httpMethod', 'POST')
 
     if method == 'OPTIONS':
@@ -284,13 +322,23 @@ def handler(event: dict, context) -> dict:
         }
 
     body = json.loads(event.get('body') or '{}')
+    audio_base64 = body.get('audio')
     text = (body.get('text') or '').strip()
+
+    if audio_base64 and not text:
+        text = transcribe_audio(audio_base64)
+        if not text:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Не удалось распознать речь. Попробуйте ещё раз или говорите громче.', 'query': ''}, ensure_ascii=False)
+            }
 
     if not text:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Text query required'})
+            'body': json.dumps({'error': 'Скажите или напишите что вы ищете'}, ensure_ascii=False)
         }
 
     search_type = detect_type(text)
@@ -321,12 +369,15 @@ def handler(event: dict, context) -> dict:
                 item[key] = value
         items.append(item)
 
+    explanation = generate_explanation(text, search_type, len(items))
+
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
         'body': json.dumps({
             'type': search_type,
             'query': text,
+            'explanation': explanation,
             'results': items,
             'count': len(items)
         }, ensure_ascii=False, default=str)
