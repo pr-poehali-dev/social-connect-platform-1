@@ -76,7 +76,7 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
         </Button>
       )}
 
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <Button
           onClick={() => navigate('/friends')}
           variant="outline"
