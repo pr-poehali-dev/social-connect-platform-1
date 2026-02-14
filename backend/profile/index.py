@@ -45,7 +45,7 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         payload = pyjwt.decode(token, jwt_secret, algorithms=['HS256'])
-        user_id = payload.get('user_id')
+        user_id = payload.get('user_id') or payload.get('sub')
     except pyjwt.ExpiredSignatureError:
         return {
             'statusCode': 401,
