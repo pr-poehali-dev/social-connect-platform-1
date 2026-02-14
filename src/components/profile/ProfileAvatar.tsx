@@ -18,6 +18,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
   const [isHovering, setIsHovering] = useState(false);
   const [animatedVideo, setAnimatedVideo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [animateFailed, setAnimateFailed] = useState(false);
   
   const animateEnabled = localStorage.getItem('animateAvatar') !== 'false';
 
@@ -111,7 +112,7 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
           onMouseEnter={async () => {
             if (editMode || !animateEnabled) return;
             setIsHovering(true);
-            if (!animatedVideo && user.avatar_url) {
+            if (!animatedVideo && !animateFailed && user.avatar_url) {
               setIsLoading(true);
               try {
                 const animationText = localStorage.getItem('animationText') || 'Hello! Nice to meet you!';
@@ -128,12 +129,18 @@ const ProfileAvatar = ({ user, editMode, onAvatarUpdate }: ProfileAvatarProps) =
                     driver: animationDriver
                   })
                 });
-                const data = await response.json();
-                if (data.videoUrl) {
-                  setAnimatedVideo(data.videoUrl);
+                if (!response.ok) {
+                  setAnimateFailed(true);
+                } else {
+                  const data = await response.json();
+                  if (data.videoUrl) {
+                    setAnimatedVideo(data.videoUrl);
+                  } else {
+                    setAnimateFailed(true);
+                  }
                 }
               } catch (error) {
-                console.error('Failed to animate photo:', error);
+                setAnimateFailed(true);
               } finally {
                 setIsLoading(false);
               }
