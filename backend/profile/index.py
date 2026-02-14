@@ -91,7 +91,24 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 user_data = dict(user)
-                
+
+                cur.execute(f'''
+                    SELECT
+                        (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.dating_friend_requests
+                         WHERE (from_user_id = {user_id} OR to_profile_id = {user_id}) AND status = 'accepted') AS friends_count,
+                        (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.ads
+                         WHERE user_id = {user_id}) AS ads_count,
+                        (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.services
+                         WHERE user_id = {user_id}) AS services_count,
+                        (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.events
+                         WHERE user_id = {user_id}) AS events_count
+                ''')
+                counts = cur.fetchone()
+                user_data['friends_count'] = counts[0] if counts else 0
+                user_data['ads_count'] = counts[1] if counts else 0
+                user_data['services_count'] = counts[2] if counts else 0
+                user_data['events_count'] = counts[3] if counts else 0
+
                 # Проверяем активный бан
                 if user_data.get('is_banned'):
                     cur.execute(f'''

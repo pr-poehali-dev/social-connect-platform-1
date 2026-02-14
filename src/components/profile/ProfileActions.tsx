@@ -82,7 +82,14 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           variant="outline"
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1"
         >
-          <Icon name="Users" size={24} />
+          <div className="relative">
+            <Icon name="Users" size={24} />
+            {(user?.friends_count ?? 0) > 0 && (
+              <span className="absolute -top-2 -right-3 bg-purple-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                {user.friends_count}
+              </span>
+            )}
+          </div>
           <span className="text-xs">Друзья</span>
         </Button>
         
@@ -91,7 +98,14 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           variant="outline"
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
         >
-          <Icon name="ShoppingBag" size={24} />
+          <div className="relative">
+            <Icon name="ShoppingBag" size={24} />
+            {(user?.ads_count ?? 0) > 0 && (
+              <span className="absolute -top-2 -right-3 bg-purple-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                {user.ads_count}
+              </span>
+            )}
+          </div>
           <span className="text-xs">Объявления</span>
           {!user?.is_vip && (
             <Icon 
@@ -107,7 +121,14 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           variant="outline"
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
         >
-          <Icon name="Briefcase" size={24} />
+          <div className="relative">
+            <Icon name="Briefcase" size={24} />
+            {(user?.services_count ?? 0) > 0 && (
+              <span className="absolute -top-2 -right-3 bg-purple-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                {user.services_count}
+              </span>
+            )}
+          </div>
           <span className="text-xs">Услуги</span>
           {!user?.is_vip && (
             <Icon 
@@ -123,7 +144,14 @@ const ProfileActions = ({ user, verificationStatus = 'none', onRequestVerificati
           variant="outline"
           className="h-20 rounded-2xl flex flex-col items-center justify-center gap-1 relative"
         >
-          <Icon name="Calendar" size={24} />
+          <div className="relative">
+            <Icon name="Calendar" size={24} />
+            {(user?.events_count ?? 0) > 0 && (
+              <span className="absolute -top-2 -right-3 bg-purple-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                {user.events_count}
+              </span>
+            )}
+          </div>
           <span className="text-xs">Мероприятия</span>
           {!user?.is_vip && (
             <Icon 
