@@ -27,7 +27,7 @@ def escape_sql(value):
     return "'" + str(value).replace("'", "''") + "'"
 
 def handler(event: dict, context) -> dict:
-    '''API для управления услугами: список, детали по nickname, отзывы, CRUD'''
+    '''API для управления услугами: список, детали, отзывы, CRUD'''
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
@@ -97,7 +97,7 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
-                user_id = payload.get('id')
+                user_id = payload.get('user_id') or payload.get('sub') or payload.get('id')
                 cursor.execute(f'''
                     SELECT s.*, sc.name as category_name, ss.name as subcategory_name,
                            c.name as city_name
@@ -286,7 +286,7 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            user_id = payload.get('id')
+            user_id = payload.get('user_id') or payload.get('sub') or payload.get('id')
             body = json.loads(event.get('body', '{}'))
             
             cursor.execute(f"SELECT first_name, last_name FROM users WHERE id = {escape_sql(user_id)}")
@@ -352,7 +352,7 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            user_id = payload.get('id')
+            user_id = payload.get('user_id') or payload.get('sub') or payload.get('id')
             query_params = event.get('queryStringParameters', {}) or {}
             service_id = query_params.get('id')
             
@@ -453,7 +453,7 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            user_id = payload.get('id')
+            user_id = payload.get('user_id') or payload.get('sub') or payload.get('id')
             query_params = event.get('queryStringParameters', {}) or {}
             service_id = query_params.get('id')
             
