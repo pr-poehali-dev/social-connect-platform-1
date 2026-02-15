@@ -5,6 +5,7 @@ from psycopg2.extras import RealDictCursor
 import jwt as pyjwt
 import base64
 import boto3
+# v3: fix user_id from token + debug logging
 
 def verify_token(token: str) -> dict | None:
     if not token:
@@ -288,6 +289,7 @@ def handler(event: dict, context) -> dict:
             
             user_id = payload.get('user_id') or payload.get('sub') or payload.get('id')
             body = json.loads(event.get('body', '{}'))
+            print(f"[DEBUG] POST service: user_id={user_id}, payload_keys={list(payload.keys())}, body_keys={list(body.keys())}")
             
             cursor.execute(f"SELECT first_name, last_name FROM users WHERE id = {escape_sql(user_id)}")
             user_data = cursor.fetchone()
