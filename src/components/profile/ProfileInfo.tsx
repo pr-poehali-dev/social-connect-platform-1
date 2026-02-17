@@ -63,6 +63,11 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
           <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
             <Icon name="Crown" size={14} className="mr-1" />
             Premium
+            {user.vip_expires_at && (
+              <span className="ml-1 opacity-80">
+                до {new Date(user.vip_expires_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+              </span>
+            )}
           </Badge>
         )}
       </h1>
