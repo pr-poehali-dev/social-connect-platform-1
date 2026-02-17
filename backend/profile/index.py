@@ -67,6 +67,9 @@ def handler(event: dict, context) -> dict:
     try:
         if method == 'GET':
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(f"UPDATE t_p19021063_social_connect_platf.users SET last_login_at = NOW() WHERE id = {user_id}")
+                conn.commit()
+
                 query = f'''
                     SELECT id, email, first_name, last_name, nickname, bio, avatar_url,
                            gender, birth_date, city, district, height,
