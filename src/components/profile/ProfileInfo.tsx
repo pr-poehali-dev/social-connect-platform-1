@@ -65,7 +65,7 @@ const ProfileInfo = ({ user, editMode, formData, setFormData }: ProfileInfoProps
             Premium
             {user.vip_expires_at && (
               <span className="ml-1 opacity-80">
-                до {new Date(user.vip_expires_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                до {new Date(user.vip_expires_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })}
               </span>
             )}
           </Badge>
