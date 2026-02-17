@@ -11,6 +11,7 @@ import ProfileInfo from '@/components/dating/ProfileInfo';
 import PhotoGallery from '@/components/dating/PhotoGallery';
 import ReceivedGifts from '@/components/dating/ReceivedGifts';
 import { calculateDistance, formatDistance } from '@/utils/distance';
+import { formatLastSeen } from '@/utils/date';
 
 const DatingProfile = () => {
   const { userId } = useParams();
@@ -27,25 +28,7 @@ const DatingProfile = () => {
   const [currentUserLocation, setCurrentUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
 
-  const formatLastSeen = (lastLoginAt: string | null) => {
-    if (!lastLoginAt) return 'давно';
-    
-    const now = new Date();
-    const utcString = lastLoginAt.endsWith('Z') ? lastLoginAt : lastLoginAt + 'Z';
-    const lastLogin = new Date(utcString);
-    const diffMs = now.getTime() - lastLogin.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-    
-    if (diffMins < 1) return 'только что';
-    if (diffMins < 60) return `${diffMins} мин назад`;
-    if (diffHours < 24) return `${diffHours} ч назад`;
-    if (diffDays === 1) return 'вчера';
-    if (diffDays < 7) return `${diffDays} дн назад`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} нед назад`;
-    return lastLogin.toLocaleDateString('ru-RU');
-  };
+
 
   useEffect(() => {
     loadProfile();
