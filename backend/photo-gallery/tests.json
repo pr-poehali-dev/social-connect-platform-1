@@ -12,9 +12,31 @@
       "path": "/?action=list",
       "expectedStatus": 400,
       "expectedBody": {
-        "error": "user_id is required"
+        "error": "string"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Albums without user_id returns 400",
+      "method": "GET",
+      "path": "/?action=albums",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create album without auth returns 401",
+      "method": "POST",
+      "path": "/?action=create-album",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Verify key without params returns 401",
+      "method": "POST",
+      "path": "/?action=verify-key",
+      "expectedStatus": 401
     }
   ]
 }

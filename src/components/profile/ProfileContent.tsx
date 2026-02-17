@@ -149,15 +149,13 @@ const ProfileContent = ({
                     </div>
                   )}
 
-                  {!editMode && (
-                    <div className="pt-6 border-t">
-                      <PhotoGallery 
-                        photos={photos}
-                        editMode={editMode}
-                        onPhotosUpdate={loadPhotos}
-                      />
-                    </div>
-                  )}
+                  <div className="pt-6 border-t">
+                    <PhotoGallery 
+                      photos={photos}
+                      editMode={editMode}
+                      onPhotosUpdate={loadPhotos}
+                    />
+                  </div>
 
                   {!editMode && (
                     <div className="pt-6 border-t flex flex-col gap-3">

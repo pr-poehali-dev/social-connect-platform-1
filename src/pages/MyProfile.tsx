@@ -130,7 +130,7 @@ const MyProfile = () => {
       <main className="pt-24 pb-24 lg:pb-12">
         <div className="container mx-auto px-4 max-w-4xl">
           <Card className="rounded-3xl border-2 shadow-2xl overflow-hidden">
-            <PhotoGallery photos={photos} />
+            <PhotoGallery photos={photos} userId={profile?.id || 0} />
 
             <div className="p-6 space-y-6">
               <div className="flex items-start justify-between">

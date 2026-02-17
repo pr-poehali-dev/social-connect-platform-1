@@ -448,7 +448,7 @@ const DatingProfile = () => {
               currentUserIsVip={currentUserIsVip}
             />
 
-            {photos.length > 0 && <PhotoGallery photos={photos} canLike={!isOwnProfile} />}
+            <PhotoGallery photos={photos} userId={profile.user_id} canLike={!isOwnProfile} />
 
             <ReceivedGifts userId={profile.user_id} isOwnProfile={isOwnProfile} />
           </div>
