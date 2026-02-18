@@ -39,6 +39,7 @@ export interface Profile {
   is_vip?: boolean;
   profile_background?: string;
   is_current_user?: boolean;
+  zodiac_sign?: string;
 }
 
 interface UseDatingProfilesLoaderProps {
@@ -223,7 +224,8 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               bio: p.bio,
               is_vip: p.is_vip,
               profile_background: p.profile_background,
-              is_current_user: p.is_current_user
+              is_current_user: p.is_current_user,
+              zodiac_sign: p.zodiac_sign
             };
           })
           .filter((p: any) => p.image && p.image.trim() !== '');

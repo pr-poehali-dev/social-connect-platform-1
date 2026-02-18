@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 import { formatLastSeen } from '@/utils/date';
+import CompatibilityMini from '@/components/horoscope/CompatibilityMini';
 
 interface Profile {
   id: number;
@@ -36,6 +37,7 @@ interface Profile {
   is_vip?: boolean;
   profile_background?: string;
   is_current_user?: boolean;
+  zodiac_sign?: string;
 }
 
 interface ProfileCardProps {
@@ -256,6 +258,11 @@ const ProfileCard = ({
                   <Icon name="Cake" size={20} className="text-yellow-300 animate-pulse" />
                 )}
               </h3>
+              {!profile.is_current_user && profile.zodiac_sign && (
+                <div className="mt-1">
+                  <CompatibilityMini targetZodiacSign={profile.zodiac_sign} />
+                </div>
+              )}
               <div className="space-y-1">
                 {profile.city && (
                   <p className="flex items-center gap-1 text-sm">

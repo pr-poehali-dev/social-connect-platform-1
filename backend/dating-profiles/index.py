@@ -165,7 +165,8 @@ def handler(event: dict, context) -> dict:
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend,
-                    {is_current_user_check} as is_current_user
+                    {is_current_user_check} as is_current_user,
+                    u.zodiac_sign
                 FROM {S}dating_profiles dp
                 JOIN {S}users u ON dp.user_id = u.id
                 WHERE {where_clause}
@@ -316,6 +317,7 @@ def handler(event: dict, context) -> dict:
                     u.is_vip,
                     u.profile_background,
                     u.contact_price,
+                    u.zodiac_sign,
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
