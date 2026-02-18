@@ -1,6 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getZodiacSign } from '@/utils/zodiac';
 
 interface BasicInfoFieldsProps {
   formData: any;
@@ -8,7 +9,23 @@ interface BasicInfoFieldsProps {
   isVerified?: boolean;
 }
 
+const ZODIAC_SYMBOLS: Record<string, string> = {
+  aries: '♈', taurus: '♉', gemini: '♊', cancer: '♋', leo: '♌', virgo: '♍',
+  libra: '♎', scorpio: '♏', sagittarius: '♐', capricorn: '♑', aquarius: '♒', pisces: '♓',
+};
+
 const BasicInfoFields = ({ formData, setFormData, isVerified = false }: BasicInfoFieldsProps) => {
+  const handleBirthDateChange = (value: string) => {
+    const updates: Record<string, string> = { birth_date: value };
+    if (value) {
+      const detected = getZodiacSign(value);
+      if (detected) {
+        updates.zodiac_sign = detected;
+      }
+    }
+    setFormData({ ...formData, ...updates });
+  };
+
   return (
     <>
       <div className="grid md:grid-cols-2 gap-4">
@@ -76,7 +93,7 @@ const BasicInfoFields = ({ formData, setFormData, isVerified = false }: BasicInf
             id="birth_date"
             type="date"
             value={formData.birth_date}
-            onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+            onChange={(e) => handleBirthDateChange(e.target.value)}
             className="rounded-xl"
             max={new Date().toISOString().split('T')[0]}
             disabled={isVerified}
@@ -84,24 +101,29 @@ const BasicInfoFields = ({ formData, setFormData, isVerified = false }: BasicInf
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="zodiac_sign">Знак зодиака</Label>
+          <Label htmlFor="zodiac_sign">
+            Знак зодиака
+            {formData.zodiac_sign && (
+              <span className="ml-1.5 text-base">{ZODIAC_SYMBOLS[formData.zodiac_sign] || ''}</span>
+            )}
+          </Label>
           <Select value={formData.zodiac_sign} onValueChange={(value) => setFormData({ ...formData, zodiac_sign: value })}>
             <SelectTrigger className="rounded-xl">
-              <SelectValue placeholder="Выберите знак" />
+              <SelectValue placeholder="Определяется автоматически" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="aries">Овен</SelectItem>
-              <SelectItem value="taurus">Телец</SelectItem>
-              <SelectItem value="gemini">Близнецы</SelectItem>
-              <SelectItem value="cancer">Рак</SelectItem>
-              <SelectItem value="leo">Лев</SelectItem>
-              <SelectItem value="virgo">Дева</SelectItem>
-              <SelectItem value="libra">Весы</SelectItem>
-              <SelectItem value="scorpio">Скорпион</SelectItem>
-              <SelectItem value="sagittarius">Стрелец</SelectItem>
-              <SelectItem value="capricorn">Козерог</SelectItem>
-              <SelectItem value="aquarius">Водолей</SelectItem>
-              <SelectItem value="pisces">Рыбы</SelectItem>
+              <SelectItem value="aries">♈ Овен</SelectItem>
+              <SelectItem value="taurus">♉ Телец</SelectItem>
+              <SelectItem value="gemini">♊ Близнецы</SelectItem>
+              <SelectItem value="cancer">♋ Рак</SelectItem>
+              <SelectItem value="leo">♌ Лев</SelectItem>
+              <SelectItem value="virgo">♍ Дева</SelectItem>
+              <SelectItem value="libra">♎ Весы</SelectItem>
+              <SelectItem value="scorpio">♏ Скорпион</SelectItem>
+              <SelectItem value="sagittarius">♐ Стрелец</SelectItem>
+              <SelectItem value="capricorn">♑ Козерог</SelectItem>
+              <SelectItem value="aquarius">♒ Водолей</SelectItem>
+              <SelectItem value="pisces">♓ Рыбы</SelectItem>
             </SelectContent>
           </Select>
         </div>
