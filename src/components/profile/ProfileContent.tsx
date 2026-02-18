@@ -74,7 +74,7 @@ const ProfileContent = ({
                   
                   {!editMode ? (
                     <div className="flex flex-col gap-2 mt-4">
-                      <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12">
+                      <Button onClick={() => setEditMode(true)} variant="outline" className="w-full gap-2 rounded-xl h-12" data-profile-edit>
                         <Icon name="Edit" size={20} />
                         Редактировать
                       </Button>
