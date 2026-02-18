@@ -12,6 +12,7 @@ import PhotoGallery from '@/components/dating/PhotoGallery';
 import ReceivedGifts from '@/components/dating/ReceivedGifts';
 import { calculateDistance, formatDistance } from '@/utils/distance';
 import { formatLastSeen } from '@/utils/date';
+import CompatibilityBadge from '@/components/horoscope/CompatibilityBadge';
 
 const DatingProfile = () => {
   const { userId } = useParams();
@@ -440,6 +441,10 @@ const DatingProfile = () => {
                 recipientName={profile?.name}
               />
             </div>
+
+            {!isOwnProfile && profile.user_id && (
+              <CompatibilityBadge targetUserId={profile.user_id} targetName={profile.name} />
+            )}
 
             <ProfileInfo 
               profile={{ ...profile, distance }} 
