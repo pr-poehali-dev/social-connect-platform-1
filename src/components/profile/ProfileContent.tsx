@@ -10,6 +10,7 @@ import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileActions from '@/components/profile/ProfileActions';
 import ProfileContact from '@/components/profile/ProfileContact';
+import HoroscopeWidget from '@/components/horoscope/HoroscopeWidget';
 import { ProfileFormData } from './ProfileDataProvider';
 
 interface ProfileContentProps {
@@ -126,6 +127,10 @@ const ProfileContent = ({
                     <Icon name="Users" size={20} />
                     Партнёрская программа
                   </Button>
+
+                  {!editMode && (
+                    <HoroscopeWidget />
+                  )}
 
                   {editMode ? (
                     <div className="pt-6 border-t">
