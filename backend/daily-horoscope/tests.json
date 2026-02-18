@@ -1,0 +1,1 @@
+{"tests": [{"name": "Get zodiac signs", "method": "GET", "path": "/?action=signs", "expectedStatus": 200}, {"name": "Get horoscope invalid sign", "method": "GET", "path": "/?action=get&sign=invalid", "expectedStatus": 400, "expectedBody": {"error": "string"}, "bodyMatcher": "partial"}, {"name": "OPTIONS CORS", "method": "OPTIONS", "path": "/", "expectedStatus": 200}]}

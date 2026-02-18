@@ -1,0 +1,1 @@
+{"tests": [{"name": "Get natal chart unauthorized", "method": "GET", "path": "/?action=get", "expectedStatus": 401, "expectedBody": {"error": "string"}, "bodyMatcher": "partial"}, {"name": "OPTIONS CORS", "method": "OPTIONS", "path": "/", "expectedStatus": 200}]}

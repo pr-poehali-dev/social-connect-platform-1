@@ -1,4 +1,7 @@
 {
+  "daily-horoscope": "https://functions.poehali.dev/b970a32c-c62f-4434-a7dd-c02379773d6e",
+  "natal-chart": "https://functions.poehali.dev/5e39412a-49e4-426d-9602-8399dbce57e9",
+  "compatibility": "https://functions.poehali.dev/8f655449-d0e2-424f-bf23-2dff4fd429cc",
   "poker": "https://functions.poehali.dev/bfc193b3-68d1-4cd2-be41-5afb7240ad6e",
   "mafia": "https://functions.poehali.dev/00d5a8b9-0718-48c5-aa0b-0150135c0dd1",
   "dima-assistant": "https://functions.poehali.dev/86e3df7b-5bbc-4fc7-953e-106e1d9c14c2",

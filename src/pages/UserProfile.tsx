@@ -189,6 +189,13 @@ const UserProfile = () => {
                         <p className="text-xs text-muted-foreground">Начните зарабатывать</p>
                       </div>
                     </Button>
+                    <Button variant="outline" className="justify-start gap-3 h-auto py-4 rounded-2xl" onClick={() => navigate('/horoscope')}>
+                      <Icon name="Sparkles" size={24} className="text-violet-500" />
+                      <div className="text-left">
+                        <p className="font-semibold">Астрология</p>
+                        <p className="text-xs text-muted-foreground">Гороскопы и натальная карта</p>
+                      </div>
+                    </Button>
                     <Button variant="outline" className="justify-start gap-3 h-auto py-4 rounded-2xl" onClick={() => navigate('/referral')}>
                       <Icon name="Users" size={24} className="text-emerald-500" />
                       <div className="text-left">
