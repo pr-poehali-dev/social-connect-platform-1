@@ -191,6 +191,20 @@ def handle_register(event: dict) -> dict:
                 (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
             )
     
+    # Авто-создание анкеты знакомств если её нет
+    cur.execute(
+        f"SELECT id FROM {schema}.dating_profiles WHERE user_id = %s",
+        (user_id,)
+    )
+    if not cur.fetchone():
+        display_name = f"{first_name} {last_name}".strip() or nickname or 'Пользователь'
+        cur.execute(
+            f"""INSERT INTO {schema}.dating_profiles (user_id, name, age, is_top_ad)
+                VALUES (%s, %s, 0, FALSE)
+                ON CONFLICT (user_id) DO NOTHING""",
+            (user_id, display_name)
+        )
+
     conn.commit()
     
     # Generate tokens

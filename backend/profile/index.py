@@ -70,6 +70,22 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f"UPDATE t_p19021063_social_connect_platf.users SET last_login_at = NOW() WHERE id = {user_id}")
                 conn.commit()
 
+                # Авто-создание анкеты знакомств если её нет
+                cur.execute(f"SELECT id FROM t_p19021063_social_connect_platf.dating_profiles WHERE user_id = {user_id}")
+                if not cur.fetchone():
+                    cur.execute(f"""
+                        SELECT COALESCE(NULLIF(TRIM(COALESCE(first_name,'') || ' ' || COALESCE(last_name,'')), ''), nickname, 'Пользователь') as display_name
+                        FROM t_p19021063_social_connect_platf.users WHERE id = {user_id}
+                    """)
+                    name_row = cur.fetchone()
+                    display_name = name_row['display_name'] if name_row else 'Пользователь'
+                    cur.execute(f"""
+                        INSERT INTO t_p19021063_social_connect_platf.dating_profiles (user_id, name, age, is_top_ad)
+                        VALUES ({user_id}, '{display_name.replace("'", "''")}', 0, FALSE)
+                        ON CONFLICT (user_id) DO NOTHING
+                    """)
+                    conn.commit()
+
                 query = f'''
                     SELECT id, email, first_name, last_name, nickname, bio, avatar_url,
                            gender, birth_date, city, district, height,
