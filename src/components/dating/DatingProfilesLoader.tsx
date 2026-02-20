@@ -198,7 +198,7 @@ export const useDatingProfilesLoader = ({ filters }: UseDatingProfilesLoaderProp
               city: p.city,
               district: p.district,
               gender: p.gender,
-              image: p.avatar_url || p.user_avatar || p.image,
+              image: (p.avatar_url || p.user_avatar || p.image || '').replace(/cs=\d+x\d+/, 'cs=400x400'),
               isOnline: p.is_online,
               lastSeen: p.last_login_at,
               isVerified: p.is_verified,

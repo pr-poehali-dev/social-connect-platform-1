@@ -326,11 +326,12 @@ def handler(event: dict, context) -> dict:
             
             cur.execute(f"""
                 SELECT 
-                    dp.id, dp.user_id,
-                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name, dp.name) as name,
+                    dp.id, u.id as user_id,
+                    COALESCE(NULLIF(TRIM(COALESCE(u.first_name,'') || ' ' || COALESCE(u.last_name,'')), ''), u.name, dp.name, 'Пользователь') as name,
                     EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
-                    COALESCE(u.city, dp.city) as city,
-                    COALESCE(u.district, dp.district) as district,
+                    u.birth_date,
+                    COALESCE(u.city, dp.city, '') as city,
+                    COALESCE(u.district, dp.district, '') as district,
                     COALESCE(u.interests, dp.interests) as interests,
                     COALESCE(u.bio, dp.bio) as bio,
                     u.avatar_url as image,
@@ -361,9 +362,9 @@ def handler(event: dict, context) -> dict:
                     {favorites_check} as is_favorite,
                     {friend_request_check} as friend_request_sent,
                     {is_friend_check} as is_friend
-                FROM {S}dating_profiles dp
-                JOIN {S}users u ON dp.user_id = u.id
-                WHERE dp.user_id = {target_id} OR dp.id = {target_id}
+                FROM {S}users u
+                LEFT JOIN {S}dating_profiles dp ON dp.user_id = u.id
+                WHERE u.id = {target_id} OR dp.id = {target_id}
             """)
             
             profile = cur.fetchone()

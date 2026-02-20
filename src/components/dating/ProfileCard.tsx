@@ -153,7 +153,7 @@ const ProfileCard = ({
         >
           <div 
             className="relative flex-1 overflow-hidden cursor-pointer"
-            onClick={() => navigate(`/dating/${profile.id}`)}
+            onClick={() => navigate(`/dating/${profile.user_id || profile.id}`)}
           >
             {profile.image ? (
               <div 
