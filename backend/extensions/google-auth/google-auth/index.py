@@ -358,70 +358,93 @@ def handle_callback(event: dict, origin: str) -> dict:
                     name = db_name or name
                     picture = db_avatar or picture
                 else:
-                    # 3. Create new user
-                    nickname = generate_unique_nickname(email, S, conn)
-                    
-                    # Проверяем реферальный код
-                    referrer_id = None
-                    if referral_code:
-                        cur.execute(f"SELECT id FROM {S}users WHERE referral_code = %s", (referral_code,))
-                        referrer = cur.fetchone()
-                        if referrer:
-                            referrer_id = referrer[0]
-                    
-                    cur.execute(
-                        f"""INSERT INTO {S}users
-                            (google_id, email, password_hash, name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at, referred_by)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                            RETURNING id""",
-                        (google_id, email, '', name, nickname, picture, email_verified, now, now, now, referrer_id)
-                    )
-                    user_id = cur.fetchone()[0]
-                    
-                    # Генерируем уникальный реферальный код для нового пользователя
-                    import string
-                    max_attempts = 10
-                    new_referral_code = None
-                    for _ in range(max_attempts):
-                        chars = string.ascii_uppercase + string.digits
-                        ref_code = ''.join(secrets.choice(chars) for _ in range(6))
-                        cur.execute(f"SELECT COUNT(*) FROM {S}users WHERE referral_code = %s", (ref_code,))
-                        if cur.fetchone()[0] == 0:
-                            new_referral_code = ref_code
-                            break
-                    
-                    if not new_referral_code:
-                        timestamp = str(int(secrets.randbits(20)))[-6:]
-                        new_referral_code = timestamp.zfill(6)
-                    
-                    cur.execute(f"UPDATE {S}users SET referral_code = %s WHERE id = %s", (new_referral_code, user_id))
-                    
-                    # Начисляем бонусы за реферальную программу
-                    if referrer_id:
-                        # Новый пользователь получает специальную цену (7 дней за 1 руб)
-                        cur.execute(f"UPDATE {S}users SET referral_bonus_available = true WHERE id = %s", (user_id,))
+                    # 2b. Check by phone (Google doesn't provide phone, but check anyway)
+                    google_phone = user_info.get('phone_number', '')
+                    row = None
+                    if google_phone:
+                        cur.execute(
+                            f"SELECT id, name, avatar_url FROM {S}users WHERE phone = %s AND phone != ''",
+                            (google_phone,)
+                        )
+                        row = cur.fetchone()
+                    if google_phone and row:
+                        user_id, db_name, db_avatar = row
+                        cur.execute(
+                            f"""UPDATE {S}users
+                                SET google_id = %s,
+                                    avatar_url = COALESCE(NULLIF(avatar_url, ''), %s),
+                                    name = COALESCE(NULLIF(name, ''), %s),
+                                    last_login_at = %s, updated_at = %s
+                                WHERE id = %s""",
+                            (google_id, picture, name, now, now, user_id)
+                        )
+                        name = db_name or name
+                        picture = db_avatar or picture
+                    else:
+                        # 3. Create new user
+                        nickname = generate_unique_nickname(email, S, conn)
                         
-                        # Пригласитель получает +1 день премиум подписки
-                        cur.execute(f"SELECT vip_until FROM {S}users WHERE id = %s", (referrer_id,))
-                        vip_result = cur.fetchone()
-                        
-                        if vip_result and vip_result[0]:
-                            new_vip_until = vip_result[0] + timedelta(days=1)
-                        else:
-                            new_vip_until = datetime.now(timezone.utc) + timedelta(days=1)
+                        # Проверяем реферальный код
+                        referrer_id = None
+                        if referral_code:
+                            cur.execute(f"SELECT id FROM {S}users WHERE referral_code = %s", (referral_code,))
+                            referrer = cur.fetchone()
+                            if referrer:
+                                referrer_id = referrer[0]
                         
                         cur.execute(
-                            f"UPDATE {S}users SET is_vip = true, vip_until = %s WHERE id = %s",
-                            (new_vip_until, referrer_id)
+                            f"""INSERT INTO {S}users
+                                (google_id, email, password_hash, name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at, referred_by)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                RETURNING id""",
+                            (google_id, email, '', name, nickname, picture, email_verified, now, now, now, referrer_id)
                         )
+                        user_id = cur.fetchone()[0]
                         
-                        # Записываем транзакцию бонуса
-                        cur.execute(
-                            f"""INSERT INTO {S}transactions 
-                                (user_id, referrer_id, type, amount, description) 
-                                VALUES (%s, %s, %s, %s, %s)""",
-                            (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
-                        )
+                        # Генерируем уникальный реферальный код для нового пользователя
+                        import string
+                        max_attempts = 10
+                        new_referral_code = None
+                        for _ in range(max_attempts):
+                            chars = string.ascii_uppercase + string.digits
+                            ref_code = ''.join(secrets.choice(chars) for _ in range(6))
+                            cur.execute(f"SELECT COUNT(*) FROM {S}users WHERE referral_code = %s", (ref_code,))
+                            if cur.fetchone()[0] == 0:
+                                new_referral_code = ref_code
+                                break
+                        
+                        if not new_referral_code:
+                            timestamp = str(int(secrets.randbits(20)))[-6:]
+                            new_referral_code = timestamp.zfill(6)
+                        
+                        cur.execute(f"UPDATE {S}users SET referral_code = %s WHERE id = %s", (new_referral_code, user_id))
+                        
+                        # Начисляем бонусы за реферальную программу
+                        if referrer_id:
+                            # Новый пользователь получает специальную цену (7 дней за 1 руб)
+                            cur.execute(f"UPDATE {S}users SET referral_bonus_available = true WHERE id = %s", (user_id,))
+                            
+                            # Пригласитель получает +1 день премиум подписки
+                            cur.execute(f"SELECT vip_until FROM {S}users WHERE id = %s", (referrer_id,))
+                            vip_result = cur.fetchone()
+                            
+                            if vip_result and vip_result[0]:
+                                new_vip_until = vip_result[0] + timedelta(days=1)
+                            else:
+                                new_vip_until = datetime.now(timezone.utc) + timedelta(days=1)
+                            
+                            cur.execute(
+                                f"UPDATE {S}users SET is_vip = true, vip_until = %s WHERE id = %s",
+                                (new_vip_until, referrer_id)
+                            )
+                            
+                            # Записываем транзакцию бонуса
+                            cur.execute(
+                                f"""INSERT INTO {S}transactions 
+                                    (user_id, referrer_id, type, amount, description) 
+                                    VALUES (%s, %s, %s, %s, %s)""",
+                                (referrer_id, user_id, 'referral_bonus', 1, 'Бонус: +1 день Premium за приглашение пользователя')
+                            )
 
             access_token, expires_in = create_access_token(user_id, email)
             refresh_token = create_refresh_token()
