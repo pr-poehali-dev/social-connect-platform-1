@@ -364,7 +364,7 @@ def handler(event: dict, context) -> dict:
                     {is_friend_check} as is_friend
                 FROM {S}users u
                 LEFT JOIN {S}dating_profiles dp ON dp.user_id = u.id
-                WHERE u.id = {target_id} OR dp.id = {target_id}
+                WHERE u.id = {target_id}
             """)
             
             profile = cur.fetchone()
