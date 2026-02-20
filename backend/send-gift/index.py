@@ -187,14 +187,14 @@ def handler(event: dict, context) -> dict:
         cursor.execute(f"""
             INSERT INTO {schema}.transactions 
             (user_id, amount, type, status, description)
-            VALUES (%s, %s, 'send_gift', 'completed', %s)
+            VALUES (%s, %s, 'withdrawal', 'completed', %s)
         """, (user_id, -price, f'Подарок "{gift_name}" для {recipient_name}'))
         
         # Транзакция начисления получателю
         cursor.execute(f"""
             INSERT INTO {schema}.transactions 
             (user_id, amount, type, status, description)
-            VALUES (%s, %s, 'gift_cashback', 'completed', %s)
+            VALUES (%s, %s, 'deposit', 'completed', %s)
         """, (recipient_id, cashback_amount, f'Получен подарок "{gift_name}" ({gift_emoji})'))
         
         # Уведомление получателю
