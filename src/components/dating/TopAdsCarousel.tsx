@@ -15,7 +15,7 @@ interface TopAdsCarouselProps {
   ads: TopAd[];
 }
 
-const TopAdsCarousel = ({ ads }: TopAdsCarouselProps) => {
+const TopAdsCarousel = ({ ads = [] }: TopAdsCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 
