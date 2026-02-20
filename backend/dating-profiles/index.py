@@ -139,38 +139,78 @@ def handler(event: dict, context) -> dict:
             is_current_user_check = f"u.id = {user_id}" if user_id else "FALSE"
             
             cur.execute(f"""
-                SELECT 
-                    dp.id, dp.user_id,
-                    COALESCE(u.first_name || ' ' || COALESCE(u.last_name, ''), u.name, dp.name) as name,
-                    EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
-                    u.birth_date,
-                    COALESCE(u.city, dp.city) as city,
-                    COALESCE(u.district, dp.district) as district,
-                    COALESCE(u.interests, dp.interests) as interests,
-                    COALESCE(u.bio, dp.bio) as bio,
-                    COALESCE(u.avatar_url, dp.avatar_url) as avatar_url,
-                    u.height,
-                    u.body_type,
-                    u.gender,
-                    u.is_verified,
-                    u.last_login_at,
-                    u.status_text,
-                    CASE 
-                        WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
-                        ELSE FALSE
-                    END as is_online,
-                    COALESCE(dp.is_top_ad, u.is_vip, FALSE) as is_top_ad,
-                    u.is_vip,
-                    u.profile_background,
-                    {favorites_check} as is_favorite,
-                    {friend_request_check} as friend_request_sent,
-                    {is_friend_check} as is_friend,
-                    {is_current_user_check} as is_current_user,
-                    u.zodiac_sign
-                FROM {S}dating_profiles dp
-                JOIN {S}users u ON dp.user_id = u.id
-                WHERE {where_clause}
-                ORDER BY dp.is_top_ad DESC NULLS LAST, dp.created_at DESC
+                SELECT * FROM (
+                    -- Пользователи с анкетой dating_profiles
+                    SELECT 
+                        dp.id, dp.user_id,
+                        COALESCE(NULLIF(TRIM(COALESCE(u.first_name,'') || ' ' || COALESCE(u.last_name,'')), ''), u.name, dp.name, 'Пользователь') as name,
+                        EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                        u.birth_date,
+                        COALESCE(u.city, dp.city) as city,
+                        COALESCE(u.district, dp.district) as district,
+                        COALESCE(u.interests, dp.interests) as interests,
+                        COALESCE(u.bio, dp.bio) as bio,
+                        COALESCE(u.avatar_url, dp.avatar_url) as avatar_url,
+                        u.height,
+                        u.body_type,
+                        u.gender,
+                        u.is_verified,
+                        u.last_login_at,
+                        u.status_text,
+                        CASE 
+                            WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                            ELSE FALSE
+                        END as is_online,
+                        COALESCE(dp.is_top_ad, u.is_vip, FALSE) as is_top_ad,
+                        u.is_vip,
+                        u.profile_background,
+                        {favorites_check} as is_favorite,
+                        {friend_request_check} as friend_request_sent,
+                        {is_friend_check} as is_friend,
+                        {is_current_user_check} as is_current_user,
+                        u.zodiac_sign,
+                        dp.created_at as sort_date
+                    FROM {S}dating_profiles dp
+                    JOIN {S}users u ON dp.user_id = u.id
+                    WHERE {where_clause}
+                    UNION ALL
+                    -- Пользователи БЕЗ анкеты, но с аватаркой и dating_visible=true
+                    SELECT 
+                        NULL as id, u.id as user_id,
+                        COALESCE(NULLIF(TRIM(COALESCE(u.first_name,'') || ' ' || COALESCE(u.last_name,'')), ''), u.name, u.nickname, 'Пользователь') as name,
+                        EXTRACT(YEAR FROM AGE(u.birth_date)) as age,
+                        u.birth_date,
+                        COALESCE(u.city, '') as city,
+                        COALESCE(u.district, '') as district,
+                        u.interests,
+                        u.bio,
+                        u.avatar_url,
+                        u.height,
+                        u.body_type,
+                        u.gender,
+                        u.is_verified,
+                        u.last_login_at,
+                        u.status_text,
+                        CASE 
+                            WHEN u.last_login_at > NOW() - INTERVAL '15 minutes' THEN TRUE
+                            ELSE FALSE
+                        END as is_online,
+                        COALESCE(u.is_vip, FALSE) as is_top_ad,
+                        u.is_vip,
+                        u.profile_background,
+                        FALSE as is_favorite,
+                        FALSE as friend_request_sent,
+                        FALSE as is_friend,
+                        {is_current_user_check} as is_current_user,
+                        u.zodiac_sign,
+                        u.created_at as sort_date
+                    FROM {S}users u
+                    WHERE u.dating_visible = TRUE
+                        AND u.avatar_url IS NOT NULL AND u.avatar_url != ''
+                        AND NOT EXISTS (SELECT 1 FROM {S}dating_profiles dp2 WHERE dp2.user_id = u.id)
+                        AND {where_clause.replace('u.', 'u.')}
+                ) combined
+                ORDER BY is_top_ad DESC NULLS LAST, sort_date DESC
                 LIMIT 50
             """)
             

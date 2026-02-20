@@ -282,7 +282,7 @@ def handler(event: dict, context) -> dict:
         new_conv = cursor.fetchone()
         conv_id = new_conv['id']
         
-        print(f"[DEBUG] Created new conversation with ID: {conv_id} for user {other_user['name']}")
+        print(f"[DEBUG] Created new conversation with ID: {conv_id} for user {user_display_name}")
         
         cursor.execute(f'''
             INSERT INTO {schema}.conversation_participants 
