@@ -451,11 +451,12 @@ def handle_callback(event: dict, origin: str) -> dict:
                                 (vk_id, email, password_hash, first_name, last_name, nickname, avatar_url, email_verified, created_at, updated_at, last_login_at, referred_by)
                                 VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE, %s, %s, %s, %s)
                                 RETURNING id""",
-                            (str(vk_user_id), email_to_insert, '', first_name, last_name, nickname, photo_url, now, now, now, referrer_id)
+                            (str(vk_user_id), email_to_insert, '', first_name, last_name, nickname, '', now, now, now, referrer_id)
                         )
                         user_id = cur.fetchone()[0]
                         email = vk_email
                         name = full_name
+                        photo_url = ''
                         
                         # Генерируем уникальный реферальный код для нового пользователя
                         import string

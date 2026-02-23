@@ -128,7 +128,8 @@ export const useProfileData = () => {
           console.log('User data loaded:', userData);
           console.log('is_vip:', userData.is_vip);
           setUser(userData);
-          setDatingVisible(userData.dating_visible !== false);
+          const hasPhoto = !!(userData.avatar_url);
+          setDatingVisible(userData.dating_visible !== false && hasPhoto);
           setShareLocation(userData.share_location === true);
           setPremiumOnly(userData.premium_only_messages === true);
           setContactPrice(userData.contact_price || 0);

@@ -187,6 +187,17 @@ export const useProfileActions = ({
   };
 
   const handleDatingVisibilityToggle = (enabled: boolean) => {
+    if (enabled) {
+      const hasPhoto = !!(formData.avatar_url || user?.avatar_url);
+      if (!hasPhoto) {
+        toast({
+          title: 'Необходимо добавить фото',
+          description: 'Загрузите фото профиля, чтобы появляться в Знакомствах',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
     setDatingVisible(enabled);
     localStorage.setItem('datingProfileVisible', enabled.toString());
     toast({
