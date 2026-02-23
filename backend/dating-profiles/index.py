@@ -1,10 +1,31 @@
 """API для работы с профилями знакомств"""
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta, date
 import jwt as pyjwt
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+MISS_VOTE_COST = 1
+MISS_VOTE_COOLDOWN_DAYS = 30
+MISS_MIN_AGE = 18
+MISS_MAX_AGE = 45
+
+
+def calc_age(birth_date):
+    if not birth_date:
+        return None
+    today = date.today()
+    bd = birth_date if isinstance(birth_date, date) else datetime.strptime(str(birth_date)[:10], '%Y-%m-%d').date()
+    return today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
+
+
+def escape_str(val):
+    if val is None:
+        return 'NULL'
+    if isinstance(val, (int, float, bool)):
+        return str(val)
+    return "'" + str(val).replace("'", "''") + "'"
 
 HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -678,6 +699,137 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             return response(200, {'success': True, 'message': 'Friend removed'})
         
+        # --- MISS LOVEIS ---
+
+        # GET miss-leaderboard - топ-10 участниц конкурса
+        elif method == 'GET' and action == 'miss-leaderboard':
+            cur.execute(f"""
+                SELECT 
+                    mc.id, mc.user_id, mc.total_votes, mc.joined_at,
+                    u.first_name, u.nickname, u.avatar_url, u.city, u.birth_date,
+                    u.is_verified, u.is_vip,
+                    ROW_NUMBER() OVER (ORDER BY mc.total_votes DESC, mc.joined_at ASC) AS rank
+                FROM {S}miss_loveis_contestants mc
+                JOIN {S}users u ON u.id = mc.user_id
+                ORDER BY mc.total_votes DESC, mc.joined_at ASC
+                LIMIT 10
+            """)
+            rows = cur.fetchall()
+            result = []
+            for row in rows:
+                row = dict(row)
+                age = calc_age(row.get('birth_date'))
+                result.append({
+                    'rank': row['rank'],
+                    'contestant_id': row['id'],
+                    'user_id': row['user_id'],
+                    'name': row.get('first_name') or row.get('nickname') or 'Участница',
+                    'nickname': row.get('nickname'),
+                    'avatar_url': row.get('avatar_url'),
+                    'city': row.get('city'),
+                    'age': age,
+                    'total_votes': row['total_votes'],
+                    'is_verified': row.get('is_verified'),
+                    'is_vip': row.get('is_vip'),
+                })
+            return response(200, {'leaderboard': result})
+
+        # POST miss-join - участие в конкурсе
+        elif method == 'POST' and action == 'miss-join':
+            if not user_id:
+                return response(401, {'error': 'Требуется авторизация'})
+            cur.execute(f"SELECT gender, birth_date FROM {S}users WHERE id = %s", (user_id,))
+            u = cur.fetchone()
+            if not u:
+                return response(404, {'error': 'Пользователь не найден'})
+            if dict(u).get('gender') != 'female':
+                return response(403, {'error': 'Участие доступно только для девушек'})
+            age = calc_age(dict(u).get('birth_date'))
+            if age is None or age < MISS_MIN_AGE or age > MISS_MAX_AGE:
+                return response(403, {'error': f'Возраст должен быть от {MISS_MIN_AGE} до {MISS_MAX_AGE} лет'})
+            cur.execute(f"SELECT id FROM {S}miss_loveis_contestants WHERE user_id = %s", (user_id,))
+            if cur.fetchone():
+                return response(400, {'error': 'Вы уже участвуете в конкурсе'})
+            cur.execute(f"INSERT INTO {S}miss_loveis_contestants (user_id) VALUES (%s) RETURNING id", (user_id,))
+            row = cur.fetchone()
+            conn.commit()
+            return response(200, {'success': True, 'contestant_id': dict(row)['id']})
+
+        # POST miss-vote - проголосовать за участницу
+        elif method == 'POST' and action == 'miss-vote':
+            if not user_id:
+                return response(401, {'error': 'Требуется авторизация'})
+            body_str = event.get('body', '{}')
+            data = json.loads(body_str) if body_str else {}
+            contestant_user_id = data.get('contestant_user_id')
+            if not contestant_user_id:
+                return response(400, {'error': 'contestant_user_id обязателен'})
+            cur.execute(f"SELECT gender FROM {S}users WHERE id = %s", (user_id,))
+            voter = cur.fetchone()
+            if not voter or dict(voter).get('gender') != 'male':
+                return response(403, {'error': 'Голосовать могут только мужчины'})
+            cur.execute(f"SELECT COALESCE(balance, 0) + COALESCE(bonus_balance, 0) AS total FROM {S}users WHERE id = %s", (user_id,))
+            bal_row = cur.fetchone()
+            if not bal_row or float(dict(bal_row)['total']) < MISS_VOTE_COST:
+                return response(400, {'error': 'Недостаточно токенов LOVE'})
+            cur.execute(f"SELECT id FROM {S}miss_loveis_contestants WHERE user_id = %s", (contestant_user_id,))
+            contestant = cur.fetchone()
+            if not contestant:
+                return response(404, {'error': 'Участница не найдена в конкурсе'})
+            contestant_id = dict(contestant)['id']
+            cooldown_date = datetime.utcnow() - timedelta(days=MISS_VOTE_COOLDOWN_DAYS)
+            cur.execute(f"SELECT id FROM {S}miss_loveis_votes WHERE voter_id = %s AND voted_at > %s LIMIT 1", (user_id, cooldown_date))
+            if cur.fetchone():
+                return response(400, {'error': f'Вы уже голосовали в последние {MISS_VOTE_COOLDOWN_DAYS} дней'})
+            cur.execute(f"SELECT COALESCE(balance, 0) AS bal, COALESCE(bonus_balance, 0) AS bonus FROM {S}users WHERE id = %s", (user_id,))
+            brow = dict(cur.fetchone())
+            bal = float(brow['bal'])
+            bonus = float(brow['bonus'])
+            from_bonus = min(bonus, MISS_VOTE_COST)
+            from_main = MISS_VOTE_COST - from_bonus
+            cur.execute(f"UPDATE {S}users SET balance = balance - %s, bonus_balance = bonus_balance - %s WHERE id = %s", (from_main, from_bonus, user_id))
+            cur.execute(f"INSERT INTO {S}transactions (user_id, amount, type, status, description) VALUES (%s, %s, 'miss_vote', 'completed', 'MISS LOVEIS: голос')", (user_id, -MISS_VOTE_COST))
+            cur.execute(f"INSERT INTO {S}miss_loveis_votes (voter_id, contestant_id, tokens_spent) VALUES (%s, %s, %s)", (user_id, contestant_id, MISS_VOTE_COST))
+            cur.execute(f"UPDATE {S}miss_loveis_contestants SET total_votes = total_votes + 1 WHERE id = %s", (contestant_id,))
+            conn.commit()
+            return response(200, {'success': True})
+
+        # GET miss-my-rank - место текущего пользователя
+        elif method == 'GET' and action == 'miss-my-rank':
+            if not user_id:
+                return response(401, {'error': 'Требуется авторизация'})
+            cur.execute(f"""
+                SELECT rank, total_votes FROM (
+                    SELECT user_id, total_votes,
+                        ROW_NUMBER() OVER (ORDER BY total_votes DESC, joined_at ASC) AS rank
+                    FROM {S}miss_loveis_contestants
+                ) ranked WHERE user_id = %s
+            """, (user_id,))
+            row = cur.fetchone()
+            if not row:
+                return response(200, {'in_contest': False})
+            return response(200, {'in_contest': True, 'rank': dict(row)['rank'], 'total_votes': dict(row)['total_votes']})
+
+        # GET miss-can-vote - может ли пользователь проголосовать
+        elif method == 'GET' and action == 'miss-can-vote':
+            if not user_id:
+                return response(200, {'can_vote': False, 'reason': 'not_auth'})
+            cur.execute(f"SELECT gender FROM {S}users WHERE id = %s", (user_id,))
+            voter = cur.fetchone()
+            if not voter or dict(voter).get('gender') != 'male':
+                return response(200, {'can_vote': False, 'reason': 'not_male'})
+            cur.execute(f"SELECT COALESCE(balance, 0) + COALESCE(bonus_balance, 0) AS total FROM {S}users WHERE id = %s", (user_id,))
+            bal_row = cur.fetchone()
+            if not bal_row or float(dict(bal_row)['total']) < MISS_VOTE_COST:
+                return response(200, {'can_vote': False, 'reason': 'no_tokens'})
+            cooldown_date = datetime.utcnow() - timedelta(days=MISS_VOTE_COOLDOWN_DAYS)
+            cur.execute(f"SELECT id, voted_at FROM {S}miss_loveis_votes WHERE voter_id = %s AND voted_at > %s ORDER BY voted_at DESC LIMIT 1", (user_id, cooldown_date))
+            vote_row = cur.fetchone()
+            if vote_row:
+                next_vote_at = dict(vote_row)['voted_at'] + timedelta(days=MISS_VOTE_COOLDOWN_DAYS)
+                return response(200, {'can_vote': False, 'reason': 'cooldown', 'next_vote_at': str(next_vote_at)})
+            return response(200, {'can_vote': True})
+
         else:
             return response(400, {'error': 'Invalid request'})
     

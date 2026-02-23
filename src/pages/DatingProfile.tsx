@@ -28,8 +28,12 @@ const DatingProfile = () => {
   const [photos, setPhotos] = useState<any[]>([]);
   const [currentUserLocation, setCurrentUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
+  const [currentUserGender, setCurrentUserGender] = useState<string | null>(null);
+  const [missCanVote, setMissCanVote] = useState<{ can_vote: boolean; reason?: string; next_vote_at?: string } | null>(null);
+  const [missVoting, setMissVoting] = useState(false);
+  const [missRank, setMissRank] = useState<number | null>(null);
 
-
+  const DATING_URL = 'https://functions.poehali.dev/d6695b20-a490-4823-9fdf-77f3829596e2';
 
   useEffect(() => {
     loadProfile();
@@ -72,12 +76,24 @@ const DatingProfile = () => {
           const userData = await response.json();
           setCurrentUserId(userData.id);
           setCurrentUserIsVip(userData.is_vip || false);
+          setCurrentUserGender(userData.gender || null);
           
           if (userData.share_location && userData.latitude && userData.longitude) {
             setCurrentUserLocation({
               latitude: userData.latitude,
               longitude: userData.longitude
             });
+          }
+
+          if (userData.gender === 'male') {
+            try {
+              const voteRes = await fetch(`${DATING_URL}?action=miss-can-vote`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (voteRes.ok) setMissCanVote(await voteRes.json());
+            } catch (e) {
+              console.error(e);
+            }
           }
         }
       } catch (error) {
@@ -155,6 +171,16 @@ const DatingProfile = () => {
           setIsFavorite(userProfile.is_favorite);
           setRequestSent(userProfile.friend_request_sent);
           setIsFriend(userProfile.is_friend);
+
+          if (userProfile.gender === 'female' && userProfile.user_id) {
+            fetch(`${DATING_URL}?action=miss-leaderboard`)
+              .then(r => r.json())
+              .then(data => {
+                const found = (data.leaderboard || []).find((c: { user_id: number; rank: number }) => c.user_id === userProfile.user_id);
+                if (found) setMissRank(found.rank);
+              })
+              .catch(() => {});
+          }
 
           if (currentUserLocation && userProfile.share_location && userProfile.latitude && userProfile.longitude) {
             const dist = calculateDistance(
@@ -339,6 +365,30 @@ const DatingProfile = () => {
     }
   };
 
+  const handleMissVote = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) { navigate('/login'); return; }
+    setMissVoting(true);
+    try {
+      const res = await fetch(`${DATING_URL}?action=miss-vote`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contestant_user_id: profile?.user_id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: '👑 Голос принят!', description: 'Спасибо за участие в конкурсе' });
+        setMissCanVote({ can_vote: false, reason: 'cooldown' });
+      } else {
+        toast({ title: 'Ошибка', description: data.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setMissVoting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -452,6 +502,49 @@ const DatingProfile = () => {
               contactPrice={profile?.contact_price || 0}
               currentUserIsVip={currentUserIsVip}
             />
+
+            {profile.gender === 'female' && !isOwnProfile && currentUserGender === 'male' && missRank && (
+              <div className="rounded-2xl border border-pink-200 dark:border-pink-800 bg-pink-50/50 dark:bg-pink-950/20 p-4 flex items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-1.5 font-semibold text-pink-600 dark:text-pink-400">
+                    <span>👑</span>
+                    <span>MISS LOVEIS</span>
+                  </div>
+                  {missCanVote?.can_vote ? (
+                    <div className="text-xs text-muted-foreground mt-0.5">Проголосуй за {profile.name} — 1 токен LOVE</div>
+                  ) : missCanVote?.reason === 'cooldown' ? (
+                    <div className="text-xs text-muted-foreground mt-0.5">Вы уже голосовали. Следующий голос через 30 дней</div>
+                  ) : missCanVote?.reason === 'no_tokens' ? (
+                    <div className="text-xs text-muted-foreground mt-0.5">Нет токенов LOVE для голосования</div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground mt-0.5">Участница конкурса красоты</div>
+                  )}
+                </div>
+                {missCanVote?.can_vote && (
+                  <Button
+                    size="sm"
+                    onClick={handleMissVote}
+                    disabled={missVoting}
+                    className="bg-pink-500 hover:bg-pink-600 text-white shrink-0"
+                  >
+                    {missVoting ? '...' : '❤️ Голос'}
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {isOwnProfile && profile.gender === 'female' && missRank && (
+              <div className="rounded-2xl border border-yellow-200 dark:border-yellow-700 bg-yellow-50/50 dark:bg-yellow-950/20 p-4 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5 font-semibold text-yellow-600 dark:text-yellow-400">
+                    <span>👑</span>
+                    <span>MISS LOVEIS</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">Ваше место в конкурсе</div>
+                </div>
+                <div className="text-2xl font-bold text-yellow-500">#{missRank}</div>
+              </div>
+            )}
 
             <PhotoGallery photos={photos} userId={profile.user_id} canLike={!isOwnProfile} />
 

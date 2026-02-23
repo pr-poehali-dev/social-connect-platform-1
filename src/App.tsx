@@ -61,6 +61,7 @@ import PokerGame from "./pages/PokerGame";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Horoscope from "./pages/Horoscope";
+import MissLoveis from "./pages/MissLoveis";
 
 const queryClient = new QueryClient();
 
@@ -129,6 +130,7 @@ const App = () => {
           <Route path="/premium" element={<ProtectedRoute><Premium /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/horoscope" element={<ProtectedRoute><Horoscope /></ProtectedRoute>} />
+          <Route path="/miss-loveis" element={<ProtectedRoute><MissLoveis /></ProtectedRoute>} />
           <Route path="/game" element={<ProtectedRoute><GameHub /></ProtectedRoute>} />
           <Route path="/game/mafia" element={<ProtectedRoute><MafiaLobby /></ProtectedRoute>} />
           <Route path="/game/mafia/:roomId" element={<ProtectedRoute><MafiaGame /></ProtectedRoute>} />

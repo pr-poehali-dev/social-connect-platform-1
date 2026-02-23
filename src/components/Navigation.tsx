@@ -140,6 +140,7 @@ const Navigation = () => {
   ];
 
   const sidebarItems = [
+    { path: '/miss-loveis', label: 'MISS👑LOVEIS', icon: 'Crown' },
     { path: '/horoscope', label: 'Астрология', icon: 'Sparkles' },
     { path: '/game', label: 'GAME', icon: 'Gamepad2' },
   ];
