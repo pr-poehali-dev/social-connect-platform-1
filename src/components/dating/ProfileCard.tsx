@@ -235,46 +235,44 @@ const ProfileCard = ({
                 </Badge>
               )}
 
-              {profile.isOnline && (
-                <Badge className="bg-green-500/90 text-white rounded-full px-3 py-1 flex items-center gap-1">
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                  Online
-                </Badge>
-              )}
+
             </div>
-            <div className="absolute bottom-4 left-4 text-white z-30">
-              <h3 className="text-2xl font-bold mb-1 flex items-center gap-2">
-                {profile.name}{profile.age ? `, ${profile.age}` : ''}
+            <div className="absolute bottom-0 left-0 right-0 z-30 px-3 pb-3 pt-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent rounded-b-xl">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-white font-bold text-lg leading-tight">{profile.name}</span>
                 {profile.isVerified && (
-                  <Icon name="BadgeCheck" size={20} className="text-blue-400" />
+                  <Icon name="BadgeCheck" size={16} className="text-blue-400 shrink-0" />
                 )}
                 {showBirthdayIcon && (
-                  <Icon name="Cake" size={20} className="text-yellow-300 animate-pulse" />
+                  <Icon name="Cake" size={16} className="text-yellow-300 animate-pulse shrink-0" />
                 )}
-              </h3>
-              {!profile.is_current_user && profile.zodiac_sign && (
-                <div className="mt-1">
-                  <CompatibilityMini targetZodiacSign={profile.zodiac_sign} />
-                </div>
-              )}
-              <div className="space-y-1">
+                {profile.age && (
+                  <span className="text-white/90 font-semibold text-lg leading-tight">{profile.age}</span>
+                )}
+                {profile.isOnline ? (
+                  <span className="ml-auto flex items-center gap-1 text-green-400 text-xs font-medium shrink-0">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                    online
+                  </span>
+                ) : profile.lastSeen ? (
+                  <span className="ml-auto text-white/60 text-xs shrink-0">{formatLastSeen(profile.lastSeen)}</span>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {profile.city && (
-                  <p className="flex items-center gap-1 text-sm">
-                    <Icon name="MapPin" size={14} />
+                  <span className="flex items-center gap-0.5 text-white/75 text-xs">
+                    <Icon name="MapPin" size={12} />
                     {profile.city}
-                  </p>
-                )}
-                {!profile.isOnline && profile.lastSeen && (
-                  <p className="flex items-center gap-1 text-sm opacity-80">
-                    <Icon name="Clock" size={14} />
-                    {formatLastSeen(profile.lastSeen)}
-                  </p>
+                  </span>
                 )}
                 {profile.distance && (
-                  <p className="flex items-center gap-1 text-sm">
-                    <Icon name="Navigation" size={14} />
-                    {profile.distance} от вас
-                  </p>
+                  <span className="flex items-center gap-0.5 text-white/75 text-xs">
+                    <Icon name="Navigation" size={12} />
+                    {profile.distance}
+                  </span>
+                )}
+                {!profile.is_current_user && profile.zodiac_sign && (
+                  <CompatibilityMini targetZodiacSign={profile.zodiac_sign} />
                 )}
               </div>
             </div>
