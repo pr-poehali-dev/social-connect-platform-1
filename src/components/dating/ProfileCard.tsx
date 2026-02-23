@@ -249,15 +249,19 @@ const ProfileCard = ({
                 {profile.age && (
                   <span className="text-white/90 font-semibold text-lg leading-tight">{profile.age}</span>
                 )}
-                {profile.isOnline ? (
-                  <span className="ml-auto flex items-center gap-1 text-green-400 text-xs font-medium shrink-0">
-                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                    online
-                  </span>
-                ) : profile.lastSeen ? (
-                  <span className="ml-auto text-white/60 text-xs shrink-0">{formatLastSeen(profile.lastSeen)}</span>
-                ) : null}
               </div>
+              {(profile.isOnline || profile.lastSeen) && (
+                <div className="mt-0.5">
+                  {profile.isOnline ? (
+                    <span className="flex items-center gap-1 text-green-400 text-xs font-medium">
+                      <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                      online
+                    </span>
+                  ) : (
+                    <span className="text-white/60 text-xs">{formatLastSeen(profile.lastSeen)}</span>
+                  )}
+                </div>
+              )}
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {profile.city && (
                   <span className="flex items-center gap-0.5 text-white/75 text-xs">
