@@ -21,6 +21,7 @@ const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -136,6 +137,9 @@ const Navigation = () => {
     { path: '/ads', label: 'LIVE', icon: 'Radio', pulse: true },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
+  ];
+
+  const sidebarItems = [
     { path: '/horoscope', label: 'Астрология', icon: 'Sparkles' },
     { path: '/game', label: 'GAME', icon: 'Gamepad2' },
   ];
@@ -179,6 +183,15 @@ const Navigation = () => {
                   </Button>
                 </Link>
               ))}
+              <Button
+                variant={sidebarItems.some(i => location.pathname === i.path) ? 'default' : 'ghost'}
+                size="icon"
+                className="h-9 w-9"
+                title="Ещё"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <Icon name="LayoutGrid" size={18} />
+              </Button>
               <div className="w-px h-6 bg-border mx-1" />
               {bottomNavItems.map((item) => {
                 if (item.path === '/radio') {
@@ -239,7 +252,7 @@ const Navigation = () => {
           {isOpen && (
             <div className="lg:hidden pb-4 animate-fade-in">
               <div className="flex flex-col gap-2">
-                {[...mainNavItems, ...bottomNavItems].map((item) => (
+                {[...mainNavItems, ...sidebarItems, ...bottomNavItems].map((item) => (
                   <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
                     <Button
                       variant={location.pathname === item.path ? 'default' : 'ghost'}
@@ -274,6 +287,13 @@ const Navigation = () => {
               </Button>
             </Link>
           ))}
+          <Button
+            variant={sidebarItems.some(i => location.pathname === i.path) ? 'default' : 'ghost'}
+            className="flex-1 h-12 rounded-none border-b-2 border-transparent text-xs px-1"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Icon name="LayoutGrid" size={16} />
+          </Button>
         </div>
       </div>
 
@@ -395,6 +415,36 @@ const Navigation = () => {
         />
         <div className="absolute top-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-slate-800" />
       </Button>
+
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      <div
+        className={`fixed top-0 right-0 h-full w-72 z-[70] bg-white dark:bg-slate-900 border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <span className="font-semibold text-base">Ещё</span>
+          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
+            <Icon name="X" size={20} />
+          </Button>
+        </div>
+        <div className="flex flex-col gap-2 p-4">
+          {sidebarItems.map((item) => (
+            <Link key={item.path} to={item.path} onClick={() => setIsSidebarOpen(false)}>
+              <Button
+                variant={location.pathname === item.path || location.pathname.startsWith(item.path + '/') ? 'default' : 'ghost'}
+                className="w-full justify-start gap-3 text-base h-12"
+              >
+                <Icon name={item.icon} size={20} />
+                {item.label}
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </div>
     </>
   );
 };
