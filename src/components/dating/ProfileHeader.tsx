@@ -2,8 +2,13 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getBackgroundClass, getBackgroundStyle } from '@/utils/premiumBackgrounds';
 
+const normalizeImageUrl = (url: string) => {
+  if (!url) return url;
+  return url.replace(/cs=\d+x\d+/, 'cs=400x400').replace(/&ava=1/, '');
+};
+
 interface ProfileHeaderProps {
-  profile: any;
+  profile: { image?: string; name?: string; profile_background?: string; [key: string]: unknown };
   isOwnProfile: boolean;
   isFavorite: boolean;
   onBack: () => void;
@@ -16,7 +21,7 @@ const ProfileHeader = ({ profile, isOwnProfile, isFavorite, onBack, onToggleFavo
       <div className="aspect-[3/4] md:aspect-[3/4] bg-gradient-to-br from-primary/20 to-primary/10 relative overflow-hidden">
         {profile.image ? (
           <img 
-            src={profile.image} 
+            src={normalizeImageUrl(profile.image)} 
             alt={profile.name}
             className="w-full h-full object-cover"
           />

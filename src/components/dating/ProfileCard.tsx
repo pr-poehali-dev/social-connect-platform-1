@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const normalizeImageUrl = (url: string) => {
+  if (!url) return url;
+  return url.replace(/cs=\d+x\d+/, 'cs=400x400').replace(/&ava=1/, '');
+};
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -202,7 +207,7 @@ const ProfileCard = ({
                   />
                 ) : (
                   <img
-                    src={profile.image}
+                    src={normalizeImageUrl(profile.image)}
                     alt={profile.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
