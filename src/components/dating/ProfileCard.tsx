@@ -243,13 +243,7 @@ const ProfileCard = ({
               )}
             </div>
             <div className="absolute bottom-4 left-4 text-white z-30">
-              <h3 
-                className="text-2xl font-bold mb-1 flex items-center gap-2 cursor-pointer hover:underline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/dating/${profile.id}`);
-                }}
-              >
+              <h3 className="text-2xl font-bold mb-1 flex items-center gap-2">
                 {profile.name}{profile.age ? `, ${profile.age}` : ''}
                 {profile.isVerified && (
                   <Icon name="BadgeCheck" size={20} className="text-blue-400" />
