@@ -1,6 +1,5 @@
 import Navigation from '@/components/Navigation';
 import { VkCallModal } from '@/components/VkCallModal';
-import SosButton from '@/components/sos/SosButton';
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
 import { Chat, Message } from './types';
@@ -26,9 +25,7 @@ interface MessagesLayoutProps {
   onDeleteChat: (chatId: number) => void;
   onClearChat: (chatId: number) => void;
   onBlockUser: (userId: number) => void;
-  onSosCreated: (conversationId: number) => void;
   onSosResolve: (sosRequestId: number, conversationId: number) => void;
-  activeSosConversationId: number | null;
 }
 
 export default function MessagesLayout({
@@ -51,9 +48,7 @@ export default function MessagesLayout({
   onDeleteChat,
   onClearChat,
   onBlockUser,
-  onSosCreated,
   onSosResolve,
-  activeSosConversationId,
 }: MessagesLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:overflow-auto overflow-y-auto overflow-x-hidden">
@@ -64,14 +59,6 @@ export default function MessagesLayout({
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-3 gap-6 relative">
               <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
-                <div className="flex justify-end mb-2">
-                  <SosButton
-                    token={localStorage.getItem('access_token') || ''}
-                    onSosCreated={onSosCreated}
-                    onToast={toast}
-                    activeSosConversationId={activeSosConversationId}
-                  />
-                </div>
                 <ChatList
                   chats={chats}
                   loading={loading}

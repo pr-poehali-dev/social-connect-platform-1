@@ -7,6 +7,8 @@ import { isAuthenticated } from '@/utils/auth';
 import { useRadio } from '@/contexts/RadioContext';
 import { OLESYA_AVATAR } from './ai-assistant/constants';
 import { DIMA_AVATAR } from './dima-assistant/constants';
+import SosButton from '@/components/sos/SosButton';
+import { useToast } from '@/hooks/use-toast';
 
 const getDefaultAssistant = (): 'olesya' | 'dima' => {
   const saved = localStorage.getItem('preferredAssistant');
@@ -22,6 +24,7 @@ const Navigation = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { toast } = useToast();
   const [isAuth, setIsAuth] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -444,6 +447,15 @@ const Navigation = () => {
               </Button>
             </Link>
           ))}
+          <div className="pt-2 border-t border-border mt-2">
+            <div className="flex items-center gap-3 px-1">
+              <SosButton
+                token={localStorage.getItem('access_token') || ''}
+                onToast={toast}
+              />
+              <span className="text-sm font-medium text-red-600">SOS — Нужна помощь</span>
+            </div>
+          </div>
         </div>
       </div>
     </>

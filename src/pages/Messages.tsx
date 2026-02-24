@@ -25,9 +25,7 @@ const Messages = () => {
       onDeleteChat={data.handleDeleteChat}
       onClearChat={data.handleClearChat}
       onBlockUser={data.handleBlockUser}
-      onSosCreated={data.handleSosCreated}
       onSosResolve={data.handleSosResolve}
-      activeSosConversationId={data.activeSosConversationId}
     />
   );
 };
