@@ -5,8 +5,8 @@
       "method": "POST",
       "path": "/",
       "body": {
-        "ad_id": 1,
-        "sender_id": 2,
+        "ad_id": 19,
+        "sender_id": 9,
         "message": "Привет! Хочу принять участие в твоем объявлении."
       },
       "expectedStatus": 200,

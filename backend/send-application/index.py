@@ -51,7 +51,7 @@ def handler(event: dict, context) -> dict:
     try:
         # Получаем информацию об объявлении и его владельце
         cur.execute('''
-            SELECT user_id FROM t_p19021063_social_connect_platf.dating_ads WHERE id = %s
+            SELECT user_id FROM t_p19021063_social_connect_platf.ads WHERE id = %s
         ''', (ad_id,))
         
         result = cur.fetchone()
@@ -72,7 +72,7 @@ def handler(event: dict, context) -> dict:
                 ON c.id = p1.conversation_id AND p1.user_id = %s
             JOIN t_p19021063_social_connect_platf.conversation_participants p2 
                 ON c.id = p2.conversation_id AND p2.user_id = %s
-            WHERE c.type = 'live' AND c.deal_ad_id = %s
+            WHERE c.type IN ('deal', 'live') AND c.deal_ad_id = %s
             LIMIT 1
         ''', (sender_id, receiver_id, ad_id))
         
@@ -85,7 +85,7 @@ def handler(event: dict, context) -> dict:
             cur.execute('''
                 INSERT INTO t_p19021063_social_connect_platf.conversations 
                 (type, deal_ad_id, deal_status, created_by)
-                VALUES ('live', %s, 'pending', %s)
+                VALUES ('deal', %s, 'pending', %s)
                 RETURNING id
             ''', (ad_id, sender_id))
             conversation_id = cur.fetchone()[0]
