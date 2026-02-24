@@ -10,9 +10,10 @@ interface SosButtonProps {
   onToast: (opts: { title: string; description?: string; variant?: 'default' | 'destructive' }) => void;
   activeSosConversationId?: number | null;
   onSosEnded?: () => void;
+  onBeforeOpen?: () => void;
 }
 
-export default function SosButton({ token, onSosCreated, onToast, activeSosConversationId, onSosEnded }: SosButtonProps) {
+export default function SosButton({ token, onSosCreated, onToast, activeSosConversationId, onSosEnded, onBeforeOpen }: SosButtonProps) {
   const [open, setOpen] = useState(false);
   const watchIdRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -108,7 +109,7 @@ export default function SosButton({ token, onSosCreated, onToast, activeSosConve
             ? 'bg-red-600 border-red-700 animate-pulse'
             : 'bg-red-50 hover:bg-red-100 border-red-400'
         }`}
-        onClick={() => !isTracking && setOpen(true)}
+        onClick={() => { if (!isTracking) { onBeforeOpen?.(); setOpen(true); } }}
         title={isTracking ? 'SOS активен — отслеживается местоположение' : 'SOS — Нужна помощь'}
         type="button"
       >

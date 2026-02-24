@@ -452,6 +452,7 @@ const Navigation = () => {
               <SosButton
                 token={localStorage.getItem('access_token') || ''}
                 onToast={toast}
+                onBeforeOpen={() => setIsSidebarOpen(false)}
               />
               <span className="text-sm font-medium text-red-600">SOS — Нужна помощь</span>
             </div>
