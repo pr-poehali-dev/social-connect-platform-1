@@ -311,7 +311,7 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
-    if method == 'POST' and action != 'create-conversation':
+    if method == 'POST' and action not in ('create-conversation', 'sos-create', 'sos-resolve', 'sos-location'):
         data = json.loads(event.get('body', '{}'))
         conversation_id = data.get('conversationId')
         content = data.get('content', '').strip()
