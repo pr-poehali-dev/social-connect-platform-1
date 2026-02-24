@@ -453,6 +453,7 @@ const Navigation = () => {
                 token={localStorage.getItem('access_token') || ''}
                 onToast={toast}
                 onBeforeOpen={() => setIsSidebarOpen(false)}
+                onSosCreated={(conversationId) => navigate('/messages', { state: { openChatId: conversationId } })}
               />
               <span className="text-sm font-medium text-red-600">SOS — Нужна помощь</span>
             </div>
