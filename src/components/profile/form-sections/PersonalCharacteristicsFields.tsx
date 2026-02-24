@@ -1,6 +1,6 @@
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import PROFESSIONS from '@/data/professions';
 
 interface PersonalCharacteristicsFieldsProps {
   formData: any;
@@ -164,14 +164,20 @@ const PersonalCharacteristicsFields = ({ formData, setFormData }: PersonalCharac
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="profession">Профессия</Label>
-        <Input
-          id="profession"
-          value={formData.profession}
-          onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-          placeholder="Ваша профессия"
-          className="rounded-xl"
-        />
+        <Label>Профессия</Label>
+        <Select
+          value={formData.profession || ''}
+          onValueChange={(value) => setFormData({ ...formData, profession: value })}
+        >
+          <SelectTrigger className="rounded-xl">
+            <SelectValue placeholder="Выберите профессию" />
+          </SelectTrigger>
+          <SelectContent>
+            {PROFESSIONS.map((p) => (
+              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </>
   );
