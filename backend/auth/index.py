@@ -169,7 +169,7 @@ def handle_register(event: dict) -> dict:
             )
             
             cur.execute(
-                f"SELECT vip_until FROM {schema}.users WHERE id = %s",
+                f"SELECT vip_expires_at FROM {schema}.users WHERE id = %s",
                 (referrer_id,)
             )
             vip_result = cur.fetchone()
@@ -180,7 +180,7 @@ def handle_register(event: dict) -> dict:
                 new_vip_until = datetime.utcnow() + timedelta(days=1)
             
             cur.execute(
-                f"UPDATE {schema}.users SET is_vip = true, vip_until = %s WHERE id = %s",
+                f"UPDATE {schema}.users SET is_vip = true, vip_expires_at = %s WHERE id = %s",
                 (new_vip_until, referrer_id)
             )
             

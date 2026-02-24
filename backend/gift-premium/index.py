@@ -71,7 +71,7 @@ def handler(event: dict, context) -> dict:
         if action == 'activate-trial':
             # Проверяем, доступен ли бонус
             cursor.execute(f"""
-                SELECT referral_bonus_available, vip_until
+                SELECT referral_bonus_available, vip_expires_at
                 FROM {schema}.users
                 WHERE id = %s
             """, (user_id,))
@@ -94,7 +94,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute(f"""
                 UPDATE {schema}.users
                 SET is_vip = true, 
-                    vip_until = %s,
+                    vip_expires_at = %s,
                     referral_bonus_available = false
                 WHERE id = %s
             """, (new_vip_until, user_id))

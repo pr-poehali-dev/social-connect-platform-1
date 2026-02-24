@@ -425,7 +425,7 @@ def handle_callback(event: dict, origin: str) -> dict:
                             cur.execute(f"UPDATE {S}users SET referral_bonus_available = true WHERE id = %s", (user_id,))
                             
                             # Пригласитель получает +1 день премиум подписки
-                            cur.execute(f"SELECT vip_until FROM {S}users WHERE id = %s", (referrer_id,))
+                            cur.execute(f"SELECT vip_expires_at FROM {S}users WHERE id = %s", (referrer_id,))
                             vip_result = cur.fetchone()
                             
                             if vip_result and vip_result[0]:
@@ -434,7 +434,7 @@ def handle_callback(event: dict, origin: str) -> dict:
                                 new_vip_until = datetime.now(timezone.utc) + timedelta(days=1)
                             
                             cur.execute(
-                                f"UPDATE {S}users SET is_vip = true, vip_until = %s WHERE id = %s",
+                                f"UPDATE {S}users SET is_vip = true, vip_expires_at = %s WHERE id = %s",
                                 (new_vip_until, referrer_id)
                             )
                             
