@@ -107,7 +107,7 @@ def handler(event: dict, context) -> dict:
                     JOIN {schema}.conversation_participants cp2 ON u.id = cp2.user_id
                     WHERE cp2.conversation_id = c.id AND cp2.user_id != %s
                     LIMIT 1) as other_user_vk_id,
-                   (SELECT u.name FROM {schema}.users u
+                   (SELECT COALESCE(NULLIF(TRIM(COALESCE(u.first_name,'') || ' ' || COALESCE(u.last_name,'')), ''), u.nickname, u.name) FROM {schema}.users u
                     JOIN {schema}.conversation_participants cp2 ON u.id = cp2.user_id
                     WHERE cp2.conversation_id = c.id AND cp2.user_id != %s
                     LIMIT 1) as other_user_name,
