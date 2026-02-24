@@ -41,7 +41,7 @@ const DimaCard = () => {
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4">
-            <h3 className="text-xl font-bold text-white">Дима, 35</h3>
+            <h3 className="text-xl font-bold text-white">Алексей, 33</h3>
             <p className="text-white/70 text-sm flex items-center gap-1 mt-0.5">
               <Icon name="MapPin" size={12} />
               Москва
