@@ -62,10 +62,12 @@ def handler(event: dict, context) -> dict:
     ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp')
     user_agent = headers.get('user-agent', '')
     
-    conn = get_db_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     
     try:
+        conn = get_db_connection()
+        cur = conn.cursor()
         # Авторизация админа
         if action == 'login':
             email = body.get('email')
@@ -775,5 +777,7 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 500, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': str(e)}), 'isBase64Encoded': False}
     
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()

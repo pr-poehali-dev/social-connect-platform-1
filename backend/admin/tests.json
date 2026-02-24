@@ -9,6 +9,16 @@
         "error": "string"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test get_prices returns JSON",
+      "method": "GET",
+      "path": "/?action=get_prices",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "prices": {}
+      },
+      "bodyMatcher": "exists"
     }
   ]
 }
