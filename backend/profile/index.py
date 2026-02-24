@@ -111,6 +111,20 @@ def handler(event: dict, context) -> dict:
                 
                 user_data = dict(user)
 
+                # Автоматически сбрасываем is_vip если срок истёк
+                from datetime import datetime, timezone
+                if user_data.get('is_vip') and user_data.get('vip_expires_at'):
+                    expires = user_data['vip_expires_at']
+                    if isinstance(expires, str):
+                        from dateutil import parser as dp
+                        expires = dp.parse(expires)
+                    if expires.tzinfo is None:
+                        expires = expires.replace(tzinfo=timezone.utc)
+                    if expires < datetime.now(timezone.utc):
+                        cur.execute(f"UPDATE t_p19021063_social_connect_platf.users SET is_vip = false WHERE id = {user_id}")
+                        conn.commit()
+                        user_data['is_vip'] = False
+
                 cur.execute(f'''
                     SELECT
                         (SELECT COUNT(*) FROM t_p19021063_social_connect_platf.dating_friend_requests
