@@ -28,6 +28,7 @@ interface MessagesLayoutProps {
   onBlockUser: (userId: number) => void;
   onSosCreated: (conversationId: number) => void;
   onSosResolve: (sosRequestId: number, conversationId: number) => void;
+  activeSosConversationId: number | null;
 }
 
 export default function MessagesLayout({
@@ -52,6 +53,7 @@ export default function MessagesLayout({
   onBlockUser,
   onSosCreated,
   onSosResolve,
+  activeSosConversationId,
 }: MessagesLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:overflow-auto overflow-y-auto overflow-x-hidden">
@@ -67,6 +69,7 @@ export default function MessagesLayout({
                     token={localStorage.getItem('access_token') || ''}
                     onSosCreated={onSosCreated}
                     onToast={toast}
+                    activeSosConversationId={activeSosConversationId}
                   />
                 </div>
                 <ChatList

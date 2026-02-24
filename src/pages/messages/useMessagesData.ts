@@ -381,6 +381,9 @@ export const useMessagesData = () => {
 
   const currentChat = chats.find(chat => chat.id === selectedChat);
 
+  // ID активного SOS-чата, созданного текущим пользователем (для отслеживания координат)
+  const activeSosConversationId = chats.find(c => c.type === 'sos' && c.isSos)?.id ?? null;
+
   const messageCounts = {
     personal: chats.filter(c => c.type === 'personal').length,
     group: chats.filter(c => c.type === 'group').length,
@@ -411,5 +414,6 @@ export const useMessagesData = () => {
     handleBlockUser,
     handleSosCreated,
     handleSosResolve,
+    activeSosConversationId,
   };
 };

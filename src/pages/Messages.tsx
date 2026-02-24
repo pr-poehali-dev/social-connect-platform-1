@@ -27,6 +27,7 @@ const Messages = () => {
       onBlockUser={data.handleBlockUser}
       onSosCreated={data.handleSosCreated}
       onSosResolve={data.handleSosResolve}
+      activeSosConversationId={data.activeSosConversationId}
     />
   );
 };
