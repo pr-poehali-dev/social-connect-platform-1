@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import type { Category, Subcategory, Service, ServiceFormData, City } from '@/types/services';
+import { getProfessionByValue } from '@/data/professions';
 
 const AddService = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const AddService = () => {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(false);
+  const [professionHint, setProfessionHint] = useState<string | null>(null);
   const [formData, setFormData] = useState<ServiceFormData>({
     category_id: '',
     subcategory_id: '',
@@ -44,6 +46,8 @@ const AddService = () => {
     loadCities();
     if (id) {
       loadService(id);
+    } else {
+      loadUserProfession();
     }
   }, [id]);
 
@@ -55,6 +59,33 @@ const AddService = () => {
       setFormData(prev => ({ ...prev, subcategory_id: '' }));
     }
   }, [formData.category_id]);
+
+  const loadUserProfession = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    try {
+      const response = await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const professionValue = data.profession;
+        if (professionValue) {
+          const profession = getProfessionByValue(professionValue);
+          if (profession && profession.categoryIds.length > 0) {
+            setProfessionHint(profession.label);
+            setFormData(prev => ({
+              ...prev,
+              category_id: profession.categoryIds[0].toString(),
+              subcategory_id: profession.subcategoryIds.length > 0 ? profession.subcategoryIds[0].toString() : '',
+            }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user profession:', error);
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -247,6 +278,13 @@ const AddService = () => {
       </div>
 
       <div className="p-4 pb-20 space-y-4">
+        {professionHint && (
+          <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-xl border border-blue-200 dark:border-blue-800 text-sm text-blue-700 dark:text-blue-300">
+            <Icon name="Sparkles" size={16} />
+            Категория подобрана по вашей профессии: <strong>{professionHint}</strong>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Вид услуг *</Label>
