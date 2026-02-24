@@ -103,7 +103,7 @@ const Navigation = () => {
 
     try {
       const response = await fetch(
-        'https://functions.poehali.dev/e94df70d-42e0-4d41-8734-1e27734c3afe',
+        'https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc',
         { 
           headers: { 'Authorization': `Bearer ${token}` },
           cache: 'no-cache'

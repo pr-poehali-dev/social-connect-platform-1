@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import AdsFilters from '@/components/ads/AdsFilters';
 import AdCard from '@/components/ads/AdCard';
 import InviteDialog from '@/components/ads/InviteDialog';
@@ -263,10 +264,11 @@ const Ads = () => {
         toast({ 
           title: 'Успех!', 
           description: 'Заявка отправлена. Перейдите в сообщения для продолжения диалога.',
-          action: {
-            label: 'Открыть чат',
-            onClick: () => navigate('/messages', { state: { openChatId: data.conversation_id } })
-          }
+          action: (
+            <Button size="sm" onClick={() => navigate('/messages', { state: { openChatId: data.conversation_id } })}>
+              Открыть чат
+            </Button>
+          )
         });
         setSelectedAd(null);
         setInviteMessage('');
