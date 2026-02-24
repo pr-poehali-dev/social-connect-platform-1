@@ -341,6 +341,7 @@ export function useVkAuth(options: UseVkAuthOptions): UseVkAuthReturn {
         setAccessToken(data.access_token);
         setStoredAccessToken(data.access_token);
         setUser(data.user);
+        if (data.user?.id) localStorage.setItem('userId', String(data.user.id));
         setStoredRefreshToken(data.refresh_token);
         
         // Verify tokens were saved

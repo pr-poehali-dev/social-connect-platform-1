@@ -272,6 +272,7 @@ export function useYandexAuth(options: UseYandexAuthOptions): UseYandexAuthRetur
         // Set auth data
         setAccessToken(data.access_token);
         setUser(data.user);
+        if (data.user?.id) localStorage.setItem('userId', String(data.user.id));
         setStoredRefreshToken(data.refresh_token);
         scheduleRefresh(data.expires_in, refreshTokenFn);
         return true;
