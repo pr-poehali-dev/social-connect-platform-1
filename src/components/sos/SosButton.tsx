@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import SosDialog from './SosDialog';
 
 const MESSAGES_URL = 'https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d';
-const LOCATION_INTERVAL_MS = 15_000;
+const LOCATION_INTERVAL_MS = 5 * 60_000;
 
 interface SosButtonProps {
   token: string;
@@ -18,18 +18,30 @@ export default function SosButton({ token, onSosCreated, onToast, activeSosConve
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastCoordsRef = useRef<{ lat: number; lon: number } | null>(null);
 
-  const sendLocation = useCallback(async (lat: number, lon: number) => {
+  const sendLocation = useCallback(async (lat: number, lon: number, conversationId: number) => {
     if (!token) return;
+    const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+    const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     try {
-      await fetch(`${MESSAGES_URL}?action=sos-location`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ latitude: lat, longitude: lon }),
-      });
+      await Promise.all([
+        fetch(`${MESSAGES_URL}?action=sos-location`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ latitude: lat, longitude: lon }),
+        }),
+        fetch(`${MESSAGES_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            conversationId,
+            content: `📍 Обновление координат [${time}]\n${lat.toFixed(6)}, ${lon.toFixed(6)}\nОтследить: ${mapsLink}`,
+          }),
+        }),
+      ]);
     } catch { /* ignore */ }
   }, [token]);
 
-  const startTracking = useCallback(() => {
+  const startTracking = useCallback((conversationId: number) => {
     if (!navigator.geolocation) return;
 
     watchIdRef.current = navigator.geolocation.watchPosition(
@@ -42,7 +54,7 @@ export default function SosButton({ token, onSosCreated, onToast, activeSosConve
 
     intervalRef.current = setInterval(() => {
       const coords = lastCoordsRef.current;
-      if (coords) sendLocation(coords.lat, coords.lon);
+      if (coords) sendLocation(coords.lat, coords.lon, conversationId);
     }, LOCATION_INTERVAL_MS);
   }, [sendLocation]);
 
@@ -60,7 +72,7 @@ export default function SosButton({ token, onSosCreated, onToast, activeSosConve
 
   useEffect(() => {
     if (activeSosConversationId) {
-      startTracking();
+      startTracking(activeSosConversationId);
     } else {
       stopTracking();
     }
