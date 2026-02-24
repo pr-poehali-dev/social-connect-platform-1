@@ -54,15 +54,6 @@ const TopAdsCarousel = ({ ads = [] }: TopAdsCarouselProps) => {
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        <Card className="flex-shrink-0 w-40 rounded-3xl border-2 border-dashed border-primary hover:border-solid transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1">
-          <CardContent className="p-4 flex flex-col items-center justify-center h-full min-h-[140px]">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-2 transition-transform hover:scale-110">
-              <Icon name="Plus" size={24} className="text-white" />
-            </div>
-            <p className="text-xs font-semibold text-center">Разместить объявление</p>
-          </CardContent>
-        </Card>
-
         {ads.map((ad) => (
           <Card key={ad.id} className="flex-shrink-0 w-40 rounded-3xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 hover:-translate-y-2 hover:border-orange-500">
             <div className="relative h-40 overflow-hidden group">
