@@ -52,11 +52,13 @@ interface ChatWindowProps {
   setMessageText: (text: string) => void;
   onSendMessage: () => void;
   onCall: (type: 'audio' | 'video') => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toast: any;
   onClose?: () => void;
   onClearChat?: (chatId: number) => void;
   onDeleteChat?: (chatId: number) => void;
   onBlockUser?: (userId: number) => void;
+  onSosResolve?: () => void;
 }
 
 const IMAGE_STICKERS = [
@@ -89,7 +91,8 @@ const ChatWindow = ({
   onClose,
   onClearChat,
   onDeleteChat,
-  onBlockUser
+  onBlockUser,
+  onSosResolve,
 }: ChatWindowProps) => {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -146,7 +149,7 @@ const ChatWindow = ({
   return (
     <Card className="rounded-3xl border-2 lg:col-span-2 h-full">
       <CardContent className="p-0 flex flex-col h-full">
-        <div className="p-4 pb-8 lg:pb-4 border-b flex items-center justify-between">
+        <div className={`p-4 pb-8 lg:pb-4 border-b flex items-center justify-between ${currentChat.type === 'sos' ? 'bg-red-50 border-red-200' : ''}`}>
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {onClose && (
               <Button
@@ -158,12 +161,18 @@ const ChatWindow = ({
                 <Icon name="ArrowLeft" size={20} />
               </Button>
             )}
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarImage src={currentChat.avatar} alt={currentChat.name} />
-              <AvatarFallback>{currentChat.name?.charAt(0) ?? '?'}</AvatarFallback>
-            </Avatar>
+            {currentChat.type === 'sos' ? (
+              <div className="w-10 h-10 flex-shrink-0 rounded-full bg-red-600 flex items-center justify-center">
+                <span className="text-white font-bold text-xs">SOS</span>
+              </div>
+            ) : (
+              <Avatar className="w-10 h-10 flex-shrink-0">
+                <AvatarImage src={currentChat.avatar} alt={currentChat.name} />
+                <AvatarFallback>{currentChat.name?.charAt(0) ?? '?'}</AvatarFallback>
+              </Avatar>
+            )}
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold truncate">{currentChat.name}</h3>
+              <h3 className={`font-semibold truncate ${currentChat.type === 'sos' ? 'text-red-700' : ''}`}>{currentChat.name}</h3>
               {currentChat.type === 'personal' && (
                 <p className="text-xs text-muted-foreground">
                   {currentChat.online ? 'В сети' : 'Не в сети'}
@@ -179,10 +188,24 @@ const ChatWindow = ({
                   {currentChat.dealStatus}
                 </p>
               )}
+              {currentChat.type === 'sos' && (
+                <p className="text-xs text-red-500 font-medium">Экстренный чат</p>
+              )}
             </div>
           </div>
           
           <div className="flex gap-2">
+            {currentChat.type === 'sos' && onSosResolve && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full border-green-500 text-green-700 hover:bg-green-50 text-xs"
+                onClick={onSosResolve}
+              >
+                <Icon name="CheckCircle" size={14} className="mr-1" />
+                Решено
+              </Button>
+            )}
             {(currentChat.type === 'personal' || currentChat.type === 'deal') && (
               <>
                 <Button 

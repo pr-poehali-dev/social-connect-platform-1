@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Chat {
   id: number;
-  type: 'personal' | 'group' | 'deal';
+  type: 'personal' | 'group' | 'deal' | 'sos';
   name: string;
   avatar: string;
   lastMessage: string;
@@ -20,6 +20,7 @@ interface Chat {
   dealStatus?: string;
   vkId?: string;
   userId?: number;
+  isSos?: boolean;
 }
 
 interface ChatListProps {
@@ -41,7 +42,7 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
   const [selectedChats, setSelectedChats] = useState<Set<number>>(new Set());
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const handleTouchStart = (e: React.TouchEvent, chatId: number, chatType: 'personal' | 'group' | 'deal') => {
+  const handleTouchStart = (e: React.TouchEvent, chatId: number, chatType: 'personal' | 'group' | 'deal' | 'sos') => {
     if (selectionMode) return;
     if (chatType !== 'personal' || window.innerWidth >= 1024) return;
     setTouchStart(e.touches[0].clientX);
@@ -72,7 +73,7 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
     }
   };
 
-  const handleTouchEnd = (chatId: number, chatType: 'personal' | 'group' | 'deal') => {
+  const handleTouchEnd = (chatId: number, chatType: 'personal' | 'group' | 'deal' | 'sos') => {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
@@ -125,9 +126,13 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
     setSelectedChats(new Set());
   };
 
-  const displayChats = window.innerWidth < 1024 
-    ? chats.filter(chat => chat.type === activeFilter)
-    : chats.filter(chat => chat.type === activeTab);
+  const sosChats = chats.filter(chat => chat.type === 'sos');
+  const displayChats = [
+    ...sosChats,
+    ...(window.innerWidth < 1024
+      ? chats.filter(chat => chat.type === activeFilter)
+      : chats.filter(chat => chat.type === activeTab)),
+  ];
 
   return (
     <Card className="rounded-3xl border-2 lg:col-span-1">
@@ -258,7 +263,7 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
             displayChats.map((chat) => (
               <div
                 key={chat.id}
-                className="relative overflow-hidden border-b"
+                className={`relative overflow-hidden border-b ${chat.type === 'sos' ? 'bg-red-50 border-l-4 border-l-red-500' : ''}`}
               >
                 <div
                   className={`absolute inset-y-0 right-0 w-20 bg-destructive flex items-center justify-center transition-opacity ${
@@ -277,7 +282,9 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
 
                 <div
                   className={`p-4 cursor-pointer hover:bg-accent/50 transition-all ${
-                    selectionMode
+                    chat.type === 'sos'
+                      ? selectedChat === chat.id ? 'bg-red-100' : ''
+                      : selectionMode
                       ? selectedChats.has(chat.id)
                         ? 'bg-primary/10'
                         : ''
@@ -295,7 +302,7 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
                   onTouchEnd={() => handleTouchEnd(chat.id, chat.type)}
                 >
                   <div className="flex items-start gap-3">
-                    {selectionMode && (
+                    {selectionMode && chat.type !== 'sos' && (
                       <div className="flex-shrink-0 pt-1">
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                           selectedChats.has(chat.id)
@@ -308,26 +315,38 @@ const ChatList = ({ chats, loading, selectedChat, onSelectChat, onDeleteChat, ac
                         </div>
                       </div>
                     )}
-                    <div className="relative">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={chat.avatar} alt={chat.name} />
-                        <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      {chat.online && (
+                    <div className="relative flex-shrink-0">
+                      {chat.type === 'sos' ? (
+                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
+                          <span className="text-white font-bold text-sm">SOS</span>
+                        </div>
+                      ) : (
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={chat.avatar} alt={chat.name} />
+                          <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      )}
+                      {chat.online && chat.type !== 'sos' && (
                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                       )}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold text-sm truncate">{chat.name}</h3>
-                        <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                          {chat.time}
-                        </span>
+                        <h3 className={`font-semibold text-sm truncate ${chat.type === 'sos' ? 'text-red-700' : ''}`}>
+                          {chat.name}
+                        </h3>
+                        {chat.type === 'sos' ? (
+                          <Badge className="bg-red-600 text-white text-xs flex-shrink-0 ml-2">Срочно</Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                            {chat.time}
+                          </span>
+                        )}
                       </div>
                       
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm text-muted-foreground truncate">
+                        <p className={`text-sm truncate ${chat.type === 'sos' ? 'text-red-600' : 'text-muted-foreground'}`}>
                           {chat.lastMessage}
                         </p>
                         {chat.unread > 0 && (

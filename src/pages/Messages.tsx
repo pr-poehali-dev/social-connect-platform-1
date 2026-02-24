@@ -8,10 +8,13 @@ import ChatList from './messages/ChatList';
 import ChatWindow from './messages/ChatWindow';
 import ContactsList from './messages/ContactsList';
 import CalendarView from './messages/CalendarView';
+import SosButton from '@/components/sos/SosButton';
+
+const MESSAGES_URL = 'https://functions.poehali.dev/5fb70336-def7-4f87-bc9b-dc79410de35d';
 
 interface Chat {
   id: number;
-  type: 'personal' | 'group' | 'deal' | 'live';
+  type: 'personal' | 'group' | 'deal' | 'live' | 'sos';
   name: string;
   avatar: string;
   lastMessage: string;
@@ -22,6 +25,8 @@ interface Chat {
   dealStatus?: string;
   vkId?: string;
   userId?: number;
+  sosRequestId?: number;
+  isSos?: boolean;
 }
 
 interface Message {
@@ -52,6 +57,8 @@ const Messages = () => {
   useEffect(() => {
     loadUserData();
     loadReminders();
+    loadSosChats();
+     
   }, []);
 
   useEffect(() => {
@@ -406,6 +413,61 @@ const Messages = () => {
     }
   };
 
+  const handleSosCreated = (conversationId: number) => {
+    delete conversationsCache.current['sos'];
+    loadSosChats().then(() => {
+      setSelectedChat(conversationId);
+    });
+  };
+
+  const loadSosChats = async () => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    try {
+      const res = await fetch(
+        `${MESSAGES_URL}?action=sos-active`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      const sosChats: Chat[] = (data.requests || []).map((r: { conversation_id: number; creator_name: string; reason: string; id: number }) => ({
+        id: r.conversation_id,
+        type: 'sos' as const,
+        name: `SOS: ${r.creator_name}`,
+        avatar: '',
+        lastMessage: r.reason,
+        time: '',
+        unread: 0,
+        isSos: true,
+        sosRequestId: r.id,
+      }));
+      setChats(prev => {
+        const withoutSos = prev.filter(c => c.type !== 'sos');
+        return [...sosChats, ...withoutSos];
+      });
+    } catch { /* ignore */ }
+  };
+
+  const handleSosResolve = async (sosRequestId: number, conversationId: number) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    try {
+      const res = await fetch(
+        `${MESSAGES_URL}?action=sos-resolve`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ sosId: sosRequestId }),
+        }
+      );
+      if (res.ok) {
+        toast({ title: '✅ Проблема решена', description: 'Чат SOS закрыт для всех участников' });
+        setSelectedChat(null);
+        setChats(prev => prev.filter(c => c.id !== conversationId));
+      }
+    } catch { /* ignore */ }
+  };
+
   const messageCounts = {
     personal: chats.filter(c => c.type === 'personal').length,
     group: chats.filter(c => c.type === 'group').length,
@@ -421,6 +483,13 @@ const Messages = () => {
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-3 gap-6 relative">
                 <div className={`${selectedChat ? 'hidden lg:block' : 'block'}`}>
+                  <div className="flex justify-end mb-2">
+                    <SosButton
+                      token={localStorage.getItem('access_token') || ''}
+                      onSosCreated={handleSosCreated}
+                      onToast={toast}
+                    />
+                  </div>
                   <ChatList
                     chats={chats}
                     loading={loading}
@@ -448,6 +517,7 @@ const Messages = () => {
                         onClearChat={handleClearChat}
                         onDeleteChat={handleDeleteChat}
                         onBlockUser={handleBlockUser}
+                        onSosResolve={currentChat?.isSos && currentChat?.sosRequestId ? () => handleSosResolve(currentChat.sosRequestId!, currentChat.id) : undefined}
                       />
                     </div>
                   </div>

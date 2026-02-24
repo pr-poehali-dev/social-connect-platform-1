@@ -1,8 +1,17 @@
 import json
 import os
+import math
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    a = math.sin(d_lat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 def handler(event: dict, context) -> dict:
     '''API для работы с сообщениями: получение чатов, отправка сообщений'''
@@ -469,6 +478,115 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
+    # ---- SOS actions ----
+    if method == 'POST' and action == 'sos-create':
+        data = json.loads(event.get('body', '{}'))
+        reason = data.get('reason', '').strip()
+        lat = float(data.get('latitude', 0))
+        lon = float(data.get('longitude', 0))
+        radius_km = int(data.get('radius_km', 5))
+
+        if not reason:
+            cursor.close(); conn.close()
+            return {'statusCode': 400, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Укажите причину'}), 'isBase64Encoded': False}
+
+        cursor.execute(f'''
+            SELECT COALESCE(NULLIF(TRIM(COALESCE(first_name,'') || ' ' || COALESCE(last_name,'')), ''), nickname, name) as full_name
+            FROM {schema}.users WHERE id = %s
+        ''', (user_id,))
+        creator = cursor.fetchone()
+        creator_name = creator['full_name'] if creator else 'Пользователь'
+
+        cursor.execute(f'''
+            INSERT INTO {schema}.conversations (type, name, created_by, created_at, updated_at)
+            VALUES ('sos', %s, %s, NOW(), NOW()) RETURNING id
+        ''', (f'SOS: {creator_name}', user_id))
+        conv_id = cursor.fetchone()['id']
+
+        cursor.execute(f'''
+            INSERT INTO {schema}.sos_requests (creator_id, reason, latitude, longitude, radius_km, conversation_id)
+            VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+        ''', (user_id, reason, lat, lon, radius_km, conv_id))
+        sos_id = cursor.fetchone()['id']
+
+        cursor.execute(f'UPDATE {schema}.conversations SET sos_request_id = %s WHERE id = %s', (sos_id, conv_id))
+        cursor.execute(f'INSERT INTO {schema}.conversation_participants (conversation_id, user_id) VALUES (%s, %s)', (conv_id, user_id))
+
+        cursor.execute(f'''
+            SELECT id, last_latitude, last_longitude,
+                   COALESCE(NULLIF(TRIM(COALESCE(first_name,'') || ' ' || COALESCE(last_name,'')), ''), nickname, name) as full_name
+            FROM {schema}.users WHERE id != %s AND last_latitude IS NOT NULL AND last_longitude IS NOT NULL
+        ''', (user_id,))
+        all_users = cursor.fetchall()
+
+        notified = 0
+        for u in all_users:
+            dist = haversine_km(lat, lon, float(u['last_latitude']), float(u['last_longitude']))
+            if dist <= radius_km:
+                notified += 1
+                cursor.execute(f'INSERT INTO {schema}.conversation_participants (conversation_id, user_id) VALUES (%s, %s) ON CONFLICT DO NOTHING', (conv_id, u['id']))
+                cursor.execute(f'''
+                    INSERT INTO {schema}.notifications (user_id, type, title, content, related_user_id, related_entity_type, related_entity_id)
+                    VALUES (%s, 'sos', 'SOS: Нужна помощь!', %s, %s, 'sos', %s)
+                ''', (u['id'], f'Пользователю {creator_name} нужна ваша помощь. Нажмите, чтобы помочь.', user_id, conv_id))
+
+        maps_link = f'https://maps.google.com/?q={lat},{lon}'
+        first_msg = f'🆘 SOS-заявка\n\nПричина: {reason}\n\nКоординаты: {lat:.6f}, {lon:.6f}\nОтслеживать: {maps_link}'
+        cursor.execute(f'INSERT INTO {schema}.messages (conversation_id, sender_id, content, is_read, created_at) VALUES (%s, %s, %s, FALSE, NOW())', (conv_id, user_id, first_msg))
+
+        conn.commit()
+        cursor.close(); conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'sosId': sos_id, 'conversationId': conv_id, 'notifiedCount': notified}), 'isBase64Encoded': False}
+
+    if method == 'POST' and action == 'sos-resolve':
+        data = json.loads(event.get('body', '{}'))
+        sos_id = data.get('sosId')
+        cursor.execute(f'SELECT * FROM {schema}.sos_requests WHERE id = %s', (sos_id,))
+        sos = cursor.fetchone()
+        if not sos:
+            cursor.close(); conn.close()
+            return {'statusCode': 404, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Не найдено'}), 'isBase64Encoded': False}
+
+        cursor.execute(f'UPDATE {schema}.sos_requests SET is_resolved = TRUE, resolved_by = %s, resolved_at = NOW() WHERE id = %s', (user_id, sos_id))
+        conv_id = sos['conversation_id']
+        cursor.execute(f'''
+            SELECT COALESCE(NULLIF(TRIM(COALESCE(first_name,'') || ' ' || COALESCE(last_name,'')), ''), nickname, name) as full_name
+            FROM {schema}.users WHERE id = %s
+        ''', (user_id,))
+        resolver = cursor.fetchone()
+        resolver_name = resolver['full_name'] if resolver else 'Пользователь'
+        cursor.execute(f'INSERT INTO {schema}.messages (conversation_id, sender_id, content, is_read, created_at) VALUES (%s, %s, %s, FALSE, NOW())', (conv_id, user_id, f'✅ Проблема решена. Отметил: {resolver_name}'))
+        cursor.execute(f'''
+            INSERT INTO {schema}.notifications (user_id, type, title, content, related_entity_type, related_entity_id)
+            VALUES (%s, 'sos_resolved', 'SOS решён', %s, 'sos', %s)
+        ''', (sos['creator_id'], f'{resolver_name} отметил вашу SOS-заявку как решённую', conv_id))
+        conn.commit()
+        cursor.close(); conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True, 'conversationId': conv_id}), 'isBase64Encoded': False}
+
+    if method == 'GET' and action == 'sos-active':
+        cursor.execute(f'''
+            SELECT sr.id, sr.reason, sr.latitude, sr.longitude, sr.radius_km, sr.conversation_id, sr.created_at, sr.creator_id,
+                   COALESCE(NULLIF(TRIM(COALESCE(u.first_name,'') || ' ' || COALESCE(u.last_name,'')), ''), u.nickname, u.name) as creator_name
+            FROM {schema}.sos_requests sr
+            JOIN {schema}.users u ON sr.creator_id = u.id
+            JOIN {schema}.conversation_participants cp ON sr.conversation_id = cp.conversation_id
+            WHERE sr.is_resolved = FALSE AND cp.user_id = %s
+            ORDER BY sr.created_at DESC
+        ''', (user_id,))
+        rows = cursor.fetchall()
+        cursor.close(); conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'requests': list(rows)}, default=str), 'isBase64Encoded': False}
+
+    if method == 'POST' and action == 'sos-location':
+        data = json.loads(event.get('body', '{}'))
+        lat = float(data.get('latitude', 0))
+        lon = float(data.get('longitude', 0))
+        cursor.execute(f'UPDATE {schema}.users SET last_latitude = %s, last_longitude = %s WHERE id = %s', (lat, lon, user_id))
+        conn.commit()
+        cursor.close(); conn.close()
+        return {'statusCode': 200, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'success': True}), 'isBase64Encoded': False}
+
     cursor.close()
     conn.close()
     
