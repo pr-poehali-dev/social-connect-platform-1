@@ -160,7 +160,7 @@ const ChatWindow = ({
             )}
             <Avatar className="w-10 h-10 flex-shrink-0">
               <AvatarImage src={currentChat.avatar} alt={currentChat.name} />
-              <AvatarFallback>{currentChat.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{currentChat.name?.charAt(0) ?? '?'}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <h3 className="font-semibold truncate">{currentChat.name}</h3>
@@ -270,7 +270,7 @@ const ChatWindow = ({
                       <div className="flex items-center gap-2 mb-1">
                         <Avatar className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(`/profile/${msg.senderId}`)}>
                           <AvatarImage src={msg.senderAvatar} alt={msg.senderName} />
-                          <AvatarFallback>{msg.senderName.charAt(0)}</AvatarFallback>
+                          <AvatarFallback>{msg.senderName?.charAt(0) ?? '?'}</AvatarFallback>
                         </Avatar>
                         <span className="text-xs font-medium cursor-pointer hover:underline" onClick={() => navigate(`/profile/${msg.senderId}`)}>{msg.senderName}</span>
                       </div>
