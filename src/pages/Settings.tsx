@@ -26,8 +26,6 @@ const Settings = () => {
   const [preferredAssistant, setPreferredAssistant] = useState<'olesya' | 'dima'>('olesya');
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    setIsVip(user.is_vip || false);
     setSoundEnabled(localStorage.getItem('soundEnabled') === 'true');
     setDatingVisible(localStorage.getItem('datingVisible') !== 'false');
     setShareLocation(localStorage.getItem('shareLocation') === 'true');
@@ -41,10 +39,25 @@ const Settings = () => {
     const savedAssistant = localStorage.getItem('preferredAssistant');
     if (savedAssistant === 'olesya' || savedAssistant === 'dima') {
       setPreferredAssistant(savedAssistant);
-    } else {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      const gender = (userData.gender || '').toLowerCase();
-      setPreferredAssistant(gender === 'female' || gender === 'женский' ? 'dima' : 'olesya');
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          setIsVip(data.is_vip === true);
+          if (!savedAssistant) {
+            const gender = (data.gender || '').toLowerCase();
+            setPreferredAssistant(gender === 'female' || gender === 'женский' ? 'dima' : 'olesya');
+          }
+        })
+        .catch(() => {
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          setIsVip(user.is_vip === true);
+        });
     }
   }, []);
 
