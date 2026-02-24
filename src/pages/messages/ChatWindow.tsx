@@ -183,7 +183,7 @@ const ChatWindow = ({
           </div>
           
           <div className="flex gap-2">
-            {currentChat.type === 'personal' && (
+            {(currentChat.type === 'personal' || currentChat.type === 'deal') && (
               <>
                 <Button 
                   variant="ghost" 
@@ -225,7 +225,7 @@ const ChatWindow = ({
                 </Button>
               </>
             )}
-            {currentChat.type === 'personal' && (
+            {(currentChat.type === 'personal' || currentChat.type === 'deal') && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
