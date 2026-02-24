@@ -85,7 +85,7 @@ def handler(event: dict, context) -> dict:
             cur.execute('''
                 INSERT INTO t_p19021063_social_connect_platf.conversations 
                 (type, deal_ad_id, deal_status, created_by)
-                VALUES ('deal', %s, 'pending', %s)
+                VALUES ('meeting', %s, 'pending', %s)
                 RETURNING id
             ''', (ad_id, sender_id))
             conversation_id = cur.fetchone()[0]
