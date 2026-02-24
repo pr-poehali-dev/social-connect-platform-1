@@ -109,7 +109,7 @@ export default function SosButton({ token, onSosCreated, onToast, activeSosConve
             ? 'bg-red-600 border-red-700 animate-pulse'
             : 'bg-red-50 hover:bg-red-100 border-red-400'
         }`}
-        onClick={() => { if (!isTracking) { onBeforeOpen?.(); setOpen(true); } }}
+        onClick={() => { if (!isTracking) { if (onBeforeOpen) { onBeforeOpen(); setTimeout(() => setOpen(true), 320); } else { setOpen(true); } } }}
         title={isTracking ? 'SOS активен — отслеживается местоположение' : 'SOS — Нужна помощь'}
         type="button"
       >
