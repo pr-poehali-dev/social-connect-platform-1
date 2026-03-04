@@ -146,13 +146,13 @@ const Navigation = () => {
     { path: '/miss-loveis', label: 'MISS👑LOVEIS', icon: 'Crown' },
     { path: '/horoscope', label: 'Астрология', icon: 'Sparkles' },
     { path: '/game', label: 'GAME', icon: 'Gamepad2' },
+    { path: '/radio', label: 'Радио', icon: 'Music' },
   ];
 
   const bottomNavItems = [
     { path: '/favorites', label: 'Избранное', icon: 'Star' },
     { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', badge: unreadCount },
     { path: '/notifications', label: 'Уведомления', icon: 'Bell' },
-    { path: '/radio', label: 'Радио', icon: 'Music' },
     { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
     { path: '/profile', label: 'Профиль', icon: 'User' },
   ];
@@ -198,21 +198,6 @@ const Navigation = () => {
               </Button>
               <div className="w-px h-6 bg-border mx-1" />
               {bottomNavItems.map((item) => {
-                if (item.path === '/radio') {
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={buttonVariants({ variant: "ghost", size: "icon" }) + " h-9 w-9 relative"}
-                    >
-                      <Icon name="Music" size={18} />
-                      {isPlaying && (
-                        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      )}
-                    </Link>
-                  );
-                }
-                
                 return (
                   <Link key={item.path} to={item.path}>
                     <Button
@@ -304,24 +289,6 @@ const Navigation = () => {
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe touch-none">
         <div className="grid grid-cols-7 gap-1 px-2 py-2 overflow-x-hidden">
           {bottomNavItems.slice(0, 3).map((item) => {
-            if (item.path === '/radio') {
-              return (
-                <Button
-                  key={item.path}
-                  onClick={() => window.open('/radio', '_blank')}
-                  variant="ghost"
-                  size="icon"
-                  className="h-12 w-full relative"
-                  title="Открыть радио в новом окне"
-                >
-                  <Icon name="Music" size={24} />
-                  {isPlaying && (
-                    <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  )}
-                </Button>
-              );
-            }
-            
             return (
               <Link key={item.path} to={item.path}>
                 <Button
@@ -361,24 +328,6 @@ const Navigation = () => {
           </Button>
 
           {bottomNavItems.slice(3).map((item) => {
-            if (item.path === '/radio') {
-              return (
-                <Button
-                  key={item.path}
-                  onClick={() => window.open('/radio', '_blank')}
-                  variant="ghost"
-                  size="icon"
-                  className="h-12 w-full relative"
-                  title="Открыть радио в новом окне"
-                >
-                  <Icon name="Music" size={24} />
-                  {isPlaying && (
-                    <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  )}
-                </Button>
-              );
-            }
-            
             return (
               <Link key={item.path} to={item.path}>
                 <Button
