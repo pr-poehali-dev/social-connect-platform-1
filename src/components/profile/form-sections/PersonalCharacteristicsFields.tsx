@@ -1,10 +1,11 @@
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PROFESSIONS from '@/data/professions';
 
 interface PersonalCharacteristicsFieldsProps {
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: Record<string, string>;
+  setFormData: (data: Record<string, string>) => void;
 }
 
 const PersonalCharacteristicsFields = ({ formData, setFormData }: PersonalCharacteristicsFieldsProps) => {
