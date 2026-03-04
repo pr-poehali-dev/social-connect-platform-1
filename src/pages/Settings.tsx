@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { OLESYA_AVATAR } from '@/components/ai-assistant/constants';
-import { DIMA_AVATAR } from '@/components/dima-assistant/constants';
+import SettingsAppearance from '@/components/settings/SettingsAppearance';
+import SettingsPrivacy from '@/components/settings/SettingsPrivacy';
+import SettingsAssistantAndContacts from '@/components/settings/SettingsAssistantAndContacts';
+import SettingsFinancialPassword from '@/components/settings/SettingsFinancialPassword';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -24,14 +23,6 @@ const Settings = () => {
   const [animationDriver, setAnimationDriver] = useState('bank://lively');
   const [contactPrice, setContactPrice] = useState(0);
   const [preferredAssistant, setPreferredAssistant] = useState<'olesya' | 'dima'>('olesya');
-  const [hasFinPass, setHasFinPass] = useState(false);
-  const [finPassMode, setFinPassMode] = useState<'idle' | 'set' | 'change' | 'reset'>('idle');
-  const [finPassCurrent, setFinPassCurrent] = useState('');
-  const [finPassNew, setFinPassNew] = useState('');
-  const [finPassConfirm, setFinPassConfirm] = useState('');
-  const [finPassLoading, setFinPassLoading] = useState(false);
-
-  const FIN_PASS_URL = 'https://functions.poehali.dev/26ccbe26-abcf-43ed-a5b8-36f92e5efa86';
 
   useEffect(() => {
     setSoundEnabled(localStorage.getItem('soundEnabled') === 'true');
@@ -69,72 +60,13 @@ const Settings = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
-    fetch(FIN_PASS_URL, { headers: { 'X-User-Id': userId } })
-      .then(r => r.json())
-      .then(d => setHasFinPass(!!d.has_password))
-      .catch(() => {});
-  }, [FIN_PASS_URL]);
-
-  const resetFinPassForm = () => {
-    setFinPassMode('idle');
-    setFinPassCurrent('');
-    setFinPassNew('');
-    setFinPassConfirm('');
-  };
-
-  const handleFinPassSubmit = async () => {
-    if (finPassNew.length < 4) {
-      toast({ title: 'Минимум 4 символа', variant: 'destructive' });
-      return;
-    }
-    if (finPassNew !== finPassConfirm) {
-      toast({ title: 'Пароли не совпадают', variant: 'destructive' });
-      return;
-    }
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
-    setFinPassLoading(true);
-
-    if (finPassMode === 'change') {
-      const verifyRes = await fetch(FIN_PASS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
-        body: JSON.stringify({ action: 'verify', password: finPassCurrent }),
-      });
-      const verifyData = await verifyRes.json();
-      if (!verifyData.valid) {
-        toast({ title: 'Неверный текущий пароль', variant: 'destructive' });
-        setFinPassLoading(false);
-        return;
-      }
-    }
-
-    const res = await fetch(FIN_PASS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
-      body: JSON.stringify({ action: 'set', password: finPassNew }),
-    });
-    const data = await res.json();
-    setFinPassLoading(false);
-    if (data.success) {
-      setHasFinPass(true);
-      toast({ title: finPassMode === 'set' ? 'Финансовый пароль установлен' : 'Пароль изменён' });
-      resetFinPassForm();
-    } else {
-      toast({ title: data.error || 'Ошибка', variant: 'destructive' });
-    }
-  };
-
   const handlePremiumFeatureClick = () => {
     toast({
       title: 'Premium функция',
       description: 'Эта функция доступна только для Premium пользователей',
       action: (
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           onClick={() => navigate('/premium')}
           className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600"
         >
@@ -221,325 +153,40 @@ const Settings = () => {
       </div>
 
       <div className="p-4 space-y-6 pb-20">
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5 flex-1">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="dark-mode" className="text-base font-medium">
-                Тёмная тема
-              </Label>
-              {!isVip && (
-                <div className="flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
-                  <Icon name="Crown" size={12} className="text-white" />
-                  <span className="text-xs font-semibold text-white">Premium</span>
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Использовать тёмное оформление интерфейса
-            </p>
-          </div>
-          <Switch
-            id="dark-mode"
-            checked={darkMode}
-            onCheckedChange={(checked) => {
-              if (!isVip && checked) {
-                handlePremiumFeatureClick();
-                return;
-              }
-              handleThemeToggle(checked);
-            }}
-          />
-        </div>
+        <SettingsAppearance
+          isVip={isVip}
+          darkMode={darkMode}
+          soundEnabled={soundEnabled}
+          animateAvatar={animateAvatar}
+          animationText={animationText}
+          animationVoice={animationVoice}
+          animationDriver={animationDriver}
+          onThemeToggle={handleThemeToggle}
+          onSoundToggle={handleSoundToggle}
+          onAnimateAvatarToggle={handleAnimateAvatarToggle}
+          onAnimationTextChange={handleAnimationTextChange}
+          onAnimationVoiceChange={handleAnimationVoiceChange}
+          onAnimationDriverChange={handleAnimationDriverChange}
+          onPremiumFeatureClick={handlePremiumFeatureClick}
+        />
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="sound-notifications" className="text-base font-medium">
-              Звук уведомлений
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Проигрывать звук при получении новых сообщений
-            </p>
-          </div>
-          <Switch
-            id="sound-notifications"
-            checked={soundEnabled}
-            onCheckedChange={handleSoundToggle}
-          />
-        </div>
+        <SettingsPrivacy
+          datingVisible={datingVisible}
+          shareLocation={shareLocation}
+          premiumOnly={premiumOnly}
+          onDatingVisibilityToggle={handleDatingVisibilityToggle}
+          onShareLocationToggle={handleShareLocationToggle}
+          onPremiumOnlyToggle={handlePremiumOnlyToggle}
+        />
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="animate-avatar" className="text-base font-medium flex items-center gap-2">
-                Оживлять фото
-                {!isVip && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold">
-                    Premium
-                  </span>
-                )}
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Анимировать аватарки при наведении курсора
-              </p>
-            </div>
-            <Switch
-              id="animate-avatar"
-              checked={animateAvatar}
-              onCheckedChange={(enabled) => {
-                if (!isVip && enabled) {
-                  handlePremiumFeatureClick();
-                } else {
-                  handleAnimateAvatarToggle(enabled);
-                }
-              }}
-            />
-          </div>
+        <SettingsAssistantAndContacts
+          preferredAssistant={preferredAssistant}
+          contactPrice={contactPrice}
+          onAssistantChange={handleAssistantChange}
+          onContactPriceChange={handleContactPriceChange}
+        />
 
-          {animateAvatar && (
-            <div className="pl-4 space-y-4 border-l-2 border-muted">
-              <div className="space-y-2">
-                <Label htmlFor="animation-text" className="text-sm font-medium">
-                  Текст фразы
-                </Label>
-                <Input
-                  id="animation-text"
-                  value={animationText}
-                  onChange={(e) => handleAnimationTextChange(e.target.value)}
-                  placeholder="Hello! Nice to meet you!"
-                  className="text-sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Фраза, которую будет произносить аватар (минимум 3 символа)
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="animation-voice" className="text-sm font-medium">
-                  Голос
-                </Label>
-                <select
-                  id="animation-voice"
-                  value={animationVoice}
-                  onChange={(e) => handleAnimationVoiceChange(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <optgroup label="Русские голоса">
-                    <option value="ru-RU-DariyaNeural">Дарья (женский, RU)</option>
-                    <option value="ru-RU-DmitryNeural">Дмитрий (мужской, RU)</option>
-                  </optgroup>
-                  <optgroup label="Английские голоса">
-                    <option value="en-US-JennyNeural">Jenny (женский, US)</option>
-                    <option value="en-US-GuyNeural">Guy (мужской, US)</option>
-                    <option value="en-GB-SoniaNeural">Sonia (женский, UK)</option>
-                    <option value="en-GB-RyanNeural">Ryan (мужской, UK)</option>
-                  </optgroup>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="animation-driver" className="text-sm font-medium">
-                  Стиль движения
-                </Label>
-                <select
-                  id="animation-driver"
-                  value={animationDriver}
-                  onChange={(e) => handleAnimationDriverChange(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="bank://lively">Живой (естественные движения)</option>
-                  <option value="bank://subtle">Спокойный (минимальные движения)</option>
-                  <option value="bank://stiff">Статичный (почти без движений)</option>
-                </select>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="dating-visible" className="text-base font-medium">
-              Анкета в Знакомствах
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Показывать мой профиль в разделе Знакомства
-            </p>
-          </div>
-          <Switch
-            id="dating-visible"
-            checked={datingVisible}
-            onCheckedChange={handleDatingVisibilityToggle}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="share-location" className="text-base font-medium">
-              Делиться геоданными
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Показывать расстояние до вас другим пользователям
-            </p>
-          </div>
-          <Switch
-            id="share-location"
-            checked={shareLocation}
-            onCheckedChange={handleShareLocationToggle}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label htmlFor="premium-only" className="text-base font-medium">
-              Только PREMIUM могут писать
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Принимать сообщения только от пользователей с PREMIUM статусом
-            </p>
-          </div>
-          <Switch
-            id="premium-only"
-            checked={premiumOnly}
-            onCheckedChange={handlePremiumOnlyToggle}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <Label className="text-base font-medium">ИИ-помощник</Label>
-            <p className="text-sm text-muted-foreground mt-1">
-              Выберите, кто будет вашим ИИ-собеседником в нижнем меню
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => handleAssistantChange('olesya')}
-              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                preferredAssistant === 'olesya'
-                  ? 'border-pink-400 bg-pink-50 dark:bg-pink-950/20'
-                  : 'border-border hover:border-pink-200'
-              }`}
-            >
-              <img src={OLESYA_AVATAR} alt="Олеся" className="w-10 h-10 rounded-full object-cover border-2 border-pink-300" />
-              <div className="text-left">
-                <p className="font-medium text-sm">Олеся</p>
-                <p className="text-xs text-muted-foreground">25 лет, Москва</p>
-              </div>
-            </button>
-            <button
-              onClick={() => handleAssistantChange('dima')}
-              className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                preferredAssistant === 'dima'
-                  ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/20'
-                  : 'border-border hover:border-blue-200'
-              }`}
-            >
-              <img src={DIMA_AVATAR} alt="Дима" className="w-10 h-10 rounded-full object-cover border-2 border-blue-300" />
-              <div className="text-left">
-                <p className="font-medium text-sm">Дима</p>
-                <p className="text-xs text-muted-foreground">35 лет, Москва</p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="contact-price" className="text-base font-medium">
-              Монетизация контактов
-            </Label>
-            <p className="text-sm text-muted-foreground mt-1">
-              Укажите, за сколько токенов LOVE вы готовы поделиться своими контактами (телефон, Telegram, Instagram). Если 0 — контакты доступны всем бесплатно.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Input
-              id="contact-price"
-              type="number"
-              min="0"
-              value={contactPrice}
-              onChange={(e) => handleContactPriceChange(parseInt(e.target.value) || 0)}
-              className="flex-1"
-            />
-            <span className="text-sm font-medium whitespace-nowrap">токенов LOVE</span>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t space-y-3">
-          <div className="flex items-center gap-2">
-            <Icon name="ShieldCheck" size={18} className="text-emerald-600" />
-            <Label className="text-base font-medium">Финансовый пароль</Label>
-            {hasFinPass && (
-              <span className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full font-medium">Установлен</span>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Защищает переводы токенов. Требуется при каждой отправке.
-          </p>
-
-          {finPassMode === 'idle' && (
-            <div className="flex gap-2">
-              {!hasFinPass ? (
-                <Button size="sm" variant="outline" className="gap-1 border-emerald-400 text-emerald-700 hover:bg-emerald-50" onClick={() => setFinPassMode('set')}>
-                  <Icon name="Plus" size={14} />
-                  Установить
-                </Button>
-              ) : (
-                <>
-                  <Button size="sm" variant="outline" className="gap-1" onClick={() => setFinPassMode('change')}>
-                    <Icon name="Pencil" size={14} />
-                    Изменить
-                  </Button>
-                  <Button size="sm" variant="outline" className="gap-1 text-orange-600 border-orange-300 hover:bg-orange-50" onClick={() => setFinPassMode('reset')}>
-                    <Icon name="RotateCcw" size={14} />
-                    Сбросить
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
-
-          {(finPassMode === 'set' || finPassMode === 'change' || finPassMode === 'reset') && (
-            <div className="space-y-3 p-4 bg-muted/40 rounded-xl border">
-              <p className="text-sm font-medium">
-                {finPassMode === 'set' && 'Новый финансовый пароль'}
-                {finPassMode === 'change' && 'Изменение пароля'}
-                {finPassMode === 'reset' && 'Сброс пароля (новый пароль)'}
-              </p>
-              {finPassMode === 'change' && (
-                <Input
-                  type="password"
-                  placeholder="Текущий пароль"
-                  value={finPassCurrent}
-                  onChange={e => setFinPassCurrent(e.target.value)}
-                  className="h-11"
-                />
-              )}
-              <Input
-                type="password"
-                placeholder="Новый пароль (мин. 4 символа)"
-                value={finPassNew}
-                onChange={e => setFinPassNew(e.target.value)}
-                className="h-11"
-              />
-              <Input
-                type="password"
-                placeholder="Повторите пароль"
-                value={finPassConfirm}
-                onChange={e => setFinPassConfirm(e.target.value)}
-                className="h-11"
-              />
-              <div className="flex gap-2">
-                <Button onClick={handleFinPassSubmit} disabled={finPassLoading} className="flex-1 h-11">
-                  {finPassLoading ? <Icon name="Loader2" size={16} className="animate-spin mr-2" /> : <Icon name="Check" size={16} className="mr-2" />}
-                  Сохранить
-                </Button>
-                <Button variant="ghost" onClick={resetFinPassForm} className="h-11">
-                  Отмена
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+        <SettingsFinancialPassword />
       </div>
     </div>
   );
