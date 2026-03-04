@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -11,6 +12,7 @@ import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileActions from '@/components/profile/ProfileActions';
 import ProfileContact from '@/components/profile/ProfileContact';
 import HoroscopeWidget from '@/components/horoscope/HoroscopeWidget';
+import GiftsDialog from '@/components/profile/GiftsDialog';
 import { ProfileFormData } from './ProfileDataProvider';
 
 interface ProfileContentProps {
@@ -54,12 +56,16 @@ const ProfileContent = ({
   loadPhotos,
   navigate
 }: ProfileContentProps) => {
+  const [giftsOpen, setGiftsOpen] = useState(false);
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <Navigation />
       
+      <GiftsDialog open={giftsOpen} onOpenChange={setGiftsOpen} userId={user?.id} />
+
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4">
           <Card className="max-w-5xl mx-auto rounded-3xl border-2 shadow-2xl overflow-hidden">
@@ -126,6 +132,15 @@ const ProfileContent = ({
                   >
                     <Icon name="Heart" size={20} />
                     Желания
+                  </Button>
+
+                  <Button
+                    onClick={() => setGiftsOpen(true)}
+                    variant="outline"
+                    className="w-full gap-2 rounded-xl h-12 border-purple-300 text-purple-600 hover:bg-purple-50"
+                  >
+                    <Icon name="Gift" size={20} />
+                    Подарки
                   </Button>
 
                   <Button 
