@@ -137,7 +137,6 @@ const Navigation = () => {
 
   const mainNavItems = [
     { path: '/dating', label: 'Знакомства', icon: 'Heart' },
-    { path: '/ads', label: 'LIVE', icon: 'Radio', pulse: true },
     { path: '/services', label: 'Услуги', icon: 'Briefcase' },
     { path: '/events', label: 'Мероприятия', icon: 'Calendar' },
   ];

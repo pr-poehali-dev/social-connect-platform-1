@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import GiftPremiumDialog from './GiftPremiumDialog';
 import SendGiftDialog from './SendGiftDialog';
+import InviteWishesDialog from './InviteWishesDialog';
 
 interface ProfileActionsProps {
   isOwnProfile: boolean;
@@ -27,6 +28,7 @@ const ProfileActions = ({
 }: ProfileActionsProps) => {
   const [showGiftDialog, setShowGiftDialog] = useState(false);
   const [showSendGiftDialog, setShowSendGiftDialog] = useState(false);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
 
   if (isOwnProfile) {
     return (
@@ -51,6 +53,16 @@ const ProfileActions = ({
           <Icon name="MessageCircle" size={20} className="mr-2" />
           Написать
         </Button>
+
+        <Button
+          onClick={() => setShowInviteDialog(true)}
+          variant="outline"
+          className="w-full rounded-xl h-12 text-base font-semibold border-pink-400 text-pink-600 hover:bg-pink-50"
+        >
+          <Icon name="Heart" size={20} className="mr-2" />
+          Пригласить
+        </Button>
+
         {!isFriend && !requestSent ? (
           <Button 
             onClick={onAddFriend}
@@ -97,6 +109,12 @@ const ProfileActions = ({
           </Button>
         </div>
       </div>
+
+      <InviteWishesDialog
+        open={showInviteDialog}
+        onOpenChange={setShowInviteDialog}
+        profileName={recipientName || 'пользователя'}
+      />
 
       {recipientId && recipientName && (
         <>

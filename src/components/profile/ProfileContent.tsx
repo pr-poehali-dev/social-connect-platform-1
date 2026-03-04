@@ -120,6 +120,15 @@ const ProfileContent = ({
                   />
 
                   <Button 
+                    onClick={() => navigate('/wishes')}
+                    variant="outline" 
+                    className="w-full gap-2 rounded-xl h-12 border-pink-300 text-pink-600 hover:bg-pink-50"
+                  >
+                    <Icon name="Heart" size={20} />
+                    Желания
+                  </Button>
+
+                  <Button 
                     onClick={() => navigate('/referral')}
                     variant="outline" 
                     className="w-full gap-2 rounded-xl h-12"
