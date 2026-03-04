@@ -1,0 +1,1 @@
+UPDATE t_p19021063_social_connect_platf.services SET is_active = false WHERE name = 'Test User' AND title IS NULL;

@@ -5,7 +5,7 @@ from psycopg2.extras import RealDictCursor
 import jwt as pyjwt
 import base64
 import boto3
-# v3: fix user_id from token + debug logging
+# v4: fix schema prefix for INSERT + user lookup
 
 def verify_token(token: str) -> dict | None:
     if not token:
@@ -291,9 +291,15 @@ def handler(event: dict, context) -> dict:
             body = json.loads(event.get('body', '{}'))
             print(f"[DEBUG] POST service: user_id={user_id}, payload_keys={list(payload.keys())}, body_keys={list(body.keys())}")
             
-            cursor.execute(f"SELECT first_name, last_name FROM users WHERE id = {escape_sql(user_id)}")
+            schema = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
+            cursor.execute(f"SELECT first_name, last_name FROM {schema}.users WHERE id = {escape_sql(user_id)}")
             user_data = cursor.fetchone()
-            user_name = f"{user_data['first_name']} {user_data['last_name']}" if user_data else 'User'
+            if user_data:
+                first = user_data['first_name'] or ''
+                last = user_data['last_name'] or ''
+                user_name = f"{first} {last}".strip() or 'User'
+            else:
+                user_name = 'User'
             
             title = escape_sql(body.get('title', ''))
             description = escape_sql(body.get('description', ''))
@@ -307,7 +313,7 @@ def handler(event: dict, context) -> dict:
             is_online = escape_sql(body.get('is_online', False))
             
             cursor.execute(f'''
-                INSERT INTO services (user_id, name, title, description, price, price_list, category_id, subcategory_id, city_id, district, is_online, is_active)
+                INSERT INTO {schema}.services (user_id, name, title, description, price, price_list, category_id, subcategory_id, city_id, district, is_online, is_active)
                 VALUES ({escape_sql(user_id)}, {escape_sql(user_name)}, {title}, {description}, {price}, {price_list_json}::jsonb, {category_id}, {subcategory_id}, {city_id}, {district}, {is_online}, TRUE)
                 RETURNING id
             ''')
@@ -328,7 +334,7 @@ def handler(event: dict, context) -> dict:
                         key = f'services/{service_id}/portfolio_{idx}.jpg'
                         s3.put_object(Bucket='files', Key=key, Body=img_bytes, ContentType='image/jpeg')
                         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
-                        cursor.execute(f"INSERT INTO service_portfolio (service_id, image_url) VALUES ({escape_sql(service_id)}, {escape_sql(cdn_url)})")
+                        cursor.execute(f"INSERT INTO {schema}.service_portfolio (service_id, image_url) VALUES ({escape_sql(service_id)}, {escape_sql(cdn_url)})")
                     except Exception as e:
                         print(f'Error uploading image: {e}')
             
