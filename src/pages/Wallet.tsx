@@ -205,6 +205,25 @@ const Wallet = () => {
     }
 
     setLoading(true);
+
+    try {
+      const verifyResponse = await fetch(FINANCIAL_PASSWORD_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+        body: JSON.stringify({ action: 'verify', password: financialPassword })
+      });
+      const verifyData = await verifyResponse.json();
+      if (!verifyData.valid) {
+        toast({ title: 'Неверный финансовый пароль', description: 'Проверьте пароль и попробуйте снова', variant: 'destructive' });
+        setLoading(false);
+        return;
+      }
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось проверить финансовый пароль', variant: 'destructive' });
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(TRANSFER_API_URL, {
         method: 'POST',
