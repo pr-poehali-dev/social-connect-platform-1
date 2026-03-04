@@ -83,12 +83,12 @@ const DepositTab = ({ amount, setAmount, loading, handleDeposit }: DepositTabPro
         <div className="grid gap-3">
           <Button 
             variant="outline" 
-            className="w-full justify-start h-14 hover:border-primary"
-            onClick={handleDeposit}
-            disabled={loading}
+            className="w-full justify-start h-14 hover:border-primary opacity-60 cursor-not-allowed"
+            disabled
           >
             <Icon name="CreditCard" className="mr-3 h-5 w-5" />
             <span className="font-medium">Банковская карта</span>
+            <span className="ml-auto text-xs text-muted-foreground">Скоро</span>
           </Button>
 
           {cryptoOptions.map((crypto) => (
