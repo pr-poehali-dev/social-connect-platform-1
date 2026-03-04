@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import func2url from '@/../func2url.json';
+
+const GET_GIFTS_URL = 'https://functions.poehali.dev/f4befd24-1ac3-48f4-a9b7-9cccdee173eb';
 
 interface Gift {
   id: number;
@@ -34,10 +35,8 @@ const GiftsDialog = ({ open, onOpenChange, userId }: GiftsDialogProps) => {
   const loadGifts = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('access_token');
-    const url = (func2url as Record<string, string>)['get-gifts'];
-    if (!url) return;
     try {
-      const res = await fetch(`${url}?user_id=${userId}`, {
+      const res = await fetch(`${GET_GIFTS_URL}?user_id=${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -56,10 +55,8 @@ const GiftsDialog = ({ open, onOpenChange, userId }: GiftsDialogProps) => {
   const toggleVisibility = async (gift: Gift) => {
     setTogglingId(gift.id);
     const token = localStorage.getItem('access_token');
-    const url = (func2url as Record<string, string>)['get-gifts'];
-    if (!url) return;
     try {
-      const res = await fetch(url, {
+      const res = await fetch(GET_GIFTS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ gift_id: gift.id, is_public: !gift.is_public }),
