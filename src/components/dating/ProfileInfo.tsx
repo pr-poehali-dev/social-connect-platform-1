@@ -100,6 +100,8 @@ const ProfileInfo = ({ profile, isOwnProfile = false, contactPrice = 0, currentU
               <span>Дети: {{
                 'no': 'Нет',
                 'yes': 'Есть',
+                'yes_living_together': 'Есть, живут со мной',
+                'yes_living_separately': 'Есть, живут отдельно',
                 'want': 'Хочу в будущем',
                 'not_want': 'Не хочу'
               }[profile.children] || profile.children}</span>
@@ -148,7 +150,10 @@ const ProfileInfo = ({ profile, isOwnProfile = false, contactPrice = 0, currentU
                 'dating': 'Свидания',
                 'serious_relationship': 'Серьёзные отношения',
                 'marriage': 'Брак',
-                'casual': 'Неформальное общение'
+                'casual': 'Неформальное общение',
+                'communication': 'Общение',
+                'relationship': 'Отношения',
+                'fun': 'Флирт и развлечения'
               }[profile.dating_goal] || profile.dating_goal}</span>
             </div>
           )}
