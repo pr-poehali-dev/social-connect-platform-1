@@ -69,7 +69,7 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
-    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+    schema = os.environ.get('MAIN_DB_SCHEMA', 't_p19021063_social_connect_platf')
     conn = psycopg2.connect(dsn)
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     params = event.get('queryStringParameters') or {}

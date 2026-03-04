@@ -1,0 +1,1 @@
+ALTER TABLE t_p19021063_social_connect_platf.conversations DROP CONSTRAINT IF EXISTS conversations_type_check;
