@@ -116,41 +116,7 @@ const ProfileContent = ({
                     }}
                   />
 
-                  <Button
-                    onClick={() => navigate('/my-photos')}
-                    variant="outline"
-                    className="w-full gap-2 rounded-xl h-12"
-                  >
-                    <Icon name="Images" size={20} />
-                    Фото
-                  </Button>
 
-                  <Button 
-                    onClick={() => navigate('/wishes')}
-                    variant="outline" 
-                    className="w-full gap-2 rounded-xl h-12 border-pink-300 text-pink-600 hover:bg-pink-50"
-                  >
-                    <Icon name="Heart" size={20} />
-                    Желания
-                  </Button>
-
-                  <Button
-                    onClick={() => setGiftsOpen(true)}
-                    variant="outline"
-                    className="w-full gap-2 rounded-xl h-12 border-purple-300 text-purple-600 hover:bg-purple-50"
-                  >
-                    <Icon name="Gift" size={20} />
-                    Подарки
-                  </Button>
-
-                  <Button 
-                    onClick={() => navigate('/referral')}
-                    variant="outline" 
-                    className="w-full gap-2 rounded-xl h-12"
-                  >
-                    <Icon name="Users" size={20} />
-                    Партнёрская программа
-                  </Button>
 
                   {!editMode && (
                     <HoroscopeWidget />

@@ -384,7 +384,29 @@ const Navigation = () => {
             <Icon name="X" size={20} />
           </Button>
         </div>
-        <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-col gap-2 p-4 overflow-y-auto flex-1">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-1">Мой профиль</p>
+          {[
+            { path: '/my-photos', label: 'Мои фото', icon: 'Images' },
+            { path: '/friends', label: 'Мои друзья', icon: 'Users' },
+            { path: '/my-ads', label: 'Мои объявления', icon: 'MessageSquare' },
+            { path: '/my-services', label: 'Мои услуги', icon: 'Briefcase' },
+            { path: '/my-events', label: 'Мои мероприятия', icon: 'Calendar' },
+            { path: '/wishes', label: 'Мои желания', icon: 'Heart' },
+            { path: '/referral', label: 'Партнёрская программа', icon: 'Users2' },
+          ].map((item) => (
+            <Link key={item.path} to={item.path} onClick={() => setIsSidebarOpen(false)}>
+              <Button
+                variant={location.pathname === item.path ? 'default' : 'ghost'}
+                className="w-full justify-start gap-3 text-base h-11"
+              >
+                <Icon name={item.icon} size={18} />
+                {item.label}
+              </Button>
+            </Link>
+          ))}
+          <div className="pt-2 border-t border-border mt-1 mb-1" />
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-1">Разделы</p>
           {sidebarItems.map((item) => (
             <Link key={item.path} to={item.path} onClick={() => setIsSidebarOpen(false)}>
               <Button
