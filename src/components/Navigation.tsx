@@ -186,15 +186,6 @@ const Navigation = () => {
                   </Button>
                 </Link>
               ))}
-              <Button
-                variant={sidebarItems.some(i => location.pathname === i.path) ? 'default' : 'ghost'}
-                size="icon"
-                className="h-9 w-9"
-                title="Ещё"
-                onClick={() => setIsSidebarOpen(true)}
-              >
-                <Icon name="LayoutGrid" size={18} />
-              </Button>
               <div className="w-px h-6 bg-border mx-1" />
               {bottomNavItems.map((item) => {
                 return (
