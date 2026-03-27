@@ -116,6 +116,15 @@ const ProfileContent = ({
                     }}
                   />
 
+                  <Button
+                    onClick={() => navigate('/my-photos')}
+                    variant="outline"
+                    className="w-full gap-2 rounded-xl h-12"
+                  >
+                    <Icon name="Images" size={20} />
+                    Фото
+                  </Button>
+
                   <Button 
                     onClick={() => navigate('/wishes')}
                     variant="outline" 
