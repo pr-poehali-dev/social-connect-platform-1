@@ -145,7 +145,7 @@ const SelectCity = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-purple-100 dark:border-slate-700">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4 h-16">

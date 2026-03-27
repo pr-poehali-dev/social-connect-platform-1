@@ -201,7 +201,7 @@ const PokerGame = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400" />
       </div>
     );
@@ -222,7 +222,7 @@ const PokerGame = () => {
   const canCheck = isMyTurn && myPlayer && game && myPlayer.current_bet >= game.current_bet;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-emerald-500/20 px-4 py-3">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">

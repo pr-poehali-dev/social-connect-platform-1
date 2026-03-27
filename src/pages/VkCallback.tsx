@@ -36,7 +36,7 @@ const VkCallback = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <Card className="max-w-md mx-auto rounded-3xl border-2 shadow-2xl">
         <CardContent className="p-12 text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-[#0077FF] to-[#0066DD] flex items-center justify-center animate-pulse">

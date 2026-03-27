@@ -78,7 +78,7 @@ const AdminLogs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-background">
       <nav className="bg-white/10 backdrop-blur-lg border-b border-white/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">

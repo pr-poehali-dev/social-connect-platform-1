@@ -140,7 +140,7 @@ const CallHistory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <main className="pt-32 pb-24 lg:pt-24 lg:pb-12">

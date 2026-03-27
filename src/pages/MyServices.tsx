@@ -122,7 +122,7 @@ const MyServices = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 pb-20">
+      <div className="min-h-screen bg-background pb-20">
         <Navigation />
         <div className="p-6 flex justify-center items-center min-h-[60vh]">
           <Icon name="Loader2" className="animate-spin" size={32} />
@@ -132,7 +132,7 @@ const MyServices = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <Navigation />
 
       <div className="p-6 max-w-4xl mx-auto">

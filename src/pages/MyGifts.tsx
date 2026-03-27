@@ -72,7 +72,7 @@ const MyGifts = () => {
   const privateGifts = gifts.filter(g => !g.is_public);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
         <div className="container mx-auto px-4 max-w-3xl">

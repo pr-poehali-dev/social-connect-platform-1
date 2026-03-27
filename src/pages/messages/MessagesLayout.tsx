@@ -51,7 +51,7 @@ export default function MessagesLayout({
   onSosResolve,
 }: MessagesLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:overflow-auto overflow-y-auto overflow-x-hidden">
+    <div className="min-h-screen bg-background lg:overflow-auto overflow-y-auto overflow-x-hidden">
       <Navigation />
 
       <main className="pt-20 pb-24 lg:pt-24 lg:pb-12">
@@ -71,7 +71,7 @@ export default function MessagesLayout({
               </div>
 
               {selectedChat && (
-                <div className="fixed inset-0 z-50 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:col-span-2 pt-0 pb-0 lg:pt-0 lg:pb-0">
+                <div className="fixed inset-0 z-50 bg-background lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:col-span-2 pt-0 pb-0 lg:pt-0 lg:pb-0">
                   <div className="h-full lg:px-0">
                     <ChatWindow
                       currentChat={currentChat}

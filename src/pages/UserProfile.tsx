@@ -47,7 +47,7 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <main className="pt-24 pb-12">
           <div className="container mx-auto px-4">
@@ -62,7 +62,7 @@ const UserProfile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <main className="pt-24 pb-12">
           <div className="container mx-auto px-4">
@@ -88,7 +88,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <main className="pt-24 pb-12">

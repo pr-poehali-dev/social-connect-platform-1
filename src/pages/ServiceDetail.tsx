@@ -86,7 +86,7 @@ const ServiceDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex justify-center items-center pt-32">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
@@ -97,7 +97,7 @@ const ServiceDetail = () => {
 
   if (error || !userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="pt-32 text-center px-4">
           <Icon name="UserX" size={48} className="mx-auto mb-4 text-muted-foreground" />
@@ -116,7 +116,7 @@ const ServiceDetail = () => {
   const allPortfolio = services.flatMap(s => s.portfolio || []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-background">
       <Navigation />
 
       <main className="pt-24 pb-24 lg:pb-12">
