@@ -399,9 +399,8 @@ const Navigation = () => {
             <Link key={item.path} to={item.path} onClick={() => setIsSidebarOpen(false)}>
               <Button
                 variant={location.pathname === item.path ? 'default' : 'ghost'}
-                className="w-full justify-start gap-3 text-base h-11"
+                className="w-full justify-start text-base h-11"
               >
-                <Icon name={item.icon} size={18} />
                 {item.label}
               </Button>
             </Link>
@@ -412,9 +411,8 @@ const Navigation = () => {
             <Link key={item.path} to={item.path} onClick={() => setIsSidebarOpen(false)}>
               <Button
                 variant={location.pathname === item.path || location.pathname.startsWith(item.path + '/') ? 'default' : 'ghost'}
-                className="w-full justify-start gap-3 text-base h-12"
+                className="w-full justify-start text-base h-12"
               >
-                <Icon name={item.icon} size={20} />
                 {item.label}
               </Button>
             </Link>
