@@ -11,9 +11,10 @@ interface SosButtonProps {
   activeSosConversationId?: number | null;
   onSosEnded?: () => void;
   onBeforeOpen?: () => void;
+  label?: string;
 }
 
-export default function SosButton({ token, onSosCreated, onToast, activeSosConversationId, onSosEnded, onBeforeOpen }: SosButtonProps) {
+export default function SosButton({ token, onSosCreated, onToast, activeSosConversationId, onSosEnded, onBeforeOpen, label }: SosButtonProps) {
   const [open, setOpen] = useState(false);
   const watchIdRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -101,22 +102,35 @@ export default function SosButton({ token, onSosCreated, onToast, activeSosConve
 
   const isTracking = !!activeSosConversationId;
 
+  const handleClick = () => {
+    if (isTracking) return;
+    if (onBeforeOpen) { onBeforeOpen(); setTimeout(() => setOpen(true), 320); }
+    else { setOpen(true); }
+  };
+
   return (
     <>
-      <button
-        className={`rounded-full w-10 h-10 flex items-center justify-center transition-colors border-2 ${
-          isTracking
-            ? 'bg-red-600 border-red-700 animate-pulse'
-            : 'bg-red-50 hover:bg-red-100 border-red-400'
-        }`}
-        onClick={() => { if (!isTracking) { if (onBeforeOpen) { onBeforeOpen(); setTimeout(() => setOpen(true), 320); } else { setOpen(true); } } }}
-        title={isTracking ? 'SOS активен — отслеживается местоположение' : 'SOS — Нужна помощь'}
-        type="button"
-      >
-        <span className={`font-bold text-xs leading-none ${isTracking ? 'text-white' : 'text-red-600'}`}>
-          SOS
-        </span>
-      </button>
+      {label ? (
+        <button
+          className="flex items-center gap-3 px-1 w-full text-left"
+          onClick={handleClick}
+          type="button"
+        >
+          <span className={`rounded-full w-10 h-10 flex items-center justify-center border-2 flex-shrink-0 ${isTracking ? 'bg-red-600 border-red-700 animate-pulse' : 'bg-red-50 hover:bg-red-100 border-red-400'}`}>
+            <span className={`font-bold text-xs leading-none ${isTracking ? 'text-white' : 'text-red-600'}`}>SOS</span>
+          </span>
+          <span className="text-sm font-medium text-red-600">{label}</span>
+        </button>
+      ) : (
+        <button
+          className={`rounded-full w-10 h-10 flex items-center justify-center transition-colors border-2 ${isTracking ? 'bg-red-600 border-red-700 animate-pulse' : 'bg-red-50 hover:bg-red-100 border-red-400'}`}
+          onClick={handleClick}
+          title={isTracking ? 'SOS активен — отслеживается местоположение' : 'SOS — Нужна помощь'}
+          type="button"
+        >
+          <span className={`font-bold text-xs leading-none ${isTracking ? 'text-white' : 'text-red-600'}`}>SOS</span>
+        </button>
+      )}
       <SosDialog open={open} onClose={() => setOpen(false)} onSubmit={handleSubmit} />
     </>
   );
