@@ -179,7 +179,15 @@ const MyProfile = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <Button 
+                  onClick={() => navigate('/my-photos')}
+                  variant="outline"
+                  className="h-20 flex-col gap-2 rounded-2xl"
+                >
+                  <Icon name="Images" size={24} />
+                  <span className="text-sm font-medium">Фото</span>
+                </Button>
                 <Button 
                   onClick={() => navigate('/friends')}
                   variant="outline"

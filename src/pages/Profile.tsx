@@ -109,7 +109,6 @@ const Profile = () => {
         setSettingsOpen={setSettingsOpen}
         formData={formData}
         setFormData={setFormData}
-        photos={photos}
         verificationStatus={verificationStatus}
         availableInterests={availableInterests}
         stats={stats}
@@ -119,7 +118,6 @@ const Profile = () => {
         handleLogout={handleLogout}
         handleDeleteAccount={handleDeleteAccount}
         toggleInterest={toggleInterest}
-        loadPhotos={loadPhotos}
         navigate={navigate}
       />
 

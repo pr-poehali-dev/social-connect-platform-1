@@ -63,6 +63,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Horoscope from "./pages/Horoscope";
 import MissLoveis from "./pages/MissLoveis";
 import Wishes from "./pages/Wishes";
+import MyPhotos from "./pages/MyPhotos";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,7 @@ const App = () => {
           <Route path="/ref/:code" element={<Register />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/wishes" element={<ProtectedRoute><Wishes /></ProtectedRoute>} />
+          <Route path="/my-photos" element={<ProtectedRoute><MyPhotos /></ProtectedRoute>} />
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
           <Route path="/dating/olesya-ai" element={<ProtectedRoute><OlesyaProfile /></ProtectedRoute>} />

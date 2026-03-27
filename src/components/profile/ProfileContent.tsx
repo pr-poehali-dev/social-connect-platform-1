@@ -6,7 +6,6 @@ import Icon from '@/components/ui/icon';
 import ProfileEditForm from '@/components/profile/ProfileEditForm';
 import ProfileViewMode from '@/components/profile/ProfileViewMode';
 import ProfileStats from '@/components/profile/ProfileStats';
-import PhotoGallery from '@/components/profile/PhotoGallery';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileActions from '@/components/profile/ProfileActions';
@@ -22,7 +21,6 @@ interface ProfileContentProps {
   setSettingsOpen: (open: boolean) => void;
   formData: ProfileFormData;
   setFormData: (data: ProfileFormData) => void;
-  photos: any[];
   verificationStatus: 'none' | 'pending' | 'approved' | 'rejected';
   availableInterests: string[];
   stats: any[];
@@ -32,7 +30,6 @@ interface ProfileContentProps {
   handleLogout: () => void;
   handleDeleteAccount: () => void;
   toggleInterest: (interest: string) => void;
-  loadPhotos: () => void;
   navigate: any;
 }
 
@@ -43,7 +40,6 @@ const ProfileContent = ({
   setSettingsOpen,
   formData,
   setFormData,
-  photos,
   verificationStatus,
   availableInterests,
   stats,
@@ -53,7 +49,6 @@ const ProfileContent = ({
   handleLogout,
   handleDeleteAccount,
   toggleInterest,
-  loadPhotos,
   navigate
 }: ProfileContentProps) => {
   const [giftsOpen, setGiftsOpen] = useState(false);
@@ -173,14 +168,6 @@ const ProfileContent = ({
                       <ProfileStats stats={stats} />
                     </div>
                   )}
-
-                  <div className="pt-6 border-t">
-                    <PhotoGallery 
-                      photos={photos}
-                      editMode={editMode}
-                      onPhotosUpdate={loadPhotos}
-                    />
-                  </div>
 
                   {!editMode && (
                     <div className="pt-6 border-t flex flex-col gap-3">
