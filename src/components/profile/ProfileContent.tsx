@@ -84,10 +84,6 @@ const ProfileContent = ({
                         <Icon name="Edit" size={20} />
                         Редактировать
                       </Button>
-                      <Button onClick={() => setSettingsOpen(true)} variant="outline" className="w-full gap-2 rounded-xl h-12">
-                        <Icon name="Settings" size={20} />
-                        Настройки
-                      </Button>
                     </div>
                   ) : (
                     <div className="flex gap-2 mt-4">
