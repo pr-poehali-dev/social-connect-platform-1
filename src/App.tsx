@@ -64,6 +64,7 @@ import Horoscope from "./pages/Horoscope";
 import MissLoveis from "./pages/MissLoveis";
 import Wishes from "./pages/Wishes";
 import MyPhotos from "./pages/MyPhotos";
+import MyGifts from "./pages/MyGifts";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,7 @@ const App = () => {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/wishes" element={<ProtectedRoute><Wishes /></ProtectedRoute>} />
           <Route path="/my-photos" element={<ProtectedRoute><MyPhotos /></ProtectedRoute>} />
+          <Route path="/my-gifts" element={<ProtectedRoute><MyGifts /></ProtectedRoute>} />
           <Route path="/:nickname" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/dating" element={<ProtectedRoute><Dating /></ProtectedRoute>} />
           <Route path="/dating/olesya-ai" element={<ProtectedRoute><OlesyaProfile /></ProtectedRoute>} />

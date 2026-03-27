@@ -393,6 +393,7 @@ const Navigation = () => {
             { path: '/my-services', label: 'Мои услуги', icon: 'Briefcase' },
             { path: '/my-events', label: 'Мои мероприятия', icon: 'Calendar' },
             { path: '/wishes', label: 'Мои желания', icon: 'Heart' },
+            { path: '/my-gifts', label: 'Мои подарки', icon: 'Gift' },
             { path: '/referral', label: 'Партнёрская программа', icon: 'Users2' },
           ].map((item) => (
             <Link key={item.path} to={item.path} onClick={() => setIsSidebarOpen(false)}>
