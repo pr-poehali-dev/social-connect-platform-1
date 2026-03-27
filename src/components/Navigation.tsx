@@ -154,7 +154,6 @@ const Navigation = () => {
     { path: '/notifications', label: 'Уведомления', icon: 'Bell' },
     { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
     { path: '/settings', label: 'Настройки', icon: 'Settings' },
-    { path: '/profile', label: 'Профиль', icon: 'User' },
   ];
 
   if (!isAuth) {
@@ -206,24 +205,29 @@ const Navigation = () => {
                       title={item.label}
                       className="h-9 w-9 relative"
                     >
-                    {item.path === '/profile' && avatarUrl ? (
-                      <img 
-                        src={avatarUrl} 
-                        alt="Профиль" 
-                        className="w-full h-full rounded-md object-cover"
-                      />
-                    ) : (
                       <Icon name={item.icon} size={16} />
-                    )}
-                    {item.path === '/messages' && unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </span>
-                    )}
+                      {item.path === '/messages' && unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
                     </Button>
                   </Link>
                 );
               })}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 overflow-hidden rounded-md"
+                title="Мой профиль"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Профиль" className="w-full h-full object-cover" />
+                ) : (
+                  <Icon name="User" size={16} />
+                )}
+              </Button>
             </div>
 
             <Button
