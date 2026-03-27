@@ -81,14 +81,30 @@ const Settings = () => {
     localStorage.setItem('soundEnabled', String(enabled));
   };
 
+  const updateProfilePrivacy = async (patch: { dating_visible?: boolean; share_location?: boolean; premium_only_messages?: boolean }) => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    try {
+      await fetch('https://functions.poehali.dev/a0d5be16-254f-4454-bc2c-5f3f3e766fcc', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(patch),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleDatingVisibilityToggle = (enabled: boolean) => {
     setDatingVisible(enabled);
     localStorage.setItem('datingVisible', String(enabled));
+    updateProfilePrivacy({ dating_visible: enabled });
   };
 
   const handleShareLocationToggle = (enabled: boolean) => {
     setShareLocation(enabled);
     localStorage.setItem('shareLocation', String(enabled));
+    updateProfilePrivacy({ share_location: enabled });
   };
 
   const handleThemeToggle = (enabled: boolean) => {
@@ -104,6 +120,7 @@ const Settings = () => {
   const handlePremiumOnlyToggle = (enabled: boolean) => {
     setPremiumOnly(enabled);
     localStorage.setItem('premiumOnly', String(enabled));
+    updateProfilePrivacy({ premium_only_messages: enabled });
   };
 
   const handleAnimateAvatarToggle = (enabled: boolean) => {
