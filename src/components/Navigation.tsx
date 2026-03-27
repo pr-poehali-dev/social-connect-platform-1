@@ -385,7 +385,6 @@ const Navigation = () => {
           </Button>
         </div>
         <div className="flex flex-col gap-2 p-4 overflow-y-auto flex-1">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-1">Мой профиль</p>
           <Link to="/profile" onClick={() => setIsSidebarOpen(false)}>
             <Button
               variant={location.pathname === '/profile' ? 'default' : 'ghost'}
