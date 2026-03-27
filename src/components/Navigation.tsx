@@ -424,7 +424,7 @@ const Navigation = () => {
               </Button>
             </Link>
           ))}
-          <div className="pt-2 border-t border-border mt-2">
+          <div className="pt-2 border-t border-border mt-2 flex flex-col gap-2">
             <div className="flex items-center gap-3 px-1">
               <SosButton
                 token={localStorage.getItem('access_token') || ''}
@@ -434,6 +434,19 @@ const Navigation = () => {
               />
               <span className="text-sm font-medium text-red-600">Нужна помощь</span>
             </div>
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-base h-11 text-muted-foreground hover:text-foreground gap-2"
+              onClick={() => {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user');
+                setIsSidebarOpen(false);
+                navigate('/login');
+              }}
+            >
+              <Icon name="LogOut" size={18} />
+              Выйти из аккаунта
+            </Button>
           </div>
         </div>
       </div>

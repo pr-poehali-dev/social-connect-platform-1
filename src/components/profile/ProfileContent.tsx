@@ -144,18 +144,7 @@ const ProfileContent = ({
                     </div>
                   )}
 
-                  {!editMode && (
-                    <div className="pt-6 border-t flex flex-col gap-3">
-                      <Button 
-                        onClick={handleLogout}
-                        variant="outline" 
-                        className="w-full gap-2 rounded-xl h-12"
-                      >
-                        <Icon name="LogOut" size={20} />
-                        Выйти из аккаунта
-                      </Button>
-                    </div>
-                  )}
+
                   
                   {editMode && (
                     <div className="pt-6 border-t">
