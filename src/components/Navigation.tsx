@@ -386,6 +386,14 @@ const Navigation = () => {
         </div>
         <div className="flex flex-col gap-2 p-4 overflow-y-auto flex-1">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-1">Мой профиль</p>
+          <Link to="/profile" onClick={() => setIsSidebarOpen(false)}>
+            <Button
+              variant={location.pathname === '/profile' ? 'default' : 'ghost'}
+              className="w-full justify-start text-base h-11 font-semibold"
+            >
+              Мой профиль
+            </Button>
+          </Link>
           {[
             { path: '/my-photos', label: 'Мои фото', icon: 'Images' },
             { path: '/friends', label: 'Мои друзья', icon: 'Users' },
