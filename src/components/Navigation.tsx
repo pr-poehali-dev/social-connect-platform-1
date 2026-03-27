@@ -153,6 +153,7 @@ const Navigation = () => {
     { path: '/messages', label: 'Сообщения', icon: 'MessageCircle', badge: unreadCount },
     { path: '/notifications', label: 'Уведомления', icon: 'Bell' },
     { path: '/wallet', label: 'Кошелёк', icon: 'Wallet' },
+    { path: '/settings', label: 'Настройки', icon: 'Settings' },
     { path: '/profile', label: 'Профиль', icon: 'User' },
   ];
 
