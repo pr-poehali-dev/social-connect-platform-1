@@ -379,7 +379,7 @@ const Navigation = () => {
         className={`fixed top-0 right-0 h-full w-72 z-[70] bg-white dark:bg-slate-900 border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <span className="font-semibold text-base">Ещё</span>
+          <span className="font-semibold text-base">Меню</span>
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
             <Icon name="X" size={20} />
           </Button>
