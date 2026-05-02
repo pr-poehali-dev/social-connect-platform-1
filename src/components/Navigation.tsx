@@ -271,18 +271,11 @@ const Navigation = () => {
               </Button>
             </Link>
           ))}
-          <Button
-            variant={sidebarItems.some(i => location.pathname === i.path) ? 'default' : 'ghost'}
-            className="flex-1 h-12 rounded-none border-b-2 border-transparent text-xs px-1"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <Icon name="LayoutGrid" size={16} />
-          </Button>
         </div>
       </div>
 
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-border pb-safe touch-none">
-        <div className="grid grid-cols-7 gap-1 px-2 py-2 overflow-x-hidden">
+        <div className="grid grid-cols-8 gap-1 px-2 py-2 overflow-x-hidden">
           {bottomNavItems.slice(0, 3).map((item) => {
             return (
               <Link key={item.path} to={item.path}>
@@ -341,6 +334,16 @@ const Navigation = () => {
               </Link>
             );
           })}
+
+          <Button
+            variant={sidebarItems.some(i => location.pathname === i.path) ? 'default' : 'ghost'}
+            size="icon"
+            className="h-12 w-full relative"
+            title="Меню"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Icon name="Menu" size={24} />
+          </Button>
         </div>
       </div>
 
